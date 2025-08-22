@@ -2,3 +2,7 @@
 	path = HexedUT/Sounds
 	url = git@github.com:hexengraf/HexedUTSounds.git
 	branch = master
+[submodule "HexedUTComp"]
+	path = HexedUTComp
+	url = git@github.com:hexengraf/HexedUTComp.git
+	branch = master
