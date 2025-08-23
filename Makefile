@@ -35,13 +35,13 @@ $(foreach p,$(packages),$(eval $p$($p.version).deps:=$p/make.ini $(wildcard $p/C
 
 .SECONDEXPANSION:
 .ONESHELL:
-.PHONY: all compressed relese clean distclean
+.PHONY: all compressed release clean distclean
 
 all: $(.targets)
 
 compressed: $(.compressedfiles)
 
-relese: $(.archives)
+release: $(.archives)
 
 clean:
 	@rm -rf $(.outdir)/System
