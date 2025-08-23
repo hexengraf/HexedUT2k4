@@ -17,36 +17,67 @@
 
 packages:=HexedUT HexedUTComp
 
-.sysdir:=System
-.ufiles:=$(packages:%=$(.sysdir)/%.u)
-.uclfiles:=$(packages:%=$(.sysdir)/%.ucl)
-.intfiles:=$(packages:%=$(.sysdir)/%.int)
+.outdir:=build
+.versionfiles:=$(packages:%=$(.outdir)/%.make)
+
+-include $(.versionfiles)
+
+.versionedpackages:=$(foreach p,$(packages),$p$($p.version))
+.archives:=$(.versionedpackages:%=$(.outdir)/%.7z)
+.ufiles:=$(.versionedpackages:%=$(.outdir)/System/%.u)
+.uclfiles:=$(.versionedpackages:%=$(.outdir)/System/%.ucl)
+.intfiles:=$(.versionedpackages:%=$(.outdir)/System/%.int)
 .compressedfiles:=$(.ufiles:%=%.uz2)
 .targets:=$(.ufiles) $(.uclfiles) $(.intfiles)
 
-$(foreach p,$(packages),$(eval $p.sources:=$(wildcard $p/Classes/*.uc)))
+$(foreach p,$(packages),$(if $($p.version),$(eval $p$($p.version).name:=$p)))
+$(foreach p,$(packages),$(eval $p$($p.version).deps:=$p/make.ini $(wildcard $p/Classes/*.uc)))
 
 .SECONDEXPANSION:
 .ONESHELL:
-.PHONY: all compressed clean
+.PHONY: all compressed relese clean distclean
 
 all: $(.targets)
 
-$(.sysdir)/%.u $(.sysdir)/%.ucl: $$($$*.sources)
-	rm -f $@
-	cd System
-	wine UCC.exe make -ini=../$*/make.ini
-
-$(.sysdir)/%.int: $(.sysdir)/%.u
-	rm -f $@
-	cd System
-	wine UCC.exe dumpint $*.u
-
-$(.sysdir)/%.uz2: $(.sysdir)/%
-	cd System
-	wine UCC.exe compress $*
-
 compressed: $(.compressedfiles)
 
+relese: $(.archives)
+
 clean:
-	rm -f $(.targets) $(.compressedfiles)
+	@rm -rf $(.outdir)/System
+	@rm -f $(.targets:$(.outdir)/%=%)
+
+distclean: clean
+	@rm -rf $(.outdir)
+
+$(.outdir)/System/%.u $(.outdir)/System/%.ucl: $$($$*.deps)
+	@mkdir -p $(@D)
+	@$(if $($*.name),ln -s $($*.name) $*)
+	@rm -f $@
+	@cd System
+	wine UCC.exe make -ini=../$*/make.ini
+	@cd ../
+	@$(if $($*.name),rm $*)
+	@cp System/$*.u $(@D)
+	@cp System/$*.ucl $(@D)
+
+$(.outdir)/System/%.int: $(.outdir)/System/%.u
+	@mkdir -p $(@D)
+	@rm -f $@
+	@cd System
+	wine UCC.exe dumpint $*.u
+	@cd ../
+	@cp System/$*.int $@
+
+$(.outdir)/System/%.u.uz2: $(.outdir)/System/%.u
+	@cd System
+	wine UCC.exe compress $*
+	@cd ../
+	@cp System/$*.u.uz2 $@
+
+$(.outdir)/%.7z: $(.outdir)/System/%.u.uz2
+	@7z a -m0=lzma2 -mmt=8 -mx=9 $@ System/$*.*
+
+$(.versionfiles): $(.outdir)/%.make: %/make.ini
+	@mkdir -p $(@D)
+	@sed -nr "s/.*=[ ]*$*([vV]?[.0-9]*[a-zA-Z]?)$$/$*.version:=\1/gp" $*/make.ini > $@
