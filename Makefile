@@ -53,7 +53,7 @@ distclean: clean
 $(.outdir)/System/%.u $(.outdir)/System/%.ucl: $$($$*.deps)
 	@mkdir -p $(@D)
 	@$(if $($*.name),ln -s $($*.name) $*)
-	@rm -f $@
+	@rm -f System/$*.{u,ucl}
 	@cd System
 	wine UCC.exe make -ini=../$*/make.ini
 	@cd ../
@@ -63,19 +63,21 @@ $(.outdir)/System/%.u $(.outdir)/System/%.ucl: $$($$*.deps)
 
 $(.outdir)/System/%.int: $(.outdir)/System/%.u
 	@mkdir -p $(@D)
-	@rm -f $@
+	@rm -f System/$*.int
 	@cd System
 	wine UCC.exe dumpint $*.u
 	@cd ../
-	@cp System/$*.int $@
+	@cp System/$*.int $(@D)
 
 $(.outdir)/System/%.u.uz2: $(.outdir)/System/%.u
+	@rm -f System/$*.u.uz2
 	@cd System
-	wine UCC.exe compress $*
+	wine UCC.exe compress $*.u
 	@cd ../
-	@cp System/$*.u.uz2 $@
+	@cp System/$*.u.uz2 $(@D)
 
 $(.outdir)/%.7z: $(.outdir)/System/%.u.uz2
+	@rm -f $@
 	@7z a -m0=lzma2 -mmt=8 -mx=9 $@ System/$*.*
 
 $(.versionfiles): $(.outdir)/%.make: %/make.ini
