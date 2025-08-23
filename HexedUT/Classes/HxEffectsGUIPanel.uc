@@ -10,6 +10,7 @@ var automated moSlider sl_HSVolume;
 var automated moComboBox cb_HSPitchType;
 
 var automated moCheckBox ch_bDamageNumbers;
+var automated moComboBox cb_DNStyle;
 var automated moFloatEdit nu_DNPosX;
 var automated moFloatEdit nu_DNPosY;
 
@@ -36,6 +37,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     Sections[SECTION_HS].ManageComponent(cb_HSPitchType);
 
     Sections[SECTION_DN].ManageComponent(ch_bDamageNumbers);
+    Sections[SECTION_DN].ManageComponent(cb_DNStyle);
     Sections[SECTION_DN].ManageComponent(nu_DNPosX);
     Sections[SECTION_DN].ManageComponent(nu_DNPosY);
 
@@ -54,6 +56,10 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     for (i = 0; i < ArrayCount(class'HxHitEffects'.default.EHxPitchNames); ++i)
     {
         cb_HSPitchType.AddItem(class'HxHitEffects'.default.EHxPitchNames[i]);
+    }
+    for (i = 0; i < ArrayCount(class'HxHitEffects'.default.EHxDNStyleNames); ++i)
+    {
+        cb_DNStyle.AddItem(class'HxHitEffects'.default.EHxDNStyleNames[i]);
     }
     for (i = 0; i < ArrayCount(class'HxHitEffects'.default.DamagePointNames); ++i)
     {
@@ -110,6 +116,9 @@ function InternalOnChange(GUIComponent C)
             Agent.HitEffects.bDamageNumbers = ch_bDamageNumbers.IsChecked();
             UpdateDamageNumbers();
             UpdateDamagePoints();
+            break;
+        case cb_DNStyle:
+            Agent.HitEffects.DamageNumberStyle = EHxDNStyle(cb_DNStyle.GetIndex());
             break;
         case nu_DPFontModifier:
             Agent.HitEffects.DamagePoints[DPIndex].FontModifier = nu_DPFontModifier.GetValue();
@@ -181,6 +190,7 @@ function UpdateDamageNumbers()
 {
     if (Agent.HitEffects.bDamageNumbers)
     {
+        EnableComponent(cb_DNStyle);
         EnableComponent(nu_DNPosX);
         EnableComponent(nu_DNPosY);
         EnableComponent(nu_DPFontModifier);
@@ -190,6 +200,7 @@ function UpdateDamageNumbers()
     }
     else
     {
+        DisableComponent(cb_DNStyle);
         DisableComponent(nu_DNPosX);
         DisableComponent(nu_DNPosY);
         DisableComponent(nu_DPFontModifier);
@@ -224,6 +235,7 @@ function SetHitSounds()
 function SetDamageNumbers()
 {
     ch_bDamageNumbers.Checked(Agent.HitEffects.bDamageNumbers);
+    cb_DNStyle.SetIndex(Agent.HitEffects.DamageNumberStyle);
     nu_DNPosX.SetComponentValue(Agent.HitEffects.PosX);
     nu_DNPosY.SetComponentValue(Agent.HitEffects.PosY);
 }
@@ -242,19 +254,19 @@ defaultproperties
 {
     Begin Object class=AltSectionBackground Name=HSSection
         Caption="Hit Sounds"
-        WinHeight=0.274
+        WinHeight=0.268
     End Object
     Sections(0)=HSSection
 
     Begin Object class=AltSectionBackground Name=DNSection
         Caption="Damage Numbers"
-        WinHeight=0.2055
+        WinHeight=0.268
     End Object
     Sections(1)=DNSection
 
     Begin Object class=AltSectionBackground Name=DPSection
         Caption="Damage Curve"
-    	WinHeight=0.4795
+    	WinHeight=0.43
     End Object
     Sections(2)=DPSection
 
@@ -312,6 +324,18 @@ defaultproperties
     End Object
     ch_bDamageNumbers=DamageNumbers
 
+    Begin Object class=moComboBox Name=DNStyle
+        Caption="Style"
+        bReadOnly=true
+        bAlwaysNotify=false
+        bBoundToParent=true
+        bScaleToParent=true
+        TabOrder=5
+        OnChange=InternalOnChange
+    End Object
+    cb_DNStyle=DNStyle
+
+
     Begin Object class=moFloatEdit Name=DNPosX
         Caption="X position"
         MinValue=0.0
@@ -323,7 +347,7 @@ defaultproperties
         bAutoSizeCaption=true
         bBoundToParent=true
         bScaleToParent=true
-        TabOrder=5
+        TabOrder=6
         OnChange=InternalOnChange
     End Object
     nu_DNPosX=DNPosX
@@ -339,7 +363,7 @@ defaultproperties
         bAutoSizeCaption=true
         bBoundToParent=true
         bScaleToParent=true
-        TabOrder=6
+        TabOrder=7
         OnChange=InternalOnChange
     End Object
     nu_DNPosY=DNPosY
@@ -350,7 +374,7 @@ defaultproperties
         bAlwaysNotify=false
         bBoundToParent=true
         bScaleToParent=true
-        TabOrder=7
+        TabOrder=8
         OnChange=InternalOnChange
 	End Object
     cb_DPPoint=DPPoint
@@ -365,7 +389,7 @@ defaultproperties
         bAutoSizeCaption=true
         bBoundToParent=true
         bScaleToParent=true
-        TabOrder=8
+        TabOrder=9
         OnChange=InternalOnChange
     End Object
     nu_DPValue=DPValue
@@ -379,7 +403,7 @@ defaultproperties
         bAutoSizeCaption=true
         bBoundToParent=true
         bScaleToParent=true
-        TabOrder=9
+        TabOrder=10
         OnChange=InternalOnChange
     End Object
     sl_DPPitch=DPPitch
@@ -394,7 +418,7 @@ defaultproperties
         bAutoSizeCaption=true
         bBoundToParent=true
         bScaleToParent=true
-        TabOrder=10
+        TabOrder=11
         OnChange=InternalOnChange
     End Object
     nu_DPFontModifier=DPFontModifier
@@ -410,7 +434,7 @@ defaultproperties
         bAutoSizeCaption=true
         bBoundToParent=true
         bScaleToParent=true
-        TabOrder=11
+        TabOrder=12
         OnChange=InternalOnChange
     End Object
     sl_DPRed=DPRed
@@ -426,7 +450,7 @@ defaultproperties
         bAutoSizeCaption=true
         bBoundToParent=true
         bScaleToParent=true
-        TabOrder=12
+        TabOrder=13
         OnChange=InternalOnChange
     End Object
     sl_DPGreen=DPGreen
@@ -442,7 +466,7 @@ defaultproperties
         bAutoSizeCaption=true
         bBoundToParent=true
         bScaleToParent=true
-        TabOrder=13
+        TabOrder=14
         OnChange=InternalOnChange
     End Object
     sl_DPBlue=DPBlue
