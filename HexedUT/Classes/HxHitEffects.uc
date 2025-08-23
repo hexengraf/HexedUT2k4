@@ -15,10 +15,11 @@ enum EHxPitch
     HX_PITCH_High2Low,
 };
 
-struct DamagePoint
+struct HxDamagePoint
 {
     var int Value;
     var float pitch;
+    var int FontModifier;
     var Color Color;
 };
 
@@ -35,11 +36,10 @@ var config EHxPitch PitchType;
 var config float PitchFactor;
 
 var config bool bDamageNumbers;
-var config int FontSizeModifier;
 var config float PosX;
 var config float PosY;
 
-var config DamagePoint DamagePoints[DAMAGE_POINT_COUNT];
+var config HxDamagePoint DamagePoints[DAMAGE_POINT_COUNT];
 
 var bool bAllowHitSounds;
 var bool bAllowDamageNumbers;
@@ -48,8 +48,9 @@ var PlayerController PC;
 var array<Sound> HitSounds;
 var float HitSoundTimestamp;
 var int DrawDamage;
-var float DrawTimestamp;
+var int DrawFontModifier;
 var Color DrawColor;
+var float DrawTimestamp;
 
 var localized string EHxPitchNames[3];
 var localized string DamagePointNames[DAMAGE_POINT_COUNT];
@@ -67,6 +68,7 @@ simulated event PreBeginPlay()
     for (i = 0; i < DAMAGE_POINT_COUNT; ++i)
     {
         DamagePoints[i].Pitch = FClamp(DamagePoints[i].Pitch, 0.0, 1.0);
+        DamagePoints[i].FontModifier = Clamp(DamagePoints[i].FontModifier, -8, 8);
     }
     SaveConfig();
 }
@@ -78,7 +80,7 @@ simulated function Render(Canvas C)
 
     if (DrawDamage > 0 && Level.TimeSeconds <= DrawTimestamp)
     {
-        C.Font = GetFont(C, FontSizeModifier);
+        C.Font = GetFont(C, DrawFontModifier);
         C.DrawColor = DrawColor;
         C.DrawColor.A = GetFade();
         DamageString = string(DrawDamage);
@@ -117,6 +119,7 @@ simulated function UpdateDamageNumbers(int Damage)
         DrawDamage = 0;
     }
     DrawDamage += Damage;
+    DrawFontModifier = GetFontModifier();
     DrawColor = GetColor();
     DrawTimestamp = Level.TimeSeconds + 1;
 }
@@ -164,6 +167,20 @@ simulated function float GetPitch(int Damage)
         return ALAUDIO_PITCH_MIN + NormalizedPitch * ALAUDIO_PITCH_SPECTRUM;
     }
     return ALAUDIO_PITCH_MAX - NormalizedPitch * ALAUDIO_PITCH_SPECTRUM;
+}
+
+simulated function int GetFontModifier()
+{
+    local int i;
+
+    for (i = DAMAGE_POINT_COUNT; i >= 0; --i)
+    {
+        if (DrawDamage >= DamagePoints[i].Value)
+        {
+            return DamagePoints[i].FontModifier;
+        }
+    }
+    return DamagePoints[0].FontModifier;
 }
 
 simulated function Color GetColor()
@@ -224,13 +241,12 @@ defaultproperties
     HitSoundVolume=1.0
     PitchType=HX_PITCH_Low2High
     bDamageNumbers=true
-    FontSizeModifier=-1
     PosX=0.5
     PosY=0.45
-    DamagePoints(0)=(Value=30,Pitch=0.30,Color=(R=255,G=255,B=32,A=255))
-    DamagePoints(1)=(Value=70,Pitch=0.55,Color=(R=255,G=119,B=32,A=255))
-    DamagePoints(2)=(Value=120,Pitch=0.75,Color=(R=255,G=32,B=32,A=255))
-    DamagePoints(3)=(Value=180,Pitch=1.00,Color=(R=143,G=32,B=245,A=255))
+    DamagePoints(0)=(Value=30,Pitch=0.30,FontModifier=-2,Color=(R=255,G=255,B=32,A=255))
+    DamagePoints(1)=(Value=70,Pitch=0.55,FontModifier=-1,Color=(R=255,G=119,B=32,A=255))
+    DamagePoints(2)=(Value=120,Pitch=0.75,FontModifier=-1,Color=(R=255,G=32,B=32,A=255))
+    DamagePoints(3)=(Value=180,Pitch=1.00,FontModifier=0,Color=(R=143,G=32,B=245,A=255))
     HitSounds(0)=Sound'HitSound1'
     HitSounds(1)=Sound'HitSound2'
     HitSounds(2)=Sound'HitSound3'
