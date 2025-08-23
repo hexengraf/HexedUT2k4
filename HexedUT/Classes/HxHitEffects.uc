@@ -212,6 +212,11 @@ static simulated function float InterpolatePitch(int Value,
     return First + FClamp(Value / MaxValue, 0.0, 1.0) * (Second - First);
 }
 
+static simulated function AddHitSound(Sound HitSound)
+{
+    default.HitSounds[default.HitSounds.Length] = HitSound;
+}
+
 defaultproperties
 {
     bHitSounds=true
