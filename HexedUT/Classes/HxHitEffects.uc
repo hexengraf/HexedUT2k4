@@ -17,8 +17,8 @@ enum EHxPitch
 
 enum EHxDNStyle
 {
-    HX_DN_Static,
-    HX_DN_Rising,
+    HX_DN_Cumulative,
+    HX_DN_Individual,
 };
 
 struct HxDamageNumber
@@ -96,7 +96,7 @@ simulated Event Tick(float DeltaTime)
         {
             DamageNumbers[Index].Damage = 0;
         }
-        else if (DamageNumberStyle == HX_DN_Rising)
+        else if (DamageNumberStyle == HX_DN_Individual)
         {
             DamageNumbers[Index].PosY -= (DeltaTime / FLOAT_TIME) * DamageNumbers[Index].Offset;
         }
@@ -160,7 +160,7 @@ simulated function UpdateDamageNumbers(int Damage)
         DamageNumbers[Index].PosY = PosY;
         DamageNumbers[Index].Offset = 0.0005;
     }
-    if (DamageNumberStyle == HX_DN_Static)
+    if (DamageNumberStyle == HX_DN_Cumulative)
     {
         DamageNumbers[Index].Damage += Damage;
     }
@@ -222,7 +222,7 @@ simulated function int GetDamageNumberIndex()
         DamageNumbers.Insert(DamageNumbers.Length, 1);
         return Index;
     }
-    if (DamageNumberStyle == HX_DN_Rising)
+    if (DamageNumberStyle == HX_DN_Individual)
     {
         for (Index = 0; Index < DamageNumbers.Length; ++Index)
         {
@@ -312,7 +312,7 @@ defaultproperties
     HitSoundVolume=1.0
     PitchType=HX_PITCH_Low2High
     bDamageNumbers=true
-    DamageNumberStyle=HX_DN_Rising
+    DamageNumberStyle=HX_DN_Individual
     PosX=0.5
     PosY=0.45
     DamagePoints(0)=(Value=30,Pitch=0.30,FontModifier=-2,Color=(R=255,G=255,B=32,A=255))
@@ -327,8 +327,8 @@ defaultproperties
     EHxPitchNames(0)="disabled"
     EHxPitchNames(1)="low to high"
     EHxPitchNames(2)="high to low"
-    EHxDNStyleNames(0)="static"
-    EHxDNStyleNames(1)="rising"
+    EHxDNStyleNames(0)="Cumulative"
+    EHxDNStyleNames(1)="Individual"
     DamagePointNames(0)="low damage"
     DamagePointNames(1)="moderate damage"
     DamagePointNames(2)="high damage"
