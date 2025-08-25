@@ -17,8 +17,8 @@ var automated moFloatEdit nu_DNPosY;
 var automated moComboBox cb_DPPoint;
 var automated moNumericEdit nu_DPValue;
 var automated moSlider sl_DPPitch;
-var automated moNumericEdit nu_DPFontModifier;
-var automated GUILabel lb_DPPReview;
+var automated moSlider nu_DPScale;
+var automated GUIImage i_DPPReview;
 var automated moSlider sl_DPRed;
 var automated moSlider sl_DPGreen;
 var automated moSlider sl_DPBlue;
@@ -45,8 +45,8 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     Sections[SECTION_DP].ManageComponent(cb_DPPoint);
     Sections[SECTION_DP].ManageComponent(nu_DPValue);
     Sections[SECTION_DP].ManageComponent(sl_DPPitch);
-    Sections[SECTION_DP].ManageComponent(nu_DPFontModifier);
-    Sections[SECTION_DP].ManageComponent(lb_DPPReview);
+    Sections[SECTION_DP].ManageComponent(nu_DPScale);
+    Sections[SECTION_DP].ManageComponent(i_DPPreview);
     Sections[SECTION_DP].ManageComponent(sl_DPRed);
     Sections[SECTION_DP].ManageComponent(sl_DPBlue);
     Sections[SECTION_DP].ManageComponent(sl_DPGreen);
@@ -134,25 +134,21 @@ function InternalOnChange(GUIComponent C)
             break;
         case nu_DPValue:
             Agent.HitEffects.DamagePoints[DPIndex].Value = nu_DPValue.GetValue();
-            lb_DPPReview.Caption = string(nu_DPValue.GetValue());
             break;
         case sl_DPPitch:
             Agent.HitEffects.DamagePoints[DPIndex].Pitch = sl_DPPitch.GetValue();
             break;
-        case nu_DPFontModifier:
-            Agent.HitEffects.DamagePoints[DPIndex].FontModifier = nu_DPFontModifier.GetValue();
+        case nu_DPScale:
+            Agent.HitEffects.DamagePoints[DPIndex].Scale = nu_DPScale.GetValue();
             break;
         case sl_DPRed:
             Agent.HitEffects.DamagePoints[DPIndex].Color.R = sl_DPRed.GetValue();
-            lb_DPPReview.TextColor.R = sl_DPRed.GetValue();
             break;
         case sl_DPGreen:
             Agent.HitEffects.DamagePoints[DPIndex].Color.G = sl_DPGreen.GetValue();
-            lb_DPPReview.TextColor.G = sl_DPRed.GetValue();
             break;
         case sl_DPBlue:
             Agent.HitEffects.DamagePoints[DPIndex].Color.B = sl_DPBlue.GetValue();
-            lb_DPPReview.TextColor.B = sl_DPRed.GetValue();
             break;
     }
     Agent.HitEffects.SaveConfig();
@@ -199,8 +195,7 @@ function UpdateDamageNumbers()
         EnableComponent(cb_DNStyle);
         EnableComponent(nu_DNPosX);
         EnableComponent(nu_DNPosY);
-        EnableComponent(nu_DPFontModifier);
-        EnableComponent(lb_DPPReview);
+        EnableComponent(nu_DPScale);
         EnableComponent(sl_DPRed);
         EnableComponent(sl_DPGreen);
         EnableComponent(sl_DPBlue);
@@ -210,8 +205,7 @@ function UpdateDamageNumbers()
         DisableComponent(cb_DNStyle);
         DisableComponent(nu_DNPosX);
         DisableComponent(nu_DNPosY);
-        DisableComponent(nu_DPFontModifier);
-        DisableComponent(lb_DPPReview);
+        DisableComponent(nu_DPScale);
         DisableComponent(sl_DPRed);
         DisableComponent(sl_DPGreen);
         DisableComponent(sl_DPBlue);
@@ -223,7 +217,14 @@ function UpdateDamagePoints()
     if (Agent.HitEffects.bHitSounds || Agent.HitEffects.bDamageNumbers)
     {
         EnableComponent(cb_DPPoint);
-        EnableComponent(nu_DPValue);
+        if (DPIndex != 0)
+        {
+            EnableComponent(nu_DPValue);
+        }
+        else
+        {
+            DisableComponent(nu_DPValue);
+        }
     }
     else
     {
@@ -250,16 +251,59 @@ function SetDamageNumbers()
 
 function SetDamagePoints()
 {
+    if (DPIndex == 0)
+    {
+        DisableComponent(nu_DPValue);
+    }
+    else
+    {
+        EnableComponent(nu_DPValue);
+    }
     nu_DPValue.SetComponentValue(Agent.HitEffects.DamagePoints[DPIndex].Value);
     sl_DPPitch.SetComponentValue(Agent.HitEffects.DamagePoints[DPIndex].Pitch);
-    nu_DPFontModifier.SetComponentValue(Agent.HitEffects.DamagePoints[DPIndex].FontModifier);
-    lb_DPPReview.Caption = string(Agent.HitEffects.DamagePoints[DPIndex].Value);
-    lb_DPPReview.TextColor.R = Agent.HitEffects.DamagePoints[DPIndex].Color.R;
-    lb_DPPReview.TextColor.G = Agent.HitEffects.DamagePoints[DPIndex].Color.G;
-    lb_DPPReview.TextColor.B = Agent.HitEffects.DamagePoints[DPIndex].Color.B;
+    nu_DPScale.SetComponentValue(Agent.HitEffects.DamagePoints[DPIndex].Scale);
     sl_DPRed.SetComponentValue(Agent.HitEffects.DamagePoints[DPIndex].Color.R);
     sl_DPGreen.SetComponentValue(Agent.HitEffects.DamagePoints[DPIndex].Color.G);
     sl_DPBlue.SetComponentValue(Agent.HitEffects.DamagePoints[DPIndex].Color.B);
+}
+
+function DrawDPPreview(Canvas C)
+{
+    local string DamageNumber;
+    local float SavedOrgX;
+    local float SavedOrgY;
+	local float SavedClipX;
+    local float SavedClipY;
+    local float XL;
+    local float YL;
+
+    if (!Agent.bAllowDamageNumbers || !Agent.HitEffects.bDamageNumbers)
+    {
+        return;
+    }
+   	SavedOrgX = C.OrgX;
+	SavedOrgY = C.OrgY;
+	SavedClipX = C.ClipX;
+	SavedClipY = C.ClipY;
+
+	C.OrgX = i_DPPReview.ActualLeft();
+	C.OrgY = i_DPPReview.ActualTop();
+	C.ClipX = i_DPPReview.ActualWidth();
+	C.ClipY = i_DPPReview.ActualHeight();
+
+    DamageNumber = string(Agent.HitEffects.DamagePoints[DPIndex].Value);
+    C.DrawColor = Agent.HitEffects.DamagePoints[DPIndex].Color;
+    C.Font = class'HxHitEffectsFont'.static.GetFont(SavedClipX);
+    C.FontScaleX = Agent.HitEffects.ToAbsoluteScale(Agent.HitEffects.DamagePoints[DPIndex].Scale);
+    C.FontScaleY = Agent.HitEffects.ToAbsoluteScale(Agent.HitEffects.DamagePoints[DPIndex].Scale);
+    C.StrLen(DamageNumber, XL, YL);
+    C.SetPos((C.ClipX - XL) * 0.5, (C.ClipY - YL) * 0.6);
+    C.DrawTextClipped(DamageNumber);
+
+    C.OrgX = SavedOrgX;
+	C.OrgY = SavedOrgY;
+	C.ClipX = SavedClipX;
+	C.ClipY = SavedClipY;
 }
 
 defaultproperties
@@ -420,31 +464,30 @@ defaultproperties
     End Object
     sl_DPPitch=DPPitch
 
-    Begin Object class=moNumericEdit Name=DPFontModifier
-        Caption="Font size modifier"
-        MinValue=-8
-        MaxValue=8
+    Begin Object class=moSlider Name=DPScale
+        Caption="Scale"
+        MinValue=0.00
+        MaxValue=1.00
         LabelJustification=TXTA_Left
         ComponentJustification=TXTA_Right
-        ComponentWidth=0.25
         bAutoSizeCaption=true
         bBoundToParent=true
         bScaleToParent=true
         TabOrder=11
         OnChange=InternalOnChange
     End Object
-    nu_DPFontModifier=DPFontModifier
+    nu_DPScale=DPScale
 
-    Begin Object class=GUILabel name=DPPReview
-        TextFont="UT2MidGameFont"
-        TextAlign=TXTA_Center
-        TextColor=(R=255,G=255,B=255,A=255)
-        bTransparent=false
-        BackColor=(R=0,G=0,B=0,A=255)
-        VertAlign=TXTA_Center
+    Begin Object class=GUIImage Name=DPPreview
+		WinHeight=0.231445
+		Image=Material'2K4Menus.Controls.buttonSquare_b'
+		ImageColor=(R=0,G=0,B=0,A=255)
+		ImageStyle=ISTY_Stretched
+		ImageRenderStyle=MSTY_Alpha
         TabOrder=12
-    End Object
-    lb_DPPReview=DPPReview
+		OnRendered=DrawDPPreview
+	End Object
+	i_DPPReview=DPPreview
 
     Begin Object class=moSlider Name=DPRed
         Caption="Red"
