@@ -4,11 +4,13 @@ const SECTION_HS = 0;
 const SECTION_DN = 1;
 const SECTION_DP = 2;
 
+var automated moCheckBox ch_bAllowHitSounds;
 var automated moCheckBox ch_bHitSounds;
 var automated moComboBox cb_HSHitSound;
 var automated moSlider sl_HSVolume;
 var automated moComboBox cb_HSPitchType;
 
+var automated moCheckBox ch_bAllowDamageNumbers;
 var automated moCheckBox ch_bDamageNumbers;
 var automated moComboBox cb_DNStyle;
 var automated moFloatEdit nu_DNPosX;
@@ -34,11 +36,13 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 
     super.InitComponent(MyController, MyOwner);
 
+    Sections[SECTION_HS].ManageComponent(ch_bAllowHitSounds);
     Sections[SECTION_HS].ManageComponent(ch_bHitSounds);
     Sections[SECTION_HS].ManageComponent(cb_HSHitSound);
     Sections[SECTION_HS].ManageComponent(sl_HSVolume);
     Sections[SECTION_HS].ManageComponent(cb_HSPitchType);
 
+    Sections[SECTION_DN].ManageComponent(ch_bAllowDamageNumbers);
     Sections[SECTION_DN].ManageComponent(ch_bDamageNumbers);
     Sections[SECTION_DN].ManageComponent(cb_DNStyle);
     Sections[SECTION_DN].ManageComponent(nu_DNPosX);
@@ -52,8 +56,8 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     Sections[SECTION_DP].ManageComponent(i_FillerRight);
     Sections[SECTION_DP].ManageComponent(nu_DPScale);
     Sections[SECTION_DP].ManageComponent(sl_DPRed);
-    Sections[SECTION_DP].ManageComponent(sl_DPBlue);
     Sections[SECTION_DP].ManageComponent(sl_DPGreen);
+    Sections[SECTION_DP].ManageComponent(sl_DPBlue);
 
     for (i = 0; i < class'HxHitEffects'.default.HitSounds.Length; ++i)
     {
@@ -76,27 +80,27 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 function ShowPanel(bool bShow)
 {
     Super.ShowPanel(bShow);
+
     if (bShow)
     {
-        UpdateAvailableOptions();
+        if (!Initialize())
+        {
+            HideAllSections(true, HIDE_DUE_INIT);
+            SetTimer(0.1, true);
+        }
+        else
+        {
+            UpdateAll();
+        }
     }
 }
 
-function UpdateAvailableOptions()
+event Timer()
 {
-    if (!Initialize())
+    if (Initialize() && Agent.IsSynchronized())
     {
-        HideAllSections(true, HIDE_DUE_INIT);
-    }
-    else
-    {
-        UpdateHitSounds();
-        UpdateDamageNumbers();
-        UpdateDamagePoints();
-        HideSection(SECTION_HS, !Agent.bAllowHitSounds, HIDE_DUE_DISABLE);
-        HideSection(SECTION_DN, !Agent.bAllowDamageNumbers, HIDE_DUE_DISABLE);
-        HideSection(
-            SECTION_DP, !Agent.bAllowHitSounds && !Agent.bAllowDamageNumbers, HIDE_DUE_DISABLE);
+        KillTimer();
+        UpdateAll();
     }
 }
 
@@ -108,6 +112,12 @@ function InternalOnChange(GUIComponent C)
     }
     switch(C)
     {
+        case ch_bAllowHitSounds:
+            if (Agent.SetAllowHitSounds(ch_bAllowHitSounds.IsChecked()))
+            {
+                SetTimer(0.1, true);
+            }
+            break;
         case ch_bHitSounds:
             Agent.HitEffects.bHitSounds = ch_bHitSounds.IsChecked();
             UpdateHitSounds();
@@ -121,6 +131,12 @@ function InternalOnChange(GUIComponent C)
             break;
         case cb_HSPitchType:
             Agent.HitEffects.PitchType = EHxPitch(cb_HSPitchType.GetIndex());
+            break;
+        case ch_bAllowDamageNumbers:
+            if (Agent.SetAllowDamageNumbers(ch_bAllowDamageNumbers.IsChecked()))
+            {
+                SetTimer(0.1, true);
+            }
             break;
         case ch_bDamageNumbers:
             Agent.HitEffects.bDamageNumbers = ch_bDamageNumbers.IsChecked();
@@ -164,10 +180,11 @@ function InternalOnChange(GUIComponent C)
 
 function bool Initialize()
 {
-    if (Agent == None)
+    if (Agent != None)
     {
-        Agent = class'HxAgent'.static.GetAgent(PlayerOwner());
+        return true;
     }
+    Agent = class'HxAgent'.static.GetAgent(PlayerOwner());
     if (Agent != None)
     {
         SetHitSounds();
@@ -178,9 +195,51 @@ function bool Initialize()
     return false;
 }
 
+function UpdateAll()
+{
+    local bool bAdmin;
+
+    bAdmin = IsAdmin();
+    if (bAdmin)
+    {
+        EnableComponent(ch_bAllowHitSounds);
+        EnableComponent(ch_bAllowDamageNumbers);
+    }
+    else
+    {
+        DisableComponent(ch_bAllowHitSounds);
+        DisableComponent(ch_bAllowDamageNumbers);
+    }
+    if (!Agent.bAllowHitSounds)
+    {
+        DisableComponent(ch_bHitSounds);
+    }
+    else
+    {
+        EnableComponent(ch_bHitSounds);
+    }
+    if (!Agent.bAllowDamageNumbers)
+    {
+        DisableComponent(ch_bDamageNumbers);
+    }
+    else
+    {
+        EnableComponent(ch_bDamageNumbers);
+    }
+    UpdateHitSounds();
+    UpdateDamageNumbers();
+    UpdateDamagePoints();
+    HideSection(SECTION_HS, !bAdmin && !Agent.bAllowHitSounds, HIDE_DUE_DISABLE);
+    HideSection(SECTION_DN, !bAdmin && !Agent.bAllowDamageNumbers, HIDE_DUE_DISABLE);
+    HideSection(
+        SECTION_DP,
+        !bAdmin && !Agent.bAllowHitSounds && !Agent.bAllowDamageNumbers,
+        HIDE_DUE_DISABLE);
+}
+
 function UpdateHitSounds()
 {
-    if (Agent.HitEffects.bHitSounds)
+    if (Agent.bAllowHitSounds && Agent.HitEffects.bHitSounds)
     {
         EnableComponent(cb_HSHitSound);
         EnableComponent(sl_HSVolume);
@@ -200,7 +259,7 @@ function UpdateHitSounds()
 
 function UpdateDamageNumbers()
 {
-    if (Agent.HitEffects.bDamageNumbers)
+    if (Agent.bAllowDamageNumbers && Agent.HitEffects.bDamageNumbers)
     {
         EnableComponent(cb_DNStyle);
         EnableComponent(nu_DNPosX);
@@ -224,7 +283,8 @@ function UpdateDamageNumbers()
 
 function UpdateDamagePoints()
 {
-    if (Agent.HitEffects.bHitSounds || Agent.HitEffects.bDamageNumbers)
+    if ((Agent.bAllowHitSounds && Agent.HitEffects.bHitSounds)
+        || (Agent.bAllowDamageNumbers && Agent.HitEffects.bDamageNumbers))
     {
         EnableComponent(cb_DPPoint);
         if (DPIndex != 0)
@@ -245,6 +305,7 @@ function UpdateDamagePoints()
 
 function SetHitSounds()
 {
+    ch_bAllowHitSounds.Checked(Agent.bAllowHitSounds);
     ch_bHitSounds.Checked(Agent.HitEffects.bHitSounds);
     cb_HSHitSound.SetIndex(Agent.HitEffects.SelectedHitSound);
     sl_HSVolume.SetComponentValue(Agent.HitEffects.HitSoundVolume);
@@ -253,6 +314,7 @@ function SetHitSounds()
 
 function SetDamageNumbers()
 {
+    ch_bAllowDamageNumbers.Checked(Agent.bAllowDamageNumbers);
     ch_bDamageNumbers.Checked(Agent.HitEffects.bDamageNumbers);
     cb_DNStyle.SetIndex(Agent.HitEffects.DamageNumberStyle);
     nu_DNPosX.SetComponentValue(Agent.HitEffects.PosX);
@@ -287,7 +349,7 @@ function DrawDPPreview(Canvas C)
     local float XL;
     local float YL;
 
-    if (!Agent.bAllowDamageNumbers || !Agent.HitEffects.bDamageNumbers)
+    if (Agent == None || !Agent.bAllowDamageNumbers || !Agent.HitEffects.bDamageNumbers)
     {
         return;
     }
@@ -330,42 +392,55 @@ function bool PlaySoundOnClick(GUIComponent Sender)
 
 defaultproperties
 {
+    bDoubleColumn=true
+
     Begin Object class=AltSectionBackground Name=HSSection
         Caption="Hit Sounds"
-        WinHeight=0.30
+        WinHeight=0.48
     End Object
     Sections(0)=HSSection
 
     Begin Object class=AltSectionBackground Name=DNSection
         Caption="Damage Numbers"
-        WinHeight=0.30
+        WinHeight=0.48
     End Object
     Sections(1)=DNSection
 
     Begin Object class=AltSectionBackground Name=DPSection
         Caption="Customize Sound & Visuals"
-    	WinHeight=0.32
+    	WinHeight=0.48
         NumColumns=2
         bRemapStack=false
     End Object
     Sections(2)=DPSection
 
+    Begin Object class=moCheckBox Name=AllowHitSounds
+        Caption="Allow hit sounds"
+        Hint="Requires server admin to change it"
+        bBoundToParent=true
+        bScaleToParent=true
+        TabOrder=0
+        OnChange=InternalOnChange
+    End Object
+    ch_bAllowHitSounds=AllowHitSounds
+
     Begin Object class=moCheckBox Name=HitSounds
         Caption="Enable hit sounds"
         bBoundToParent=true
         bScaleToParent=true
-        TabOrder=0
+        TabOrder=1
         OnChange=InternalOnChange
     End Object
     ch_bHitSounds=HitSounds
 
     Begin Object class=moComboBox Name=HSHitSound
 		Caption="Sound"
+        ComponentWidth=0.70
         bReadOnly=true
         bAlwaysNotify=false
         bBoundToParent=true
         bScaleToParent=true
-        TabOrder=1
+        TabOrder=2
         OnChange=InternalOnChange
 	End Object
     cb_HSHitSound=HSHitSound
@@ -374,43 +449,56 @@ defaultproperties
         Caption="Volume"
         MinValue=0.0
         MaxValue=1.0
+        ComponentWidth=0.70
         LabelJustification=TXTA_Left
         ComponentJustification=TXTA_Right
         bAutoSizeCaption=true
         bBoundToParent=true
         bScaleToParent=true
-        TabOrder=2
+        TabOrder=3
         OnChange=InternalOnChange
     End Object
     sl_HSVolume=HSVolume
 
     Begin Object class=moComboBox Name=HSPitchType
         Caption="Pitch"
+        ComponentWidth=0.70
         bReadOnly=true
         bAlwaysNotify=false
         bBoundToParent=true
         bScaleToParent=true
-        TabOrder=3
+        TabOrder=4
         OnChange=InternalOnChange
     End Object
     cb_HSPitchType=HSPitchType
+
+    Begin Object class=moCheckBox Name=AllowDamageNumbers
+        Caption="Allow damage numbers"
+        Hint="Requires server admin to change it"
+        bBoundToParent=true
+        bScaleToParent=true
+        TabOrder=5
+        OnChange=InternalOnChange
+    End Object
+    ch_bAllowDamageNumbers=AllowDamageNumbers
 
     Begin Object class=moCheckBox Name=DamageNumbers
         Caption="Enable damage numbers"
         bBoundToParent=true
         bScaleToParent=true
-        TabOrder=4
+        TabOrder=6
         OnChange=InternalOnChange
     End Object
     ch_bDamageNumbers=DamageNumbers
 
     Begin Object class=moComboBox Name=DNStyle
         Caption="Style"
+        ComponentWidth=0.70
         bReadOnly=true
         bAlwaysNotify=false
         bBoundToParent=true
         bScaleToParent=true
-        TabOrder=5
+        TabOrder=7
         OnChange=InternalOnChange
     End Object
     cb_DNStyle=DNStyle
@@ -423,11 +511,11 @@ defaultproperties
         Step=0.010000
         LabelJustification=TXTA_Left
         ComponentJustification=TXTA_Right
-        ComponentWidth=0.25
+        ComponentWidth=0.35
         bAutoSizeCaption=true
         bBoundToParent=true
         bScaleToParent=true
-        TabOrder=6
+        TabOrder=8
         OnChange=InternalOnChange
     End Object
     nu_DNPosX=DNPosX
@@ -439,11 +527,11 @@ defaultproperties
         Step=0.010000
         LabelJustification=TXTA_Left
         ComponentJustification=TXTA_Right
-        ComponentWidth=0.25
+        ComponentWidth=0.35
         bAutoSizeCaption=true
         bBoundToParent=true
         bScaleToParent=true
-        TabOrder=7
+        TabOrder=9
         OnChange=InternalOnChange
     End Object
     nu_DNPosY=DNPosY
@@ -454,7 +542,7 @@ defaultproperties
         bScaleToParent=true
         bStandardized=true
         StandardHeight=0.03
-        TabOrder=8
+        TabOrder=10
         OnPreDraw=DPPointPreDraw
         OnChange=InternalOnChange
 	End Object
@@ -467,7 +555,7 @@ defaultproperties
 		ImageRenderStyle=MSTY_Alpha
         bStandardized=true
         StandardHeight=0.032
-        TabOrder=9
+        TabOrder=11
 		OnRendered=DrawDPPreview
 	End Object
 	i_DPPReview=DPPreview
@@ -478,11 +566,11 @@ defaultproperties
         MaxValue=300
         LabelJustification=TXTA_Left
         ComponentJustification=TXTA_Right
-        ComponentWidth=0.30
+        ComponentWidth=0.35
         bAutoSizeCaption=true
         bBoundToParent=true
         bScaleToParent=true
-        TabOrder=10
+        TabOrder=12
         OnChange=InternalOnChange
     End Object
     nu_DPValue=DPValue
@@ -497,7 +585,7 @@ defaultproperties
         bAutoSizeCaption=true
         bBoundToParent=true
         bScaleToParent=true
-        TabOrder=11
+        TabOrder=13
         OnChange=InternalOnChange
     End Object
     sl_DPPitch=DPPitch
@@ -506,7 +594,7 @@ defaultproperties
         Caption="Play sound"
         bStandardized=true
         StandardHeight=0.032
-        TabOrder=12
+        TabOrder=14
 		OnClick=PlaySoundOnClick
         OnClickSound=CS_None
     End Object
@@ -530,7 +618,7 @@ defaultproperties
         bAutoSizeCaption=true
         bBoundToParent=true
         bScaleToParent=true
-        TabOrder=13
+        TabOrder=15
         OnChange=InternalOnChange
     End Object
     nu_DPScale=DPScale
@@ -547,7 +635,7 @@ defaultproperties
         bAutoSizeCaption=true
         bBoundToParent=true
         bScaleToParent=true
-        TabOrder=14
+        TabOrder=16
         OnChange=InternalOnChange
     End Object
     sl_DPRed=DPRed
@@ -564,7 +652,7 @@ defaultproperties
         bAutoSizeCaption=true
         bBoundToParent=true
         bScaleToParent=true
-        TabOrder=15
+        TabOrder=17
         OnChange=InternalOnChange
     End Object
     sl_DPGreen=DPGreen
@@ -581,7 +669,7 @@ defaultproperties
         bAutoSizeCaption=true
         bBoundToParent=true
         bScaleToParent=true
-        TabOrder=16
+        TabOrder=18
         OnChange=InternalOnChange
     End Object
     sl_DPBlue=DPBlue

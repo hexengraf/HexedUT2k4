@@ -10,6 +10,7 @@ const DAMAGE_CLUSTERING_INTERVAL = 0.015;
 
 var bool bAllowHitSounds;
 var bool bAllowDamageNumbers;
+var MutHexedUT HexedUT;
 var PlayerController PC;
 var HxHitEffects HitEffects;
 var DamageInfo Damage;
@@ -21,6 +22,9 @@ replication
 
     reliable if (Role == ROLE_Authority)
         bAllowHitSounds, bAllowDamageNumbers;
+
+    reliable if (Role < ROLE_Authority)
+        ServerSetAllowHitSounds, ServerSetAllowDamageNumbers;
 }
 
 simulated event Tick(float DeltaTime)
@@ -88,6 +92,54 @@ simulated function bool InitializeHitEffects()
         PC.myHUD.AddHudOverlay(HitEffects);
     }
     return HitEffects != None;
+}
+
+simulated function bool IsSynchronized()
+{
+    return bAllowHitSounds ==  HitEffects.bAllowHitSounds
+        && bAllowDamageNumbers == HitEffects.bAllowDamageNumbers;
+}
+
+simulated function bool SetAllowHitSounds(bool bValue)
+{
+    if (PC.PlayerReplicationInfo.bAdmin)
+    {
+        HitEffects.bAllowHitSounds = bValue;
+        ServerSetAllowHitSounds(bValue);
+        return true;
+    }
+    return false;
+}
+
+simulated function bool SetAllowDamageNumbers(bool bValue)
+{
+    if (PC.PlayerReplicationInfo.bAdmin)
+    {
+        HitEffects.bAllowDamageNumbers = bValue;
+        ServerSetAllowDamageNumbers(bValue);
+        return true;
+    }
+    return false;
+}
+
+function ServerSetAllowHitSounds(bool bValue)
+{
+    if (PC.PlayerReplicationInfo.bAdmin)
+    {
+        bAllowHitSounds = bValue;
+        HexedUT.bAllowHitSounds = bValue;
+        HexedUT.SaveConfig();
+    }
+}
+
+function ServerSetAllowDamageNumbers(bool bValue)
+{
+    if (PC.PlayerReplicationInfo.bAdmin)
+    {
+        bAllowDamageNumbers = bValue;
+        HexedUT.bAllowDamageNumbers = bValue;
+        HexedUT.SaveConfig();
+    }
 }
 
 static function RegisterDamage(PlayerController PC,

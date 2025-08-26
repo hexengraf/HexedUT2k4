@@ -1,11 +1,12 @@
 class HxGUIPanel extends MidGamePanel;
 
-const HIDE_DUE_INIT = "Initializing, please close and reopen this window";
+const HIDE_DUE_INIT = "Initializing...";
 const HIDE_DUE_DISABLE = "Feature disabled on this server";
 
 var automated array<AltSectionBackground> Sections;
 var private automated array<AltSectionBackground> HideSections;
 var private automated array<GUILabel> HideMessages;
+var bool bDoubleColumn;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
@@ -31,16 +32,43 @@ function InitSection(int i)
     {
         Sections[i].WinTop = 0.005;
     }
+    else if (bDoubleColumn)
+    {
+        if (i == 1 || (i % 2 == 1 && Sections[i - 2] == None))
+        {
+            Sections[i].WinTop = Sections[i - 1].WinTop;
+        }
+        else
+        {
+            Sections[i].WinTop = Sections[i - 2].WinTop + Sections[i - 2].WinHeight + 0.005;
+        }
+    }
     else
     {
         Sections[i].WinTop = Sections[i - 1].WinTop + Sections[i - 1].WinHeight + 0.005;
     }
     Sections[i].WinLeft = 0.00001;
     Sections[i].WinWidth = 0.99998;
-    Sections[i].LeftPadding = 0.02;
-    Sections[i].RightPadding = 0.02;
+    Sections[i].LeftPadding = 0.00994999899998;
+    Sections[i].RightPadding = 0.00994999899998;
     Sections[i].TopPadding = 0.04;
     Sections[i].ColPadding = 0.04;
+    if (bDoubleColumn)
+    {
+        if (i % 2 == 1)
+        {
+            Sections[i].WinLeft = 0.5025;
+            Sections[i].WinWidth = 0.49749;
+            Sections[i].LeftPadding = 0.02;
+            Sections[i].RightPadding = 0.02;
+        }
+        else if (i + 1 < Sections.Length && Sections[i + 1] != None)
+        {
+            Sections[i].WinWidth = 0.49749;
+            Sections[i].LeftPadding = 0.02;
+            Sections[i].RightPadding = 0.02;
+        }
+    }
     Sections[i].bBoundToParent = true;
     Sections[i].bScaleToParent = true;
     Sections[i].bFillClient = true;
@@ -109,8 +137,18 @@ function HideAllSections(bool bHidden, optional String Reason)
     }
 }
 
+function bool IsAdmin()
+{
+	local PlayerController PC;
+
+	PC = PlayerOwner();
+	return PC != None && PC.PlayerReplicationInfo != None && PC.PlayerReplicationInfo.bAdmin;
+}
+
 defaultproperties
 {
+    bDoubleColumn=false
+
     Begin Object class=GUILabel Name=HideMessage
         TextAlign=TXTA_Center
         TextColor=(R=255,G=210,B=0,A=255)

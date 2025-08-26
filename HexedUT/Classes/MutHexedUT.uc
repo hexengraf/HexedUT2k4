@@ -25,6 +25,8 @@ function SpawnHxAgent(PlayerReplicationInfo PRI)
         Agent = HxAgent(SpawnLinkedPRI(PRI, class'HxAgent'));
         Agent.bAllowHitSounds = bAllowHitSounds;
         Agent.bAllowDamageNumbers = bAllowDamageNumbers;
+        Agent.PC = PlayerController(PRI.Owner);
+        Agent.HexedUT = Self;
         Agent.NetUpdateTime = Level.TimeSeconds - 1;
     }
 }

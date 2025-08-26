@@ -52,7 +52,7 @@ defaultproperties
 {
     Begin Object class=GUITabControl Name=HxGUIMenuTC
 		WinWidth=0.97
-		WinHeight=0.0425
+		WinHeight=0.05
 		WinLeft=0.01500
 		WinTop=0.060215
         TabHeight=0.0375
@@ -72,9 +72,9 @@ defaultproperties
     bRequire640x480=true
     bAllowedAsLast=true
     bScaleToParent=true
-	WinWidth=0.50
-	WinHeight=0.90
-	WinLeft=0.25
+	WinWidth=0.60
+	WinHeight=0.75
+	WinLeft=0.20
 	WinTop=0.05
 	bResizeWidthAllowed=false
 	bResizeHeightAllowed=false
