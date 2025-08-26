@@ -39,7 +39,8 @@ function InitSection(int i)
     Sections[i].WinWidth = 0.99998;
     Sections[i].LeftPadding = 0.02;
     Sections[i].RightPadding = 0.02;
-    Sections[i].TopPadding = 0.05;
+    Sections[i].TopPadding = 0.04;
+    Sections[i].ColPadding = 0.04;
     Sections[i].bBoundToParent = true;
     Sections[i].bScaleToParent = true;
     Sections[i].bFillClient = true;

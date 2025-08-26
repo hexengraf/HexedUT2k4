@@ -14,11 +14,13 @@ var automated moComboBox cb_DNStyle;
 var automated moFloatEdit nu_DNPosX;
 var automated moFloatEdit nu_DNPosY;
 
-var automated moComboBox cb_DPPoint;
+var automated GUIComboBox cb_DPPoint;
+var automated GUIImage i_DPPReview;
 var automated moNumericEdit nu_DPValue;
 var automated moSlider sl_DPPitch;
+var automated GUIButton b_PlaySound;
+var automated GUIImage i_FillerRight;
 var automated moSlider nu_DPScale;
-var automated GUIImage i_DPPReview;
 var automated moSlider sl_DPRed;
 var automated moSlider sl_DPGreen;
 var automated moSlider sl_DPBlue;
@@ -43,10 +45,12 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     Sections[SECTION_DN].ManageComponent(nu_DNPosY);
 
     Sections[SECTION_DP].ManageComponent(cb_DPPoint);
+    Sections[SECTION_DP].ManageComponent(i_DPPreview);
     Sections[SECTION_DP].ManageComponent(nu_DPValue);
     Sections[SECTION_DP].ManageComponent(sl_DPPitch);
+    Sections[SECTION_DP].ManageComponent(b_PlaySound);
+    Sections[SECTION_DP].ManageComponent(i_FillerRight);
     Sections[SECTION_DP].ManageComponent(nu_DPScale);
-    Sections[SECTION_DP].ManageComponent(i_DPPreview);
     Sections[SECTION_DP].ManageComponent(sl_DPRed);
     Sections[SECTION_DP].ManageComponent(sl_DPBlue);
     Sections[SECTION_DP].ManageComponent(sl_DPGreen);
@@ -98,6 +102,10 @@ function UpdateAvailableOptions()
 
 function InternalOnChange(GUIComponent C)
 {
+    if (Agent == None)
+    {
+        return;
+    }
     switch(C)
     {
         case ch_bHitSounds:
@@ -178,6 +186,7 @@ function UpdateHitSounds()
         EnableComponent(sl_HSVolume);
         EnableComponent(cb_HSPitchType);
         EnableComponent(sl_DPPitch);
+        EnableComponent(b_PlaySound);
     }
     else
     {
@@ -185,6 +194,7 @@ function UpdateHitSounds()
         DisableComponent(sl_HSVolume);
         DisableComponent(cb_HSPitchType);
         DisableComponent(sl_DPPitch);
+        DisableComponent(b_PlaySound);
     }
 }
 
@@ -297,7 +307,7 @@ function DrawDPPreview(Canvas C)
     C.FontScaleX = Agent.HitEffects.ToAbsoluteScale(Agent.HitEffects.DamagePoints[DPIndex].Scale);
     C.FontScaleY = Agent.HitEffects.ToAbsoluteScale(Agent.HitEffects.DamagePoints[DPIndex].Scale);
     C.StrLen(DamageNumber, XL, YL);
-    C.SetPos((C.ClipX - XL) * 0.5, (C.ClipY - YL) * 0.6);
+    C.SetPos((C.ClipX - XL) * 0.5, (C.ClipY - YL) * 0.55);
     C.DrawTextClipped(DamageNumber);
 
     C.OrgX = SavedOrgX;
@@ -306,23 +316,37 @@ function DrawDPPreview(Canvas C)
 	C.ClipY = SavedClipY;
 }
 
+function bool DPPointPreDraw(Canvas C)
+{
+    cb_DPPoint.WinWidth = i_FillerRight.WinLeft + i_FillerRight.WinWidth - cb_DPPoint.WinLeft;
+    return false;
+}
+
+function bool PlaySoundOnClick(GUIComponent Sender)
+{
+    Agent.HitEffects.PlayHitSound(Agent.HitEffects.DamagePoints[DPIndex].Value);
+    return true;
+}
+
 defaultproperties
 {
     Begin Object class=AltSectionBackground Name=HSSection
         Caption="Hit Sounds"
-        WinHeight=0.268
+        WinHeight=0.30
     End Object
     Sections(0)=HSSection
 
     Begin Object class=AltSectionBackground Name=DNSection
         Caption="Damage Numbers"
-        WinHeight=0.268
+        WinHeight=0.30
     End Object
     Sections(1)=DNSection
 
     Begin Object class=AltSectionBackground Name=DPSection
-        Caption="Damage Curve"
-    	WinHeight=0.43
+        Caption="Customize Sound & Visuals"
+    	WinHeight=0.32
+        NumColumns=2
+        bRemapStack=false
     End Object
     Sections(2)=DPSection
 
@@ -424,16 +448,29 @@ defaultproperties
     End Object
     nu_DNPosY=DNPosY
 
-    Begin Object class=moComboBox Name=DPPoint
-		Caption="Point"
+    Begin Object class=GUIComboBox Name=DPPoint
         bReadOnly=true
-        bAlwaysNotify=false
         bBoundToParent=true
         bScaleToParent=true
+        bStandardized=true
+        StandardHeight=0.03
         TabOrder=8
+        OnPreDraw=DPPointPreDraw
         OnChange=InternalOnChange
 	End Object
     cb_DPPoint=DPPoint
+
+    Begin Object class=GUIImage Name=DPPreview
+		Image=Material'2K4Menus.Controls.buttonSquare_b'
+		ImageColor=(R=0,G=0,B=0,A=255)
+		ImageStyle=ISTY_Stretched
+		ImageRenderStyle=MSTY_Alpha
+        bStandardized=true
+        StandardHeight=0.032
+        TabOrder=9
+		OnRendered=DrawDPPreview
+	End Object
+	i_DPPReview=DPPreview
 
     Begin Object class=moNumericEdit Name=DPValue
         Caption="Damage value"
@@ -441,11 +478,11 @@ defaultproperties
         MaxValue=300
         LabelJustification=TXTA_Left
         ComponentJustification=TXTA_Right
-        ComponentWidth=0.25
+        ComponentWidth=0.30
         bAutoSizeCaption=true
         bBoundToParent=true
         bScaleToParent=true
-        TabOrder=9
+        TabOrder=10
         OnChange=InternalOnChange
     End Object
     nu_DPValue=DPValue
@@ -456,13 +493,32 @@ defaultproperties
         MaxValue=1.0
         LabelJustification=TXTA_Left
         ComponentJustification=TXTA_Right
+        ComponentWidth=0.70
         bAutoSizeCaption=true
         bBoundToParent=true
         bScaleToParent=true
-        TabOrder=10
+        TabOrder=11
         OnChange=InternalOnChange
     End Object
     sl_DPPitch=DPPitch
+
+    Begin Object class=GUIButton Name=PlaySound
+        Caption="Play sound"
+        bStandardized=true
+        StandardHeight=0.032
+        TabOrder=12
+		OnClick=PlaySoundOnClick
+        OnClickSound=CS_None
+    End Object
+    b_PlaySound=PlaySound
+
+    Begin Object class=GUIImage Name=FillerRight
+        bBoundToParent=true
+        bScaleToParent=true
+        bStandardized=true
+        StandardHeight=0.03
+	End Object
+    i_FillerRight=FillerRight
 
     Begin Object class=moSlider Name=DPScale
         Caption="Scale"
@@ -470,24 +526,14 @@ defaultproperties
         MaxValue=1.00
         LabelJustification=TXTA_Left
         ComponentJustification=TXTA_Right
+        ComponentWidth=0.70
         bAutoSizeCaption=true
         bBoundToParent=true
         bScaleToParent=true
-        TabOrder=11
+        TabOrder=13
         OnChange=InternalOnChange
     End Object
     nu_DPScale=DPScale
-
-    Begin Object class=GUIImage Name=DPPreview
-		WinHeight=0.231445
-		Image=Material'2K4Menus.Controls.buttonSquare_b'
-		ImageColor=(R=0,G=0,B=0,A=255)
-		ImageStyle=ISTY_Stretched
-		ImageRenderStyle=MSTY_Alpha
-        TabOrder=12
-		OnRendered=DrawDPPreview
-	End Object
-	i_DPPReview=DPPreview
 
     Begin Object class=moSlider Name=DPRed
         Caption="Red"
@@ -497,10 +543,11 @@ defaultproperties
         LabelColor=(R=255,G=0,B=0,A=255)
         LabelJustification=TXTA_Left
         ComponentJustification=TXTA_Right
+        ComponentWidth=0.70
         bAutoSizeCaption=true
         bBoundToParent=true
         bScaleToParent=true
-        TabOrder=13
+        TabOrder=14
         OnChange=InternalOnChange
     End Object
     sl_DPRed=DPRed
@@ -513,10 +560,11 @@ defaultproperties
         LabelColor=(R=0,G=255,B=0,A=255)
         LabelJustification=TXTA_Left
         ComponentJustification=TXTA_Right
+        ComponentWidth=0.70
         bAutoSizeCaption=true
         bBoundToParent=true
         bScaleToParent=true
-        TabOrder=14
+        TabOrder=15
         OnChange=InternalOnChange
     End Object
     sl_DPGreen=DPGreen
@@ -529,10 +577,11 @@ defaultproperties
         LabelColor=(R=0,G=0,B=255,A=255)
         LabelJustification=TXTA_Left
         ComponentJustification=TXTA_Right
+        ComponentWidth=0.70
         bAutoSizeCaption=true
         bBoundToParent=true
         bScaleToParent=true
-        TabOrder=15
+        TabOrder=16
         OnChange=InternalOnChange
     End Object
     sl_DPBlue=DPBlue
