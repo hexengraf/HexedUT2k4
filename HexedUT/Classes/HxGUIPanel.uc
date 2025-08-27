@@ -28,6 +28,10 @@ function InitSections()
 
 function InitSection(int i)
 {
+    if (Sections[i] == None)
+    {
+        return;
+    }
     if (i == 0)
     {
         Sections[i].WinTop = 0.005;
@@ -76,6 +80,12 @@ function InitSection(int i)
 
 function InitHideSection(int i)
 {
+    if (Sections[i] == None)
+    {
+        HideSections[HideSections.Length] = None;
+        HideMessages[HideMessages.Length] = None;
+        return;
+    }
     HideSections[HideSections.Length] = AltSectionBackground(
         AddComponent(String(class'AltSectionBackground'), true));
 
@@ -122,9 +132,12 @@ static function MirrorSection(AltSectionBackground Mirror, AltSectionBackground 
 
 function HideSection(int Section, bool bHidden, optional String Reason)
 {
-    HideMessages[Section].Caption = Reason;
-    HideSections[Section].SetVisibility(bHidden);
-    Sections[Section].SetVisibility(!bHidden);
+    if (Sections[Section] != None)
+    {
+        HideMessages[Section].Caption = Reason;
+        HideSections[Section].SetVisibility(bHidden);
+        Sections[Section].SetVisibility(!bHidden);
+    }
 }
 
 function HideAllSections(bool bHidden, optional String Reason)
