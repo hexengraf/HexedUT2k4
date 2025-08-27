@@ -400,7 +400,7 @@ defaultproperties
     bHitSounds=true
     SelectedHitSound=0
     HitSoundVolume=1.0
-    PitchType=HX_PITCH_Low2High
+    PitchType=HX_PITCH_High2Low
     bDamageNumbers=true
     DMode=HX_DMODE_StaticDual
     PosX=0.5
@@ -420,9 +420,9 @@ defaultproperties
     EHxPitchNames(2)="High to low"
     EHxDModeNames(0)="Static per hit"
     EHxDModeNames(1)="Static total"
-    EHxDModeNames(2)="Static dual"
+    EHxDModeNames(2)="Static per hit & total"
     EHxDModeNames(3)="Float per hit"
-    EHxDModeNames(4)="Float dual"
+    EHxDModeNames(4)="Float per hit & total"
     DamagePointNames(0)="Zero damage"
     DamagePointNames(1)="Low damage"
     DamagePointNames(2)="Medium damage"
