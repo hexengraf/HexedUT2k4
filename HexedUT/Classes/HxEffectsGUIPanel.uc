@@ -12,7 +12,7 @@ var automated moComboBox cb_HSPitchType;
 
 var automated moCheckBox ch_bAllowDamageNumbers;
 var automated moCheckBox ch_bDamageNumbers;
-var automated moComboBox cb_Animation;
+var automated moComboBox cb_DMode;
 var automated moFloatEdit nu_DNPosX;
 var automated moFloatEdit nu_DNPosY;
 
@@ -44,7 +44,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 
     Sections[SECTION_DN].ManageComponent(ch_bAllowDamageNumbers);
     Sections[SECTION_DN].ManageComponent(ch_bDamageNumbers);
-    Sections[SECTION_DN].ManageComponent(cb_Animation);
+    Sections[SECTION_DN].ManageComponent(cb_DMode);
     Sections[SECTION_DN].ManageComponent(nu_DNPosX);
     Sections[SECTION_DN].ManageComponent(nu_DNPosY);
 
@@ -67,9 +67,9 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     {
         cb_HSPitchType.AddItem(class'HxHitEffects'.default.EHxPitchNames[i]);
     }
-    for (i = 0; i < ArrayCount(class'HxHitEffects'.default.EHxAnimationNames); ++i)
+    for (i = 0; i < ArrayCount(class'HxHitEffects'.default.EHxDModeNames); ++i)
     {
-        cb_Animation.AddItem(class'HxHitEffects'.default.EHxAnimationNames[i]);
+        cb_DMode.AddItem(class'HxHitEffects'.default.EHxDModeNames[i]);
     }
     for (i = 0; i < ArrayCount(class'HxHitEffects'.default.DamagePointNames); ++i)
     {
@@ -143,14 +143,14 @@ function InternalOnChange(GUIComponent C)
             UpdateDamageNumbers();
             UpdateDamagePoints();
             break;
-        case cb_Animation:
-            Agent.HitEffects.Animation = EHxAnimation(cb_Animation.GetIndex());
+        case cb_DMode:
+            Agent.HitEffects.SetDMode(EHxDMode(cb_DMode.GetIndex()));
             break;
         case nu_DNPosX:
-            Agent.HitEffects.PosX = nu_DNPosX.GetValue();
+            Agent.HitEffects.SetPosX(nu_DNPosX.GetValue());
             break;
         case nu_DNPosY:
-            Agent.HitEffects.PosY = nu_DNPosY.GetValue();
+            Agent.HitEffects.SetPosY(nu_DNPosY.GetValue());
             break;
         case cb_DPPoint:
             DPIndex = cb_DPPoint.GetIndex();
@@ -261,7 +261,7 @@ function UpdateDamageNumbers()
 {
     if (Agent.bAllowDamageNumbers && Agent.HitEffects.bDamageNumbers)
     {
-        EnableComponent(cb_Animation);
+        EnableComponent(cb_DMode);
         EnableComponent(nu_DNPosX);
         EnableComponent(nu_DNPosY);
         EnableComponent(nu_DPScale);
@@ -271,7 +271,7 @@ function UpdateDamageNumbers()
     }
     else
     {
-        DisableComponent(cb_Animation);
+        DisableComponent(cb_DMode);
         DisableComponent(nu_DNPosX);
         DisableComponent(nu_DNPosY);
         DisableComponent(nu_DPScale);
@@ -316,7 +316,7 @@ function SetDamageNumbers()
 {
     ch_bAllowDamageNumbers.Checked(Agent.bAllowDamageNumbers);
     ch_bDamageNumbers.Checked(Agent.HitEffects.bDamageNumbers);
-    cb_Animation.SetIndex(Agent.HitEffects.Animation);
+    cb_DMode.SetIndex(Agent.HitEffects.DMode);
     nu_DNPosX.SetComponentValue(Agent.HitEffects.PosX);
     nu_DNPosY.SetComponentValue(Agent.HitEffects.PosY);
 }
@@ -447,7 +447,7 @@ defaultproperties
 
     Begin Object class=moSlider Name=HSVolume
         Caption="Volume"
-        MinValue=HxHitEffects.DN_MIN_Y
+        MinValue=0
         MaxValue=1.0
         ComponentWidth=0.70
         LabelJustification=TXTA_Left
@@ -491,8 +491,8 @@ defaultproperties
     End Object
     ch_bDamageNumbers=DamageNumbers
 
-    Begin Object class=moComboBox Name=Animation
-        Caption="Animation"
+    Begin Object class=moComboBox Name=DMode
+        Caption="Mode"
         ComponentWidth=0.70
         bReadOnly=true
         bAlwaysNotify=false
@@ -501,7 +501,7 @@ defaultproperties
         TabOrder=7
         OnChange=InternalOnChange
     End Object
-    cb_Animation=Animation
+    cb_DMode=DMode
 
 
     Begin Object class=moFloatEdit Name=DNPosX
