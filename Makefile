@@ -15,7 +15,7 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT
 # OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-packages:=HexedUT HexedUTComp
+packages:=HexedUT HexedGUI HexedUTComp
 
 .outdir:=build
 .versionfiles:=$(packages:%=$(.outdir)/%.make)
@@ -28,7 +28,8 @@ packages:=HexedUT HexedUTComp
 .uclfiles:=$(.versionedpackages:%=$(.outdir)/System/%.ucl)
 .intfiles:=$(.versionedpackages:%=$(.outdir)/System/%.int)
 .compressedfiles:=$(.ufiles:%=%.uz2)
-.targets:=$(.ufiles) $(.uclfiles) $(.intfiles)
+.targets:=$(.ufiles) $(.intfiles)
+.outputfiles:=$(.compressedfiles) $(.ufiles) $(.uclfiles) $(.intfiles)
 
 $(foreach p,$(packages),$(if $($p.version),$(eval $p$($p.version).name:=$p)))
 $(foreach p,$(packages),$(eval $p$($p.version).deps:=$p/make.ini $(wildcard $p/Classes/*.uc)))
@@ -45,12 +46,13 @@ release: $(.archives)
 
 clean:
 	@rm -rf $(.outdir)/System
-	@rm -f $(.targets:$(.outdir)/%=%)
+	@rm -f $(.outputfiles:$(.outdir)/%=%)
+	@rm -f $(.archives)
 
 distclean: clean
 	@rm -rf $(.outdir)
 
-$(.outdir)/System/%.u $(.outdir)/System/%.ucl: $$($$*.deps)
+$(.outdir)/System/%.u: $$($$*.deps)
 	@mkdir -p $(@D)
 	@$(if $($*.name),ln -s $($*.name) $*)
 	@rm -f System/$*.{u,ucl}
@@ -59,7 +61,7 @@ $(.outdir)/System/%.u $(.outdir)/System/%.ucl: $$($$*.deps)
 	@cd ../
 	@$(if $($*.name),rm $*)
 	@cp System/$*.u $(@D)
-	@cp System/$*.ucl $(@D)
+	@if [[ -f System/$*.ucl ]]; then cp System/$*.ucl $(@D); fi
 
 $(.outdir)/System/%.int: $(.outdir)/System/%.u
 	@mkdir -p $(@D)
