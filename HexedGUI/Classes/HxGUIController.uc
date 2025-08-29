@@ -1,7 +1,23 @@
 class HxGUIController extends UT2K4GUIController;
 
+#exec texture Import File=Textures\HxPointer.tga Name=HxPointer Mips=Off Alpha=1
+
+var config bool bSmallCursor;
+
+event InitializeController()
+{
+    Super.InitializeController();
+
+    if (bSmallCursor)
+    {
+        MouseCursors[0] = material'HxPointer';
+    }
+}
+
 defaultproperties
 {
+    bSmallCursor=false
+
     Begin Object Class=HxFontMenu Name=GUIMenuFont
     End Object
     FontStack(0)=GUIMenuFont
