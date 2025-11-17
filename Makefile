@@ -84,4 +84,4 @@ $(.outdir)/%.7z: $(.outdir)/System/%.u.uz2
 
 $(.versionfiles): $(.outdir)/%.make: %/make.ini
 	@mkdir -p $(@D)
-	@sed -nr "s/.*=[ ]*$*([vV]?[.0-9]*[a-zA-Z]?)$$/$*.version:=\1/gp" $*/make.ini > $@
+	@sed -nr "s/.*=[ ]*$*([vV]?[.0-9]*[a-zA-Z]*)$$/$*.version:=\1/gp" $*/make.ini > $@

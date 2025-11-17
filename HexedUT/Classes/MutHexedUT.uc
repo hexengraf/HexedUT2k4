@@ -95,7 +95,7 @@ static event string GetDescriptionText(string PropName)
 defaultproperties
 {
     // Inherited variables
-    FriendlyName="Hexed UT v0"
+    FriendlyName="Hexed UT v2dev"
     Description="Central mutator for HexedUT2k4."
     bAlwaysRelevant=true
     RemoteRole=ROLE_SimulatedProxy
