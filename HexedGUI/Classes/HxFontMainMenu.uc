@@ -7,8 +7,8 @@ defaultproperties
     NormalXRes=1920
     FallBackRes=512
 
-    FontArrayNames(0)="2K4Fonts.Impact38"
+    FontArrayNames(0)="2K4Fonts.Impact52"
     FontArrayNames(1)="2K4Fonts.Verdana24"
 
-    FontArrayFonts(0)=Font'HexedGUI.Impact38'
+    FontArrayFonts(0)=Font'HexedGUI.Impact52'
 }

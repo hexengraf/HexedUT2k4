@@ -30,6 +30,7 @@ packages:=HexedUT HexedGUI HexedUTComp
 .compressedfiles:=$(.ufiles:%=%.uz2)
 .targets:=$(.ufiles) $(.intfiles)
 .outputfiles:=$(.compressedfiles) $(.ufiles) $(.uclfiles) $(.intfiles)
+.winecmd:=WINEPREFIX=~/.ucc-prefix wine
 
 $(foreach p,$(packages),$(if $($p.version),$(eval $p$($p.version).name:=$p)))
 $(foreach p,$(packages),$(eval $p$($p.version).deps:=$p/make.ini $(wildcard $p/Classes/*.uc)))
@@ -57,7 +58,7 @@ $(.outdir)/System/%.u: $$($$*.deps)
 	@$(if $($*.name),ln -s $($*.name) $*)
 	@rm -f System/$*.{u,ucl}
 	@cd System
-	wine UCC.exe make -ini=../$*/make.ini
+	$(.winecmd) UCC.exe make -ini=../$*/make.ini
 	@cd ../
 	@$(if $($*.name),rm $*)
 	@cp System/$*.u $(@D)
@@ -67,14 +68,14 @@ $(.outdir)/System/%.int: $(.outdir)/System/%.u
 	@mkdir -p $(@D)
 	@rm -f System/$*.int
 	@cd System
-	wine UCC.exe dumpint $*.u
+	$(.winecmd) UCC.exe dumpint $*.u
 	@cd ../
 	@cp System/$*.int $(@D)
 
 $(.outdir)/System/%.u.uz2: $(.outdir)/System/%.u
 	@rm -f System/$*.u.uz2
 	@cd System
-	wine UCC.exe compress $*.u
+	$(.winecmd) UCC.exe compress $*.u
 	@cd ../
 	@cp System/$*.u.uz2 $(@D)
 
