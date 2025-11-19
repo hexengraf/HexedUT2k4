@@ -1,7 +1,5 @@
 class HxGUIController extends UT2K4GUIController;
 
-#exec texture Import File=Textures\HxPointer.tga Name=HxPointer Mips=Off Alpha=1
-
 var config bool bSmallCursor;
 
 event InitializeController()

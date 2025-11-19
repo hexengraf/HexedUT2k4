@@ -6,7 +6,7 @@
 	path = HexedUTComp
 	url = git@github.com:hexengraf/HexedUTComp.git
 	branch = master
-[submodule "HexedGUI/Textures"]
-	path = HexedGUI/Textures
-	url = git@github.com:hexengraf/HexedGUITextures.git
+[submodule "HexedSRC/Textures"]
+	path = HexedSRC/Textures
+	url = git@github.com:hexengraf/HexedUTTextures.git
 	branch = master
