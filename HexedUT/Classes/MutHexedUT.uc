@@ -69,15 +69,10 @@ simulated function Mutate(string Command, PlayerController Sender)
 
 static function FillPlayInfo(PlayInfo PlayInfo)
 {
-    PlayInfo.AddClass(default.class);
-
-    PlayInfo.AddSetting(
-        default.RulesGroup, "bAllowHitSounds", "Allow hit sound effects", 0, 10, "Check");
-    PlayInfo.AddSetting(
-        default.RulesGroup, "bAllowDamageNumbers", "Allow damage number effects", 0, 10, "Check");
-
-    PlayInfo.PopClass();
     super.FillPlayInfo(PlayInfo);
+
+    PlayInfo.AddSetting("HexedUT", "bAllowHitSounds", "Allow hit sound effects", 0, 10, "Check");
+    PlayInfo.AddSetting("HexedUT", "bAllowDamageNumbers", "Allow damage number effects", 0, 10, "Check");
 }
 
 static event string GetDescriptionText(string PropName)
