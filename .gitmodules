@@ -1,5 +1,5 @@
-[submodule "HexedUT/Sounds"]
-	path = HexedUT/Sounds
+[submodule "HexedSRC/Sounds"]
+	path = HexedSRC/Sounds
 	url = git@github.com:hexengraf/HexedUTSounds.git
 	branch = master
 [submodule "HexedUTComp"]

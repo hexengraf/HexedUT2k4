@@ -2,13 +2,7 @@ class HxHitEffects extends HudOverlay
     config(User)
     notplaceable;
 
-#exec AUDIO IMPORT FILE=Sounds\HitSound1.wav
-#exec AUDIO IMPORT FILE=Sounds\HitSound2.wav
-#exec AUDIO IMPORT FILE=Sounds\HitSound3.wav
-#exec AUDIO IMPORT FILE=Sounds\HitSound4.wav
-#exec AUDIO IMPORT FILE=Sounds\HitSound5.wav
-
-enum EHxPitch
+enum EHxPitchMode
 {
     HX_PITCH_Disabled,
     HX_PITCH_Low2High,
@@ -62,7 +56,7 @@ const DAMAGE_POINT_COUNT = 5;
 var config bool bHitSounds;
 var config int SelectedHitSound;
 var config float HitSoundVolume;
-var config EHxPitch PitchType;
+var config EHxPitchMode PitchMode;
 
 var config bool bDamageNumbers;
 var config EHxDMode DMode;
@@ -73,10 +67,9 @@ var config HxDamagePoint DamagePoints[DAMAGE_POINT_COUNT];
 var bool bAllowHitSounds;
 var bool bAllowDamageNumbers;
 var PlayerController PC;
-var array<Sound> HitSounds;
 var array<HxDamageNumber> DamageNumbers;
 
-var localized string EHxPitchNames[3];
+var localized string EHxPitchModeNames[3];
 var localized string EHxDModeNames[5];
 var localized string DamagePointNames[DAMAGE_POINT_COUNT];
 
@@ -97,7 +90,7 @@ simulated function ValidateConfig()
         DamagePoints[i].Pitch = FClamp(DamagePoints[i].Pitch, 0.0, 1.0);
         DamagePoints[i].Scale = FClamp(DamagePoints[i].Scale, 0.0, 1.0);
     }
-    SelectedHitSound = Clamp(SelectedHitSound, 0, HitSounds.Length - 1);
+    SelectedHitSound = Clamp(SelectedHitSound, 0, class'HxSounds'.default.HitSounds.Length - 1);
     DamagePoints[0].Value = 0;
     SaveConfig();
 }
@@ -236,7 +229,8 @@ simulated function PlayHitSound(int Damage)
 {
     if (PC.ViewTarget != None)
     {
-        PC.ViewTarget.PlaySound(HitSounds[SelectedHitSound],,HitSoundVolume,,,GetPitch(Damage));
+        PC.ViewTarget.PlaySound(
+            class'HxSounds'.default.HitSounds[SelectedHitSound],,HitSoundVolume,,,GetPitch(Damage));
     }
 }
 
@@ -245,7 +239,7 @@ simulated function float GetPitch(int Damage)
     local int i;
     local float NormalizedPitch;
 
-    if (PitchType == HX_PITCH_Disabled)
+    if (PitchMode == HX_PITCH_Disabled)
     {
         return ALAUDIO_PITCH_NEUTRAL;
     }
@@ -262,7 +256,7 @@ simulated function float GetPitch(int Damage)
     {
         NormalizedPitch = DamagePoints[DAMAGE_POINT_COUNT - 1].Pitch;
     }
-    if (PitchType == HX_PITCH_Low2High)
+    if (PitchMode == HX_PITCH_Low2High)
     {
         return ALAUDIO_PITCH_MIN + NormalizedPitch * ALAUDIO_PITCH_SPECTRUM;
     }
@@ -390,17 +384,12 @@ static simulated function float ToAbsoluteScale(float NormalizedScale)
     return FONT_SCALE_MIN + NormalizedScale * FONT_SCALE_SPECTRUM;
 }
 
-static simulated function AddHitSound(Sound HitSound)
-{
-    default.HitSounds[default.HitSounds.Length] = HitSound;
-}
-
 defaultproperties
 {
     bHitSounds=true
     SelectedHitSound=0
     HitSoundVolume=1.0
-    PitchType=HX_PITCH_High2Low
+    PitchMode=HX_PITCH_High2Low
     bDamageNumbers=true
     DMode=HX_DMODE_StaticDual
     PosX=0.5
@@ -410,14 +399,9 @@ defaultproperties
     DamagePoints(2)=(Value=70,Pitch=0.55,Scale=0.55,Color=(R=255,G=119,B=32))
     DamagePoints(3)=(Value=120,Pitch=0.75,Scale=0.75,Color=(R=255,G=32,B=32))
     DamagePoints(4)=(Value=180,Pitch=1.00,Scale=1.00,Color=(R=143,G=32,B=245))
-    HitSounds(0)=Sound'HitSound1'
-    HitSounds(1)=Sound'HitSound2'
-    HitSounds(2)=Sound'HitSound3'
-    HitSounds(3)=Sound'HitSound4'
-    HitSounds(4)=Sound'HitSound5'
-    EHxPitchNames(0)="Disabled"
-    EHxPitchNames(1)="Low to high"
-    EHxPitchNames(2)="High to low"
+    EHxPitchModeNames(0)="Disabled"
+    EHxPitchModeNames(1)="Low to high"
+    EHxPitchModeNames(2)="High to low"
     EHxDModeNames(0)="Static per hit"
     EHxDModeNames(1)="Static total"
     EHxDModeNames(2)="Static per hit & total"

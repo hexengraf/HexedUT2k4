@@ -1,4 +1,4 @@
-class HxGUIPanel extends MidGamePanel;
+class HxPanel extends MidGamePanel;
 
 const HIDE_DUE_INIT = "Initializing...";
 const HIDE_DUE_DISABLE = "Feature disabled on this server";

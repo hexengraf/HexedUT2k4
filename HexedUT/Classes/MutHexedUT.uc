@@ -1,9 +1,15 @@
-class MutHexedUT extends HxBaseMutator;
+class MutHexedUT extends HxMutator;
 
 var config bool bAllowHitSounds;
 var config bool bAllowDamageNumbers;
 
-var class<FloatingWindow> HxGUIMenuClass;
+var class<FloatingWindow> MenuClass;
+
+simulated function PreBeginPlay()
+{
+    Super.PreBeginPlay();
+    class'HxEffectsPanel'.static.AddToMenu();
+}
 
 event PostBeginPlay()
 {
@@ -59,9 +65,9 @@ simulated function Mutate(string Command, PlayerController Sender)
 {
     if (Command ~= "HexedUT")
     {
-        Sender.ClientOpenMenu(string(HxGUIMenuClass));
+        Sender.ClientOpenMenu(string(MenuClass));
     }
-	if (NextMutator != None)
+	else if (NextMutator != None)
     {
 		NextMutator.Mutate(Command, Sender);
     }
@@ -99,5 +105,5 @@ defaultproperties
     bAllowHitSounds=true
     bAllowDamageNumbers=true
     // Normal variables
-    HxGUIMenuClass=class'HxGUIMenu'
+    MenuClass=class'HxMenu'
 }

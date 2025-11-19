@@ -1,4 +1,4 @@
-class HxBaseMutator extends Mutator
+class HxMutator extends Mutator
     abstract;
 
 static function LinkedReplicationInfo SpawnLinkedPRI(PlayerReplicationInfo PRI,

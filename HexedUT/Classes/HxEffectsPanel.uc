@@ -1,4 +1,4 @@
-class HxEffectsGUIPanel extends HxGUIPanel;
+class HxEffectsPanel extends HxPanel;
 
 const SECTION_HS = 0;
 const SECTION_DN = 1;
@@ -8,7 +8,7 @@ var automated moCheckBox ch_bAllowHitSounds;
 var automated moCheckBox ch_bHitSounds;
 var automated moComboBox cb_HSHitSound;
 var automated moSlider sl_HSVolume;
-var automated moComboBox cb_HSPitchType;
+var automated moComboBox cb_HSPitchMode;
 
 var automated moCheckBox ch_bAllowDamageNumbers;
 var automated moCheckBox ch_bDamageNumbers;
@@ -40,7 +40,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     Sections[SECTION_HS].ManageComponent(ch_bHitSounds);
     Sections[SECTION_HS].ManageComponent(cb_HSHitSound);
     Sections[SECTION_HS].ManageComponent(sl_HSVolume);
-    Sections[SECTION_HS].ManageComponent(cb_HSPitchType);
+    Sections[SECTION_HS].ManageComponent(cb_HSPitchMode);
 
     Sections[SECTION_DN].ManageComponent(ch_bAllowDamageNumbers);
     Sections[SECTION_DN].ManageComponent(ch_bDamageNumbers);
@@ -59,13 +59,13 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     Sections[SECTION_DP].ManageComponent(sl_DPGreen);
     Sections[SECTION_DP].ManageComponent(sl_DPBlue);
 
-    for (i = 0; i < class'HxHitEffects'.default.HitSounds.Length; ++i)
+    for (i = 0; i < class'HxSounds'.default.HitSounds.Length; ++i)
     {
-        cb_HSHitSound.AddItem(string(class'HxHitEffects'.default.HitSounds[i]));
+        cb_HSHitSound.AddItem(string(class'HxSounds'.default.HitSounds[i]));
     }
-    for (i = 0; i < ArrayCount(class'HxHitEffects'.default.EHxPitchNames); ++i)
+    for (i = 0; i < ArrayCount(class'HxHitEffects'.default.EHxPitchModeNames); ++i)
     {
-        cb_HSPitchType.AddItem(class'HxHitEffects'.default.EHxPitchNames[i]);
+        cb_HSPitchMode.AddItem(class'HxHitEffects'.default.EHxPitchModeNames[i]);
     }
     for (i = 0; i < ArrayCount(class'HxHitEffects'.default.EHxDModeNames); ++i)
     {
@@ -129,8 +129,8 @@ function InternalOnChange(GUIComponent C)
         case sl_HSVolume:
             Agent.HitEffects.HitSoundVolume = sl_HSVolume.GetValue();
             break;
-        case cb_HSPitchType:
-            Agent.HitEffects.PitchType = EHxPitch(cb_HSPitchType.GetIndex());
+        case cb_HSPitchMode:
+            Agent.HitEffects.PitchMode = EHxPitchMode(cb_HSPitchMode.GetIndex());
             break;
         case ch_bAllowDamageNumbers:
             if (Agent.SetAllowDamageNumbers(ch_bAllowDamageNumbers.IsChecked()))
@@ -243,7 +243,7 @@ function UpdateHitSounds()
     {
         EnableComponent(cb_HSHitSound);
         EnableComponent(sl_HSVolume);
-        EnableComponent(cb_HSPitchType);
+        EnableComponent(cb_HSPitchMode);
         EnableComponent(sl_DPPitch);
         EnableComponent(b_PlaySound);
     }
@@ -251,7 +251,7 @@ function UpdateHitSounds()
     {
         DisableComponent(cb_HSHitSound);
         DisableComponent(sl_HSVolume);
-        DisableComponent(cb_HSPitchType);
+        DisableComponent(cb_HSPitchMode);
         DisableComponent(sl_DPPitch);
         DisableComponent(b_PlaySound);
     }
@@ -309,7 +309,7 @@ function SetHitSounds()
     ch_bHitSounds.Checked(Agent.HitEffects.bHitSounds);
     cb_HSHitSound.SetIndex(Agent.HitEffects.SelectedHitSound);
     sl_HSVolume.SetComponentValue(Agent.HitEffects.HitSoundVolume);
-    cb_HSPitchType.SetIndex(Agent.HitEffects.PitchType);
+    cb_HSPitchMode.SetIndex(Agent.HitEffects.PitchMode);
 }
 
 function SetDamageNumbers()
@@ -390,6 +390,11 @@ function bool PlaySoundOnClick(GUIComponent Sender)
     return true;
 }
 
+static function AddToMenu()
+{
+    class'HxMenu'.static.AddPanel(Default.Class, "Effects", "Hit Effect Options");
+}
+
 defaultproperties
 {
     bDoubleColumn=true
@@ -460,8 +465,8 @@ defaultproperties
     End Object
     sl_HSVolume=HSVolume
 
-    Begin Object class=moComboBox Name=HSPitchType
-        Caption="Pitch"
+    Begin Object class=moComboBox Name=HSPitchMode
+        Caption="Pitch mode"
         ComponentWidth=0.70
         bReadOnly=true
         bAlwaysNotify=false
@@ -470,7 +475,7 @@ defaultproperties
         TabOrder=4
         OnChange=InternalOnChange
     End Object
-    cb_HSPitchType=HSPitchType
+    cb_HSPitchMode=HSPitchMode
 
     Begin Object class=moCheckBox Name=AllowDamageNumbers
         Caption="Allow damage numbers"

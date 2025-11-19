@@ -1,13 +1,13 @@
-class HxGUIMenu extends FloatingWindow;
+class HxMenu extends FloatingWindow;
 
-struct HxGUIPanelInfo
+struct HxPanelInfo
 {
 	var class<UT2K4TabPanel> PanelClass;
 	var localized string Caption;
 	var localized string Hint;
 };
 
-var array<HxGUIPanelInfo> Panels;
+var array<HxPanelInfo> Panels;
 var automated GUITabControl TabControl;
 
 function InitComponent(GUIController MyController, GUIComponent MyComponent)
@@ -40,7 +40,7 @@ function PopulateTabControl()
 
 static function AddPanel(class<UT2K4TabPanel> PanelClass, string Caption, string Hint)
 {
-	local HxGUIPanelInfo Panel;
+	local HxPanelInfo Panel;
 
 	Panel.PanelClass = PanelClass;
 	Panel.Caption = Caption;
@@ -50,7 +50,7 @@ static function AddPanel(class<UT2K4TabPanel> PanelClass, string Caption, string
 
 defaultproperties
 {
-    Begin Object class=GUITabControl Name=HxGUIMenuTC
+    Begin Object class=GUITabControl Name=MidGameMenuTC
 		WinWidth=0.97
 		WinHeight=0.05
 		WinLeft=0.01500
@@ -63,9 +63,7 @@ defaultproperties
 		TabOrder=0
         BackgroundStyleName="TabBackground"
     End Object
-    TabControl=HxGUIMenuTC
-
-	Panels(0)=(PanelClass=class'HxEffectsGUIPanel',Caption="Effects",Hint="Hit Effect Options")
+    TabControl=MidGameMenuTC
 
 	WindowName="HexedUT"
 	bRenderWorld=true
