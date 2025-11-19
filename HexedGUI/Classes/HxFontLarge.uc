@@ -4,7 +4,7 @@ defaultproperties
 {
 	KeyName="UT2LargeFont"
 
-    FontArrayNames(0)="HexedGUI.Verdana40"
+    FontArrayNames(0)=string(Font'Verdana40')
     FontArrayNames(1)="2K4Fonts.Verdana26"
     FontArrayNames(2)="2K4Fonts.Verdana22" // last original
     FontArrayNames(3)="2K4Fonts.Verdana20"
@@ -12,5 +12,5 @@ defaultproperties
     FontArrayNames(5)="2K4Fonts.Verdana16"
     FontArrayNames(6)="2K4Fonts.Verdana14"
 
-    FontArrayFonts(0)=Font'HexedGUI.Verdana40'
+    FontArrayFonts(0)=Font'Verdana40'
 }
