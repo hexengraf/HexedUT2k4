@@ -137,7 +137,6 @@ simulated Event Tick(float DeltaTime)
     local int i;
     local bool bKeepSize;
 
-    super.Tick(DeltaTime);
     bKeepSize = DamageNumbers.Length == DN_TOTAL_INDEX + 1;
 
     for (i = 0; i < DamageNumbers.Length; ++i)

@@ -9,7 +9,7 @@ simulated function PreBeginPlay()
 {
     Super.PreBeginPlay();
     class'HxGeneralPanel'.static.AddToMenu();
-    class'HxEffectsPanel'.static.AddToMenu();
+    class'HxHitEffectsPanel'.static.AddToMenu();
 }
 
 event PostBeginPlay()

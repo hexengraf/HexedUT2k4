@@ -1,4 +1,4 @@
-class HxEffectsPanel extends HxPanel;
+class HxHitEffectsPanel extends HxPanel;
 
 const SECTION_HS = 0;
 const SECTION_DN = 1;
@@ -392,7 +392,8 @@ function bool PlaySoundOnClick(GUIComponent Sender)
 
 static function AddToMenu()
 {
-    class'HxMenu'.static.AddPanel(Default.Class, "Effects", "Hit Effect Options");
+    class'HxMenu'.static.AddPanel(
+        Default.Class, "Hit Effects", "Hit sounds & damage number options");
 }
 
 defaultproperties
