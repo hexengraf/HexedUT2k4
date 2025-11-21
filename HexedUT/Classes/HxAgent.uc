@@ -13,6 +13,7 @@ var bool bAllowDamageNumbers;
 var MutHexedUT HexedUT;
 var PlayerController PC;
 var HxHitEffects HitEffects;
+var HxSpawnProtectionTimer SpawnProtectionTimer;
 var DamageInfo Damage;
 
 replication
@@ -69,7 +70,8 @@ simulated function ClientUpdateHitEffects(int Damage)
 simulated function bool InitializeClient()
 {
     return InitializePlayerController()
-        && InitializeHitEffects();
+        && InitializeHitEffects()
+        && InitializeSpawnProtectionTimer();
 }
 
 simulated function bool InitializePlayerController()
@@ -85,13 +87,23 @@ simulated function bool InitializeHitEffects()
 {
     if (HitEffects == None && PC != None && PC.myHUD != None)
     {
-        HitEffects = PC.Spawn(class'HxHitEffects');
+        HitEffects = PC.myHUD.Spawn(class'HxHitEffects');
         HitEffects.PC = PC;
         HitEffects.bAllowHitSounds = bAllowHitSounds;
         HitEffects.bAllowDamageNumbers = bAllowDamageNumbers;
         PC.myHUD.AddHudOverlay(HitEffects);
     }
     return HitEffects != None;
+}
+
+simulated function bool InitializeSpawnProtectionTimer()
+{
+    if (SpawnProtectionTimer == None && PC != None && PC.myHUD != None)
+    {
+        SpawnProtectionTimer = PC.myHUD.Spawn(class'HxSpawnProtectionTimer');
+        PC.myHUD.AddHudOverlay(SpawnProtectionTimer);
+    }
+    return SpawnProtectionTimer != None;
 }
 
 simulated function bool IsSynchronized()

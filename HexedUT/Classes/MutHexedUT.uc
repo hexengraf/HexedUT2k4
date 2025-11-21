@@ -8,6 +8,7 @@ var class<FloatingWindow> MenuClass;
 simulated function PreBeginPlay()
 {
     Super.PreBeginPlay();
+    class'HxGeneralPanel'.static.AddToMenu();
     class'HxEffectsPanel'.static.AddToMenu();
 }
 
