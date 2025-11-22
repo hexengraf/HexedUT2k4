@@ -10,6 +10,10 @@ const DAMAGE_CLUSTERING_INTERVAL = 0.015;
 
 var bool bAllowHitSounds;
 var bool bAllowDamageNumbers;
+var int StartingHealth;
+var int StartingShield;
+var int StartingGrenades;
+
 var MutHexedUT HexedUT;
 var PlayerController PC;
 var HxHitEffects HitEffects;
@@ -22,10 +26,12 @@ replication
         ClientUpdateHitEffects;
 
     reliable if (Role == ROLE_Authority)
-        bAllowHitSounds, bAllowDamageNumbers;
+        bAllowHitSounds, bAllowDamageNumbers,
+        StartingHealth, StartingShield, StartingGrenades;
 
     reliable if (Role < ROLE_Authority)
-        ServerSetAllowHitSounds, ServerSetAllowDamageNumbers;
+        ServerSetAllowHitSounds, ServerSetAllowDamageNumbers,
+        ServerSetStartingHealth, ServerSetStartingShield, ServerSetStartingGrenades;
 }
 
 simulated event Tick(float DeltaTime)
@@ -150,6 +156,36 @@ function ServerSetAllowDamageNumbers(bool bValue)
     {
         bAllowDamageNumbers = bValue;
         HexedUT.bAllowDamageNumbers = bValue;
+        HexedUT.SaveConfig();
+    }
+}
+
+function ServerSetStartingHealth(int Value)
+{
+    if (PC.PlayerReplicationInfo.bAdmin)
+    {
+        StartingHealth = Value;
+        HexedUT.StartingHealth = Value;
+        HexedUT.SaveConfig();
+    }
+}
+
+function ServerSetStartingShield(int Value)
+{
+    if (PC.PlayerReplicationInfo.bAdmin)
+    {
+        StartingShield = Value;
+        HexedUT.StartingShield = Value;
+        HexedUT.SaveConfig();
+    }
+}
+
+function ServerSetStartingGrenades(int Value)
+{
+    if (PC.PlayerReplicationInfo.bAdmin)
+    {
+        StartingGrenades = Value;
+        HexedUT.StartingGrenades = Value;
         HexedUT.SaveConfig();
     }
 }
