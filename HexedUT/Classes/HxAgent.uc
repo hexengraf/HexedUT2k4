@@ -10,9 +10,14 @@ const DAMAGE_CLUSTERING_INTERVAL = 0.015;
 
 var bool bAllowHitSounds;
 var bool bAllowDamageNumbers;
-var int StartingHealth;
-var int StartingShield;
-var int StartingGrenades;
+var int BonusStartingHealth;
+var int BonusStartingShield;
+var int BonusStartingGrenades;
+var float MaxSpeedMultiplier;
+var float AirControlMultiplier;
+var float BaseJumpMultiplier;
+var float MultiJumpMultiplier;
+var int BonusMultiJumps;
 
 var MutHexedUT HexedUT;
 var PlayerController PC;
@@ -26,12 +31,15 @@ replication
         ClientUpdateHitEffects;
 
     reliable if (Role == ROLE_Authority)
-        bAllowHitSounds, bAllowDamageNumbers,
-        StartingHealth, StartingShield, StartingGrenades;
+        bAllowHitSounds, bAllowDamageNumbers, BonusStartingHealth, BonusStartingShield,
+        BonusStartingGrenades, MaxSpeedMultiplier, AirControlMultiplier, BaseJumpMultiplier,
+        MultiJumpMultiplier, BonusMultiJumps;
 
     reliable if (Role < ROLE_Authority)
-        ServerSetAllowHitSounds, ServerSetAllowDamageNumbers,
-        ServerSetStartingHealth, ServerSetStartingShield, ServerSetStartingGrenades;
+        ServerSetAllowHitSounds, ServerSetAllowDamageNumbers, ServerSetBonusStartingHealth,
+        ServerSetBonusStartingShield, ServerSetBonusStartingGrenades, ServerSetMaxSpeedMultiplier,
+        ServerSetAirControlMultiplier, ServerSetBaseJumpMultiplier, ServerSetBonusMultiJumps,
+        ServerSetMultiJumpMultiplier;
 }
 
 simulated event Tick(float DeltaTime)
@@ -160,32 +168,82 @@ function ServerSetAllowDamageNumbers(bool bValue)
     }
 }
 
-function ServerSetStartingHealth(int Value)
+function ServerSetBonusStartingHealth(int Value)
 {
     if (PC.PlayerReplicationInfo.bAdmin)
     {
-        StartingHealth = Value;
-        HexedUT.StartingHealth = Value;
+        BonusStartingHealth = Value;
+        HexedUT.BonusStartingHealth = Value;
         HexedUT.SaveConfig();
     }
 }
 
-function ServerSetStartingShield(int Value)
+function ServerSetBonusStartingShield(int Value)
 {
     if (PC.PlayerReplicationInfo.bAdmin)
     {
-        StartingShield = Value;
-        HexedUT.StartingShield = Value;
+        BonusStartingShield = Value;
+        HexedUT.BonusStartingShield = Value;
         HexedUT.SaveConfig();
     }
 }
 
-function ServerSetStartingGrenades(int Value)
+function ServerSetBonusStartingGrenades(int Value)
 {
     if (PC.PlayerReplicationInfo.bAdmin)
     {
-        StartingGrenades = Value;
-        HexedUT.StartingGrenades = Value;
+        BonusStartingGrenades = Value;
+        HexedUT.BonusStartingGrenades = Value;
+        HexedUT.SaveConfig();
+    }
+}
+
+function ServerSetMaxSpeedMultiplier(float Value)
+{
+    if (PC.PlayerReplicationInfo.bAdmin)
+    {
+        MaxSpeedMultiplier = Value;
+        HexedUT.MaxSpeedMultiplier = Value;
+        HexedUT.SaveConfig();
+    }
+}
+
+function ServerSetAirControlMultiplier(float Value)
+{
+    if (PC.PlayerReplicationInfo.bAdmin)
+    {
+        AirControlMultiplier = Value;
+        HexedUT.AirControlMultiplier = Value;
+        HexedUT.SaveConfig();
+    }
+}
+
+function ServerSetBaseJumpMultiplier(float Value)
+{
+    if (PC.PlayerReplicationInfo.bAdmin)
+    {
+        BaseJumpMultiplier = Value;
+        HexedUT.BaseJumpMultiplier = Value;
+        HexedUT.SaveConfig();
+    }
+}
+
+function ServerSetMultiJumpMultiplier(float Value)
+{
+    if (PC.PlayerReplicationInfo.bAdmin)
+    {
+        MultiJumpMultiplier = Value;
+        HexedUT.MultiJumpMultiplier = Value;
+        HexedUT.SaveConfig();
+    }
+}
+
+function ServerSetBonusMultiJumps(int Value)
+{
+    if (PC.PlayerReplicationInfo.bAdmin)
+    {
+        BonusMultiJumps = Value;
+        HexedUT.BonusMultiJumps = Value;
         HexedUT.SaveConfig();
     }
 }
