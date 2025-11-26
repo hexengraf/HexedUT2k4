@@ -108,18 +108,6 @@ simulated function InitializeDamageNumber(int i)
     DamageNumbers[i].Duration = DN_NORMAL_DURATION;
 }
 
-simulated function SetPosX(float X)
-{
-    PosX = X;
-    InitializeDamageNumbers();
-}
-
-simulated function SetPosY(float Y)
-{
-    PosY = Y;
-    InitializeDamageNumbers();
-}
-
 simulated Event Tick(float DeltaTime)
 {
     local int i;
