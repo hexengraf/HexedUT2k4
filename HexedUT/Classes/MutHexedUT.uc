@@ -11,13 +11,14 @@ var config float BaseJumpMultiplier;
 var config float MultiJumpMultiplier;
 var config int BonusMultiJumps;
 
-var class<FloatingWindow> MenuClass;
-
-simulated function PreBeginPlay()
+simulated event PreBeginPlay()
 {
     Super.PreBeginPlay();
-    class'HxGeneralPanel'.static.AddToMenu();
-    class'HxHitEffectsPanel'.static.AddToMenu();
+    if (Level.NetMode != NM_DedicatedServer)
+    {
+        class'HxServerMenuPanel'.static.AddToMenu();
+        class'HxDisplayMenuPanel'.static.AddToMenu();
+    }
 }
 
 event PostBeginPlay()
@@ -35,7 +36,7 @@ function ModifyPlayer(Pawn Other)
 {
     OverrideStartingValues(Other);
     OverrideJumpValues(xPawn(Other));
-	Super.ModifyPlayer(Other);
+    Super.ModifyPlayer(Other);
 }
 
 function OverrideStartingValues(Pawn Other)
@@ -60,10 +61,10 @@ function OverrideJumpValues(xPawn Other)
 {
     if (Other != None)
     {
-		Other.GroundSpeed *= MaxSpeedMultiplier;
-		Other.WaterSpeed *= MaxSpeedMultiplier;
-		Other.AirSpeed *= MaxSpeedMultiplier;
-		Other.AirControl *= AirControlMultiplier;
+        Other.GroundSpeed *= MaxSpeedMultiplier;
+        Other.WaterSpeed *= MaxSpeedMultiplier;
+        Other.AirSpeed *= MaxSpeedMultiplier;
+        Other.AirControl *= AirControlMultiplier;
         Other.JumpZ *= BaseJumpMultiplier;
         Other.MultiJumpBoost *= MultiJumpMultiplier;
         Other.MaxMultiJump += BonusMultiJumps;
@@ -78,19 +79,9 @@ function SpawnHxAgent(PlayerReplicationInfo PRI)
     if (PlayerController(PRI.Owner) != None && MessagingSpectator(PRI.Owner) == None)
     {
         Agent = HxAgent(SpawnLinkedPRI(PRI, class'HxAgent'));
-        Agent.bAllowHitSounds = bAllowHitSounds;
-        Agent.bAllowDamageNumbers = bAllowDamageNumbers;
-        Agent.BonusStartingHealth = BonusStartingHealth;
-        Agent.BonusStartingShield = BonusStartingShield;
-        Agent.BonusStartingGrenades = BonusStartingGrenades;
-        Agent.MaxSpeedMultiplier = MaxSpeedMultiplier;
-        Agent.AirControlMultiplier = AirControlMultiplier;
-        Agent.BaseJumpMultiplier = BaseJumpMultiplier;
-        Agent.MultiJumpMultiplier = MultiJumpMultiplier;
-        Agent.BonusMultiJumps = BonusMultiJumps;
         Agent.PC = PlayerController(PRI.Owner);
         Agent.HexedUT = Self;
-        Agent.NetUpdateTime = Level.TimeSeconds - 1;
+        UpdateAgent(Agent);
     }
 }
 
@@ -103,93 +94,56 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
     return true;
 }
 
-function GetServerDetails(out GameInfo.ServerResponseLine ServerState)
+function UpdateAgent(HxAgent Agent)
 {
-    local int i;
-
-    super.GetServerDetails(ServerState);
-
-    i = ServerState.ServerInfo.Length;
-    ServerState.ServerInfo.Length = i + 1;
-    ServerState.ServerInfo[i].Key = "Current Tick Rate";
-    ServerState.ServerInfo[i++].Value = ConsoleCommand("GetCurrentTickRate");
-    ServerState.ServerInfo.Length = i + 1;
-    ServerState.ServerInfo[i].Key = "Max Tick Rate";
-    ServerState.ServerInfo[i++].Value = ConsoleCommand("GetMaxTickRate");
+    Agent.bAllowHitSounds = bAllowHitSounds;
+    Agent.bAllowDamageNumbers = bAllowDamageNumbers;
+    Agent.BonusStartingHealth = BonusStartingHealth;
+    Agent.BonusStartingShield = BonusStartingShield;
+    Agent.BonusStartingGrenades = BonusStartingGrenades;
+    Agent.MaxSpeedMultiplier = MaxSpeedMultiplier;
+    Agent.AirControlMultiplier = AirControlMultiplier;
+    Agent.BaseJumpMultiplier = BaseJumpMultiplier;
+    Agent.MultiJumpMultiplier = MultiJumpMultiplier;
+    Agent.BonusMultiJumps = BonusMultiJumps;
+    Agent.NetUpdateTime = Level.TimeSeconds - 1;
 }
 
-function Mutate(string Command, PlayerController Sender)
+function UpdateAllClients()
 {
-    if (Command ~= "HexedUT")
-    {
-        Sender.ClientOpenMenu(string(MenuClass));
-    }
-	else if (NextMutator != None)
-    {
-		NextMutator.Mutate(Command, Sender);
-    }
-}
+    local HxAgent Agent;
+    local Controller C;
 
-static function FillPlayInfo(PlayInfo PlayInfo)
-{
-    super.FillPlayInfo(PlayInfo);
-
-    PlayInfo.AddSetting("HexedUT", "bAllowHitSounds", "Allow hit sound effects", 0, 1, "Check");
-    PlayInfo.AddSetting(
-        "HexedUT", "bAllowDamageNumbers", "Allow damage number effects", 0, 1, "Check");
-    PlayInfo.AddSetting(
-        "HexedUT", "BonusStartingHealth", "Bonus starting health", 0, 1, "Text", "3;-99:99");
-    PlayInfo.AddSetting(
-        "HexedUT", "BonusStartingShield", "Bonus starting shield", 0, 1, "Text", "3;0:150");
-    PlayInfo.AddSetting(
-        "HexedUT", "BonusStartingGrenades", "Bonus starting AR grenades", 0, 1, "Text", "3;-4:99");
-    PlayInfo.AddSetting(
-        "HexedUT", "MaxSpeedMultiplier", "Maximum speed multiplier", 0, 1, "Text", "8;-100.0:100.0");
-    PlayInfo.AddSetting(
-        "HexedUT", "AirControlMultiplier", "Air control multiplier", 0, 1, "Text", "8;-10.0:10.0");
-    PlayInfo.AddSetting(
-        "HexedUT", "BaseJumpMultiplier", "Base jump multiplier", 0, 1, "Text", "8;-10.0:10.0");
-    PlayInfo.AddSetting(
-        "HexedUT", "MultiJumpMultiplier", "Multi-jump multiplier", 0, 1, "Text", "8;-100.0:100.0");
-    PlayInfo.AddSetting("HexedUT", "BonusMultiJumps", "Bonus multi-jumps", 0, 1, "Text", "3;-1:99");
-}
-
-static event string GetDescriptionText(string PropName)
-{
-    switch (PropName)
+    for (C = Level.ControllerList; C != None; C = C.NextController)
     {
-        case "bAllowHitSounds":
-            return "Allow clients to enable/disable hit sound effects.";
-        case "bAllowDamageNumbers":
-            return "Allow clients to enable/disable damage number effects.";
-        case "BonusStartingHealth":
-            return "Bonus to add to starting health (between -99 and 99).";
-        case "BonusStartingShield":
-            return "Bonus to add to Starting shield (between 0 and 150).";
-        case "BonusStartingGrenades":
-            return "Bonus to add to starting number of AR grenades (between -4 and 99).";
-        case "MaxSpeedMultiplier":
-            return "Coefficient to multiply maximum movement speed (between -100.0 and 100.0).";
-        case "AirControlMultiplier":
-            return "Coefficient to multiply air control (between -10.0 and 10.0).";
-        case "BaseJumpMultiplier":
-            return "Coefficient to multiply base jump acceleration (between -10.0 and 10.0).";
-        case "MultiJumpMultiplier":
-            return "Coefficient to multiply multi-jump acceleration boost (between -100.0 and 100.0).";
-        case "BonusMultiJumps":
-            return "Bonus to add to base amount of multi-jumps (between -1 and 99).";
+        Agent = class'HxAgent'.static.GetAgent(C);
+        if (Agent != None)
+        {
+            UpdateAgent(Agent);
+        }
     }
-    return Super.GetDescriptionText(PropName);
 }
 
 defaultproperties
 {
-    // Inherited variables
     FriendlyName="Hexed UT v2dev"
     Description="Central mutator for HexedUT2k4."
     bAlwaysRelevant=true
     RemoteRole=ROLE_SimulatedProxy
     bAddToServerPackages=true
+    MutatorGroup="HexedUT"
+
+    PropertyInfoEntries(0)=(Name="bAllowHitSounds",Caption="Allow hit sound effects",Hint="Allow clients to enable/disable hit sound effects.",PIType="Check")
+    PropertyInfoEntries(1)=(Name="bAllowDamageNumbers",Caption="Allow damage number effects",Hint="Allow clients to enable/disable damage number effects.",PIType="Check")
+    PropertyInfoEntries(2)=(Name="BonusStartingHealth",Caption="Bonus health",Hint="Bonus to add to starting health (between -99 and 99).",PIType="Text",PIExtras="8;-99:99")
+    PropertyInfoEntries(3)=(Name="BonusStartingShield",Caption="Bonus shield",Hint="Bonus to add to Starting shield (between 0 and 150).",PIType="Text",PIExtras="8;0:150")
+    PropertyInfoEntries(4)=(Name="BonusStartingGrenades",Caption="Bonus AR grenades",Hint="Bonus to add to starting number of AR grenades (between -4 and 99).",PIType="Text",PIExtras="8;-4:99")
+    PropertyInfoEntries(5)=(Name="MaxSpeedMultiplier",Caption="Maximum speed multiplier",Hint="Coefficient to multiply maximum movement speed (between -100.0 and 100.0).",PIType="Text",PIExtras="8;-100.0:100.0")
+    PropertyInfoEntries(6)=(Name="AirControlMultiplier",Caption="Air control multiplier",Hint="Coefficient to multiply air control (between -10.0 and 10.0).",PIType="Text",PIExtras="8;-10.0:10.0")
+    PropertyInfoEntries(7)=(Name="BaseJumpMultiplier",Caption="Base jump multiplier",Hint="Coefficient to multiply base jump acceleration (between -10.0 and 10.0).",PIType="Text",PIExtras="8;-10.0:10.0")
+    PropertyInfoEntries(8)=(Name="MultiJumpMultiplier",Caption="Multi-jump multiplier",Hint="Coefficient to multiply multi-jump acceleration boost (between -100.0 and 100.0)",PIType="Text",PIExtras="8;-100.0:100.0")
+    PropertyInfoEntries(9)=(Name="BonusMultiJumps",Caption="Bonus multi-jumps",Hint="Bonus to add to base amount of multi-jumps (between -1 and 99).",PIType="Text",PIExtras="8;-1:99")
+
     // Config variables
     bAllowHitSounds=true
     bAllowDamageNumbers=true
@@ -201,6 +155,4 @@ defaultproperties
     BaseJumpMultiplier=1.0
     MultiJumpMultiplier=1.0
     BonusMultiJumps=0
-    // Normal variables
-    MenuClass=class'HxMenu'
 }

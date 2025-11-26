@@ -1,18 +1,62 @@
-class HxPanel extends MidGamePanel;
+class HxMenuPanel extends MidGamePanel
+    abstract;
 
 const HIDE_DUE_INIT = "Initializing...";
 const HIDE_DUE_DISABLE = "Feature disabled on this server";
+const HIDE_DUE_ADMIN = "Requires administrator privileges";
 
 var automated array<AltSectionBackground> Sections;
 var private automated array<AltSectionBackground> HideSections;
 var private automated array<GUILabel> HideMessages;
 var bool bDoubleColumn;
 
+function bool Initialize();
+function Refresh();
+
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
     super.InitComponent(MyController, MyOwner);
     InitSections();
     HideAllSections(true, HIDE_DUE_INIT);
+}
+
+function ShowPanel(bool bShow)
+{
+    Super.ShowPanel(bShow);
+
+    if (bShow)
+    {
+        if (Initialize())
+        {
+            HideAllSections(false);
+            Refresh();
+        }
+        else
+        {
+            SetTimer(0.1, true);
+        }
+    }
+}
+
+event Timer()
+{
+    if (Initialize())
+    {
+        HideAllSections(false);
+        Refresh();
+        KillTimer();
+    }
+}
+
+function TargetOnChange(GUIComponent C)
+{
+    local HxMenuOption Option;
+
+    Option = HxMenuOption(C);
+    if (Option != None)
+    {
+        Option.SetValueOnTarget();
+    }
 }
 
 function InitSections()
@@ -152,10 +196,10 @@ function HideAllSections(bool bHidden, optional String Reason)
 
 function bool IsAdmin()
 {
-	local PlayerController PC;
+    local PlayerController PC;
 
-	PC = PlayerOwner();
-	return PC != None && PC.PlayerReplicationInfo != None && PC.PlayerReplicationInfo.bAdmin;
+    PC = PlayerOwner();
+    return PC != None && PC.PlayerReplicationInfo != None && PC.PlayerReplicationInfo.bAdmin;
 }
 
 defaultproperties

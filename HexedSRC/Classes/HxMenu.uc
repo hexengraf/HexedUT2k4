@@ -2,81 +2,109 @@ class HxMenu extends FloatingWindow;
 
 struct HxPanelInfo
 {
-	var class<UT2K4TabPanel> PanelClass;
-	var localized string Caption;
-	var localized string Hint;
+    var class<UT2K4TabPanel> PanelClass;
+    var localized string Caption;
+    var localized string Hint;
+    var bool bInsertFront;
 };
 
 var array<HxPanelInfo> Panels;
 var automated GUITabControl TabControl;
+var int PanelCount;
 
 function InitComponent(GUIController MyController, GUIComponent MyComponent)
 {
-	Super.InitComponent(MyController, MyComponent);
-	t_WindowTitle.bUseTextHeight = true;
-	t_WindowTitle.FontScale = FNS_Small;
-	t_WindowTitle.DockedTabs = TabControl;
-	t_WindowTitle.DockAlign = PGA_Top;
-	i_FrameBG.ImageColor.A = 225;
-	PopulateTabControl();
+    Super.InitComponent(MyController, MyComponent);
+    t_WindowTitle.bUseTextHeight = true;
+    t_WindowTitle.FontScale = FNS_Small;
+    t_WindowTitle.DockedTabs = TabControl;
+    t_WindowTitle.DockAlign = PGA_Top;
+    i_FrameBG.ImageColor.A = 225;
+    PopulateTabControl();
+}
+
+event Opened(GUIComponent Sender)
+{
+    PopulateTabControl();
+    Super.Opened(Sender);
 }
 
 event bool NotifyLevelChange()
 {
-	bPersistent = false;
-	LevelChanged();
-	return true;
+    bPersistent = false;
+    LevelChanged();
+    return true;
 }
 
 function PopulateTabControl()
 {
-	local int i;
+    local int i;
 
-	for (i = 0; i < Panels.Length; ++i)
-	{
-		TabControl.AddTab(Panels[i].Caption, string(Panels[i].PanelClass),, Panels[i].Hint);
-	}
+    for (i = PanelCount; i < default.Panels.Length; ++i)
+    {
+        if (default.Panels[i].bInsertFront)
+        {
+            TabControl.InsertTab(
+                0,
+                default.Panels[i].Caption,
+                string(default.Panels[i].PanelClass),
+                ,
+                default.Panels[i].Hint,
+                true);
+        }
+        TabControl.AddTab(
+            default.Panels[i].Caption,
+            string(default.Panels[i].PanelClass),
+            ,
+            default.Panels[i].Hint);
+    }
+    PanelCount = default.Panels.Length;
 }
 
-static function AddPanel(class<UT2K4TabPanel> PanelClass, string Caption, string Hint)
+static function AddPanel(class<UT2K4TabPanel> PanelClass,
+                         string Caption,
+                         string Hint,
+                         optional bool bInsertFront)
 {
-	local HxPanelInfo Panel;
+    local HxPanelInfo Panel;
 
-	Panel.PanelClass = PanelClass;
-	Panel.Caption = Caption;
-	Panel.Hint = Hint;
-	default.Panels[default.Panels.Length] = Panel;
+    Panel.PanelClass = PanelClass;
+    Panel.Caption = Caption;
+    Panel.Hint = Hint;
+    Panel.bInsertFront = bInsertFront;
+    default.Panels[default.Panels.Length] = Panel;
 }
 
 defaultproperties
 {
     Begin Object class=GUITabControl Name=MidGameMenuTC
-		WinWidth=0.97
-		WinHeight=0.05
-		WinLeft=0.01500
-		WinTop=0.060215
+        WinWidth=0.97
+        WinHeight=0.0475
+        WinLeft=0.01500
+        WinTop=0.060215
         TabHeight=0.0375
         bAcceptsInput=true
         bDockPanels=true
         bScaleToParent=true
         bFillSpace=true
-		TabOrder=0
+        TabOrder=0
         BackgroundStyleName="TabBackground"
     End Object
     TabControl=MidGameMenuTC
 
-	WindowName="HexedUT"
-	bRenderWorld=true
+    WindowName="HexedUT"
+    bRenderWorld=true
     bRequire640x480=true
     bAllowedAsLast=true
     bScaleToParent=true
-	WinWidth=0.60
-	WinHeight=0.75
-	WinLeft=0.20
-	WinTop=0.05
-	bResizeWidthAllowed=false
-	bResizeHeightAllowed=false
-	bMoveAllowed=false
-	bPersistent=true
-	BackgroundColor=(R=64,G=64,B=64,A=225)
+    WinWidth=0.60
+    WinHeight=0.80
+    WinLeft=0.20
+    WinTop=0.05
+    bResizeWidthAllowed=false
+    bResizeHeightAllowed=false
+    bMoveAllowed=false
+    bPersistent=true
+    BackgroundColor=(R=64,G=64,B=64,A=225)
+    PanelCount=0
 }

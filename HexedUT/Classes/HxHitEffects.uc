@@ -64,14 +64,8 @@ var config float PosX;
 var config float PosY;
 var config HxDamagePoint DamagePoints[DAMAGE_POINT_COUNT];
 
-var bool bAllowHitSounds;
-var bool bAllowDamageNumbers;
 var PlayerController PC;
 var array<HxDamageNumber> DamageNumbers;
-
-var localized string EHxPitchModeNames[3];
-var localized string EHxDModeNames[5];
-var localized string DamagePointNames[DAMAGE_POINT_COUNT];
 
 simulated event PreBeginPlay()
 {
@@ -123,12 +117,6 @@ simulated function SetPosX(float X)
 simulated function SetPosY(float Y)
 {
     PosY = Y;
-    InitializeDamageNumbers();
-}
-
-simulated function SetDMode(EHxDMode M)
-{
-    DMode = M;
     InitializeDamageNumbers();
 }
 
@@ -212,7 +200,7 @@ simulated function RenderDamageNumber(Canvas C, int i)
     C.DrawTextClipped(Number);
 }
 
-simulated function Update(int Damage)
+simulated function Update(int Damage, bool bAllowHitSounds, bool bAllowDamageNumbers)
 {
     if (bAllowHitSounds && bHitSounds)
     {
@@ -398,17 +386,4 @@ defaultproperties
     DamagePoints(2)=(Value=70,Pitch=0.55,Scale=0.55,Color=(R=255,G=119,B=32))
     DamagePoints(3)=(Value=120,Pitch=0.75,Scale=0.75,Color=(R=255,G=32,B=32))
     DamagePoints(4)=(Value=180,Pitch=1.00,Scale=1.00,Color=(R=143,G=32,B=245))
-    EHxPitchModeNames(0)="Disabled"
-    EHxPitchModeNames(1)="Low to high"
-    EHxPitchModeNames(2)="High to low"
-    EHxDModeNames(0)="Static per hit"
-    EHxDModeNames(1)="Static total"
-    EHxDModeNames(2)="Static per hit & total"
-    EHxDModeNames(3)="Float per hit"
-    EHxDModeNames(4)="Float per hit & total"
-    DamagePointNames(0)="Zero damage"
-    DamagePointNames(1)="Low damage"
-    DamagePointNames(2)="Medium damage"
-    DamagePointNames(3)="High damage"
-    DamagePointNames(4)="Extreme damage"
 }

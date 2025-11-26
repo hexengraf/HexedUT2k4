@@ -36,10 +36,7 @@ replication
         MultiJumpMultiplier, BonusMultiJumps;
 
     reliable if (Role < ROLE_Authority)
-        ServerSetAllowHitSounds, ServerSetAllowDamageNumbers, ServerSetBonusStartingHealth,
-        ServerSetBonusStartingShield, ServerSetBonusStartingGrenades, ServerSetMaxSpeedMultiplier,
-        ServerSetAirControlMultiplier, ServerSetBaseJumpMultiplier, ServerSetBonusMultiJumps,
-        ServerSetMultiJumpMultiplier;
+        RemoteSetProperty;
 }
 
 simulated event Tick(float DeltaTime)
@@ -77,7 +74,7 @@ simulated function ClientUpdateHitEffects(int Damage)
 {
     if (Level.NetMode != NM_DedicatedServer && HitEffects != None)
     {
-        HitEffects.Update(Damage);
+        HitEffects.Update(Damage, bAllowHitSounds, bAllowDamageNumbers);
     }
 }
 
@@ -103,8 +100,6 @@ simulated function bool InitializeHitEffects()
     {
         HitEffects = PC.myHUD.Spawn(class'HxHitEffects');
         HitEffects.PC = PC;
-        HitEffects.bAllowHitSounds = bAllowHitSounds;
-        HitEffects.bAllowDamageNumbers = bAllowDamageNumbers;
         PC.myHUD.AddHudOverlay(HitEffects);
     }
     return HitEffects != None;
@@ -120,131 +115,11 @@ simulated function bool InitializeSpawnProtectionTimer()
     return SpawnProtectionTimer != None;
 }
 
-simulated function bool IsSynchronized()
-{
-    return bAllowHitSounds ==  HitEffects.bAllowHitSounds
-        && bAllowDamageNumbers == HitEffects.bAllowDamageNumbers;
-}
-
-simulated function bool SetAllowHitSounds(bool bValue)
+function RemoteSetProperty(string PropertyName, string PropertyValue)
 {
     if (PC.PlayerReplicationInfo.bAdmin)
     {
-        HitEffects.bAllowHitSounds = bValue;
-        ServerSetAllowHitSounds(bValue);
-        return true;
-    }
-    return false;
-}
-
-simulated function bool SetAllowDamageNumbers(bool bValue)
-{
-    if (PC.PlayerReplicationInfo.bAdmin)
-    {
-        HitEffects.bAllowDamageNumbers = bValue;
-        ServerSetAllowDamageNumbers(bValue);
-        return true;
-    }
-    return false;
-}
-
-function ServerSetAllowHitSounds(bool bValue)
-{
-    if (PC.PlayerReplicationInfo.bAdmin)
-    {
-        bAllowHitSounds = bValue;
-        HexedUT.bAllowHitSounds = bValue;
-        HexedUT.SaveConfig();
-    }
-}
-
-function ServerSetAllowDamageNumbers(bool bValue)
-{
-    if (PC.PlayerReplicationInfo.bAdmin)
-    {
-        bAllowDamageNumbers = bValue;
-        HexedUT.bAllowDamageNumbers = bValue;
-        HexedUT.SaveConfig();
-    }
-}
-
-function ServerSetBonusStartingHealth(int Value)
-{
-    if (PC.PlayerReplicationInfo.bAdmin)
-    {
-        BonusStartingHealth = Value;
-        HexedUT.BonusStartingHealth = Value;
-        HexedUT.SaveConfig();
-    }
-}
-
-function ServerSetBonusStartingShield(int Value)
-{
-    if (PC.PlayerReplicationInfo.bAdmin)
-    {
-        BonusStartingShield = Value;
-        HexedUT.BonusStartingShield = Value;
-        HexedUT.SaveConfig();
-    }
-}
-
-function ServerSetBonusStartingGrenades(int Value)
-{
-    if (PC.PlayerReplicationInfo.bAdmin)
-    {
-        BonusStartingGrenades = Value;
-        HexedUT.BonusStartingGrenades = Value;
-        HexedUT.SaveConfig();
-    }
-}
-
-function ServerSetMaxSpeedMultiplier(float Value)
-{
-    if (PC.PlayerReplicationInfo.bAdmin)
-    {
-        MaxSpeedMultiplier = Value;
-        HexedUT.MaxSpeedMultiplier = Value;
-        HexedUT.SaveConfig();
-    }
-}
-
-function ServerSetAirControlMultiplier(float Value)
-{
-    if (PC.PlayerReplicationInfo.bAdmin)
-    {
-        AirControlMultiplier = Value;
-        HexedUT.AirControlMultiplier = Value;
-        HexedUT.SaveConfig();
-    }
-}
-
-function ServerSetBaseJumpMultiplier(float Value)
-{
-    if (PC.PlayerReplicationInfo.bAdmin)
-    {
-        BaseJumpMultiplier = Value;
-        HexedUT.BaseJumpMultiplier = Value;
-        HexedUT.SaveConfig();
-    }
-}
-
-function ServerSetMultiJumpMultiplier(float Value)
-{
-    if (PC.PlayerReplicationInfo.bAdmin)
-    {
-        MultiJumpMultiplier = Value;
-        HexedUT.MultiJumpMultiplier = Value;
-        HexedUT.SaveConfig();
-    }
-}
-
-function ServerSetBonusMultiJumps(int Value)
-{
-    if (PC.PlayerReplicationInfo.bAdmin)
-    {
-        BonusMultiJumps = Value;
-        HexedUT.BonusMultiJumps = Value;
-        HexedUT.SaveConfig();
+        HexedUT.SetProperty(PropertyName, PropertyValue);
     }
 }
 

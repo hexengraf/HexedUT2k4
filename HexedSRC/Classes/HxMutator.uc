@@ -1,6 +1,83 @@
 class HxMutator extends Mutator
     abstract;
 
+struct PropertyInfoEntry
+{
+    var string Name;
+    var localized string Caption;
+    var localized string Hint;
+    var string PIType;
+    var string PIExtras;
+    var bool bMultiplayerOnly;
+    var bool bAdvanced;
+};
+
+var class<FloatingWindow> MenuClass;
+var localized string MutatorGroup;
+var array<PropertyInfoEntry> PropertyInfoEntries;
+
+function Mutate(string Command, PlayerController Sender)
+{
+    if (Command ~= "HexedUT")
+    {
+        Sender.ClientOpenMenu(string(MenuClass));
+    }
+    else if (NextMutator != None)
+    {
+        NextMutator.Mutate(Command, Sender);
+    }
+}
+
+static function FillPlayInfo(PlayInfo PlayInfo)
+{
+    local int i;
+    local PropertyInfoEntry Entry;
+
+    super.FillPlayInfo(PlayInfo);
+
+    for (i = 0; i < default.PropertyInfoEntries.Length; ++i)
+    {
+        Entry = default.PropertyInfoEntries[i];
+        PlayInfo.AddSetting(
+            default.MutatorGroup, Entry.Name, Entry.Caption, 0, 1, Entry.PIType, Entry.PIExtras);
+    }
+}
+
+static event string GetDescriptionText(string PropertyName)
+{
+    local int i;
+
+    i = GetPropertyIndex(PropertyName);
+    if (i >= 0)
+    {
+        return default.PropertyInfoEntries[i].Hint;
+    }
+    return Super.GetDescriptionText(PropertyName);
+}
+
+static simulated function int GetPropertyIndex(string PropertyName)
+{
+    local int i;
+
+    for (i = 0; i < default.PropertyInfoEntries.Length; ++i)
+    {
+        if (PropertyName == default.PropertyInfoEntries[i].Name)
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
+function SetProperty(string PropertyName, String PropertyValue)
+{
+    SetPropertyText(PropertyName, PropertyValue);
+    UpdateAllClients();
+    SaveConfig();
+}
+
+function UpdateAllClients();
+
 static function LinkedReplicationInfo SpawnLinkedPRI(PlayerReplicationInfo PRI,
                                                      class<LinkedReplicationInfo> LinkedPRIClass)
 {
@@ -25,4 +102,6 @@ static function LinkedReplicationInfo SpawnLinkedPRI(PlayerReplicationInfo PRI,
 
 defaultproperties
 {
+    MenuClass=class'HxMenu'
+    MutatorGroup="HexedMutator"
 }
