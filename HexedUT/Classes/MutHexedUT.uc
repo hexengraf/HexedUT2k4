@@ -6,7 +6,7 @@ var config int BonusStartingHealth;
 var config int BonusStartingShield;
 var config int BonusStartingGrenades;
 var config int BonusStartingAdrenaline;
-var config int BonusAdrenalineOnRespawn;
+var config int BonusAdrenalineOnSpawn;
 var config float MaxSpeedMultiplier;
 var config float AirControlMultiplier;
 var config float BaseJumpMultiplier;
@@ -16,7 +16,7 @@ var config float DodgeMultiplier;
 var config float DodgeSpeedMultiplier;
 var config bool bCanBoostDodge;
 var config bool bDisableWallDodge;
-var config bool DisableDodgeJump;
+var config bool bDisableDodgeJump;
 
 simulated event PreBeginPlay()
 {
@@ -72,7 +72,7 @@ function ModifyAdrenaline(Controller Other)
 
 function ModifyAdrenalineOnRespawn(Pawn Other)
 {
-    Other.Controller.AwardAdrenaline(BonusAdrenalineOnRespawn);
+    Other.Controller.AwardAdrenaline(BonusAdrenalineOnSpawn);
 }
 
 function ModifyMovement(xPawn Other)
@@ -91,7 +91,7 @@ function ModifyMovement(xPawn Other)
         Other.DodgeSpeedFactor *= DodgeSpeedMultiplier;
         Other.bCanBoostDodge = Other.bCanBoostDodge || bCanBoostDodge;
         Other.bCanWallDodge = Other.bCanWallDodge ^^ bDisableWallDodge;
-        Other.bCanDodgeDoubleJump = Other.bCanDodgeDoubleJump ^^ DisableDodgeJump;
+        Other.bCanDodgeDoubleJump = Other.bCanDodgeDoubleJump ^^ bDisableDodgeJump;
     }
 }
 
@@ -123,13 +123,23 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
 
 function UpdateAgent(HxAgent Agent)
 {
-    local int i;
-
-    for (i = 0; i < PropertyInfoEntries.Length; ++i)
-    {
-        Agent.SetPropertyText(
-            PropertyInfoEntries[i].Name, GetPropertyText(PropertyInfoEntries[i].Name));
-    }
+    Agent.bAllowHitSounds = bAllowHitSounds;
+    Agent.bAllowDamageNumbers = bAllowDamageNumbers;
+    Agent.BonusStartingHealth = BonusStartingHealth;
+    Agent.BonusStartingShield = BonusStartingShield;
+    Agent.BonusStartingGrenades = BonusStartingGrenades;
+    Agent.BonusStartingAdrenaline = BonusStartingAdrenaline;
+    Agent.BonusAdrenalineOnSpawn = BonusAdrenalineOnSpawn;
+    Agent.MaxSpeedMultiplier = MaxSpeedMultiplier;
+    Agent.AirControlMultiplier = AirControlMultiplier;
+    Agent.BaseJumpMultiplier = BaseJumpMultiplier;
+    Agent.MultiJumpMultiplier = MultiJumpMultiplier;
+    Agent.BonusMultiJumps = BonusMultiJumps;
+    Agent.DodgeMultiplier = DodgeMultiplier;
+    Agent.DodgeSpeedMultiplier = DodgeSpeedMultiplier;
+    Agent.bCanBoostDodge = bCanBoostDodge;
+    Agent.bDisableWallDodge = bDisableWallDodge;
+    Agent.bDisableDodgeJump = bDisableDodgeJump;
     Agent.NetUpdateTime = Level.TimeSeconds - 1;
 }
 
@@ -163,7 +173,7 @@ defaultproperties
     PropertyInfoEntries(3)=(Name="BonusStartingShield",Caption="Bonus shield",Hint="Bonus to add to Starting shield (between 0 and 150).",PIType="Text",PIExtras="8;0:150")
     PropertyInfoEntries(4)=(Name="BonusStartingGrenades",Caption="Bonus AR grenades",Hint="Bonus to add to starting number of AR grenades (between -4 and 99).",PIType="Text",PIExtras="8;-4:99")
     PropertyInfoEntries(5)=(Name="BonusStartingAdrenaline",Caption="Bonus adrenaline",Hint="Bonus to add to starting adrenaline (between 0 and 100).",PIType="Text",PIExtras="8;0:100")
-    PropertyInfoEntries(6)=(Name="BonusAdrenalineOnRespawn",Caption="Bonus adrenaline on respawn",Hint="Bonus to add to adrenaline on respawn (between -100 and 100).",PIType="Text",PIExtras="8;-100:100")
+    PropertyInfoEntries(6)=(Name="BonusAdrenalineOnSpawn",Caption="Bonus adrenaline on spawn",Hint="Bonus to add to adrenaline on spawn (between -100 and 100).",PIType="Text",PIExtras="8;-100:100")
     PropertyInfoEntries(7)=(Name="MaxSpeedMultiplier",Caption="Maximum speed multiplier",Hint="Coefficient to multiply maximum movement speed (between -100.0 and 100.0).",PIType="Text",PIExtras="8;-100.0:100.0")
     PropertyInfoEntries(8)=(Name="AirControlMultiplier",Caption="Air control multiplier",Hint="Coefficient to multiply air control (between -10.0 and 10.0).",PIType="Text",PIExtras="8;-10.0:10.0")
     PropertyInfoEntries(9)=(Name="BaseJumpMultiplier",Caption="Base jump multiplier",Hint="Coefficient to multiply base jump acceleration (between -10.0 and 10.0).",PIType="Text",PIExtras="8;-10.0:10.0")
@@ -173,7 +183,7 @@ defaultproperties
     PropertyInfoEntries(13)=(Name="DodgeSpeedMultiplier",Caption="Dodge speed multiplier",Hint="Coefficient to multiply dodge speed factor (between -10.0 and 10.0).",PIType="Text",PIExtras="8;-10.0:10.0")
     PropertyInfoEntries(14)=(Name="bCanBoostDodge",Caption="Enable boost dodge",Hint="Enable UT2003's boost dodge.",PIType="Check")
     PropertyInfoEntries(15)=(Name="bDisableWallDodge",Caption="Disable wall dodge",Hint="Disable wall dodge (UT Classic).",PIType="Check")
-    PropertyInfoEntries(16)=(Name="DisableDodgeJump",Caption="Disable dodge jump",Hint="Disable dodge jump (UT Classic).",PIType="Check")
+    PropertyInfoEntries(16)=(Name="bDisableDodgeJump",Caption="Disable dodge jump",Hint="Disable dodge jump (UT Classic).",PIType="Check")
 
     // Config variables
     bAllowHitSounds=true
@@ -182,7 +192,7 @@ defaultproperties
     BonusStartingShield=0
     BonusStartingGrenades=0
     BonusStartingAdrenaline=0
-    BonusAdrenalineOnRespawn=0
+    BonusAdrenalineOnSpawn=0
     MaxSpeedMultiplier=1.0
     AirControlMultiplier=1.0
     BaseJumpMultiplier=1.0
@@ -192,5 +202,5 @@ defaultproperties
     DodgeSpeedMultiplier=1.0
     bCanBoostDodge=false
     bDisableWallDodge=false
-    DisableDodgeJump=false
+    bDisableDodgeJump=false
 }

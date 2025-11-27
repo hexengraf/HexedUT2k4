@@ -14,7 +14,7 @@ var int BonusStartingHealth;
 var int BonusStartingShield;
 var int BonusStartingGrenades;
 var int BonusStartingAdrenaline;
-var int BonusAdrenalineOnRespawn;
+var int BonusAdrenalineOnSpawn;
 var float MaxSpeedMultiplier;
 var float AirControlMultiplier;
 var float BaseJumpMultiplier;
@@ -24,7 +24,7 @@ var float DodgeMultiplier;
 var float DodgeSpeedMultiplier;
 var bool bCanBoostDodge;
 var bool bDisableWallDodge;
-var bool DisableDodgeJump;
+var bool bDisableDodgeJump;
 
 var MutHexedUT HexedUT;
 var PlayerController PC;
@@ -39,9 +39,9 @@ replication
 
     reliable if (Role == ROLE_Authority)
         bAllowHitSounds, bAllowDamageNumbers, BonusStartingHealth, BonusStartingShield,
-        BonusStartingGrenades, BonusStartingAdrenaline, BonusAdrenalineOnRespawn, MaxSpeedMultiplier,
+        BonusStartingGrenades, BonusStartingAdrenaline, BonusAdrenalineOnSpawn, MaxSpeedMultiplier,
         AirControlMultiplier, BaseJumpMultiplier, MultiJumpMultiplier, BonusMultiJumps,
-        bCanBoostDodge, bDisableWallDodge, DisableDodgeJump;
+        bCanBoostDodge, bDisableWallDodge, bDisableDodgeJump;
 
     reliable if (Role < ROLE_Authority)
         RemoteSetProperty;

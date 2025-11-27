@@ -130,7 +130,7 @@ defaultproperties
         OnChange=RemoteOnChange
     End Object
 
-    Begin Object class=HxMenuNumericEdit Name=BonusAdrenalineOnRespawn
+    Begin Object class=HxMenuNumericEdit Name=BonusAdrenalineOnSpawn
         MinValue=-100
         MaxValue=100
         Step=10
@@ -209,7 +209,7 @@ defaultproperties
     Options(3)=BonusStartingShield
     Options(4)=BonusStartingGrenades
     Options(5)=BonusStartingAdrenaline
-    Options(6)=BonusAdrenalineOnRespawn
+    Options(6)=BonusAdrenalineOnSpawn
     Options(7)=MaxSpeedMultiplier
     Options(8)=AirControlMultiplier
     Options(9)=BaseJumpMultiplier
