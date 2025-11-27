@@ -5,6 +5,8 @@ var config bool bAllowDamageNumbers;
 var config int BonusStartingHealth;
 var config int BonusStartingShield;
 var config int BonusStartingGrenades;
+var config int BonusStartingAdrenaline;
+var config int BonusAdrenalineOnRespawn;
 var config float MaxSpeedMultiplier;
 var config float AirControlMultiplier;
 var config float BaseJumpMultiplier;
@@ -29,23 +31,24 @@ event PostBeginPlay()
     G = Spawn(class'HxGameRules');
     G.HexedUT = self;
     Level.Game.AddGameModifier(G);
-    OverrideStartingGrenades();
+    ModifyStartingGrenades();
 }
 
 function ModifyPlayer(Pawn Other)
 {
-    OverrideStartingValues(Other);
-    OverrideJumpValues(xPawn(Other));
+    ModifyHealthAndShield(Other);
+    ModifyAdrenalineOnRespawn(Other);
+    ModifyMovement(xPawn(Other));
     Super.ModifyPlayer(Other);
 }
 
-function OverrideStartingValues(Pawn Other)
+function ModifyHealthAndShield(Pawn Other)
 {
     Other.GiveHealth(BonusStartingHealth, Other.SuperHealthMax);
     Other.AddShieldStrength(BonusStartingShield);
 }
 
-function OverrideStartingGrenades()
+function ModifyStartingGrenades()
 {
     local int TotalGrenades;
 
@@ -57,7 +60,17 @@ function OverrideStartingGrenades()
     }
 }
 
-function OverrideJumpValues(xPawn Other)
+function ModifyAdrenaline(Controller Other)
+{
+    Other.AwardAdrenaline(BonusStartingAdrenaline);
+}
+
+function ModifyAdrenalineOnRespawn(Pawn Other)
+{
+    Other.Controller.AwardAdrenaline(BonusAdrenalineOnRespawn);
+}
+
+function ModifyMovement(xPawn Other)
 {
     if (Other != None)
     {
@@ -91,6 +104,10 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
     {
         SpawnHxAgent(PlayerReplicationInfo(Other));
     }
+    else if (Controller(Other) != None)
+    {
+        ModifyAdrenaline(Controller(Other));
+    }
     return true;
 }
 
@@ -101,6 +118,8 @@ function UpdateAgent(HxAgent Agent)
     Agent.BonusStartingHealth = BonusStartingHealth;
     Agent.BonusStartingShield = BonusStartingShield;
     Agent.BonusStartingGrenades = BonusStartingGrenades;
+    Agent.BonusStartingAdrenaline = BonusStartingAdrenaline;
+    Agent.BonusAdrenalineOnRespawn = BonusAdrenalineOnRespawn;
     Agent.MaxSpeedMultiplier = MaxSpeedMultiplier;
     Agent.AirControlMultiplier = AirControlMultiplier;
     Agent.BaseJumpMultiplier = BaseJumpMultiplier;
@@ -138,11 +157,13 @@ defaultproperties
     PropertyInfoEntries(2)=(Name="BonusStartingHealth",Caption="Bonus health",Hint="Bonus to add to starting health (between -99 and 99).",PIType="Text",PIExtras="8;-99:99")
     PropertyInfoEntries(3)=(Name="BonusStartingShield",Caption="Bonus shield",Hint="Bonus to add to Starting shield (between 0 and 150).",PIType="Text",PIExtras="8;0:150")
     PropertyInfoEntries(4)=(Name="BonusStartingGrenades",Caption="Bonus AR grenades",Hint="Bonus to add to starting number of AR grenades (between -4 and 99).",PIType="Text",PIExtras="8;-4:99")
-    PropertyInfoEntries(5)=(Name="MaxSpeedMultiplier",Caption="Maximum speed multiplier",Hint="Coefficient to multiply maximum movement speed (between -100.0 and 100.0).",PIType="Text",PIExtras="8;-100.0:100.0")
-    PropertyInfoEntries(6)=(Name="AirControlMultiplier",Caption="Air control multiplier",Hint="Coefficient to multiply air control (between -10.0 and 10.0).",PIType="Text",PIExtras="8;-10.0:10.0")
-    PropertyInfoEntries(7)=(Name="BaseJumpMultiplier",Caption="Base jump multiplier",Hint="Coefficient to multiply base jump acceleration (between -10.0 and 10.0).",PIType="Text",PIExtras="8;-10.0:10.0")
-    PropertyInfoEntries(8)=(Name="MultiJumpMultiplier",Caption="Multi-jump multiplier",Hint="Coefficient to multiply multi-jump acceleration boost (between -100.0 and 100.0)",PIType="Text",PIExtras="8;-100.0:100.0")
-    PropertyInfoEntries(9)=(Name="BonusMultiJumps",Caption="Bonus multi-jumps",Hint="Bonus to add to base amount of multi-jumps (between -1 and 99).",PIType="Text",PIExtras="8;-1:99")
+    PropertyInfoEntries(5)=(Name="BonusStartingAdrenaline",Caption="Bonus adrenaline",Hint="Bonus to add to starting adrenaline (between 0 and 100).",PIType="Text",PIExtras="8;0:100")
+    PropertyInfoEntries(6)=(Name="BonusAdrenalineOnRespawn",Caption="Bonus adrenaline on respawn",Hint="Bonus to add to adrenaline on respawn (between -100 and 100).",PIType="Text",PIExtras="8;-100:100")
+    PropertyInfoEntries(7)=(Name="MaxSpeedMultiplier",Caption="Maximum speed multiplier",Hint="Coefficient to multiply maximum movement speed (between -100.0 and 100.0).",PIType="Text",PIExtras="8;-100.0:100.0")
+    PropertyInfoEntries(8)=(Name="AirControlMultiplier",Caption="Air control multiplier",Hint="Coefficient to multiply air control (between -10.0 and 10.0).",PIType="Text",PIExtras="8;-10.0:10.0")
+    PropertyInfoEntries(9)=(Name="BaseJumpMultiplier",Caption="Base jump multiplier",Hint="Coefficient to multiply base jump acceleration (between -10.0 and 10.0).",PIType="Text",PIExtras="8;-10.0:10.0")
+    PropertyInfoEntries(10)=(Name="MultiJumpMultiplier",Caption="Multi-jump multiplier",Hint="Coefficient to multiply multi-jump acceleration boost (between -100.0 and 100.0)",PIType="Text",PIExtras="8;-100.0:100.0")
+    PropertyInfoEntries(11)=(Name="BonusMultiJumps",Caption="Bonus multi-jumps",Hint="Bonus to add to base amount of multi-jumps (between -1 and 99).",PIType="Text",PIExtras="8;-1:99")
 
     // Config variables
     bAllowHitSounds=true
@@ -150,6 +171,8 @@ defaultproperties
     BonusStartingHealth=0
     BonusStartingShield=0
     BonusStartingGrenades=0
+    BonusStartingAdrenaline=0
+    BonusAdrenalineOnRespawn=0
     MaxSpeedMultiplier=1.0
     AirControlMultiplier=1.0
     BaseJumpMultiplier=1.0

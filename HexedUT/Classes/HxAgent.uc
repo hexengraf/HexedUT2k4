@@ -13,6 +13,8 @@ var bool bAllowDamageNumbers;
 var int BonusStartingHealth;
 var int BonusStartingShield;
 var int BonusStartingGrenades;
+var int BonusStartingAdrenaline;
+var int BonusAdrenalineOnRespawn;
 var float MaxSpeedMultiplier;
 var float AirControlMultiplier;
 var float BaseJumpMultiplier;
@@ -32,8 +34,8 @@ replication
 
     reliable if (Role == ROLE_Authority)
         bAllowHitSounds, bAllowDamageNumbers, BonusStartingHealth, BonusStartingShield,
-        BonusStartingGrenades, MaxSpeedMultiplier, AirControlMultiplier, BaseJumpMultiplier,
-        MultiJumpMultiplier, BonusMultiJumps;
+        BonusStartingGrenades, BonusStartingAdrenaline, BonusAdrenalineOnRespawn, MaxSpeedMultiplier,
+        AirControlMultiplier, BaseJumpMultiplier, MultiJumpMultiplier, BonusMultiJumps;
 
     reliable if (Role < ROLE_Authority)
         RemoteSetProperty;
