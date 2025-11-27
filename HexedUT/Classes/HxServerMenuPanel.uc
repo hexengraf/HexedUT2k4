@@ -1,7 +1,7 @@
 class HxServerMenuPanel extends HxMenuPanel;
 
-const SECTION_HIT_EFFECTS = 0;
-const SECTION_MOVEMENT = 2;
+const SECTION_MOVEMENT = 0;
+const SECTION_HIT_EFFECTS = 2;
 const SECTION_STARTING_VALUES = 3;
 
 var automated array<HxMenuOption> Options;
@@ -21,7 +21,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     {
         Sections[SECTION_STARTING_VALUES].ManageComponent(Options[i]);
     }
-    for (i = 7; i < 12; ++i)
+    for (i = 7; i < Options.Length; ++i)
     {
         Sections[SECTION_MOVEMENT].ManageComponent(Options[i]);
     }
@@ -78,6 +78,12 @@ static function AddToMenu()
 defaultproperties
 {
 
+    Begin Object class=AltSectionBackground Name=MovementSection
+        Caption="Movement"
+        NumColumns=2
+        WinHeight=0.40
+    End Object
+
     Begin Object class=AltSectionBackground Name=HitEffectsSection
         Caption="Hit Effects"
         WinHeight=0.16
@@ -85,11 +91,6 @@ defaultproperties
 
     Begin Object class=AltSectionBackground Name=StartingValuesSection
         Caption="Starting Values"
-        WinHeight=0.40
-    End Object
-
-    Begin Object class=AltSectionBackground Name=MovementSection
-        Caption="Movement"
         WinHeight=0.40
     End Object
 
@@ -171,11 +172,37 @@ defaultproperties
         OnChange=RemoteOnChange
     End Object
 
+    Begin Object class=HxMenuFloatEdit Name=DodgeMultiplier
+        MinValue=-10.0
+        MaxValue=+10.0
+        Step=0.25
+        OnChange=RemoteOnChange
+    End Object
+
+    Begin Object class=HxMenuFloatEdit Name=DodgeSpeedMultiplier
+        MinValue=-10.0
+        MaxValue=+10.0
+        Step=0.25
+        OnChange=RemoteOnChange
+    End Object
+
+    Begin Object class=HxMenuCheckBox Name=CanBoostDodge
+        OnChange=RemoteOnChange
+    End Object
+
+    Begin Object class=HxMenuCheckBox Name=DisableWallDodge
+        OnChange=RemoteOnChange
+    End Object
+
+    Begin Object class=HxMenuCheckBox Name=DisableDodgeJump
+        OnChange=RemoteOnChange
+    End Object
+
     bDoubleColumn=true
-    Sections(0)=HitEffectsSection
+    Sections(0)=MovementSection
     Sections(1)=None
-    Sections(2)=StartingValuesSection
-    Sections(3)=MovementSection
+    Sections(2)=HitEffectsSection
+    Sections(3)=StartingValuesSection
     Options(0)=AllowHitSounds
     Options(1)=AllowDamageNumbers
     Options(2)=BonusStartingHealth
@@ -188,4 +215,9 @@ defaultproperties
     Options(9)=BaseJumpMultiplier
     Options(10)=MultiJumpMultiplier
     Options(11)=BonusMultiJumps
+    Options(12)=DodgeMultiplier
+    Options(13)=DodgeSpeedMultiplier
+    Options(14)=CanBoostDodge
+    Options(15)=DisableWallDodge
+    Options(16)=DisableDodgeJump
 }

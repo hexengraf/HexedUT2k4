@@ -12,6 +12,11 @@ var config float AirControlMultiplier;
 var config float BaseJumpMultiplier;
 var config float MultiJumpMultiplier;
 var config int BonusMultiJumps;
+var config float DodgeMultiplier;
+var config float DodgeSpeedMultiplier;
+var config bool bCanBoostDodge;
+var config bool bDisableWallDodge;
+var config bool DisableDodgeJump;
 
 simulated event PreBeginPlay()
 {
@@ -82,6 +87,11 @@ function ModifyMovement(xPawn Other)
         Other.MultiJumpBoost *= MultiJumpMultiplier;
         Other.MaxMultiJump += BonusMultiJumps;
         Other.MultiJumpRemaining += BonusMultiJumps;
+        Other.DodgeSpeedZ *= DodgeMultiplier;
+        Other.DodgeSpeedFactor *= DodgeSpeedMultiplier;
+        Other.bCanBoostDodge = Other.bCanBoostDodge || bCanBoostDodge;
+        Other.bCanWallDodge = Other.bCanWallDodge ^^ bDisableWallDodge;
+        Other.bCanDodgeDoubleJump = Other.bCanDodgeDoubleJump ^^ DisableDodgeJump;
     }
 }
 
@@ -113,18 +123,13 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
 
 function UpdateAgent(HxAgent Agent)
 {
-    Agent.bAllowHitSounds = bAllowHitSounds;
-    Agent.bAllowDamageNumbers = bAllowDamageNumbers;
-    Agent.BonusStartingHealth = BonusStartingHealth;
-    Agent.BonusStartingShield = BonusStartingShield;
-    Agent.BonusStartingGrenades = BonusStartingGrenades;
-    Agent.BonusStartingAdrenaline = BonusStartingAdrenaline;
-    Agent.BonusAdrenalineOnRespawn = BonusAdrenalineOnRespawn;
-    Agent.MaxSpeedMultiplier = MaxSpeedMultiplier;
-    Agent.AirControlMultiplier = AirControlMultiplier;
-    Agent.BaseJumpMultiplier = BaseJumpMultiplier;
-    Agent.MultiJumpMultiplier = MultiJumpMultiplier;
-    Agent.BonusMultiJumps = BonusMultiJumps;
+    local int i;
+
+    for (i = 0; i < PropertyInfoEntries.Length; ++i)
+    {
+        Agent.SetPropertyText(
+            PropertyInfoEntries[i].Name, GetPropertyText(PropertyInfoEntries[i].Name));
+    }
     Agent.NetUpdateTime = Level.TimeSeconds - 1;
 }
 
@@ -164,6 +169,11 @@ defaultproperties
     PropertyInfoEntries(9)=(Name="BaseJumpMultiplier",Caption="Base jump multiplier",Hint="Coefficient to multiply base jump acceleration (between -10.0 and 10.0).",PIType="Text",PIExtras="8;-10.0:10.0")
     PropertyInfoEntries(10)=(Name="MultiJumpMultiplier",Caption="Multi-jump multiplier",Hint="Coefficient to multiply multi-jump acceleration boost (between -100.0 and 100.0)",PIType="Text",PIExtras="8;-100.0:100.0")
     PropertyInfoEntries(11)=(Name="BonusMultiJumps",Caption="Bonus multi-jumps",Hint="Bonus to add to base amount of multi-jumps (between -1 and 99).",PIType="Text",PIExtras="8;-1:99")
+    PropertyInfoEntries(12)=(Name="DodgeMultiplier",Caption="Dodge multiplier",Hint="Coefficient to multiply dodge acceleration (Z-axis, between -10.0 and 10.0).",PIType="Text",PIExtras="8;-10.0:10.0")
+    PropertyInfoEntries(13)=(Name="DodgeSpeedMultiplier",Caption="Dodge speed multiplier",Hint="Coefficient to multiply dodge speed factor (between -10.0 and 10.0).",PIType="Text",PIExtras="8;-10.0:10.0")
+    PropertyInfoEntries(14)=(Name="bCanBoostDodge",Caption="Enable boost dodge",Hint="Enable UT2003's boost dodge.",PIType="Check")
+    PropertyInfoEntries(15)=(Name="bDisableWallDodge",Caption="Disable wall dodge",Hint="Disable wall dodge (UT Classic).",PIType="Check")
+    PropertyInfoEntries(16)=(Name="DisableDodgeJump",Caption="Disable dodge jump",Hint="Disable dodge jump (UT Classic).",PIType="Check")
 
     // Config variables
     bAllowHitSounds=true
@@ -178,4 +188,9 @@ defaultproperties
     BaseJumpMultiplier=1.0
     MultiJumpMultiplier=1.0
     BonusMultiJumps=0
+    DodgeMultiplier=1.0
+    DodgeSpeedMultiplier=1.0
+    bCanBoostDodge=false
+    bDisableWallDodge=false
+    DisableDodgeJump=false
 }
