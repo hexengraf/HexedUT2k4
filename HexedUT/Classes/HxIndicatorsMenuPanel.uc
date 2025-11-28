@@ -7,7 +7,6 @@ const SECTION_CUSTOMIZE = 4;
 
 var automated array<HxMenuOption> SpawnProtectionOptions;
 var automated array<HxMenuOption> HitEffectsOptions;
-var automated array<HxMenuOption> DamageNumbersOptions;
 var automated array<HxMenuOption> CustomizeOptions;
 
 var automated GUIImage i_DPPReview;
@@ -280,11 +279,36 @@ function bool PlaySoundOnClick(GUIComponent Sender)
     return true;
 }
 
+static function bool AddToMenu()
+{
+    local int i;
+    local int Order;
+
+    if (Super.AddToMenu())
+    {
+        for (i = 0; i < default.SpawnProtectionOptions.Length; ++i)
+        {
+            default.SpawnProtectionOptions[i].TabOrder = Order++;
+        }
+        for (i = 0; i < default.HitEffectsOptions.Length; ++i)
+        {
+            default.HitEffectsOptions[i].TabOrder = Order++;
+        }
+        for (i = 0; i < default.CustomizeOptions.Length; ++i)
+        {
+            default.CustomizeOptions[i].TabOrder = Order++;
+        }
+        return true;
+    }
+    return false;
+}
+
 defaultproperties
 {
     Begin Object class=AltSectionBackground Name=SpawnProtectionSection
         Caption="Spawn Protection"
-        WinHeight=0.24
+        WinHeight=0.16
+        NumColumns=2
     End Object
 
     Begin Object class=AltSectionBackground Name=HitSoundsSection
@@ -307,42 +331,42 @@ defaultproperties
     Begin Object class=HxMenuCheckBox Name=SPShowTimer
         Caption="Show timer"
         PropertyName="bShowTimer"
-        TabOrder=0
+        OnChange=SpawnProtectionOnChange
+    End Object
+
+    Begin Object class=HxMenuCheckBox Name=SPUseHUDColor
+        Caption="Use HUD color"
+        PropertyName="bUseHUDColor"
         OnChange=SpawnProtectionOnChange
     End Object
 
     Begin Object class=HxMenuFloatEdit Name=SPTimerPosX
         Caption="X position"
         PropertyName="PosX"
-        TabOrder=1
         OnChange=TargetOnChange
     End Object
 
     Begin Object class=HxMenuFloatEdit Name=SPTimerPosY
         Caption="Y position"
         PropertyName="PosY"
-        TabOrder=2
         OnChange=TargetOnChange
     End Object
 
     Begin Object class=HxMenuCheckBox Name=HitSounds
         Caption="Enable hit sounds"
         PropertyName="bHitSounds"
-        TabOrder=3
         OnChange=HitSoundsOnChange
     End Object
 
     Begin Object class=HxMenuComboBox Name=SelectedHitSound
         Caption="Sound"
         PropertyName="SelectedHitSound"
-        TabOrder=4
         OnChange=TargetOnChange
     End Object
 
     Begin Object class=HxMenuSlider Name=HSVolume
         Caption="Volume"
         PropertyName="HitSoundVolume"
-        TabOrder=5
         OnChange=TargetOnChange
     End Object
 
@@ -351,14 +375,12 @@ defaultproperties
         PropertyName="PitchMode"
         EnumType=enum'EHxPitchMode'
         DisplayNames=("Disabled","Low to high","High to low")
-        TabOrder=6
         OnChange=TargetOnChange
     End Object
 
     Begin Object class=HxMenuCheckBox Name=DamageNumbers
         Caption="Enable damage numbers"
         PropertyName="bDamageNumbers"
-        TabOrder=7
         OnChange=DamageNumbersOnChange
     End Object
 
@@ -367,21 +389,18 @@ defaultproperties
         PropertyName="DMode"
         EnumType=enum'EHxDMode'
         DisplayNames=("Static per hit","Static total","Static per hit & total","Float per hit","Float per hit & total")
-        TabOrder=8
         OnChange=TargetOnChange
     End Object
 
     Begin Object class=HxMenuFloatEdit Name=DNPosX
         Caption="X position"
         PropertyName="PosX"
-        TabOrder=9
         OnChange=TargetOnChange
     End Object
 
     Begin Object class=HxMenuFloatEdit Name=DNPosY
         Caption="Y position"
         PropertyName="PosY"
-        TabOrder=10
         OnChange=TargetOnChange
     End Object
 
@@ -389,7 +408,6 @@ defaultproperties
         PropertyName="DPIndex"
         DisplayNames=("Zero damage","Low damage","Medium damage","High damage","Extreme damage")
         ComponentWidth=1.00
-        TabOrder=11
         OnPreDraw=DPPointPreDraw
         OnChange=CustomizeOnChange
     End Object
@@ -409,13 +427,11 @@ defaultproperties
         Caption="Damage value"
         MinValue=-300
         MaxValue=300
-        TabOrder=13
         OnChange=CustomizeOnChange
     End Object
 
     Begin Object class=HxMenuSlider Name=DPPitch
         Caption="Pitch"
-        TabOrder=14
         OnChange=CustomizeOnChange
     End Object
 
@@ -423,7 +439,6 @@ defaultproperties
         Caption="Play sound"
         bStandardized=true
         StandardHeight=0.032
-        TabOrder=15
         OnClick=PlaySoundOnClick
         OnClickSound=CS_None
     End Object
@@ -437,7 +452,6 @@ defaultproperties
 
     Begin Object class=HxMenuSlider Name=DPScale
         Caption="Scale"
-        TabOrder=16
         OnChange=CustomizeOnChange
     End Object
 
@@ -447,7 +461,6 @@ defaultproperties
         MaxValue=255
         bIntSlider=true
         LabelColor=(R=255,G=0,B=0,A=255)
-        TabOrder=17
         OnChange=CustomizeOnChange
     End Object
 
@@ -457,7 +470,6 @@ defaultproperties
         MaxValue=255
         bIntSlider=true
         LabelColor=(R=0,G=255,B=0,A=255)
-        TabOrder=18
         OnChange=CustomizeOnChange
     End Object
 
@@ -467,7 +479,6 @@ defaultproperties
         MaxValue=255
         bIntSlider=true
         LabelColor=(R=0,G=0,B=255,A=255)
-        TabOrder=19
         OnChange=CustomizeOnChange
     End Object
 
@@ -481,8 +492,9 @@ defaultproperties
     Sections(3)=DamageNumbersSection
     Sections(4)=DPSection
     SpawnProtectionOptions(0)=SPShowTimer
-    SpawnProtectionOptions(1)=SPTimerPosX
-    SpawnProtectionOptions(2)=SPTimerPosY
+    SpawnProtectionOptions(1)=SPUseHUDColor
+    SpawnProtectionOptions(2)=SPTimerPosX
+    SpawnProtectionOptions(3)=SPTimerPosY
     HitEffectsOptions(0)=HitSounds
     HitEffectsOptions(1)=SelectedHitSound
     HitEffectsOptions(2)=HSVolume
