@@ -29,6 +29,7 @@ var bool bDisableSpeedCombo;
 var bool bDisableBerserkCombo;
 var bool bDisableBoosterCombo;
 var bool bDisableInvisibleCombo;
+var bool bDisableUDamage;
 
 var MutHexedUT HexedUT;
 var PlayerController PC;

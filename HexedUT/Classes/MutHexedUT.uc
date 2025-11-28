@@ -21,6 +21,7 @@ var config bool bDisableSpeedCombo;
 var config bool bDisableBerserkCombo;
 var config bool bDisableBoosterCombo;
 var config bool bDisableInvisibleCombo;
+var config bool bDisableUDamage;
 
 var array<string> DisabledCombos;
 
@@ -109,23 +110,29 @@ function SpawnHxAgent(PlayerReplicationInfo PRI)
     }
 }
 
-function bool IsRelevant(Actor Other, out byte bSuperRelevant)
-{
-    if (Other.IsA('Combo') && IsDisabledCombo(Other.Class))
-    {
-        bSuperRelevant = 0;
-        return false;
-    }
-    return Super.IsRelevant(Other, bSuperRelevant);
-}
-
 function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
 {
-    if (PlayerReplicationInfo(Other) != None)
+    if (Other.IsA('Combo'))
+    {
+        if (IsDisabledCombo(Other.Class))
+        {
+            bSuperRelevant = 0;
+            return false;
+        }
+    }
+    else if (Other.IsA('UDamagePack'))
+    {
+        if (bDisableUDamage)
+        {
+            bSuperRelevant = 0;
+            return false;
+        }
+    }
+    else if (Other.IsA('PlayerReplicationInfo'))
     {
         SpawnHxAgent(PlayerReplicationInfo(Other));
     }
-    else if (Controller(Other) != None)
+    else if (Other.IsA('Controller'))
     {
         ModifyStartingAdrenaline(Controller(Other));
     }
@@ -200,6 +207,7 @@ function UpdateAgent(HxAgent Agent)
     Agent.bDisableBerserkCombo = bDisableBerserkCombo;
     Agent.bDisableBoosterCombo = bDisableBoosterCombo;
     Agent.bDisableInvisibleCombo = bDisableInvisibleCombo;
+    Agent.bDisableUDamage = bDisableUDamage;
     Agent.NetUpdateTime = Level.TimeSeconds - 1;
 }
 
@@ -246,6 +254,7 @@ defaultproperties
     PropertyInfoEntries(18)=(Name="bDisableBerserkCombo",Caption="Disable berserk combo",Hint="Disable berserk adrenaline combo (up, up, down, down). Applied on restart/map change.",PIType="Check")
     PropertyInfoEntries(19)=(Name="bDisableBoosterCombo",Caption="Disable booster combo",Hint="Disable booster combo (down, down, down, down). Applied on restart/map change.",PIType="Check")
     PropertyInfoEntries(20)=(Name="bDisableInvisibleCombo",Caption="Disable invisible combo",Hint="Disable invisible combo (right, right, left, left). Applied on restart/map change.",PIType="Check")
+    PropertyInfoEntries(21)=(Name="bDisableUDamage",Caption="Disable UDamage",Hint="Disable UDamage packs on the maps. Applied on restart/map change.",PIType="Check")
 
     // Config variables
     bAllowHitSounds=true

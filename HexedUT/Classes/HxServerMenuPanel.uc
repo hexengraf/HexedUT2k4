@@ -225,6 +225,10 @@ defaultproperties
         OnChange=RemoteOnChange
     End Object
 
+    Begin Object class=HxMenuCheckBox Name=DisableUDamage
+        OnChange=RemoteOnChange
+    End Object
+
     PanelCaption="Server"
     PanelHint="Server options (admin only)"
     bInsertFront=true
@@ -255,4 +259,5 @@ defaultproperties
     Options(18)=DisableBerserkCombo
     Options(19)=DisableBoosterCombo
     Options(20)=DisableInvisibleCombo
+    Options(21)=DisableUDamage
 }
