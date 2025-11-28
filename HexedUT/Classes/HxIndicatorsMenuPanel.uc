@@ -1,4 +1,4 @@
-class HxDisplayMenuPanel extends HxMenuPanel;
+class HxIndicatorsMenuPanel extends HxMenuPanel;
 
 const SECTION_SPAWN_PROTECTION = 0;
 const SECTION_HIT_SOUNDS = 2;
@@ -471,8 +471,8 @@ defaultproperties
         OnChange=CustomizeOnChange
     End Object
 
-    PanelCaption="Display"
-    PanelHint="Display options"
+    PanelCaption="Indicators"
+    PanelHint="Spawn protection and damage indicators"
     bInsertFront=true
     bDoubleColumn=true
     Sections(0)=SpawnProtectionSection
