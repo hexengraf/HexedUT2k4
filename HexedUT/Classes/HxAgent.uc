@@ -47,6 +47,16 @@ replication
         RemoteSetProperty;
 }
 
+simulated event PreBeginPlay()
+{
+    Super.PreBeginPlay();
+    if (Level.NetMode != NM_DedicatedServer)
+    {
+        class'HxServerMenuPanel'.static.AddToMenu();
+        class'HxDisplayMenuPanel'.static.AddToMenu();
+    }
+}
+
 simulated event Tick(float DeltaTime)
 {
     super.Tick(DeltaTime);

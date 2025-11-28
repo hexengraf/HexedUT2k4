@@ -59,20 +59,23 @@ function RemoteOnChange(GUIComponent C)
     }
 }
 
-static function AddToMenu()
+static function bool AddToMenu()
 {
     local int i;
     local int Order;
 
-    for (i = 0; i < default.Options.Length; ++i)
+    if (Super.AddToMenu())
     {
-        default.Options[i].TabOrder = Order++;
-        default.Options[i].Caption = class'MutHexedUT'.default.PropertyInfoEntries[i].Caption;
-        default.Options[i].Hint = class'MutHexedUT'.default.PropertyInfoEntries[i].Hint;
-        default.Options[i].PropertyName = class'MutHexedUT'.default.PropertyInfoEntries[i].Name;
+        for (i = 0; i < default.Options.Length; ++i)
+        {
+            default.Options[i].TabOrder = Order++;
+            default.Options[i].Caption = class'MutHexedUT'.default.PropertyInfoEntries[i].Caption;
+            default.Options[i].Hint = class'MutHexedUT'.default.PropertyInfoEntries[i].Hint;
+            default.Options[i].PropertyName = class'MutHexedUT'.default.PropertyInfoEntries[i].Name;
+        }
+        return true;
     }
-
-    class'HxMenu'.static.AddPanel(Default.Class, "Server", "Server options (admin only)", true);
+    return false;
 }
 
 defaultproperties
@@ -198,6 +201,9 @@ defaultproperties
         OnChange=RemoteOnChange
     End Object
 
+    PanelCaption="Server"
+    PanelHint="Server options (admin only)"
+    bInsertFront=true
     bDoubleColumn=true
     Sections(0)=MovementSection
     Sections(1)=None

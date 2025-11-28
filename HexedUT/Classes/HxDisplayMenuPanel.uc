@@ -280,11 +280,6 @@ function bool PlaySoundOnClick(GUIComponent Sender)
     return true;
 }
 
-static function AddToMenu()
-{
-    class'HxMenu'.static.AddPanel(Default.Class, "Display", "Display options", true);
-}
-
 defaultproperties
 {
     Begin Object class=AltSectionBackground Name=SpawnProtectionSection
@@ -476,6 +471,9 @@ defaultproperties
         OnChange=CustomizeOnChange
     End Object
 
+    PanelCaption="Display"
+    PanelHint="Display options"
+    bInsertFront=true
     bDoubleColumn=true
     Sections(0)=SpawnProtectionSection
     Sections(1)=None

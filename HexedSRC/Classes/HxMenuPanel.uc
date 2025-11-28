@@ -5,10 +5,14 @@ const HIDE_DUE_INIT = "Initializing...";
 const HIDE_DUE_DISABLE = "Feature disabled on this server";
 const HIDE_DUE_ADMIN = "Requires administrator privileges";
 
+var localized string PanelHint;
+var bool bInsertFront;
+var bool bDoubleColumn;
+
 var automated array<AltSectionBackground> Sections;
 var private automated array<AltSectionBackground> HideSections;
 var private automated array<GUILabel> HideMessages;
-var bool bDoubleColumn;
+var private bool bPanelAdded;
 
 function bool Initialize();
 function Refresh();
@@ -202,8 +206,21 @@ function bool IsAdmin()
     return PC != None && PC.PlayerReplicationInfo != None && PC.PlayerReplicationInfo.bAdmin;
 }
 
+static function bool AddToMenu()
+{
+    if (!default.bPanelAdded)
+    {
+        default.bPanelAdded = true;
+        class'HxMenu'.static.AddPanel(
+            default.Class, default.PanelCaption, default.PanelHint, default.bInsertFront);
+        return true;
+    }
+    return false;
+}
+
 defaultproperties
 {
+    bInsertFront=false
     bDoubleColumn=false
 
     Begin Object class=GUILabel Name=HideMessage

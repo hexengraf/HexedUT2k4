@@ -18,16 +18,6 @@ var config bool bCanBoostDodge;
 var config bool bDisableWallDodge;
 var config bool bDisableDodgeJump;
 
-simulated event PreBeginPlay()
-{
-    Super.PreBeginPlay();
-    if (Level.NetMode != NM_DedicatedServer)
-    {
-        class'HxServerMenuPanel'.static.AddToMenu();
-        class'HxDisplayMenuPanel'.static.AddToMenu();
-    }
-}
-
 event PostBeginPlay()
 {
     local HxGameRules G;
@@ -162,8 +152,6 @@ defaultproperties
 {
     FriendlyName="Hexed UT v2dev"
     Description="Central mutator for HexedUT2k4."
-    bAlwaysRelevant=true
-    RemoteRole=ROLE_SimulatedProxy
     bAddToServerPackages=true
     MutatorGroup="HexedUT"
 
