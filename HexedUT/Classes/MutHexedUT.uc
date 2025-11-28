@@ -20,49 +20,45 @@ var config bool bDisableDodgeJump;
 
 event PostBeginPlay()
 {
+    Super.PostBeginPlay();
+    SpawnGameRules();
+}
+
+function SpawnGameRules()
+{
     local HxGameRules G;
 
-    Super.PostBeginPlay();
     G = Spawn(class'HxGameRules');
     G.HexedUT = self;
     Level.Game.AddGameModifier(G);
-    ModifyStartingGrenades();
 }
 
 function ModifyPlayer(Pawn Other)
 {
-    ModifyHealthAndShield(Other);
-    ModifyAdrenalineOnRespawn(Other);
+    ModifyStartingValues(Other);
     ModifyMovement(xPawn(Other));
     Super.ModifyPlayer(Other);
 }
 
-function ModifyHealthAndShield(Pawn Other)
+function ModifyStartingValues(Pawn Other)
 {
+    local AssaultRifle AR;
+
     Other.GiveHealth(BonusStartingHealth, Other.SuperHealthMax);
     Other.AddShieldStrength(BonusStartingShield);
-}
-
-function ModifyStartingGrenades()
-{
-    local int TotalGrenades;
-
-    TotalGrenades = Max(0, class'GrenadeAmmo'.default.InitialAmount + BonusStartingGrenades);
-    class'GrenadeAmmo'.default.InitialAmount = TotalGrenades;
-    if (TotalGrenades > class'GrenadeAmmo'.default.MaxAmmo)
+    AR = AssaultRifle(Other.FindInventoryType(class'AssaultRifle'));
+    if (AR != None)
     {
-        class'GrenadeAmmo'.default.MaxAmmo = TotalGrenades;
+        AR.AmmoClass[1].default.MaxAmmo = Max(
+            AR.AmmoClass[1].default.MaxAmmo, BonusStartingGrenades);
+        AR.AddAmmo(BonusStartingGrenades, 1);
     }
+    Other.Controller.AwardAdrenaline(BonusAdrenalineOnSpawn);
 }
 
-function ModifyAdrenaline(Controller Other)
+function ModifyStartingAdrenaline(Controller Other)
 {
     Other.AwardAdrenaline(BonusStartingAdrenaline);
-}
-
-function ModifyAdrenalineOnRespawn(Pawn Other)
-{
-    Other.Controller.AwardAdrenaline(BonusAdrenalineOnSpawn);
 }
 
 function ModifyMovement(xPawn Other)
@@ -106,7 +102,7 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
     }
     else if (Controller(Other) != None)
     {
-        ModifyAdrenaline(Controller(Other));
+        ModifyStartingAdrenaline(Controller(Other));
     }
     return true;
 }
