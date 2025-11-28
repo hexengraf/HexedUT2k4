@@ -46,14 +46,17 @@ function ModifyStartingValues(Pawn Other)
 
     Other.GiveHealth(BonusStartingHealth, Other.SuperHealthMax);
     Other.AddShieldStrength(BonusStartingShield);
-    AR = AssaultRifle(Other.FindInventoryType(class'AssaultRifle'));
-    if (AR != None)
+    if (Other.SpawnTime == Level.TimeSeconds)
     {
-        AR.AmmoClass[1].default.MaxAmmo = Max(
-            AR.AmmoClass[1].default.MaxAmmo, BonusStartingGrenades);
-        AR.AddAmmo(BonusStartingGrenades, 1);
+        AR = AssaultRifle(Other.FindInventoryType(class'AssaultRifle'));
+        if (AR != None)
+        {
+            AR.AmmoClass[1].default.MaxAmmo = Max(
+                AR.AmmoClass[1].default.MaxAmmo, BonusStartingGrenades);
+            AR.AddAmmo(BonusStartingGrenades, 1);
+        }
+        Other.Controller.AwardAdrenaline(BonusAdrenalineOnSpawn);
     }
-    Other.Controller.AwardAdrenaline(BonusAdrenalineOnSpawn);
 }
 
 function ModifyStartingAdrenaline(Controller Other)
