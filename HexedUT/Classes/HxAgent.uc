@@ -188,7 +188,6 @@ function RemoteSetProperty(string PropertyName, string PropertyValue)
 {
     if (PC.PlayerReplicationInfo.bAdmin)
     {
-        Log("RemoteSetProperty:"$PropertyName$","$PropertyValue);
         HexedUT.SetProperty(PropertyName, PropertyValue);
     }
 }
