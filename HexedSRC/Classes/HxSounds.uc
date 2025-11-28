@@ -10,6 +10,15 @@ var array<Sound> HitSounds;
 
 static simulated function AddHitSound(Sound HitSound)
 {
+    local int i;
+
+    for (i = 0; i < default.HitSounds.Length; ++i)
+    {
+        if (default.HitSounds[i] == HitSound)
+        {
+            return;
+        }
+    }
     default.HitSounds[default.HitSounds.Length] = HitSound;
 }
 
