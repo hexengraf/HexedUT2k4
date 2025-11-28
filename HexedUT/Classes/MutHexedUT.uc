@@ -17,6 +17,18 @@ var config float DodgeSpeedMultiplier;
 var config bool bCanBoostDodge;
 var config bool bDisableWallDodge;
 var config bool bDisableDodgeJump;
+var config bool bDisableSpeedCombo;
+var config bool bDisableBerserkCombo;
+var config bool bDisableBoosterCombo;
+var config bool bDisableInvisibleCombo;
+
+var array<string> DisabledCombos;
+
+event PreBeginPlay()
+{
+    Super.PreBeginPlay();
+    ListDisableCombos();
+}
 
 event PostBeginPlay()
 {
@@ -97,6 +109,16 @@ function SpawnHxAgent(PlayerReplicationInfo PRI)
     }
 }
 
+function bool IsRelevant(Actor Other, out byte bSuperRelevant)
+{
+    if (Other.IsA('Combo') && IsDisabledCombo(Other.Class))
+    {
+        bSuperRelevant = 0;
+        return false;
+    }
+    return Super.IsRelevant(Other, bSuperRelevant);
+}
+
 function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
 {
     if (PlayerReplicationInfo(Other) != None)
@@ -108,6 +130,51 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
         ModifyStartingAdrenaline(Controller(Other));
     }
     return true;
+}
+
+function string RecommendCombo(string ComboName)
+{
+    if (IsDisabledCombo(ComboName))
+    {
+        return string(class'HxComboNull');
+
+    }
+    return Super.RecommendCombo(ComboName);
+}
+
+function bool IsDisabledCombo(coerce string Name)
+{
+    local int i;
+
+    for (i = 0; i < DisabledCombos.Length; ++i)
+    {
+        if (Name ~= DisabledCombos[i])
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+function ListDisableCombos()
+{
+    DisabledCombos.Length = 0;
+    if (bDisableSpeedCombo)
+    {
+        DisabledCombos[DisabledCombos.Length] = "XGame.ComboSpeed";
+    }
+    if (bDisableBerserkCombo)
+    {
+        DisabledCombos[DisabledCombos.Length] = "XGame.ComboBerserk";
+    }
+    if (bDisableBoosterCombo)
+    {
+        DisabledCombos[DisabledCombos.Length] = "XGame.ComboDefensive";
+    }
+    if (bDisableInvisibleCombo)
+    {
+        DisabledCombos[DisabledCombos.Length] = "XGame.ComboInvis";
+    }
 }
 
 function UpdateAgent(HxAgent Agent)
@@ -129,6 +196,10 @@ function UpdateAgent(HxAgent Agent)
     Agent.bCanBoostDodge = bCanBoostDodge;
     Agent.bDisableWallDodge = bDisableWallDodge;
     Agent.bDisableDodgeJump = bDisableDodgeJump;
+    Agent.bDisableSpeedCombo = bDisableSpeedCombo;
+    Agent.bDisableBerserkCombo = bDisableBerserkCombo;
+    Agent.bDisableBoosterCombo = bDisableBoosterCombo;
+    Agent.bDisableInvisibleCombo = bDisableInvisibleCombo;
     Agent.NetUpdateTime = Level.TimeSeconds - 1;
 }
 
@@ -156,21 +227,25 @@ defaultproperties
 
     PropertyInfoEntries(0)=(Name="bAllowHitSounds",Caption="Allow hit sound effects",Hint="Allow clients to enable/disable hit sound effects.",PIType="Check")
     PropertyInfoEntries(1)=(Name="bAllowDamageNumbers",Caption="Allow damage number effects",Hint="Allow clients to enable/disable damage number effects.",PIType="Check")
-    PropertyInfoEntries(2)=(Name="BonusStartingHealth",Caption="Bonus health",Hint="Bonus to add to starting health (between -99 and 99).",PIType="Text",PIExtras="8;-99:99")
-    PropertyInfoEntries(3)=(Name="BonusStartingShield",Caption="Bonus shield",Hint="Bonus to add to Starting shield (between 0 and 150).",PIType="Text",PIExtras="8;0:150")
-    PropertyInfoEntries(4)=(Name="BonusStartingGrenades",Caption="Bonus AR grenades",Hint="Bonus to add to starting number of AR grenades (between -4 and 99).",PIType="Text",PIExtras="8;-4:99")
-    PropertyInfoEntries(5)=(Name="BonusStartingAdrenaline",Caption="Bonus adrenaline",Hint="Bonus to add to starting adrenaline (between 0 and 100).",PIType="Text",PIExtras="8;0:100")
-    PropertyInfoEntries(6)=(Name="BonusAdrenalineOnSpawn",Caption="Bonus adrenaline on spawn",Hint="Bonus to add to adrenaline on spawn (between -100 and 100).",PIType="Text",PIExtras="8;-100:100")
-    PropertyInfoEntries(7)=(Name="MaxSpeedMultiplier",Caption="Maximum speed multiplier",Hint="Coefficient to multiply maximum movement speed (between -100.0 and 100.0).",PIType="Text",PIExtras="8;-100.0:100.0")
-    PropertyInfoEntries(8)=(Name="AirControlMultiplier",Caption="Air control multiplier",Hint="Coefficient to multiply air control (between -10.0 and 10.0).",PIType="Text",PIExtras="8;-10.0:10.0")
-    PropertyInfoEntries(9)=(Name="BaseJumpMultiplier",Caption="Base jump multiplier",Hint="Coefficient to multiply base jump acceleration (between -10.0 and 10.0).",PIType="Text",PIExtras="8;-10.0:10.0")
-    PropertyInfoEntries(10)=(Name="MultiJumpMultiplier",Caption="Multi-jump multiplier",Hint="Coefficient to multiply multi-jump acceleration boost (between -100.0 and 100.0)",PIType="Text",PIExtras="8;-100.0:100.0")
-    PropertyInfoEntries(11)=(Name="BonusMultiJumps",Caption="Bonus multi-jumps",Hint="Bonus to add to base amount of multi-jumps (between -1 and 99).",PIType="Text",PIExtras="8;-1:99")
-    PropertyInfoEntries(12)=(Name="DodgeMultiplier",Caption="Dodge multiplier",Hint="Coefficient to multiply dodge acceleration (Z-axis, between -10.0 and 10.0).",PIType="Text",PIExtras="8;-10.0:10.0")
-    PropertyInfoEntries(13)=(Name="DodgeSpeedMultiplier",Caption="Dodge speed multiplier",Hint="Coefficient to multiply dodge speed factor (between -10.0 and 10.0).",PIType="Text",PIExtras="8;-10.0:10.0")
-    PropertyInfoEntries(14)=(Name="bCanBoostDodge",Caption="Enable boost dodge",Hint="Enable UT2003's boost dodge.",PIType="Check")
-    PropertyInfoEntries(15)=(Name="bDisableWallDodge",Caption="Disable wall dodge",Hint="Disable wall dodge (UT Classic).",PIType="Check")
-    PropertyInfoEntries(16)=(Name="bDisableDodgeJump",Caption="Disable dodge jump",Hint="Disable dodge jump (UT Classic).",PIType="Check")
+    PropertyInfoEntries(2)=(Name="BonusStartingHealth",Caption="Bonus health",Hint="Bonus to add to starting health (between -99 and 99). Applied on spawn.",PIType="Text",PIExtras="8;-99:99")
+    PropertyInfoEntries(3)=(Name="BonusStartingShield",Caption="Bonus shield",Hint="Bonus to add to Starting shield (between 0 and 150). Applied on spawn.",PIType="Text",PIExtras="8;0:150")
+    PropertyInfoEntries(4)=(Name="BonusStartingGrenades",Caption="Bonus AR grenades",Hint="Bonus to add to starting number of AR grenades (between -4 and 99). Applied on spawn.",PIType="Text",PIExtras="8;-4:99")
+    PropertyInfoEntries(5)=(Name="BonusStartingAdrenaline",Caption="Bonus adrenaline",Hint="Bonus to add to starting adrenaline (between 0 and 100). Applied on restart/map change.",PIType="Text",PIExtras="8;0:100")
+    PropertyInfoEntries(6)=(Name="BonusAdrenalineOnSpawn",Caption="Bonus adrenaline on spawn",Hint="Bonus to add to adrenaline on spawn (between -100 and 100). Applied on spawn.",PIType="Text",PIExtras="8;-100:100")
+    PropertyInfoEntries(7)=(Name="MaxSpeedMultiplier",Caption="Maximum speed multiplier",Hint="Coefficient to multiply maximum movement speed (between -100.0 and 100.0). Applied on spawn.",PIType="Text",PIExtras="8;-100.0:100.0")
+    PropertyInfoEntries(8)=(Name="AirControlMultiplier",Caption="Air control multiplier",Hint="Coefficient to multiply air control (between -10.0 and 10.0). Applied on spawn.",PIType="Text",PIExtras="8;-10.0:10.0")
+    PropertyInfoEntries(9)=(Name="BaseJumpMultiplier",Caption="Base jump multiplier",Hint="Coefficient to multiply base jump acceleration (between -10.0 and 10.0). Applied on spawn.",PIType="Text",PIExtras="8;-10.0:10.0")
+    PropertyInfoEntries(10)=(Name="MultiJumpMultiplier",Caption="Multi-jump multiplier",Hint="Coefficient to multiply multi-jump acceleration boost (between -100.0 and 100.0). Applied on spawn.",PIType="Text",PIExtras="8;-100.0:100.0")
+    PropertyInfoEntries(11)=(Name="BonusMultiJumps",Caption="Bonus multi-jumps",Hint="Bonus to add to base amount of multi-jumps (between -1 and 99). Applied on spawn.",PIType="Text",PIExtras="8;-1:99")
+    PropertyInfoEntries(12)=(Name="DodgeMultiplier",Caption="Dodge multiplier",Hint="Coefficient to multiply dodge acceleration (Z-axis, between -10.0 and 10.0). Applied on spawn.",PIType="Text",PIExtras="8;-10.0:10.0")
+    PropertyInfoEntries(13)=(Name="DodgeSpeedMultiplier",Caption="Dodge speed multiplier",Hint="Coefficient to multiply dodge speed factor (between -10.0 and 10.0). Applied on spawn.",PIType="Text",PIExtras="8;-10.0:10.0")
+    PropertyInfoEntries(14)=(Name="bCanBoostDodge",Caption="Enable boost dodge",Hint="Enable UT2003's boost dodge. Applied on spawn.",PIType="Check")
+    PropertyInfoEntries(15)=(Name="bDisableWallDodge",Caption="Disable wall dodge",Hint="Disable wall dodge (UT Classic). Applied on spawn.",PIType="Check")
+    PropertyInfoEntries(16)=(Name="bDisableDodgeJump",Caption="Disable dodge jump",Hint="Disable dodge jump (UT Classic). Applied on spawn.",PIType="Check")
+    PropertyInfoEntries(17)=(Name="bDisableSpeedCombo",Caption="Disable speed combo",Hint="Disable speed adrenaline combo (up, up, up, up). Applied on restart/map change.",PIType="Check")
+    PropertyInfoEntries(18)=(Name="bDisableBerserkCombo",Caption="Disable berserk combo",Hint="Disable berserk adrenaline combo (up, up, down, down). Applied on restart/map change.",PIType="Check")
+    PropertyInfoEntries(19)=(Name="bDisableBoosterCombo",Caption="Disable booster combo",Hint="Disable booster combo (down, down, down, down). Applied on restart/map change.",PIType="Check")
+    PropertyInfoEntries(20)=(Name="bDisableInvisibleCombo",Caption="Disable invisible combo",Hint="Disable invisible combo (right, right, left, left). Applied on restart/map change.",PIType="Check")
 
     // Config variables
     bAllowHitSounds=true
@@ -190,4 +265,8 @@ defaultproperties
     bCanBoostDodge=false
     bDisableWallDodge=false
     bDisableDodgeJump=false
+    bDisableSpeedCombo=false
+    bDisableBerserkCombo=false
+    bDisableBoosterCombo=false
+    bDisableInvisibleCombo=false
 }

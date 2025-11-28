@@ -25,6 +25,10 @@ var float DodgeSpeedMultiplier;
 var bool bCanBoostDodge;
 var bool bDisableWallDodge;
 var bool bDisableDodgeJump;
+var bool bDisableSpeedCombo;
+var bool bDisableBerserkCombo;
+var bool bDisableBoosterCombo;
+var bool bDisableInvisibleCombo;
 
 var MutHexedUT HexedUT;
 var PlayerController PC;
@@ -38,10 +42,12 @@ replication
         ClientUpdateHitEffects;
 
     reliable if (Role == ROLE_Authority)
-        bAllowHitSounds, bAllowDamageNumbers, BonusStartingHealth, BonusStartingShield,
-        BonusStartingGrenades, BonusStartingAdrenaline, BonusAdrenalineOnSpawn, MaxSpeedMultiplier,
-        AirControlMultiplier, BaseJumpMultiplier, MultiJumpMultiplier, BonusMultiJumps,
-        bCanBoostDodge, bDisableWallDodge, bDisableDodgeJump;
+        bAllowHitSounds, bAllowDamageNumbers,
+        BonusStartingHealth, BonusStartingShield, BonusStartingGrenades, BonusStartingAdrenaline,
+        BonusAdrenalineOnSpawn,
+        MaxSpeedMultiplier, AirControlMultiplier, BaseJumpMultiplier, MultiJumpMultiplier,
+        BonusMultiJumps, bCanBoostDodge, bDisableWallDodge, bDisableDodgeJump,
+        bDisableSpeedCombo, bDisableBerserkCombo, bDisableBoosterCombo, bDisableInvisibleCombo;
 
     reliable if (Role < ROLE_Authority)
         RemoteSetProperty;
@@ -108,8 +114,10 @@ simulated function bool InitializePlayerController()
     if (PC == None)
     {
         PC = Level.GetLocalPlayerController();
+        ModifyPlayerCombos(xPlayer(PC));
+        return PC != None;
     }
-    return PC != None;
+    return true;
 }
 
 simulated function bool InitializeHitEffects()
@@ -133,10 +141,54 @@ simulated function bool InitializeSpawnProtectionTimer()
     return SpawnProtectionTimer != None;
 }
 
+simulated function ModifyPlayerCombos(xPlayer Other)
+{
+    local int c;
+
+    if (Other != None)
+    {
+        for (c = 0; c < ArrayCount(Other.ComboNameList); ++c)
+        {
+            if (Other.ComboNameList[c] == "")
+            {
+                break;
+            }
+            if (ShouldDisableCombo(Other.ComboNameList[c]))
+            {
+                Other.ComboNameList[c] = string(class'HxComboNull');
+                Other.ComboList[c] = class'HxComboNull';
+            }
+        }
+    }
+}
+
+simulated function bool ShouldDisableCombo(coerce string Name)
+{
+
+    if (Name ~= "XGame.ComboSpeed")
+    {
+        return bDisableSpeedCombo;
+    }
+    if (Name ~= "XGame.ComboBerserk")
+    {
+        return bDisableBerserkCombo;
+    }
+    if (Name ~= "XGame.ComboDefensive")
+    {
+        return bDisableBoosterCombo;
+    }
+    if (Name ~= "XGame.ComboInvis")
+    {
+        return bDisableInvisibleCombo;
+    }
+    return false;
+}
+
 function RemoteSetProperty(string PropertyName, string PropertyValue)
 {
     if (PC.PlayerReplicationInfo.bAdmin)
     {
+        Log("RemoteSetProperty:"$PropertyName$","$PropertyValue);
         HexedUT.SetProperty(PropertyName, PropertyValue);
     }
 }

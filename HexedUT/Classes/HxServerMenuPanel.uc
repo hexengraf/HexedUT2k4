@@ -1,8 +1,9 @@
 class HxServerMenuPanel extends HxMenuPanel;
 
-const SECTION_MOVEMENT = 0;
-const SECTION_HIT_EFFECTS = 2;
-const SECTION_STARTING_VALUES = 3;
+const SECTION_HIT_EFFECTS = 0;
+const SECTION_STARTING_VALUES = 2;
+const SECTION_POWER_UPS = 3;
+const SECTION_MOVEMENT = 4;
 
 var automated array<HxMenuOption> Options;
 var HxAgent Agent;
@@ -21,9 +22,13 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     {
         Sections[SECTION_STARTING_VALUES].ManageComponent(Options[i]);
     }
-    for (i = 7; i < Options.Length; ++i)
+    for (i = 7; i < 17; ++i)
     {
         Sections[SECTION_MOVEMENT].ManageComponent(Options[i]);
+    }
+    for (i = 17; i < Options.Length; ++i)
+    {
+        Sections[SECTION_POWER_UPS].ManageComponent(Options[i]);
     }
 }
 
@@ -80,13 +85,6 @@ static function bool AddToMenu()
 
 defaultproperties
 {
-
-    Begin Object class=AltSectionBackground Name=MovementSection
-        Caption="Movement"
-        NumColumns=2
-        WinHeight=0.40
-    End Object
-
     Begin Object class=AltSectionBackground Name=HitEffectsSection
         Caption="Hit Effects"
         WinHeight=0.16
@@ -94,6 +92,17 @@ defaultproperties
 
     Begin Object class=AltSectionBackground Name=StartingValuesSection
         Caption="Starting Values"
+        WinHeight=0.40
+    End Object
+
+    begin Object class=AltSectionBackground Name=PowerUpsSection
+        Caption="Power-Ups"
+        WinHeight=0.40
+    End Object
+
+    Begin Object class=AltSectionBackground Name=MovementSection
+        Caption="Movement"
+        NumColumns=2
         WinHeight=0.40
     End Object
 
@@ -200,15 +209,31 @@ defaultproperties
     Begin Object class=HxMenuCheckBox Name=DisableDodgeJump
         OnChange=RemoteOnChange
     End Object
+    Begin Object class=HxMenuCheckBox Name=DisableSpeedCombo
+        OnChange=RemoteOnChange
+    End Object
+
+    Begin Object class=HxMenuCheckBox Name=DisableBerserkCombo
+        OnChange=RemoteOnChange
+    End Object
+
+    Begin Object class=HxMenuCheckBox Name=DisableBoosterCombo
+        OnChange=RemoteOnChange
+    End Object
+
+    Begin Object class=HxMenuCheckBox Name=DisableInvisibleCombo
+        OnChange=RemoteOnChange
+    End Object
 
     PanelCaption="Server"
     PanelHint="Server options (admin only)"
     bInsertFront=true
     bDoubleColumn=true
-    Sections(0)=MovementSection
+    Sections(0)=HitEffectsSection
     Sections(1)=None
-    Sections(2)=HitEffectsSection
-    Sections(3)=StartingValuesSection
+    Sections(2)=StartingValuesSection
+    Sections(3)=PowerUpsSection
+    Sections(4)=MovementSection
     Options(0)=AllowHitSounds
     Options(1)=AllowDamageNumbers
     Options(2)=BonusStartingHealth
@@ -226,4 +251,8 @@ defaultproperties
     Options(14)=CanBoostDodge
     Options(15)=DisableWallDodge
     Options(16)=DisableDodgeJump
+    Options(17)=DisableSpeedCombo
+    Options(18)=DisableBerserkCombo
+    Options(19)=DisableBoosterCombo
+    Options(20)=DisableInvisibleCombo
 }
