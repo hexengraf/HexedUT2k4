@@ -22,6 +22,7 @@ var config bool bDisableBerserkCombo;
 var config bool bDisableBoosterCombo;
 var config bool bDisableInvisibleCombo;
 var config bool bDisableUDamage;
+var config bool bColoredDeathMessages;
 
 var array<string> DisabledCombos;
 
@@ -29,6 +30,7 @@ event PreBeginPlay()
 {
     Super.PreBeginPlay();
     ListDisableCombos();
+    ModifyDeathMessageClass();
 }
 
 event PostBeginPlay()
@@ -94,6 +96,20 @@ function ModifyMovement(xPawn Other)
         Other.bCanBoostDodge = Other.bCanBoostDodge || bCanBoostDodge;
         Other.bCanWallDodge = Other.bCanWallDodge ^^ bDisableWallDodge;
         Other.bCanDodgeDoubleJump = Other.bCanDodgeDoubleJump ^^ bDisableDodgeJump;
+    }
+}
+
+function ModifyDeathMessageClass()
+{
+    if (bColoredDeathMessages)
+    {
+        if (Level.Game.DeathMessageClass == class'xDeathMessage')
+        {
+            Level.Game.DeathMessageClass = class'HxDeathMessage';
+        }
+    } else if (Level.Game.DeathMessageClass == class'HxDeathMessage')
+    {
+        Level.Game.DeathMessageClass = class'xDeathMessage';
     }
 }
 
@@ -208,6 +224,7 @@ function UpdateAgent(HxAgent Agent)
     Agent.bDisableBoosterCombo = bDisableBoosterCombo;
     Agent.bDisableInvisibleCombo = bDisableInvisibleCombo;
     Agent.bDisableUDamage = bDisableUDamage;
+    Agent.bColoredDeathMessages = bColoredDeathMessages;
     Agent.NetUpdateTime = Level.TimeSeconds - 1;
 }
 
@@ -223,6 +240,15 @@ function UpdateAllClients()
         {
             UpdateAgent(Agent);
         }
+    }
+}
+
+function SetProperty(string PropertyName, String PropertyValue)
+{
+    Super.SetProperty(PropertyName, PropertyValue);
+    if (PropertyName == "bColoredDeathMessages")
+    {
+        ModifyDeathMessageClass();
     }
 }
 
@@ -255,6 +281,7 @@ defaultproperties
     PropertyInfoEntries(19)=(Name="bDisableBoosterCombo",Caption="Disable booster combo",Hint="Disable booster combo (down, down, down, down). Applied on restart/map change.",PIType="Check")
     PropertyInfoEntries(20)=(Name="bDisableInvisibleCombo",Caption="Disable invisible combo",Hint="Disable invisible combo (right, right, left, left). Applied on restart/map change.",PIType="Check")
     PropertyInfoEntries(21)=(Name="bDisableUDamage",Caption="Disable UDamage",Hint="Disable UDamage packs on the maps. Applied on restart/map change.",PIType="Check")
+    PropertyInfoEntries(22)=(Name="bColoredDeathMessages",Caption="Colored death messages",Hint="Use team colors in death messages (blue = killer and red = victim if no teams).",PIType="Check")
 
     // Config variables
     bAllowHitSounds=true
@@ -278,4 +305,5 @@ defaultproperties
     bDisableBerserkCombo=false
     bDisableBoosterCombo=false
     bDisableInvisibleCombo=false
+    bColoredDeathMessages=true
 }

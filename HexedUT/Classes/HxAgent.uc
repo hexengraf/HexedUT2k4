@@ -30,6 +30,7 @@ var bool bDisableBerserkCombo;
 var bool bDisableBoosterCombo;
 var bool bDisableInvisibleCombo;
 var bool bDisableUDamage;
+var bool bColoredDeathMessages;
 
 var MutHexedUT HexedUT;
 var PlayerController PC;
@@ -48,7 +49,8 @@ replication
         BonusAdrenalineOnSpawn,
         MaxSpeedMultiplier, AirControlMultiplier, BaseJumpMultiplier, MultiJumpMultiplier,
         BonusMultiJumps, bCanBoostDodge, bDisableWallDodge, bDisableDodgeJump,
-        bDisableSpeedCombo, bDisableBerserkCombo, bDisableBoosterCombo, bDisableInvisibleCombo;
+        bDisableSpeedCombo, bDisableBerserkCombo, bDisableBoosterCombo, bDisableInvisibleCombo,
+        bColoredDeathMessages;
 
     reliable if (Role < ROLE_Authority)
         RemoteSetProperty;

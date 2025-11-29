@@ -1,6 +1,7 @@
 class HxServerMenuPanel extends HxMenuPanel;
 
 const SECTION_HIT_EFFECTS = 0;
+const SECTION_MISCELLANEOUS = 1;
 const SECTION_STARTING_VALUES = 2;
 const SECTION_POWER_UPS = 3;
 const SECTION_MOVEMENT = 4;
@@ -26,9 +27,13 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     {
         Sections[SECTION_MOVEMENT].ManageComponent(Options[i]);
     }
-    for (i = 17; i < Options.Length; ++i)
+    for (i = 17; i < 22; ++i)
     {
         Sections[SECTION_POWER_UPS].ManageComponent(Options[i]);
+    }
+    for (i = 22; i < Options.Length; ++i)
+    {
+        Sections[SECTION_MISCELLANEOUS].ManageComponent(Options[i]);
     }
 }
 
@@ -87,6 +92,11 @@ defaultproperties
 {
     Begin Object class=AltSectionBackground Name=HitEffectsSection
         Caption="Hit Effects"
+        WinHeight=0.16
+    End Object
+
+    Begin Object class=AltSectionBackground Name=MiscellaneousSection
+        Caption="Miscellaneous"
         WinHeight=0.16
     End Object
 
@@ -229,12 +239,16 @@ defaultproperties
         OnChange=RemoteOnChange
     End Object
 
+    Begin Object class=HxMenuCheckBox Name=ColoredDeathMessages
+        OnChange=RemoteOnChange
+    End Object
+
     PanelCaption="Server"
     PanelHint="Server options (admin only)"
     bInsertFront=true
     bDoubleColumn=true
     Sections(0)=HitEffectsSection
-    Sections(1)=None
+    Sections(1)=MiscellaneousSection
     Sections(2)=StartingValuesSection
     Sections(3)=PowerUpsSection
     Sections(4)=MovementSection
@@ -260,4 +274,5 @@ defaultproperties
     Options(19)=DisableBoosterCombo
     Options(20)=DisableInvisibleCombo
     Options(21)=DisableUDamage
+    Options(22)=ColoredDeathMessages
 }
