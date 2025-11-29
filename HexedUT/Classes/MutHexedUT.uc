@@ -228,11 +228,15 @@ function UpdateAgent(HxAgent Agent)
     Agent.NetUpdateTime = Level.TimeSeconds - 1;
 }
 
-function UpdateAllClients()
+function UpdateAfterPropertyChange(string PropertyName, String PropertyValue)
 {
     local HxAgent Agent;
     local Controller C;
 
+    if (PropertyName == "bColoredDeathMessages")
+    {
+        ModifyDeathMessageClass();
+    }
     for (C = Level.ControllerList; C != None; C = C.NextController)
     {
         Agent = class'HxAgent'.static.GetAgent(C);
@@ -240,15 +244,6 @@ function UpdateAllClients()
         {
             UpdateAgent(Agent);
         }
-    }
-}
-
-function SetProperty(string PropertyName, String PropertyValue)
-{
-    Super.SetProperty(PropertyName, PropertyValue);
-    if (PropertyName == "bColoredDeathMessages")
-    {
-        ModifyDeathMessageClass();
     }
 }
 

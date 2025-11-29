@@ -72,11 +72,11 @@ static simulated function int GetPropertyIndex(string PropertyName)
 function SetProperty(string PropertyName, String PropertyValue)
 {
     SetPropertyText(PropertyName, PropertyValue);
-    UpdateAllClients();
+    UpdateAfterPropertyChange(PropertyName, PropertyValue);
     SaveConfig();
 }
 
-function UpdateAllClients();
+function UpdateAfterPropertyChange(string PropertyName, String PropertyValue);
 
 static function LinkedReplicationInfo SpawnLinkedPRI(PlayerReplicationInfo PRI,
                                                      class<LinkedReplicationInfo> LinkedPRIClass)
