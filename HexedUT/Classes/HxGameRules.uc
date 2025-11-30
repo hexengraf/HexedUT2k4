@@ -29,7 +29,22 @@ function int NetDamage(int Original,
             }
         }
     }
-	return Damage;
+    return Damage;
+}
+
+function ScoreKill(Controller Killer, Controller Killed)
+{
+    local HxAgent Agent;
+
+    if (HexedUT.HealthLeechLimit != 0)
+    {
+        Agent = class'HxAgent'.static.GetAgent(Killed);
+        if (Agent != None)
+        {
+            Agent.ResetHealthLeech();
+        }
+    }
+    Super.ScoreKill(Killer, Killed);
 }
 
 defaultproperties

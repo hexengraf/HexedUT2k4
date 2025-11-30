@@ -3,6 +3,7 @@ class HxAgent extends LinkedReplicationInfo;
 struct DamageInfo
 {
     var int Value;
+    var float AccumulatedLeech;
     var float Timestamp;
 };
 
@@ -10,11 +11,19 @@ const DAMAGE_CLUSTERING_INTERVAL = 0.015;
 
 var bool bAllowHitSounds;
 var bool bAllowDamageNumbers;
+var bool bColoredDeathMessages;
+var float HealthLeechRatio;
+var int HealthLeechLimit;
 var int BonusStartingHealth;
 var int BonusStartingShield;
 var int BonusStartingGrenades;
 var int BonusStartingAdrenaline;
 var int BonusAdrenalineOnSpawn;
+var bool bDisableSpeedCombo;
+var bool bDisableBerserkCombo;
+var bool bDisableBoosterCombo;
+var bool bDisableInvisibleCombo;
+var bool bDisableUDamage;
 var float MaxSpeedMultiplier;
 var float AirControlMultiplier;
 var float BaseJumpMultiplier;
@@ -25,12 +34,6 @@ var float DodgeSpeedMultiplier;
 var bool bCanBoostDodge;
 var bool bDisableWallDodge;
 var bool bDisableDodgeJump;
-var bool bDisableSpeedCombo;
-var bool bDisableBerserkCombo;
-var bool bDisableBoosterCombo;
-var bool bDisableInvisibleCombo;
-var bool bDisableUDamage;
-var bool bColoredDeathMessages;
 
 var MutHexedUT HexedUT;
 var PlayerController PC;
@@ -44,13 +47,31 @@ replication
         ClientUpdateHitEffects;
 
     reliable if (Role == ROLE_Authority)
-        bAllowHitSounds, bAllowDamageNumbers,
-        BonusStartingHealth, BonusStartingShield, BonusStartingGrenades, BonusStartingAdrenaline,
+        bAllowHitSounds,
+        bAllowDamageNumbers,
+        bColoredDeathMessages,
+        HealthLeechRatio,
+        HealthLeechLimit,
+        BonusStartingHealth,
+        BonusStartingShield,
+        BonusStartingGrenades,
+        BonusStartingAdrenaline,
         BonusAdrenalineOnSpawn,
-        MaxSpeedMultiplier, AirControlMultiplier, BaseJumpMultiplier, MultiJumpMultiplier,
-        BonusMultiJumps, bCanBoostDodge, bDisableWallDodge, bDisableDodgeJump,
-        bDisableSpeedCombo, bDisableBerserkCombo, bDisableBoosterCombo, bDisableInvisibleCombo,
-        bColoredDeathMessages;
+        bDisableSpeedCombo,
+        bDisableBerserkCombo,
+        bDisableBoosterCombo,
+        bDisableInvisibleCombo,
+        bDisableUDamage,
+        MaxSpeedMultiplier,
+        AirControlMultiplier,
+        BaseJumpMultiplier,
+        MultiJumpMultiplier,
+        BonusMultiJumps,
+        DodgeMultiplier,
+        DodgeSpeedMultiplier,
+        bCanBoostDodge,
+        bDisableWallDodge,
+        bDisableDodgeJump;
 
     reliable if (Role < ROLE_Authority)
         RemoteSetProperty;
@@ -90,11 +111,32 @@ function ServerTick(float DeltaTime)
 
 function UpdateDamage(int Value, Pawn Injured, Pawn Inflictor, class<DamageType> Type)
 {
-    if (IsEnemy(Injured, Inflictor))
+    Damage.Timestamp = Level.TimeSeconds;
+    Damage.Value += Value;
+}
+
+function UpdateHealthLeech(int Value, Pawn Inflictor)
+{
+    local float HealthLeechValue;
+    local int IntegerValue;
+
+    if (PC.Pawn == Inflictor && HealthLeechLimit != 0)
     {
-        Damage.Timestamp = Level.TimeSeconds;
-        Damage.Value += Value;
+        HealthLeechValue = Value * HealthLeechRatio;
+        IntegerValue = int(HealthLeechValue);
+        Damage.AccumulatedLeech += HealthLeechValue - float(IntegerValue);
+        if (Damage.AccumulatedLeech >= 1.0)
+        {
+            IntegerValue += 1;
+            Damage.AccumulatedLeech -= 1;
+        }
+        Inflictor.GiveHealth(IntegerValue, HealthLeechLimit);
     }
+}
+
+function ResetHealthLeech()
+{
+    Damage.AccumulatedLeech = 0;
 }
 
 simulated function ClientUpdateHitEffects(int Damage)
@@ -206,9 +248,10 @@ static function RegisterDamage(PlayerController PC,
     if (PC != None && PC.ViewTarget == Inflictor && Injured != Inflictor)
     {
         Agent = GetAgent(PC);
-        if (Agent != None)
+        if (Agent != None && IsEnemy(Injured, Inflictor))
         {
             Agent.UpdateDamage(Damage, Injured, Inflictor, Type);
+            Agent.UpdateHealthLeech(Damage, Inflictor);
         }
     }
 }

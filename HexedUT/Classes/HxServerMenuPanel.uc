@@ -1,7 +1,6 @@
 class HxServerMenuPanel extends HxMenuPanel;
 
-const SECTION_HIT_EFFECTS = 0;
-const SECTION_MISCELLANEOUS = 1;
+const SECTION_INDICATORS= 0;
 const SECTION_STARTING_VALUES = 2;
 const SECTION_POWER_UPS = 3;
 const SECTION_MOVEMENT = 4;
@@ -15,25 +14,21 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 
     super.InitComponent(MyController, MyOwner);
 
-    for (i = 0; i < 2; ++i)
+    for (i = 0; i < 5; ++i)
     {
-        Sections[SECTION_HIT_EFFECTS].ManageComponent(Options[i]);
+        Sections[SECTION_INDICATORS].ManageComponent(Options[i]);
     }
-    for (i = 2; i < 7; ++i)
+    for (i = 5; i < 10; ++i)
     {
         Sections[SECTION_STARTING_VALUES].ManageComponent(Options[i]);
     }
-    for (i = 7; i < 17; ++i)
-    {
-        Sections[SECTION_MOVEMENT].ManageComponent(Options[i]);
-    }
-    for (i = 17; i < 22; ++i)
+    for (i = 10; i < 15; ++i)
     {
         Sections[SECTION_POWER_UPS].ManageComponent(Options[i]);
     }
-    for (i = 22; i < Options.Length; ++i)
+    for (i = 15; i < Options.Length; ++i)
     {
-        Sections[SECTION_MISCELLANEOUS].ManageComponent(Options[i]);
+        Sections[SECTION_MOVEMENT].ManageComponent(Options[i]);
     }
 }
 
@@ -90,30 +85,25 @@ static function bool AddToMenu()
 
 defaultproperties
 {
-    Begin Object class=AltSectionBackground Name=HitEffectsSection
-        Caption="Hit Effects"
-        WinHeight=0.16
-    End Object
-
-    Begin Object class=AltSectionBackground Name=MiscellaneousSection
-        Caption="Miscellaneous"
-        WinHeight=0.16
+    Begin Object class=AltSectionBackground Name=GeneralSection
+        Caption="General"
+        WinHeight=0.315
     End Object
 
     Begin Object class=AltSectionBackground Name=StartingValuesSection
         Caption="Starting Values"
-        WinHeight=0.40
+        WinHeight=0.315
     End Object
 
     begin Object class=AltSectionBackground Name=PowerUpsSection
         Caption="Power-Ups"
-        WinHeight=0.40
+        WinHeight=0.315
     End Object
 
     Begin Object class=AltSectionBackground Name=MovementSection
         Caption="Movement"
         NumColumns=2
-        WinHeight=0.40
+        WinHeight=0.315
     End Object
 
     Begin Object class=HxMenuCheckBox Name=AllowHitSounds
@@ -121,6 +111,20 @@ defaultproperties
     End Object
 
     Begin Object class=HxMenuCheckBox Name=AllowDamageNumbers
+        OnChange=RemoteOnChange
+    End Object
+
+    Begin Object class=HxMenuFloatEdit Name=HealthLeechRatio
+        MinValue=0.0
+        MaxValue=5.0
+        Step=0.01
+        OnChange=RemoteOnChange
+    End Object
+
+    Begin Object class=HxMenuNumericEdit Name=HealthLeechLimit
+        MinValue=0
+        MaxValue=199
+        Step=10
         OnChange=RemoteOnChange
     End Object
 
@@ -156,6 +160,26 @@ defaultproperties
         MinValue=-100
         MaxValue=100
         Step=10
+        OnChange=RemoteOnChange
+    End Object
+
+    Begin Object class=HxMenuCheckBox Name=DisableSpeedCombo
+        OnChange=RemoteOnChange
+    End Object
+
+    Begin Object class=HxMenuCheckBox Name=DisableBerserkCombo
+        OnChange=RemoteOnChange
+    End Object
+
+    Begin Object class=HxMenuCheckBox Name=DisableBoosterCombo
+        OnChange=RemoteOnChange
+    End Object
+
+    Begin Object class=HxMenuCheckBox Name=DisableInvisibleCombo
+        OnChange=RemoteOnChange
+    End Object
+
+    Begin Object class=HxMenuCheckBox Name=DisableUDamage
         OnChange=RemoteOnChange
     End Object
 
@@ -219,25 +243,6 @@ defaultproperties
     Begin Object class=HxMenuCheckBox Name=DisableDodgeJump
         OnChange=RemoteOnChange
     End Object
-    Begin Object class=HxMenuCheckBox Name=DisableSpeedCombo
-        OnChange=RemoteOnChange
-    End Object
-
-    Begin Object class=HxMenuCheckBox Name=DisableBerserkCombo
-        OnChange=RemoteOnChange
-    End Object
-
-    Begin Object class=HxMenuCheckBox Name=DisableBoosterCombo
-        OnChange=RemoteOnChange
-    End Object
-
-    Begin Object class=HxMenuCheckBox Name=DisableInvisibleCombo
-        OnChange=RemoteOnChange
-    End Object
-
-    Begin Object class=HxMenuCheckBox Name=DisableUDamage
-        OnChange=RemoteOnChange
-    End Object
 
     Begin Object class=HxMenuCheckBox Name=ColoredDeathMessages
         OnChange=RemoteOnChange
@@ -247,32 +252,34 @@ defaultproperties
     PanelHint="Server options (admin only)"
     bInsertFront=true
     bDoubleColumn=true
-    Sections(0)=HitEffectsSection
-    Sections(1)=MiscellaneousSection
+    Sections(0)=GeneralSection
+    Sections(1)=None
     Sections(2)=StartingValuesSection
     Sections(3)=PowerUpsSection
     Sections(4)=MovementSection
     Options(0)=AllowHitSounds
     Options(1)=AllowDamageNumbers
-    Options(2)=BonusStartingHealth
-    Options(3)=BonusStartingShield
-    Options(4)=BonusStartingGrenades
-    Options(5)=BonusStartingAdrenaline
-    Options(6)=BonusAdrenalineOnSpawn
-    Options(7)=MaxSpeedMultiplier
-    Options(8)=AirControlMultiplier
-    Options(9)=BaseJumpMultiplier
-    Options(10)=MultiJumpMultiplier
-    Options(11)=BonusMultiJumps
-    Options(12)=DodgeMultiplier
-    Options(13)=DodgeSpeedMultiplier
-    Options(14)=CanBoostDodge
-    Options(15)=DisableWallDodge
-    Options(16)=DisableDodgeJump
-    Options(17)=DisableSpeedCombo
-    Options(18)=DisableBerserkCombo
-    Options(19)=DisableBoosterCombo
-    Options(20)=DisableInvisibleCombo
-    Options(21)=DisableUDamage
-    Options(22)=ColoredDeathMessages
+    Options(2)=ColoredDeathMessages
+    Options(3)=HealthLeechRatio
+    Options(4)=HealthLeechLimit
+    Options(5)=BonusStartingHealth
+    Options(6)=BonusStartingShield
+    Options(7)=BonusStartingGrenades
+    Options(8)=BonusStartingAdrenaline
+    Options(9)=BonusAdrenalineOnSpawn
+    Options(10)=DisableSpeedCombo
+    Options(11)=DisableBerserkCombo
+    Options(12)=DisableBoosterCombo
+    Options(13)=DisableInvisibleCombo
+    Options(14)=DisableUDamage
+    Options(15)=MaxSpeedMultiplier
+    Options(16)=AirControlMultiplier
+    Options(17)=BaseJumpMultiplier
+    Options(18)=MultiJumpMultiplier
+    Options(19)=BonusMultiJumps
+    Options(20)=DodgeMultiplier
+    Options(21)=DodgeSpeedMultiplier
+    Options(22)=CanBoostDodge
+    Options(23)=DisableWallDodge
+    Options(24)=DisableDodgeJump
 }

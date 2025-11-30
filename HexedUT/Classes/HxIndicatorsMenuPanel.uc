@@ -294,23 +294,23 @@ defaultproperties
 {
     Begin Object class=AltSectionBackground Name=SpawnProtectionSection
         Caption="Spawn Protection"
-        WinHeight=0.16
+        WinHeight=0.185
         NumColumns=2
     End Object
 
     Begin Object class=AltSectionBackground Name=HitSoundsSection
         Caption="Hit Sounds"
-        WinHeight=0.32
+        WinHeight=0.2715
     End Object
 
     Begin Object class=AltSectionBackground Name=DamageNumbersSection
         Caption="Damage Numbers"
-        WinHeight=0.32
+        WinHeight=0.2715
     End Object
 
     Begin Object class=AltSectionBackground Name=DPSection
         Caption="Customize Hit Sounds & Damage Numbers"
-        WinHeight=0.40
+        WinHeight=0.315
         NumColumns=2
         bRemapStack=false
     End Object
