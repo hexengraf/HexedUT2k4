@@ -23,8 +23,7 @@ struct HxDamageNumber
     var int Value;
     var float Scale;
     var Color Color;
-    var float PosX;
-    var float PosY;
+    var float DeltaY;
     var float Duration;
 };
 
@@ -43,6 +42,7 @@ const ALAUDIO_PITCH_NEUTRAL = 1.0;
 
 const FONT_SCALE_MIN = 0.70;
 const FONT_SCALE_SPECTRUM = 0.30; // 1 - FONT_SCALE_MIN
+const REFERENCE_SCREEN_X = 3840;
 
 const DN_STATIC_INDEX = 0;
 const DN_TOTAL_INDEX = 1;
@@ -66,6 +66,8 @@ var config HxDamagePoint DamagePoints[DAMAGE_POINT_COUNT];
 
 var PlayerController PC;
 var array<HxDamageNumber> DamageNumbers;
+var Font DamageNumbersFont;
+var float GlobalScale;
 
 simulated event PreBeginPlay()
 {
@@ -103,8 +105,7 @@ simulated function InitializeDamageNumbers()
 simulated function InitializeDamageNumber(int i)
 {
     DamageNumbers[i].Value = 0;
-    DamageNumbers[i].PosX = PosX;
-    DamageNumbers[i].PosY = PosY;
+    DamageNumbers[i].DeltaY = 0;
     DamageNumbers[i].Duration = DN_NORMAL_DURATION;
 }
 
@@ -144,14 +145,14 @@ simulated function bool TickFloatMode(int i, float DeltaTime)
 {
     if (DamageNumbers[i].Duration > 0)
     {
-        DamageNumbers[i].PosY -= DeltaTime * DN_TRAVEL;
+        DamageNumbers[i].DeltaY -= DeltaTime * DN_TRAVEL;
         return true;
     }
     if (DMode == HX_DMODE_FloatDual)
     {
         if (DamageNumbers[DN_TOTAL_INDEX].Value == 0)
         {
-            DamageNumbers[DN_TOTAL_INDEX].PosY = PosY - DN_TRAVEL - DeltaTime * DN_TRAVEL;
+            DamageNumbers[DN_TOTAL_INDEX].DeltaY = -DN_TRAVEL - DeltaTime * DN_TRAVEL;
         }
         UpdateDamageNumber(DN_TOTAL_INDEX, DamageNumbers[i].Value);
         DamageNumbers[DN_TOTAL_INDEX].Duration = DN_EXTENDED_DURATION;
@@ -162,30 +163,59 @@ simulated function bool TickFloatMode(int i, float DeltaTime)
 simulated function Render(Canvas C)
 {
     local int i;
+    local float OldFontScaleX;
+    local float OldFontScaleY;
 
+    OldFontScaleX = C.FontScaleX;
+    OldFontScaleY = C.FontScaleY;
+    GlobalScale = C.ClipX / REFERENCE_SCREEN_X;
     for (i = 0; i < DamageNumbers.Length; ++i)
     {
         if (DamageNumbers[i].Value > 0)
         {
-            RenderDamageNumber(C, i);
+            DrawDamageNumber(C, i);
         }
     }
+    C.FontScaleX = OldFontScaleX;
+    C.FontScaleY = OldFontScaleY;
 }
 
-simulated function RenderDamageNumber(Canvas C, int i)
+simulated function DrawDamageNumber(Canvas C, int i)
 {
-    local string Number;
     local float XL;
     local float YL;
+    local float FinalScale;
 
-    Number = string(DamageNumbers[i].Value);
+    FinalScale = GlobalScale * DamageNumbers[i].Scale;
     C.DrawColor = DamageNumbers[i].Color;
-    C.Font = class'HxHitEffectsFont'.static.GetFont(C.ClipX);
-    C.FontScaleX = DamageNumbers[i].Scale;
-    C.FontScaleY = DamageNumbers[i].Scale;
-    C.StrLen(Number, XL, YL);
-    C.SetPos((C.ClipX - XL) * DamageNumbers[i].PosX, (C.ClipY - YL) * DamageNumbers[i].PosY);
-    C.DrawTextClipped(Number);
+    C.Font = DamageNumbersFont;
+    C.FontScaleX = FinalScale;
+    C.FontScaleY = FinalScale;
+    C.StrLen(DamageNumbers[i].Value, XL, YL);
+    C.SetPos((C.ClipX - XL) * PosX, (C.ClipY - YL) * (PosY + DamageNumbers[i].DeltaY));
+    C.DrawText(DamageNumbers[i].Value);
+}
+
+simulated function DrawDamageNumberPreview(Canvas C, int i)
+{
+    local float XL;
+    local float YL;
+    local float OldFontScaleX;
+    local float OldFontScaleY;
+    local float FinalScale;
+
+    OldFontScaleX = C.FontScaleX;
+    OldFontScaleY = C.FontScaleY;
+    FinalScale = GlobalScale * ToAbsoluteScale(DamagePoints[i].Scale);
+    C.DrawColor = DamagePoints[i].Color;
+    C.Font = DamageNumbersFont;
+    C.FontScaleX = FinalScale;
+    C.FontScaleY = FinalScale;
+    C.StrLen(DamagePoints[i].Value, XL, YL);
+    C.SetPos((C.ClipX - XL) * 0.5, (C.ClipY - YL) * 0.5);
+    C.DrawText(DamagePoints[i].Value);
+    C.FontScaleX = OldFontScaleX;
+    C.FontScaleY = OldFontScaleY;
 }
 
 simulated function Update(int Damage, bool bAllowHitSounds, bool bAllowDamageNumbers)
@@ -255,7 +285,7 @@ simulated function UpdateDamageNumbers(int Damage)
                 if (DamageNumbers[DN_TOTAL_INDEX].Value == 0)
                 {
                     DamageNumbers[DN_TOTAL_INDEX].Value = DamageNumbers[DN_STATIC_INDEX].Value;
-                    DamageNumbers[DN_TOTAL_INDEX].PosY -= DN_DUAL_OFFSET;
+                    DamageNumbers[DN_TOTAL_INDEX].DeltaY -= DN_DUAL_OFFSET;
                 }
                 UpdateDamageNumber(DN_TOTAL_INDEX, Damage);
                 DamageNumbers[DN_STATIC_INDEX].Value = 0;
@@ -374,4 +404,5 @@ defaultproperties
     DamagePoints(2)=(Value=70,Pitch=0.55,Scale=0.55,Color=(R=255,G=119,B=32))
     DamagePoints(3)=(Value=120,Pitch=0.75,Scale=0.75,Color=(R=255,G=32,B=32))
     DamagePoints(4)=(Value=180,Pitch=1.00,Scale=1.00,Color=(R=143,G=32,B=245))
+    DamageNumbersFont=Font'UT2003Fonts.FontEurostile37';
 }

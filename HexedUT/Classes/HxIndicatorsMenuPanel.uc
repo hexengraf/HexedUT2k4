@@ -227,15 +227,12 @@ function RefreshCustomizeSection()
     CustomizeOptions[6].SetComponentValue(Agent.HitEffects.DamagePoints[DPIndex].Color.B);
 }
 
-function DrawDPPreview(Canvas C)
+function DrawDamageNumberPreview(Canvas C)
 {
-    local string DamageNumber;
     local float SavedOrgX;
     local float SavedOrgY;
     local float SavedClipX;
     local float SavedClipY;
-    local float XL;
-    local float YL;
 
     if (Agent == None || !Agent.bAllowDamageNumbers || !Agent.HitEffects.bDamageNumbers)
     {
@@ -245,21 +242,11 @@ function DrawDPPreview(Canvas C)
     SavedOrgY = C.OrgY;
     SavedClipX = C.ClipX;
     SavedClipY = C.ClipY;
-
     C.OrgX = i_DPPReview.ActualLeft();
     C.OrgY = i_DPPReview.ActualTop();
     C.ClipX = i_DPPReview.ActualWidth();
     C.ClipY = i_DPPReview.ActualHeight();
-
-    DamageNumber = string(Agent.HitEffects.DamagePoints[DPIndex].Value);
-    C.DrawColor = Agent.HitEffects.DamagePoints[DPIndex].Color;
-    C.Font = class'HxHitEffectsFont'.static.GetFont(SavedClipX);
-    C.FontScaleX = Agent.HitEffects.ToAbsoluteScale(Agent.HitEffects.DamagePoints[DPIndex].Scale);
-    C.FontScaleY = Agent.HitEffects.ToAbsoluteScale(Agent.HitEffects.DamagePoints[DPIndex].Scale);
-    C.StrLen(DamageNumber, XL, YL);
-    C.SetPos((C.ClipX - XL) * 0.5, (C.ClipY - YL) * 0.55);
-    C.DrawTextClipped(DamageNumber);
-
+    Agent.HitEffects.DrawDamageNumberPreview(C, DPIndex);
     C.OrgX = SavedOrgX;
     C.OrgY = SavedOrgY;
     C.ClipX = SavedClipX;
@@ -420,7 +407,7 @@ defaultproperties
         bStandardized=true
         StandardHeight=0.032
         TabOrder=12
-        OnRendered=DrawDPPreview
+        OnRendered=DrawDamageNumberPreview
     End Object
 
     Begin Object class=HxMenuNumericEdit Name=DPValue
