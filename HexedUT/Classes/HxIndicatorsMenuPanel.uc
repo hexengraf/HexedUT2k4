@@ -12,6 +12,9 @@ var automated array<HxMenuOption> CustomizeOptions;
 var automated GUIImage i_DPPReview;
 var automated GUIButton b_PlaySound;
 
+var array<string> FontNames;
+var array<Font> LoadedFonts;
+var int FontIndex;
 var int DPIndex;
 var HxAgent Agent;
 
@@ -45,6 +48,11 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     {
         HxMenuComboBox(HitEffectsOptions[1]).AddItem(string(class'HxSounds'.default.HitSounds[i]));
     }
+    AddCustomFonts();
+    for (i = 0; i < FontNames.Length; ++i)
+    {
+        HxMenuComboBox(HitEffectsOptions[6]).AddItem(FontNames[i]);
+    }
 }
 
 function bool Initialize()
@@ -66,7 +74,9 @@ function bool Initialize()
         {
             HitEffectsOptions[i].Target = Agent.HitEffects;
         }
+        HitEffectsOptions[6].Target = Self;
         CustomizeOptions[0].Target = Self;
+        FontIndex = GetFontIndex(string(Agent.HitEffects.DFont));
         return true;
     }
     return false;
@@ -86,6 +96,7 @@ function Refresh()
     }
     HitSoundsAfterChange();
     DamageNumbersAfterChange();
+    DamageNumbersFontAfterChange();
     SpawnProtectionAfterChange();
     RefreshCustomizeSection();
     HideSection(SECTION_SPAWN_PROTECTION, false);
@@ -144,6 +155,12 @@ function DamageNumbersAfterChange()
     CustomizeOptions[1].SetEnable(DPIndex != 0 && bAnyEffectEnabled);
 }
 
+function DamageNumbersFontAfterChange()
+{
+    Agent.HitEffects.DFont = GetFont(FontIndex);
+    Agent.HitEffects.SaveConfig();
+}
+
 function SpawnProtectionAfterChange()
 {
     local int i;
@@ -164,6 +181,12 @@ function DamageNumbersOnChange(GUIComponent C)
 {
     Super.TargetOnChange(C);
     DamageNumbersAfterChange();
+}
+
+function DamageNumbersFontOnChange(GUIComponent C)
+{
+    Super.TargetOnChange(C);
+    DamageNumbersFontAfterChange();
 }
 
 function SpawnProtectionOnChange(GUIComponent C)
@@ -253,6 +276,42 @@ function bool PlaySoundOnClick(GUIComponent Sender)
     return true;
 }
 
+function AddCustomFonts()
+{
+    FontNames[FontNames.Length] = string(Font'Verdana36');
+    FontNames[FontNames.Length] = string(Font'Verdana40');
+    FontNames[FontNames.Length] = string(Font'Verdana48');
+}
+
+function Font GetFont(int i)
+{
+    if (LoadedFonts.Length < FontNames.Length)
+    {
+        LoadedFonts.Length = FontNames.Length;
+    }
+    if (LoadedFonts[i] == None)
+    {
+		LoadedFonts[i] = Font(DynamicLoadObject(FontNames[i], class'Font'));
+    }
+    return LoadedFonts[i];
+}
+
+function int GetFontIndex(string FontName)
+{
+    local int i;
+
+    for (i = 0; i < FontNames.Length; ++i)
+    {
+        if (FontNames[i] == FontName)
+        {
+            return i;
+        }
+    }
+    FontNames[FontNames.Length] = FontName;
+    HxMenuComboBox(HitEffectsOptions[6]).AddItem(FontNames[i]);
+    return i;
+}
+
 static function bool AddToMenu()
 {
     local int i;
@@ -301,36 +360,6 @@ defaultproperties
         Caption="Spawn Protection"
     End Object
 
-    Begin Object class=HxMenuCheckBox Name=SPShowTimer
-        Caption="Show timer"
-        PropertyName="bShowTimer"
-        OnChange=SpawnProtectionOnChange
-    End Object
-
-    Begin Object class=HxMenuCheckBox Name=SPUseHUDColor
-        Caption="Use HUD color"
-        PropertyName="bUseHUDColor"
-        OnChange=SpawnProtectionOnChange
-    End Object
-
-    Begin Object class=HxMenuCheckBox Name=SPPulseDigits
-        Caption="Use pulsing digits"
-        PropertyName="bPulsingDigits"
-        OnChange=SpawnProtectionOnChange
-    End Object
-
-    Begin Object class=HxMenuFloatEdit Name=SPTimerPosX
-        Caption="X position"
-        PropertyName="PosX"
-        OnChange=TargetOnChange
-    End Object
-
-    Begin Object class=HxMenuFloatEdit Name=SPTimerPosY
-        Caption="Y position"
-        PropertyName="PosY"
-        OnChange=TargetOnChange
-    End Object
-
     Begin Object class=HxMenuCheckBox Name=HitSounds
         Caption="Enable hit sounds"
         PropertyName="bHitSounds"
@@ -371,6 +400,12 @@ defaultproperties
         OnChange=TargetOnChange
     End Object
 
+    Begin Object class=HxMenuComboBox Name=DFont
+        Caption="Font"
+        PropertyName="FontIndex"
+        OnChange=DamageNumbersFontOnChange
+    End Object
+
     Begin Object class=HxMenuFloatEdit Name=DNPosX
         Caption="X position"
         PropertyName="PosX"
@@ -383,11 +418,40 @@ defaultproperties
         OnChange=TargetOnChange
     End Object
 
+    Begin Object class=HxMenuCheckBox Name=SPShowTimer
+        Caption="Show timer"
+        PropertyName="bShowTimer"
+        OnChange=SpawnProtectionOnChange
+    End Object
+
+    Begin Object class=HxMenuCheckBox Name=SPUseHUDColor
+        Caption="Use HUD color"
+        PropertyName="bUseHUDColor"
+        OnChange=SpawnProtectionOnChange
+    End Object
+
+    Begin Object class=HxMenuCheckBox Name=SPPulseDigits
+        Caption="Use pulsing digits"
+        PropertyName="bPulsingDigits"
+        OnChange=SpawnProtectionOnChange
+    End Object
+
+    Begin Object class=HxMenuFloatEdit Name=SPTimerPosX
+        Caption="X position"
+        PropertyName="PosX"
+        OnChange=TargetOnChange
+    End Object
+
+    Begin Object class=HxMenuFloatEdit Name=SPTimerPosY
+        Caption="Y position"
+        PropertyName="PosY"
+        OnChange=TargetOnChange
+    End Object
+
     Begin Object class=HxMenuComboBox Name=DPPoint
         Caption="Point"
         PropertyName="DPIndex"
         DisplayNames=("Zero damage","Low damage","Medium damage","High damage","Extreme damage")
-        ComponentWidth=1.00
         OnChange=CustomizeOnChange
     End Object
 
@@ -475,8 +539,9 @@ defaultproperties
     HitEffectsOptions(3)=HSPitchMode
     HitEffectsOptions(4)=DamageNumbers
     HitEffectsOptions(5)=DMode
-    HitEffectsOptions(6)=DNPosX
-    HitEffectsOptions(7)=DNPosY
+    HitEffectsOptions(6)=DFont
+    HitEffectsOptions(7)=DNPosX
+    HitEffectsOptions(8)=DNPosY
     CustomizeOptions(0)=DPPoint
     CustomizeOptions(1)=DPValue
     CustomizeOptions(2)=DPPitch
@@ -486,5 +551,12 @@ defaultproperties
     CustomizeOptions(6)=DPBlue
     i_DPPReview=DPPreview
     b_PlaySound=PlaySound
-    DPIndex=0
+    FontNames(0)="UT2003Fonts.FontEurostile29"
+    FontNames(1)="UT2003Fonts.FontEurostile37"
+    FontNames(2)="UT2003Fonts.FontNeuzeit29"
+    FontNames(3)="UT2003Fonts.FontNeuzeit37"
+    FontNames(4)="2K4Fonts.Verdana28"
+    FontNames(5)="2K4Fonts.Verdana30"
+    FontNames(6)="2K4Fonts.Verdana32"
+    FontNames(7)="2K4Fonts.Verdana34"
 }
