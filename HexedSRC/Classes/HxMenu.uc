@@ -52,11 +52,14 @@ function PopulateTabControl()
                 default.Panels[i].Hint,
                 true);
         }
-        TabControl.AddTab(
-            default.Panels[i].Caption,
-            string(default.Panels[i].PanelClass),
-            ,
-            default.Panels[i].Hint);
+        else
+        {
+            TabControl.AddTab(
+                default.Panels[i].Caption,
+                string(default.Panels[i].PanelClass),
+                ,
+                default.Panels[i].Hint);
+        }
     }
     PanelCount = default.Panels.Length;
 }
