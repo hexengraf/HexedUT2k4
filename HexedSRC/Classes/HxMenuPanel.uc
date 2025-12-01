@@ -5,6 +5,9 @@ const HIDE_DUE_INIT = "Initializing...";
 const HIDE_DUE_DISABLE = "Feature disabled on this server";
 const HIDE_DUE_ADMIN = "Requires administrator privileges";
 
+const MINIMUM_SECTION_HEIGHT = 0.1;
+const COMPONENT_HEIGHT = 0.0435;
+
 var localized string PanelHint;
 var bool bInsertFront;
 var bool bDoubleColumn;
@@ -114,13 +117,15 @@ function InitSection(int i)
             Sections[i].LeftPadding = 0.02;
             Sections[i].RightPadding = 0.02;
         }
-        else if (i + 1 < Sections.Length && Sections[i + 1] != None)
+        else if (i + 1 < Sections.Length && (Sections[i].NumColumns == 1 || Sections[i + 1] != None))
         {
             Sections[i].WinWidth = 0.49749;
             Sections[i].LeftPadding = 0.02;
             Sections[i].RightPadding = 0.02;
         }
     }
+    Sections[i].WinHeight = MINIMUM_SECTION_HEIGHT + (
+        (Sections[i].AlignStack.Length / Sections[i].NumColumns) * COMPONENT_HEIGHT);
     Sections[i].bBoundToParent = true;
     Sections[i].bScaleToParent = true;
     Sections[i].bFillClient = true;

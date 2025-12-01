@@ -1,9 +1,9 @@
 class HxIndicatorsMenuPanel extends HxMenuPanel;
 
-const SECTION_SPAWN_PROTECTION = 0;
-const SECTION_HIT_SOUNDS = 2;
-const SECTION_DAMAGE_NUMBERS = 3;
-const SECTION_CUSTOMIZE = 4;
+const SECTION_HIT_SOUNDS = 0;
+const SECTION_DAMAGE_NUMBERS = 2;
+const SECTION_SPAWN_PROTECTION = 4;
+const SECTION_CUSTOMIZE = 1;
 
 var automated array<HxMenuOption> SpawnProtectionOptions;
 var automated array<HxMenuOption> HitEffectsOptions;
@@ -11,7 +11,6 @@ var automated array<HxMenuOption> CustomizeOptions;
 
 var automated GUIImage i_DPPReview;
 var automated GUIButton b_PlaySound;
-var automated GUIImage i_FillerRight;
 
 var int DPIndex;
 var HxAgent Agent;
@@ -20,12 +19,6 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
     local int i;
 
-    super.InitComponent(MyController, MyOwner);
-
-    for (i = 0; i < SpawnProtectionOptions.Length; ++i)
-    {
-        Sections[SECTION_SPAWN_PROTECTION].ManageComponent(SpawnProtectionOptions[i]);
-    }
     for (i = 0; i < 4; ++i)
     {
         Sections[SECTION_HIT_SOUNDS].ManageComponent(HitEffectsOptions[i]);
@@ -34,23 +27,24 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     {
         Sections[SECTION_DAMAGE_NUMBERS].ManageComponent(HitEffectsOptions[i]);
     }
+    for (i = 0; i < SpawnProtectionOptions.Length; ++i)
+    {
+        Sections[SECTION_SPAWN_PROTECTION].ManageComponent(SpawnProtectionOptions[i]);
+    }
     for (i = 0; i < CustomizeOptions.Length; ++i)
     {
         Sections[SECTION_CUSTOMIZE].ManageComponent(CustomizeOptions[i]);
-        if (i == 0)
-        {
-            Sections[SECTION_CUSTOMIZE].ManageComponent(i_DPPreview);
-        }
         if (i == 2)
         {
             Sections[SECTION_CUSTOMIZE].ManageComponent(b_PlaySound);
-            Sections[SECTION_CUSTOMIZE].ManageComponent(i_FillerRight);
+            Sections[SECTION_CUSTOMIZE].ManageComponent(i_DPPreview);
         }
     }
     for (i = 0; i < class'HxSounds'.default.HitSounds.Length; ++i)
     {
         HxMenuComboBox(HitEffectsOptions[1]).AddItem(string(class'HxSounds'.default.HitSounds[i]));
     }
+    super.InitComponent(MyController, MyOwner);
 }
 
 function bool Initialize()
@@ -90,25 +84,15 @@ function Refresh()
     {
         HitEffectsOptions[i].GetValueFromTarget();
     }
-    SpawnProtectionAfterChange();
     HitSoundsAfterChange();
     DamageNumbersAfterChange();
+    SpawnProtectionAfterChange();
     RefreshCustomizeSection();
     HideSection(SECTION_SPAWN_PROTECTION, false);
     HideSection(SECTION_HIT_SOUNDS, !Agent.bAllowHitSounds, HIDE_DUE_DISABLE);
     HideSection(SECTION_DAMAGE_NUMBERS, !Agent.bAllowDamageNumbers, HIDE_DUE_DISABLE);
     HideSection(
         SECTION_CUSTOMIZE, !Agent.bAllowHitSounds && !Agent.bAllowDamageNumbers, HIDE_DUE_DISABLE);
-}
-
-function SpawnProtectionAfterChange()
-{
-    local int i;
-
-    for (i = 1; i < SpawnProtectionOptions.Length; ++i)
-    {
-        SpawnProtectionOptions[i].SetEnable(Agent.SpawnProtectionTimer.bShowTimer);
-    }
 }
 
 function HitSoundsAfterChange()
@@ -160,11 +144,14 @@ function DamageNumbersAfterChange()
     CustomizeOptions[1].SetEnable(DPIndex != 0 && bAnyEffectEnabled);
 }
 
-function SpawnProtectionOnChange(GUIComponent C)
+function SpawnProtectionAfterChange()
 {
-    Super.TargetOnChange(C);
-    SpawnProtectionAfterChange();
+    local int i;
 
+    for (i = 1; i < SpawnProtectionOptions.Length; ++i)
+    {
+        SpawnProtectionOptions[i].SetEnable(Agent.SpawnProtectionTimer.bShowTimer);
+    }
 }
 
 function HitSoundsOnChange(GUIComponent C)
@@ -177,6 +164,13 @@ function DamageNumbersOnChange(GUIComponent C)
 {
     Super.TargetOnChange(C);
     DamageNumbersAfterChange();
+}
+
+function SpawnProtectionOnChange(GUIComponent C)
+{
+    Super.TargetOnChange(C);
+    SpawnProtectionAfterChange();
+
 }
 
 function CustomizeOnChange(GUIComponent C)
@@ -253,13 +247,6 @@ function DrawDamageNumberPreview(Canvas C)
     C.ClipY = SavedClipY;
 }
 
-function bool DPPointPreDraw(Canvas C)
-{
-    CustomizeOptions[0].WinWidth =
-        i_FillerRight.WinLeft + i_FillerRight.WinWidth - CustomizeOptions[0].WinLeft;
-    return false;
-}
-
 function bool PlaySoundOnClick(GUIComponent Sender)
 {
     Agent.HitEffects.PlayHitSound(Agent.HitEffects.DamagePoints[DPIndex].Value);
@@ -273,17 +260,22 @@ static function bool AddToMenu()
 
     if (Super.AddToMenu())
     {
-        for (i = 0; i < default.SpawnProtectionOptions.Length; ++i)
-        {
-            default.SpawnProtectionOptions[i].TabOrder = Order++;
-        }
         for (i = 0; i < default.HitEffectsOptions.Length; ++i)
         {
             default.HitEffectsOptions[i].TabOrder = Order++;
         }
+        for (i = 0; i < default.SpawnProtectionOptions.Length; ++i)
+        {
+            default.SpawnProtectionOptions[i].TabOrder = Order++;
+        }
         for (i = 0; i < default.CustomizeOptions.Length; ++i)
         {
             default.CustomizeOptions[i].TabOrder = Order++;
+            if (i == 2)
+            {
+                default.b_PlaySound.TabOrder = Order++;
+                default.i_DPPreview.TabOrder = Order++;
+            }
         }
         return true;
     }
@@ -292,27 +284,21 @@ static function bool AddToMenu()
 
 defaultproperties
 {
-    Begin Object class=AltSectionBackground Name=SpawnProtectionSection
-        Caption="Spawn Protection"
-        WinHeight=0.185
-        NumColumns=2
-    End Object
-
     Begin Object class=AltSectionBackground Name=HitSoundsSection
         Caption="Hit Sounds"
-        WinHeight=0.2715
     End Object
 
     Begin Object class=AltSectionBackground Name=DamageNumbersSection
         Caption="Damage Numbers"
-        WinHeight=0.2715
     End Object
 
-    Begin Object class=AltSectionBackground Name=DPSection
-        Caption="Customize Hit Sounds & Damage Numbers"
-        WinHeight=0.315
-        NumColumns=2
+    Begin Object class=AltSectionBackground Name=DamagePointsSection
+        Caption="Customize Damage Points"
         bRemapStack=false
+    End Object
+
+    Begin Object class=AltSectionBackground Name=SpawnProtectionSection
+        Caption="Spawn Protection"
     End Object
 
     Begin Object class=HxMenuCheckBox Name=SPShowTimer
@@ -392,10 +378,10 @@ defaultproperties
     End Object
 
     Begin Object class=HxMenuComboBox Name=DPPoint
+        Caption="Point"
         PropertyName="DPIndex"
         DisplayNames=("Zero damage","Low damage","Medium damage","High damage","Extreme damage")
         ComponentWidth=1.00
-        OnPreDraw=DPPointPreDraw
         OnChange=CustomizeOnChange
     End Object
 
@@ -428,13 +414,6 @@ defaultproperties
         StandardHeight=0.032
         OnClick=PlaySoundOnClick
         OnClickSound=CS_None
-    End Object
-
-    Begin Object class=GUIImage Name=FillerRight
-        bBoundToParent=true
-        bScaleToParent=true
-        bStandardized=true
-        StandardHeight=0.03
     End Object
 
     Begin Object class=HxMenuSlider Name=DPScale
@@ -473,11 +452,12 @@ defaultproperties
     PanelHint="Spawn protection and damage indicators"
     bInsertFront=true
     bDoubleColumn=true
-    Sections(0)=SpawnProtectionSection
-    Sections(1)=None
-    Sections(2)=HitSoundsSection
-    Sections(3)=DamageNumbersSection
-    Sections(4)=DPSection
+    Sections(0)=HitSoundsSection
+    Sections(1)=DamagePointsSection
+    Sections(2)=DamageNumbersSection
+    Sections(3)=None
+    Sections(4)=SpawnProtectionSection
+    Sections(5)=None
     SpawnProtectionOptions(0)=SPShowTimer
     SpawnProtectionOptions(1)=SPUseHUDColor
     SpawnProtectionOptions(2)=SPTimerPosX
@@ -499,6 +479,5 @@ defaultproperties
     CustomizeOptions(6)=DPBlue
     i_DPPReview=DPPreview
     b_PlaySound=PlaySound
-    i_FillerRight=FillerRight
     DPIndex=0
 }

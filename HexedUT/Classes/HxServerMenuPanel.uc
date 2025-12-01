@@ -2,8 +2,8 @@ class HxServerMenuPanel extends HxMenuPanel;
 
 const SECTION_INDICATORS= 0;
 const SECTION_STARTING_VALUES = 2;
-const SECTION_POWER_UPS = 3;
-const SECTION_MOVEMENT = 4;
+const SECTION_POWER_UPS = 4;
+const SECTION_MOVEMENT = 1;
 
 var automated array<HxMenuOption> Options;
 var HxAgent Agent;
@@ -11,8 +11,6 @@ var HxAgent Agent;
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
     local int i;
-
-    super.InitComponent(MyController, MyOwner);
 
     for (i = 0; i < 5; ++i)
     {
@@ -30,6 +28,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     {
         Sections[SECTION_MOVEMENT].ManageComponent(Options[i]);
     }
+    super.InitComponent(MyController, MyOwner);
 }
 
 function bool Initialize()
@@ -87,23 +86,18 @@ defaultproperties
 {
     Begin Object class=AltSectionBackground Name=GeneralSection
         Caption="General"
-        WinHeight=0.315
     End Object
 
     Begin Object class=AltSectionBackground Name=StartingValuesSection
         Caption="Starting Values"
-        WinHeight=0.315
     End Object
 
     begin Object class=AltSectionBackground Name=PowerUpsSection
         Caption="Power-Ups"
-        WinHeight=0.315
     End Object
 
     Begin Object class=AltSectionBackground Name=MovementSection
         Caption="Movement"
-        NumColumns=2
-        WinHeight=0.315
     End Object
 
     Begin Object class=HxMenuCheckBox Name=AllowHitSounds
@@ -253,10 +247,11 @@ defaultproperties
     bInsertFront=true
     bDoubleColumn=true
     Sections(0)=GeneralSection
-    Sections(1)=None
+    Sections(1)=MovementSection
     Sections(2)=StartingValuesSection
-    Sections(3)=PowerUpsSection
-    Sections(4)=MovementSection
+    Sections(3)=None
+    Sections(4)=PowerUpsSection
+    Sections(5)=None
     Options(0)=AllowHitSounds
     Options(1)=AllowDamageNumbers
     Options(2)=ColoredDeathMessages
