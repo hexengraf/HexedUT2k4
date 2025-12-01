@@ -4,7 +4,7 @@ defaultproperties
 {
 	KeyName="UT2SmallHeaderFont"
 
-    FontArrayNames(0)=string(Font'Verdana36')
+    FontArrayNames(0)=""
     FontArrayNames(1)="2K4Fonts.Verdana26"
     FontArrayNames(2)="2K4Fonts.Verdana20" // last original
     FontArrayNames(3)="2K4Fonts.Verdana18"

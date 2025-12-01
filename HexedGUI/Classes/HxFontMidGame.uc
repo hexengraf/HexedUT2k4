@@ -9,7 +9,7 @@ defaultproperties
 {
 	KeyName="UT2MidGameFont"
 
-	FontArrayNames(0)=string(Font'FontEurostile31')
+	FontArrayNames(0)=""
     FontArrayNames(1)="UT2003Fonts.FontEurostile21"
     FontArrayNames(2)="UT2003Fonts.FontEurostile17" // last original
     FontArrayNames(3)="UT2003Fonts.FontEurostile14"
