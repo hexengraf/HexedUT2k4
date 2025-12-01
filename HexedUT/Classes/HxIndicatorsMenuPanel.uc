@@ -313,6 +313,12 @@ defaultproperties
         OnChange=SpawnProtectionOnChange
     End Object
 
+    Begin Object class=HxMenuCheckBox Name=SPPulseDigits
+        Caption="Use pulsing digits"
+        PropertyName="bPulsingDigits"
+        OnChange=SpawnProtectionOnChange
+    End Object
+
     Begin Object class=HxMenuFloatEdit Name=SPTimerPosX
         Caption="X position"
         PropertyName="PosX"
@@ -460,8 +466,9 @@ defaultproperties
     Sections(5)=None
     SpawnProtectionOptions(0)=SPShowTimer
     SpawnProtectionOptions(1)=SPUseHUDColor
-    SpawnProtectionOptions(2)=SPTimerPosX
-    SpawnProtectionOptions(3)=SPTimerPosY
+    SpawnProtectionOptions(2)=SPPulseDigits
+    SpawnProtectionOptions(3)=SPTimerPosX
+    SpawnProtectionOptions(4)=SPTimerPosY
     HitEffectsOptions(0)=HitSounds
     HitEffectsOptions(1)=SelectedHitSound
     HitEffectsOptions(2)=HSVolume
