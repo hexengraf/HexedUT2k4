@@ -40,11 +40,11 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
             Sections[SECTION_CUSTOMIZE].ManageComponent(i_DPPreview);
         }
     }
+    super.InitComponent(MyController, MyOwner);
     for (i = 0; i < class'HxSounds'.default.HitSounds.Length; ++i)
     {
         HxMenuComboBox(HitEffectsOptions[1]).AddItem(string(class'HxSounds'.default.HitSounds[i]));
     }
-    super.InitComponent(MyController, MyOwner);
 }
 
 function bool Initialize()
