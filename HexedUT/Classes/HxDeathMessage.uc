@@ -33,7 +33,7 @@ static function string GetColoredName(PlayerReplicationInfo PRI, Color Fallback)
 
 static function string GetColorCode(PlayerReplicationInfo PRI, Color Fallback)
 {
-    if (!PRI.bNoTeam)
+    if (PRI.Team != None)
     {
         // PRI.Team.TeamColor is not properly initialized :(
         if (PRI.Team.TeamIndex == 0)
