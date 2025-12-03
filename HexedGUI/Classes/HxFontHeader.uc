@@ -2,7 +2,7 @@ class HxFontHeader extends HxFont;
 
 defaultproperties
 {
-	KeyName="UT2HeaderFont"
+    KeyName="UT2HeaderFont"
 
     FontArrayNames(0)=""
     FontArrayNames(1)="2K4Fonts.Verdana32"

@@ -2,7 +2,7 @@ class HxFontMedium extends HxFont;
 
 defaultproperties
 {
-	KeyName="MediumFont"
+    KeyName="MediumFont"
 
     FontArrayNames(0)="2K4Fonts.Verdana34"
     FontArrayNames(1)="2K4Fonts.Verdana22"

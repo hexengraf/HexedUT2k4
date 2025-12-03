@@ -2,7 +2,7 @@ class HxFontServerList extends HxFont;
 
 defaultproperties
 {
-	KeyName="UT2ServerListFont"
+    KeyName="UT2ServerListFont"
 
     FontArrayNames(0)="2K4Fonts.Verdana18"
     FontArrayNames(1)="2K4Fonts.Verdana14"

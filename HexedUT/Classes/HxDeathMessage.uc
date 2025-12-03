@@ -1,25 +1,25 @@
 class HxDeathMessage extends xDeathMessage;
 
 static function string GetString(optional int Switch,
-	                             optional PlayerReplicationInfo RelatedPRI_1,
-	                             optional PlayerReplicationInfo RelatedPRI_2,
-	                             optional Object OptionalObject)
+                                 optional PlayerReplicationInfo RelatedPRI_1,
+                                 optional PlayerReplicationInfo RelatedPRI_2,
+                                 optional Object OptionalObject)
 {
-	if (Class<DamageType>(OptionalObject) == None)
+    if (Class<DamageType>(OptionalObject) == None)
     {
-		return "";
+        return "";
     }
-	if (Switch == 1)
-	{
-		return class'GameInfo'.static.ParseKillMessage(
-			"",
-			GetColoredName(RelatedPRI_2, class'HUD'.default.BlueColor),
-			Class<DamageType>(OptionalObject).static.SuicideMessage(RelatedPRI_2));
-	}
-	return class'GameInfo'.static.ParseKillMessage(
-		GetColoredName(RelatedPRI_1, class'HUD'.default.BlueColor),
-		GetColoredName(RelatedPRI_2, class'HUD'.default.RedColor),
-		Class<DamageType>(OptionalObject).static.DeathMessage(RelatedPRI_1, RelatedPRI_2));
+    if (Switch == 1)
+    {
+        return class'GameInfo'.static.ParseKillMessage(
+            "",
+            GetColoredName(RelatedPRI_2, class'HUD'.default.BlueColor),
+            Class<DamageType>(OptionalObject).static.SuicideMessage(RelatedPRI_2));
+    }
+    return class'GameInfo'.static.ParseKillMessage(
+        GetColoredName(RelatedPRI_1, class'HUD'.default.BlueColor),
+        GetColoredName(RelatedPRI_2, class'HUD'.default.RedColor),
+        Class<DamageType>(OptionalObject).static.DeathMessage(RelatedPRI_1, RelatedPRI_2));
 }
 
 static function string GetColoredName(PlayerReplicationInfo PRI, Color Fallback)

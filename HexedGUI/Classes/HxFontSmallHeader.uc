@@ -2,7 +2,7 @@ class HxFontSmallHeader extends HxFont;
 
 defaultproperties
 {
-	KeyName="UT2SmallHeaderFont"
+    KeyName="UT2SmallHeaderFont"
 
     FontArrayNames(0)=""
     FontArrayNames(1)="2K4Fonts.Verdana26"

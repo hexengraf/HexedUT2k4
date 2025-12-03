@@ -2,7 +2,7 @@ class HxFontIRC extends HxFont;
 
 defaultproperties
 {
-	KeyName="UT2IRCFont"
+    KeyName="UT2IRCFont"
 
     FontArrayNames(0)="2K4Fonts.Verdana18"
     FontArrayNames(1)="2K4Fonts.Verdana12"

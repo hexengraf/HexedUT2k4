@@ -2,7 +2,7 @@ class HxFontLarge extends HxFont;
 
 defaultproperties
 {
-	KeyName="UT2LargeFont"
+    KeyName="UT2LargeFont"
 
     FontArrayNames(0)=""
     FontArrayNames(1)="2K4Fonts.Verdana26"

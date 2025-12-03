@@ -2,7 +2,7 @@ class HxFontSmall extends HxFont;
 
 defaultproperties
 {
-	KeyName="UT2SmallFont"
+    KeyName="UT2SmallFont"
 
     FontArrayNames(0)="2K4Fonts.Verdana26"
     FontArrayNames(1)="2K4Fonts.Verdana18"

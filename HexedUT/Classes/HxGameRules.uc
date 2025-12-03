@@ -14,7 +14,7 @@ function int NetDamage(int Original,
 
     if (NextGameRules != None)
     {
-		Damage = NextGameRules.NetDamage(
+        Damage = NextGameRules.NetDamage(
             Original, Damage, Injured, Inflictor, Location, Momentum, Type);
     }
     if ((HexedUT.bAllowHitSounds || HexedUT.bAllowDamageNumbers)

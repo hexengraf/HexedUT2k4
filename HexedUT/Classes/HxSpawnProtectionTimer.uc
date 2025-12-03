@@ -150,5 +150,5 @@ defaultproperties
     PosY=0.63
     DefaultColor=(R=239,G=191,B=4,A=255)
     Counter=(RenderStyle=STY_Alpha,TextureScale=0.49,DrawPivot=DP_UpperMiddle,OffsetX=0,OffsetY=0,Tints[0]=(B=255,G=255,R=255,A=255),Tints[1]=(B=255,G=255,R=255,A=255))
-	Icon=(WidgetTexture=Texture'HxSpawnProtectionTimer',OffsetX=0,OffsetY=0,DrawPivot=DP_MiddleMiddle,RenderStyle=STY_Alpha,TextureCoords=(X1=0,Y1=0,X2=256,Y2=256),TextureScale=0.22,ScaleMode=SM_None,Scale=1,Tints[0]=(G=255,R=255,B=255,A=255),Tints[1]=(G=255,R=255,B=255,A=255))
+    Icon=(WidgetTexture=Texture'HxSpawnProtectionTimer',OffsetX=0,OffsetY=0,DrawPivot=DP_MiddleMiddle,RenderStyle=STY_Alpha,TextureCoords=(X1=0,Y1=0,X2=256,Y2=256),TextureScale=0.22,ScaleMode=SM_None,Scale=1,Tints[0]=(G=255,R=255,B=255,A=255),Tints[1]=(G=255,R=255,B=255,A=255))
 }

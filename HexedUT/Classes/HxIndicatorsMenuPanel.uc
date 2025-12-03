@@ -291,7 +291,7 @@ function Font GetFont(int i)
     }
     if (LoadedFonts[i] == None)
     {
-		LoadedFonts[i] = Font(DynamicLoadObject(FontNames[i], class'Font'));
+        LoadedFonts[i] = Font(DynamicLoadObject(FontNames[i], class'Font'));
     }
     return LoadedFonts[i];
 }

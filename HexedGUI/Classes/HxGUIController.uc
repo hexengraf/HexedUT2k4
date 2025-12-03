@@ -51,17 +51,17 @@ defaultproperties
 
     Begin Object Class=HxFontIRC Name=GUIIRCFont
     End Object
-	FontStack(8)=GUIIRCFont
+    FontStack(8)=GUIIRCFont
 
     Begin Object Class=HxFontMainMenu Name=GUIMainMenuFont
     End Object
-	FontStack(9)=GUIMainMenuFont
+    FontStack(9)=GUIMainMenuFont
 
-	Begin Object Class=HxFontMedium Name=GUIMediumMenuFont
-	End Object
-	FontStack(10)=GUIMediumMenuFont
+    Begin Object Class=HxFontMedium Name=GUIMediumMenuFont
+    End Object
+    FontStack(10)=GUIMediumMenuFont
 
-	FONT_NUM=11
+    FONT_NUM=11
 
-	MainMenuOptions(6)="HexedGUI.HxQuitPage"
+    MainMenuOptions(6)="HexedGUI.HxQuitPage"
 }
