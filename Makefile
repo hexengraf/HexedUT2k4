@@ -15,6 +15,7 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT
 # OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+project:=HexedUT2K4
 packages:=HexedSRC HexedUT HexedGUI HexedHUD HexedUTComp
 requiresint:=HexedSRC HexedUT HexedGUI HexedUTComp
 
@@ -23,15 +24,15 @@ requiresint:=HexedSRC HexedUT HexedGUI HexedUTComp
 
 -include $(.versionfiles)
 
+.projectversion:=$(HexedUT.version)
 .versionedpackages:=$(foreach p,$(packages),$p$($p.version))
 .versionedintpackages:=$(foreach p,$(requiresint),$p$($p.version))
-.archives:=$(.versionedpackages:%=$(.outdir)/%.7z)
+.archive:=$(.outdir)/$(project)$(.projectversion).7z
 .ufiles:=$(.versionedpackages:%=$(.outdir)/System/%.u)
 .uclfiles:=$(.versionedpackages:%=$(.outdir)/System/%.ucl)
 .intfiles:=$(.versionedintpackages:%=$(.outdir)/System/%.int)
-.compressedfiles:=$(.ufiles:%=%.uz2)
+.compressedfiles:=$(.ufiles:$(.outdir)/System/%=$(.outdir)/%.uz2)
 .targets:=$(.ufiles) $(.intfiles)
-.outputfiles:=$(.compressedfiles) $(.ufiles) $(.uclfiles) $(.intfiles)
 .winecmd:=WINEPREFIX=~/.ucc-prefix wine
 .findsources=$(wildcard $1/Classes/*.uc) $(wildcard $1/Classes/Include/*.uci)
 
@@ -46,12 +47,12 @@ all: $(.targets)
 
 compressed: $(.compressedfiles)
 
-release: $(.archives)
+release: $(.archive)
 
 clean:
 	@rm -rf $(.outdir)/System
-	@rm -f $(.outputfiles:$(.outdir)/%=%)
-	@rm -f $(.archives)
+	@rm -f $(.compressedfiles)
+	@rm -f $(.archive)
 
 distclean: clean
 	@rm -rf $(.outdir)
@@ -75,16 +76,17 @@ $(.outdir)/System/%.int: $(.outdir)/System/%.u
 	@cd ../
 	@cp System/$*.int $(@D)
 
-$(.outdir)/System/%.u.uz2: $(.outdir)/System/%.u
+$(.outdir)/%.u.uz2: $(.outdir)/System/%.u
 	@rm -f System/$*.u.uz2
 	@cd System
 	$(.winecmd) UCC.exe compress $*.u
 	@cd ../
 	@cp System/$*.u.uz2 $(@D)
 
-$(.outdir)/%.7z: $(.outdir)/System/%.u.uz2
+$(.outdir)/%.7z: $(.targets) $(.compressedfiles)
 	@rm -f $@
-	@7z a -m0=lzma2 -mmt=8 -mx=9 $@ System/$*.*
+	@cd $(.outdir)
+	@7z a -m0=lzma2 -mmt=8 -mx=9 $(@F) System/ $(.compressedfiles:$(.outdir)/%=%)
 
 $(.versionfiles): $(.outdir)/%.make: %/make.ini
 	@mkdir -p $(@D)
