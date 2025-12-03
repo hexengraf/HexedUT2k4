@@ -15,7 +15,8 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT
 # OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-packages:=HexedSRC HexedUT HexedGUI HexedUTComp
+packages:=HexedSRC HexedUT HexedGUI HexedHUD HexedUTComp
+requiresint:=HexedSRC HexedUT HexedGUI HexedUTComp
 
 .outdir:=build
 .versionfiles:=$(packages:%=$(.outdir)/%.make)
@@ -23,17 +24,19 @@ packages:=HexedSRC HexedUT HexedGUI HexedUTComp
 -include $(.versionfiles)
 
 .versionedpackages:=$(foreach p,$(packages),$p$($p.version))
+.versionedintpackages:=$(foreach p,$(requiresint),$p$($p.version))
 .archives:=$(.versionedpackages:%=$(.outdir)/%.7z)
 .ufiles:=$(.versionedpackages:%=$(.outdir)/System/%.u)
 .uclfiles:=$(.versionedpackages:%=$(.outdir)/System/%.ucl)
-.intfiles:=$(.versionedpackages:%=$(.outdir)/System/%.int)
+.intfiles:=$(.versionedintpackages:%=$(.outdir)/System/%.int)
 .compressedfiles:=$(.ufiles:%=%.uz2)
 .targets:=$(.ufiles) $(.intfiles)
 .outputfiles:=$(.compressedfiles) $(.ufiles) $(.uclfiles) $(.intfiles)
 .winecmd:=WINEPREFIX=~/.ucc-prefix wine
+.findsources=$(wildcard $1/Classes/*.uc) $(wildcard $1/Classes/Include/*.uci)
 
 $(foreach p,$(packages),$(if $($p.version),$(eval $p$($p.version).name:=$p)))
-$(foreach p,$(packages),$(eval $p$($p.version).deps:=$p/make.ini $(wildcard $p/Classes/*.uc)))
+$(foreach p,$(packages),$(eval $p$($p.version).sources:=$p/make.ini $(call .findsources,$p)))
 
 .SECONDEXPANSION:
 .ONESHELL:
@@ -53,7 +56,7 @@ clean:
 distclean: clean
 	@rm -rf $(.outdir)
 
-$(.outdir)/System/%.u: $$($$*.deps)
+$(.outdir)/System/%.u: $$($$*.sources)
 	@mkdir -p $(@D)
 	@$(if $($*.name),ln -s $($*.name) $*)
 	@rm -f System/$*.{u,ucl}

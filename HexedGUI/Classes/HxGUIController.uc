@@ -10,6 +10,7 @@ event InitializeController()
     {
         MouseCursors[0] = material'HxPointer';
     }
+    Master.AddInteraction("HexedHUD.HxHUDManager", ViewportOwner);
 }
 
 defaultproperties

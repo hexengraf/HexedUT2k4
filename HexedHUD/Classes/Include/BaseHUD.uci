@@ -1,0 +1,79 @@
+var float XYRatio;
+
+simulated function CheckCountdown(GameReplicationInfo GRI) {
+    XYRatio = ResScaleX / ResScaleY;
+    ResScaleY = ResScaleX;
+    Super.CheckCountdown(GRI);
+}
+
+function Draw2DLocationDot(Canvas C,
+                           vector Loc,
+                           float OffsetX,
+                           float OffsetY,
+                           float ScaleX,
+                           float ScaleY)
+{
+    Super.Draw2DLocationDot(C, Loc, OffsetX, OffSetY * XYRatio, ScaleX, ScaleY * XYRatio);
+}
+
+simulated function DrawChargeBar(Canvas C)
+{
+    DrawChargeBarBorder(C);
+    RechargeBar.Scale = PawnOwner.Weapon.ChargeBar();
+    if (RechargeBar.Scale > 0)
+    {
+        DrawSpriteWidget(C, RechargeBar);
+        ShowReloadingPulse(RechargeBar.Scale);
+    }
+}
+
+simulated function DrawVehicleChargeBar(Canvas C)
+{
+    DrawChargeBarBorder(C);
+    DrawSpriteWidget(C, RechargeBar);
+    RechargeBar.Scale = Vehicle(PawnOwner).ChargeBar();
+    ShowReloadingPulse(RechargeBar.Scale);
+}
+
+simulated function DrawHudPassC(Canvas C)
+{
+    local bool bOriginalShowWeaponInfo;
+
+    bOriginalShowWeaponInfo = bShowWeaponInfo;
+    bShowWeaponInfo = false;
+    Super.DrawHudPassC(C);
+    bShowWeaponInfo = bOriginalShowWeaponInfo;
+
+    if(bShowWeaponInfo && (PawnOwner != None) && (PawnOwner.Weapon != None))
+    {
+        PawnOwner.Weapon.NewDrawWeaponInfo(
+            C, C.ClipY - (52 * ResScaleY * HUDScale) - (15.2 * ResScaleY));
+    }
+}
+
+simulated function DrawChargeBarBorder(Canvas C)
+{
+    local float XL;
+
+    XL = 0.135 * HUDScale * C.ClipX;
+    if (PawnOwner.GetTeamNum() == 0)
+    {
+        C.DrawColor = HudColorRed;
+    }
+    else
+    {
+        C.DrawColor = HudColorBlue;
+    }
+    C.Style = ERenderStyle.STY_Alpha;
+    C.SetPos((1.0 - 0.1361 * HUDScale) * C.ClipX, C.ClipY - (47 * ResScaleY * HUDScale));
+    C.DrawTile(Material'HudContent.HUD', XL, 0.223 * XL, 0, 110, 166, 53);
+}
+
+simulated function CanvasDrawActors(Canvas C, bool bClearedZBuffer)
+{
+    if (PawnOwner.Weapon != None)
+    {
+        class'HxHUDManager'.static.ScaleWeapon(PawnOwner.Weapon, C.ClipX / C.ClipY);
+    }
+    Super.CanvasDrawActors(C, bClearedZBuffer);
+}
