@@ -10,7 +10,7 @@ event InitializeController()
     {
         MouseCursors[0] = material'HxPointer';
     }
-    class'UT2K4Tab_PlayerSettings'.default.nu_FOV.MaxValue = 170;
+    class'UT2K4SettingsPage'.default.PanelClass[2] = "HexedGUI.HxPlayerSettings";
     Master.AddInteraction("HexedHUD.HxHUDManager", ViewportOwner);
 }
 

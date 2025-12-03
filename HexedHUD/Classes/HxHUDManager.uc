@@ -13,10 +13,6 @@ struct HxWeaponProperties
     var float AspectRatio;
 };
 
-const DEFAULT_ASPECT_RATIO = 1.3333333333333333;
-const TO_RADIANS = 0.017453292519943295;
-const TO_DEGREES = 57.29577951308232;
-
 var config bool bReplaceHUDs;
 var config bool bScaleWeapons;
 var config array<HxHUDReplacement> HUDReplacements;
@@ -106,20 +102,15 @@ static simulated function ScaleWeapon(Weapon W, float AspectRatio)
     {
         default.DisplayedWeapon.WeaponClass = W.default.Class;
         default.DisplayedWeapon.AspectRatio = AspectRatio;
-        W.DisplayFOV = GetScaledFOV(W.default.DisplayFOV, AspectRatio / DEFAULT_ASPECT_RATIO);
+        W.DisplayFOV = class'HxAspectRatio'.static.GetScaledFOV(W.default.DisplayFOV, AspectRatio);
     }
 }
 
 static simulated function bool ShouldScale(Weapon W, float AspectRatio)
 {
-    return default.bScaleWeapons && AspectRatio != DEFAULT_ASPECT_RATIO
+    return default.bScaleWeapons && !class'HxAspectRatio'.static.IsDefault(AspectRatio)
         && (default.DisplayedWeapon.WeaponClass != W.default.Class
             || default.DisplayedWeapon.AspectRatio != AspectRatio);
-}
-
-static simulated function float GetScaledFOV(float FOV, float Scale)
-{
-    return FClamp(TO_DEGREES * (2 * ATan(Scale * Tan(FOV / 2 * TO_RADIANS), 1)), 1, 170);
 }
 
 defaultproperties
