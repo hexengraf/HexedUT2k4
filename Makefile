@@ -16,8 +16,8 @@
 # OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 project:=HexedUT2K4
-packages:=HexedSRC HexedUT HexedGUI HexedHUD HexedUTComp
-requiresint:=HexedSRC HexedUT HexedGUI HexedUTComp
+packages:=HexedSRC HexedUT HexedPatches HexedUTComp
+requiresint:=HexedSRC HexedUT HexedPatches HexedUTComp
 
 .outdir:=build
 .versionfiles:=$(packages:%=$(.outdir)/%.make)

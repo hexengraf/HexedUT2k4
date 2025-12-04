@@ -1,4 +1,4 @@
-class HxHUDManager extends Interaction
+class HxHUDController extends Interaction
     config(User);
 
 struct HxHUDReplacement

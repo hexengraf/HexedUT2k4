@@ -73,7 +73,7 @@ simulated function CanvasDrawActors(Canvas C, bool bClearedZBuffer)
 {
     if (PawnOwner.Weapon != None)
     {
-        class'HxHUDManager'.static.ScaleWeapon(PawnOwner.Weapon, C.ClipX / C.ClipY);
+        class'HxHUDController'.static.ScaleWeapon(PawnOwner.Weapon, C.ClipX / C.ClipY);
     }
     Super.CanvasDrawActors(C, bClearedZBuffer);
 }

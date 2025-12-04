@@ -1,4 +1,4 @@
-class HxFontIRC extends HxFont;
+class HxGUIFontIRC extends HxFont;
 
 defaultproperties
 {

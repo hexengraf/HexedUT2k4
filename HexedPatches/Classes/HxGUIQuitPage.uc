@@ -1,4 +1,4 @@
-class HxQuitPage extends UT2K4QuitPage;
+class HxGUIQuitPage extends UT2K4QuitPage;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {

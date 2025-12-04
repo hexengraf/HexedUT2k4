@@ -1,4 +1,4 @@
-class HxPlayerSettings extends UT2K4Tab_PlayerSettings;
+class HxGUIPlayerSettings extends UT2K4Tab_PlayerSettings;
 
 var float AspectRatio;
 

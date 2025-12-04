@@ -1,4 +1,4 @@
-class HxDetailSettings extends UT2K4Tab_DetailSettings;
+class HxGUIDetailSettings extends UT2K4Tab_DetailSettings;
 
 var array<DisplayMode> DMs;
 
