@@ -21,6 +21,7 @@ var HUD CurrentHUD;
 var HxWeaponProperties DisplayedWeapon;
 
 simulated event Initialized() {
+    CheckConflictingPackages();
     bRequiresTick = !TryReplaceHUD();
 }
 
@@ -94,6 +95,18 @@ simulated function RestoreHUD(PlayerController PC)
         }
     }
     CurrentHUD = PC.myHUD;
+}
+
+simulated function CheckConflictingPackages()
+{
+    if (string(class'PlayerController'.default.InputClass) ~= "foxWSFix.foxPlayerInput")
+    {
+        if (bReplaceHUDs)
+        {
+            Warn("Forcing bReplaceHUDs to false because foxWSFix is enabled.");
+            bReplaceHUDs = false;
+        }
+    }
 }
 
 static simulated function ScaleWeapon(Weapon W, float AspectRatio)
