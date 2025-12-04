@@ -10,6 +10,7 @@ event InitializeController()
     {
         MouseCursors[0] = material'HxPointer';
     }
+    class'UT2K4SettingsPage'.default.PanelClass[0] = "HexedGUI.HxDetailSettings";
     class'UT2K4SettingsPage'.default.PanelClass[2] = "HexedGUI.HxPlayerSettings";
     Master.AddInteraction("HexedHUD.HxHUDManager", ViewportOwner);
 }
