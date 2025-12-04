@@ -15,7 +15,7 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT
 # OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-project:=HexedUT2K4
+project:=HexedUT2k4
 packages:=HexedSRC HexedUT HexedPatches HexedUTComp
 requiresint:=HexedSRC HexedUT HexedPatches HexedUTComp
 
@@ -29,7 +29,6 @@ requiresint:=HexedSRC HexedUT HexedPatches HexedUTComp
 .versionedintpackages:=$(foreach p,$(requiresint),$p$($p.version))
 .archive:=$(.outdir)/$(project)$(.projectversion).7z
 .ufiles:=$(.versionedpackages:%=$(.outdir)/System/%.u)
-.uclfiles:=$(.versionedpackages:%=$(.outdir)/System/%.ucl)
 .intfiles:=$(.versionedintpackages:%=$(.outdir)/System/%.int)
 .compressedfiles:=$(.ufiles:$(.outdir)/System/%=$(.outdir)/%.uz2)
 .targets:=$(.ufiles) $(.intfiles)
