@@ -265,8 +265,8 @@ function UpdateAfterPropertyChange(string PropertyName, String PropertyValue)
 
 defaultproperties
 {
-    FriendlyName="Hexed UT v2dev"
-    Description="Central mutator for HexedUT2k4."
+    FriendlyName="HexedUT v2dev"
+    Description="A mutator for hit sounds, damage numbers, spawn protection timer, and more."
     bAddToServerPackages=true
     MutatorGroup="HexedUT"
 
