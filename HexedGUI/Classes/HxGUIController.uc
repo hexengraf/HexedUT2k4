@@ -12,6 +12,7 @@ event InitializeController()
     }
     class'UT2K4SettingsPage'.default.PanelClass[0] = "HexedGUI.HxDetailSettings";
     class'UT2K4SettingsPage'.default.PanelClass[2] = "HexedGUI.HxPlayerSettings";
+    Master.AddInteraction("HexedGUI.HxNETController", ViewportOwner);
     Master.AddInteraction("HexedHUD.HxHUDManager", ViewportOwner);
 }
 

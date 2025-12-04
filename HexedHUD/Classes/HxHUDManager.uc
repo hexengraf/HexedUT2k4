@@ -20,22 +20,22 @@ var config array<HxHUDReplacement> HUDReplacements;
 var HUD CurrentHUD;
 var HxWeaponProperties DisplayedWeapon;
 
-simulated event Initialized() {
+event Initialized() {
     CheckConflictingPackages();
     bRequiresTick = !TryReplaceHUD();
 }
 
-simulated event NotifyLevelChange()
+event NotifyLevelChange()
 {
     bRequiresTick = !TryReplaceHUD();
 }
 
-simulated event Tick(float DeltaTime)
+event Tick(float DeltaTime)
 {
     bRequiresTick = !TryReplaceHUD();
 }
 
-simulated function bool TryReplaceHUD()
+function bool TryReplaceHUD()
 {
     if (ViewportOwner.Actor != None
         && ViewportOwner.Actor.myHUD != None
@@ -48,7 +48,7 @@ simulated function bool TryReplaceHUD()
     return false;
 }
 
-simulated function ReplaceHUD(PlayerController PC)
+function ReplaceHUD(PlayerController PC)
 {
     local int i;
     local int j;
@@ -73,7 +73,7 @@ simulated function ReplaceHUD(PlayerController PC)
     CurrentHUD = PC.myHUD;
 }
 
-simulated function RestoreHUD(PlayerController PC)
+function RestoreHUD(PlayerController PC)
 {
     local int i;
     local int j;
@@ -97,7 +97,7 @@ simulated function RestoreHUD(PlayerController PC)
     CurrentHUD = PC.myHUD;
 }
 
-simulated function CheckConflictingPackages()
+function CheckConflictingPackages()
 {
     if (string(class'PlayerController'.default.InputClass) ~= "foxWSFix.foxPlayerInput")
     {
@@ -109,7 +109,7 @@ simulated function CheckConflictingPackages()
     }
 }
 
-static simulated function ScaleWeapon(Weapon W, float AspectRatio)
+static function ScaleWeapon(Weapon W, float AspectRatio)
 {
     if (ShouldScale(W, AspectRatio))
     {
@@ -119,7 +119,7 @@ static simulated function ScaleWeapon(Weapon W, float AspectRatio)
     }
 }
 
-static simulated function bool ShouldScale(Weapon W, float AspectRatio)
+static function bool ShouldScale(Weapon W, float AspectRatio)
 {
     return default.bScaleWeapons && !class'HxAspectRatio'.static.IsDefault(AspectRatio)
         && (default.DisplayedWeapon.WeaponClass != W.default.Class
