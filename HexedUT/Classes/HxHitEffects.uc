@@ -2,6 +2,12 @@ class HxHitEffects extends HudOverlay
     config(User)
     notplaceable;
 
+#exec AUDIO IMPORT FILE=Sounds\HitSound1.wav
+#exec AUDIO IMPORT FILE=Sounds\HitSound2.wav
+#exec AUDIO IMPORT FILE=Sounds\HitSound3.wav
+#exec AUDIO IMPORT FILE=Sounds\HitSound4.wav
+#exec AUDIO IMPORT FILE=Sounds\HitSound5.wav
+
 enum EHxPitchMode
 {
     HX_PITCH_Disabled,
@@ -73,6 +79,7 @@ simulated event PreBeginPlay()
 {
     super.PreBeginPlay();
     ValidateConfig();
+    InitializeHitSounds();
     InitializeDamageNumbers();
 }
 
@@ -89,6 +96,15 @@ simulated function ValidateConfig()
     SelectedHitSound = Clamp(SelectedHitSound, 0, class'HxSounds'.default.HitSounds.Length - 1);
     DamagePoints[0].Value = 0;
     SaveConfig();
+}
+
+simulated function InitializeHitSounds()
+{
+    class'HxSounds'.static.AddHitSound(Sound'HitSound5', true);
+    class'HxSounds'.static.AddHitSound(Sound'HitSound4', true);
+    class'HxSounds'.static.AddHitSound(Sound'HitSound3', true);
+    class'HxSounds'.static.AddHitSound(Sound'HitSound2', true);
+    class'HxSounds'.static.AddHitSound(Sound'HitSound1', true);
 }
 
 simulated function InitializeDamageNumbers()

@@ -2,6 +2,8 @@ class HxSpawnProtectionTimer extends HudOverlay
     config(User)
     notplaceable;
 
+#exec texture Import File=Textures\HxSpawnProtectionTimer.tga Name=HxSpawnProtectionTimer Mips=Off Alpha=1
+
 var config bool bShowTimer;
 var config bool bUseHUDColor;
 var config bool bPulsingDigits;

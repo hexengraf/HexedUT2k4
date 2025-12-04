@@ -1,12 +1,12 @@
-[submodule "HexedSRC/Sounds"]
-	path = HexedSRC/Sounds
+[submodule "Resources/Sounds"]
+	path = Resources/Sounds
 	url = git@github.com:hexengraf/HexedUTSounds.git
 	branch = master
 [submodule "HexedUTComp"]
 	path = HexedUTComp
 	url = git@github.com:hexengraf/HexedUTComp.git
 	branch = master
-[submodule "HexedSRC/Textures"]
-	path = HexedSRC/Textures
+[submodule "Resources/Textures"]
+	path = Resources/Textures
 	url = git@github.com:hexengraf/HexedUTTextures.git
 	branch = master
