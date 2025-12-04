@@ -13,6 +13,7 @@ var automated GUIImage i_DPPReview;
 var automated GUIButton b_PlaySound;
 
 var array<string> FontNames;
+var array<string> CustomFontNames;
 var array<Font> LoadedFonts;
 var int FontIndex;
 var int DPIndex;
@@ -278,9 +279,19 @@ function bool PlaySoundOnClick(GUIComponent Sender)
 
 function AddCustomFonts()
 {
-    FontNames[FontNames.Length] = string(Font'Verdana36');
-    FontNames[FontNames.Length] = string(Font'Verdana40');
-    FontNames[FontNames.Length] = string(Font'Verdana48');
+    local int i;
+    local Font F;
+
+    LoadedFonts.Length = FontNames.Length;
+    for (i = 0; i < CustomFontNames.Length; ++i)
+    {
+        F = Font(DynamicLoadObject(CustomFontNames[i], class'Font'));
+        if (F != None)
+        {
+            LoadedFonts[FontNames.Length] = F;
+            FontNames[FontNames.Length] = CustomFontNames[i];
+        }
+    }
 }
 
 function Font GetFont(int i)
@@ -559,4 +570,7 @@ defaultproperties
     FontNames(5)="2K4Fonts.Verdana30"
     FontNames(6)="2K4Fonts.Verdana32"
     FontNames(7)="2K4Fonts.Verdana34"
+    CustomFontNames(0)="HexedPatches.Verdana36"
+    CustomFontNames(1)="HexedPatches.Verdana40"
+    CustomFontNames(2)="HexedPatches.Verdana48"
 }
