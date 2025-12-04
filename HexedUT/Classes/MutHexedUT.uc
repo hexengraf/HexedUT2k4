@@ -28,6 +28,18 @@ var config bool bDisableDodgeJump;
 
 var array<string> DisabledCombos;
 
+function Mutate(string Command, PlayerController Sender)
+{
+    if (Command ~= "HexedUT")
+    {
+        Sender.ClientOpenMenu(string(MenuClass));
+    }
+    else
+    {
+        Super.Mutate(Command, Sender);
+    }
+}
+
 event PreBeginPlay()
 {
     Super.PreBeginPlay();

@@ -18,13 +18,13 @@ var array<PropertyInfoEntry> PropertyInfoEntries;
 
 function Mutate(string Command, PlayerController Sender)
 {
-    if (Command ~= "HexedUT")
+    if (Command ~= "HexedMenu")
     {
         Sender.ClientOpenMenu(string(MenuClass));
     }
-    else if (NextMutator != None)
+    else
     {
-        NextMutator.Mutate(Command, Sender);
+        Super.Mutate(Command, Sender);
     }
 }
 
