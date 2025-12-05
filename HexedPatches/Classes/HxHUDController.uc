@@ -27,6 +27,7 @@ event Initialized() {
 
 event NotifyLevelChange()
 {
+    ResetDisplayedWeapon();
     bRequiresTick = !TryReplaceHUD();
 }
 
@@ -107,6 +108,12 @@ function CheckConflictingPackages()
             bReplaceHUDs = false;
         }
     }
+}
+
+static function ResetDisplayedWeapon()
+{
+    default.DisplayedWeapon.WeaponClass = None;
+    default.DisplayedWeapon.AspectRatio = 0;
 }
 
 static function ScaleWeapon(Weapon W, float AspectRatio)
