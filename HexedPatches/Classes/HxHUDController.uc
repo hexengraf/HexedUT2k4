@@ -101,7 +101,7 @@ function RestoreHUD(PlayerController PC)
     CurrentHUD = PC.myHUD;
 }
 
-function CheckConflictingPackages()
+function bool CheckConflictingPackages()
 {
     if (string(class'PlayerController'.default.InputClass) ~= "foxWSFix.foxPlayerInput")
     {
@@ -110,7 +110,9 @@ function CheckConflictingPackages()
             Warn("Forcing bReplaceHUDs to false because foxWSFix is enabled.");
             bReplaceHUDs = false;
         }
+        return true;
     }
+    return false;
 }
 
 function UpdateHUD()

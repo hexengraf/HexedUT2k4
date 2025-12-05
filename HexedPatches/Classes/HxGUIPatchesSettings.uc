@@ -145,6 +145,15 @@ function InternalOnChange(GUIComponent Sender)
 
 function UpdateHUDSection()
 {
+    if (HexedHUDController.CheckConflictingPackages())
+    {
+        ch_ReplaceHUDs.DisableMe();
+        ch_ScaleWeapons.DisableMe();
+    }
+    else
+    {
+        ch_ReplaceHUDs.EnableMe();
+    }
     if (bReplaceHUDs)
     {
         ch_ScaleWeapons.EnableMe();
