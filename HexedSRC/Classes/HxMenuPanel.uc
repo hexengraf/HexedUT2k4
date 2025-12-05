@@ -208,7 +208,9 @@ function bool IsAdmin()
     local PlayerController PC;
 
     PC = PlayerOwner();
-    return PC != None && PC.PlayerReplicationInfo != None && PC.PlayerReplicationInfo.bAdmin;
+    return PC != None
+        && (PC.Level.NetMode == NM_Standalone
+            || (PC.PlayerReplicationInfo != None && PC.PlayerReplicationInfo.bAdmin));
 }
 
 static function bool AddToMenu()

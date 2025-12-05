@@ -231,7 +231,8 @@ simulated function bool ShouldDisableCombo(coerce string Name)
 
 function RemoteSetProperty(string PropertyName, string PropertyValue)
 {
-    if (PC.PlayerReplicationInfo.bAdmin && GetPropertyText(PropertyName) != PropertyValue)
+    if ((Level.NetMode == NM_Standalone || PC.PlayerReplicationInfo.bAdmin)
+        && GetPropertyText(PropertyName) != PropertyValue)
     {
         HexedUT.SetProperty(PropertyName, PropertyValue);
     }
