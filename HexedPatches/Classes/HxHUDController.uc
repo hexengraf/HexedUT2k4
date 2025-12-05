@@ -111,7 +111,7 @@ function CheckConflictingPackages()
 
 static function ScaleWeapon(Weapon W, float AspectRatio)
 {
-    if (ShouldScale(W, AspectRatio))
+    if (default.bScaleWeapons && ShouldScale(W, AspectRatio))
     {
         default.DisplayedWeapon.WeaponClass = W.default.Class;
         default.DisplayedWeapon.AspectRatio = AspectRatio;
@@ -121,9 +121,8 @@ static function ScaleWeapon(Weapon W, float AspectRatio)
 
 static function bool ShouldScale(Weapon W, float AspectRatio)
 {
-    return default.bScaleWeapons && !class'HxAspectRatio'.static.IsDefault(AspectRatio)
-        && (default.DisplayedWeapon.WeaponClass != W.default.Class
-            || default.DisplayedWeapon.AspectRatio != AspectRatio);
+    return default.DisplayedWeapon.WeaponClass != W.default.Class
+        || default.DisplayedWeapon.AspectRatio != AspectRatio;
 }
 
 defaultproperties

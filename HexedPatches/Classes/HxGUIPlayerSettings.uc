@@ -1,22 +1,19 @@
 class HxGUIPlayerSettings extends UT2K4Tab_PlayerSettings;
 
-var float AspectRatio;
-
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
-    nu_FOV.MaxValue = 170;
+    nu_FOV.MaxValue = class'HxAspectRatio'.static.GetMaximumFOV();
+    UpdateFOV(MyController.ResX, MyController.ResY);
     Super.InitComponent(MyController, MyOwner);
 }
 
-function bool InternalDraw(Canvas C)
+event ResolutionChanged(int NewX, int NewY)
 {
-    local float NewAspectRatio;
+    UpdateFOV(NewX, NewY);
+    Super.ResolutionChanged(NewX, NewY);
+}
 
-    NewAspectRatio = C.ClipX / C.ClipY;
-    if (nFov == default.nFov || AspectRatio != NewAspectRatio)
-    {
-        AspectRatio = NewAspectRatio;
-        nFov = class'HxAspectRatio'.static.GetScaledFOV(default.nFOV, AspectRatio);
-    }
-    return Super.InternalDraw(C);
+function UpdateFOV(coerce float X, coerce float Y)
+{
+    nFov = class'HxAspectRatio'.static.GetScaledFOV(default.nFOV, X / Y);
 }
