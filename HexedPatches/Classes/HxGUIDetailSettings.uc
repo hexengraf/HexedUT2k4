@@ -14,7 +14,7 @@ function CheckSupportedResolutions()
     PC = PlayerOwner();
     bOldIgnoreChange = bIgnoreChange;
     bIgnoreChange = true;
-	CurrentResolution = co_Resolution.GetText();
+    CurrentResolution = co_Resolution.GetText();
     for(i = 0; i < DMs.Length; i++)
     {
         NewResolution = DMs[i].Width$"x"$DMs[i].Height;
@@ -31,7 +31,7 @@ function CheckSupportedResolutions()
             co_Resolution.RemoveItem(Index, 1);
         }
     }
-	co_Resolution.SetText(CurrentResolution);
+    co_Resolution.SetText(CurrentResolution);
     bIgnoreChange = bOldIgnoreChange;
     Super.CheckSupportedResolutions();
 }

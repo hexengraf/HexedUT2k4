@@ -22,18 +22,18 @@ var HxWeaponProperties DisplayedWeapon;
 
 event Initialized() {
     CheckConflictingPackages();
-    bRequiresTick = !TryReplaceHUD();
+    UpdateHUD();
 }
 
 event NotifyLevelChange()
 {
     ResetDisplayedWeapon();
-    bRequiresTick = !TryReplaceHUD();
+    UpdateHUD();
 }
 
 event Tick(float DeltaTime)
 {
-    bRequiresTick = !TryReplaceHUD();
+    UpdateHUD();
 }
 
 function bool TryReplaceHUD()
@@ -81,18 +81,21 @@ function RestoreHUD(PlayerController PC)
     local array<HudOverlay> Overlays;
     local class<HUD> HudClass;
 
-    for (i = 0; i < HUDReplacements.Length; ++i)
+    if (PC != None && PC.myHUD != None)
     {
-        if (HUDReplacements[i].ReplaceWith == PC.myHUD.Class)
+        for (i = 0; i < HUDReplacements.Length; ++i)
         {
-            HudClass = class<HUD>(DynamicLoadObject(HUDReplacements[i].HUDType, class'Class'));
-            Overlays = PC.myHUD.Overlays;
-            PC.ClientSetHUD(HudClass, PC.myHUD.ScoreBoard.Class);
-            for (j = 0; j < Overlays.Length; ++j)
+            if (HUDReplacements[i].ReplaceWith == PC.myHUD.Class)
             {
-                PC.myHUD.AddHudOverlay(Overlays[j]);
+                HudClass = class<HUD>(DynamicLoadObject(HUDReplacements[i].HUDType, class'Class'));
+                Overlays = PC.myHUD.Overlays;
+                PC.ClientSetHUD(HudClass, PC.myHUD.ScoreBoard.Class);
+                for (j = 0; j < Overlays.Length; ++j)
+                {
+                    PC.myHUD.AddHudOverlay(Overlays[j]);
+                }
+                break;
             }
-            break;
         }
     }
     CurrentHUD = PC.myHUD;
@@ -110,6 +113,36 @@ function CheckConflictingPackages()
     }
 }
 
+function UpdateHUD()
+{
+    bRequiresTick = !TryReplaceHUD();
+}
+
+function SetReplaceHUDs(bool bValue)
+{
+    if (!bValue)
+    {
+        if (bReplaceHUDs)
+        {
+            bReplaceHUDs = bValue;
+            RestoreHUD(ViewportOwner.Actor);
+        }
+    }
+    else
+    {
+        bReplaceHUDs = bValue;
+        CurrentHUD = None;
+        UpdateHUD();
+    }
+}
+
+function SetScaleWeapons(bool bValue)
+{
+    bScaleWeapons = bValue;
+    default.bScaleWeapons = bValue;
+    ResetDisplayedWeapon();
+}
+
 static function ResetDisplayedWeapon()
 {
     default.DisplayedWeapon.WeaponClass = None;
@@ -118,15 +151,20 @@ static function ResetDisplayedWeapon()
 
 static function ScaleWeapon(Weapon W, float AspectRatio)
 {
-    if (default.bScaleWeapons && ShouldScale(W, AspectRatio))
+    if (HasChanges(W, AspectRatio))
     {
         default.DisplayedWeapon.WeaponClass = W.default.Class;
         default.DisplayedWeapon.AspectRatio = AspectRatio;
+        if (!default.bScaleWeapons)
+        {
+            W.DisplayFOV = W.default.DisplayFOV;
+            return;
+        }
         W.DisplayFOV = class'HxAspectRatio'.static.GetScaledFOV(W.default.DisplayFOV, AspectRatio);
     }
 }
 
-static function bool ShouldScale(Weapon W, float AspectRatio)
+static function bool HasChanges(Weapon W, float AspectRatio)
 {
     return default.DisplayedWeapon.WeaponClass != W.default.Class
         || default.DisplayedWeapon.AspectRatio != AspectRatio;

@@ -4,18 +4,38 @@ class HxGUIController extends UT2K4GUIController;
 
 var config bool bSmallCursor;
 
+var HxHUDController HexedHUDController;
+var HxNETController HexedNETController;
+
 event InitializeController()
 {
     Super.InitializeController();
 
+    UpdateCursor();
+    UpdateSettingsPage();
+    HexedHUDController = HxHUDController(
+        Master.AddInteraction("HexedPatches.HxHUDController", ViewportOwner));
+    HexedNETController = HxNETController(
+        Master.AddInteraction("HexedPatches.HxNETController", ViewportOwner));
+}
+
+function UpdateSettingsPage()
+{
+    class'UT2K4SettingsPage'.default.PanelClass[0] = "HexedPatches.HxGUIDetailSettings";
+    class'UT2K4SettingsPage'.default.PanelClass[2] = "HexedPatches.HxGUIPlayerSettings";
+    class'HxGUIPatchesSettings'.static.AddToSettings();
+}
+
+function UpdateCursor()
+{
     if (bSmallCursor)
     {
         MouseCursors[0] = material'HxPointer';
     }
-    class'UT2K4SettingsPage'.default.PanelClass[0] = "HexedPatches.HxGUIDetailSettings";
-    class'UT2K4SettingsPage'.default.PanelClass[2] = "HexedPatches.HxGUIPlayerSettings";
-    Master.AddInteraction("HexedPatches.HxNETController", ViewportOwner);
-    Master.AddInteraction("HexedPatches.HxHUDController", ViewportOwner);
+    else
+    {
+        MouseCursors[0] = default.MouseCursors[0];
+    }
 }
 
 defaultproperties
