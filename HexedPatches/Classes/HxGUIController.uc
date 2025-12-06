@@ -11,7 +11,7 @@ event InitializeController()
 {
     Super.InitializeController();
 
-    UpdateCursor();
+    SetSmallCursor(bSmallCursor);
     UpdateSettingsPage();
     HUDController = HxHUDController(
         Master.AddInteraction("HexedPatches.HxHUDController", ViewportOwner));
@@ -26,8 +26,9 @@ function UpdateSettingsPage()
     class'HxGUIPatchesSettings'.static.AddToSettings();
 }
 
-function UpdateCursor()
+function SetSmallCursor(bool bValue)
 {
+    bSmallCursor = bValue;
     if (bSmallCursor)
     {
         MouseCursors[0] = material'HxPointer';

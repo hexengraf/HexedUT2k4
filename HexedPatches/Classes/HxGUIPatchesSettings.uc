@@ -73,13 +73,12 @@ function SaveSettings()
 
     if (GUIController.bSmallCursor != bSmallCursor)
     {
-        GUIController.bSmallCursor = bSmallCursor;
-        GUIController.UpdateCursor();
+        bSmallCursor = GUIController.bSmallCursor;
         bSave = true;
     }
     if (GUIController.bFixedMouseSize != bFixedMouseSize)
     {
-        GUIController.bFixedMouseSize = bFixedMouseSize;
+        bFixedMouseSize = GUIController.bFixedMouseSize;
         bSave = true;
     }
     if (bSave)
@@ -89,12 +88,12 @@ function SaveSettings()
     }
     if (HUDController.bReplaceHUDs != bReplaceHUDs)
     {
-        HUDController.SetReplaceHUDs(bReplaceHUDs);
+        bReplaceHUDs = HUDController.bReplaceHUDs;
         bSave = true;
     }
     if (HUDController.bScaleWeapons != bScaleWeapons)
     {
-        HUDController.SetScaleWeapons(bScaleWeapons);
+        bScaleWeapons = HUDController.bScaleWeapons;
         bSave = true;
     }
     if (bSave)
@@ -129,16 +128,18 @@ function InternalOnChange(GUIComponent Sender)
     {
         case ch_SmallCursor:
             bSmallCursor = ch_SmallCursor.IsChecked();
+            GUIController.SetSmallCursor(ch_SmallCursor.IsChecked());
             break;
         case ch_FixedMouseSize:
+            GUIController.bFixedMouseSize = ch_FixedMouseSize.IsChecked();
             bFixedMouseSize = ch_FixedMouseSize.IsChecked();
             break;
         case ch_ReplaceHUDs:
-            bReplaceHUDs = ch_ReplaceHUDs.IsChecked();
+            HUDController.SetReplaceHUDs(ch_ReplaceHUDs.IsChecked());
             UpdateHUDSection();
             break;
         case ch_ScaleWeapons:
-            bScaleWeapons = ch_ScaleWeapons.IsChecked();
+            HUDController.SetScaleWeapons(ch_ScaleWeapons.IsChecked());
             break;
     }
 }
