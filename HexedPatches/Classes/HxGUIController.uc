@@ -4,8 +4,8 @@ class HxGUIController extends UT2K4GUIController;
 
 var config bool bSmallCursor;
 
-var HxHUDController HexedHUDController;
-var HxNETController HexedNETController;
+var HxHUDController HUDController;
+var HxOPTController OPTController;
 
 event InitializeController()
 {
@@ -13,10 +13,10 @@ event InitializeController()
 
     UpdateCursor();
     UpdateSettingsPage();
-    HexedHUDController = HxHUDController(
+    HUDController = HxHUDController(
         Master.AddInteraction("HexedPatches.HxHUDController", ViewportOwner));
-    HexedNETController = HxNETController(
-        Master.AddInteraction("HexedPatches.HxNETController", ViewportOwner));
+    OPTController = HxOPTController(
+        Master.AddInteraction("HexedPatches.HxOPTController", ViewportOwner));
 }
 
 function UpdateSettingsPage()

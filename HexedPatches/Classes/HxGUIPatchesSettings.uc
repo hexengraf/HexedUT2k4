@@ -1,8 +1,8 @@
 class HxGUIPatchesSettings extends Settings_Tabs;
 
-var HxGUIController HexedGUIController;
-var HxHUDController HexedHUDController;
-var HxNETController HexedNETController;
+var HxGUIController GUIController;
+var HxHUDController HUDController;
+var HxOPTController OPTController;
 
 var automated GUISectionBackground i_BG1;
 var automated GUISectionBackground i_BG2;
@@ -31,9 +31,9 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 
 function PopulateHexedControllers(HxGUIController MyController)
 {
-    HexedGUIController = MyController;
-    HexedHUDController = MyController.HexedHUDController;
-    HexedNETController = MyController.HexedNETController;
+    GUIController = MyController;
+    HUDController = MyController.HUDController;
+    OPTController = MyController.OPTController;
 }
 
 event ResolutionChanged(int NewX, int NewY)
@@ -46,20 +46,20 @@ function InternalOnLoadINI(GUIComponent Sender, string s)
     switch (Sender)
     {
         case ch_SmallCursor:
-            bSmallCursor = HexedGUIController.bSmallCursor;
+            bSmallCursor = GUIController.bSmallCursor;
             ch_SmallCursor.SetComponentValue(bSmallCursor, true);
             break;
         case ch_FixedMouseSize:
-            bFixedMouseSize = HexedGUIController.bFixedMouseSize;
+            bFixedMouseSize = GUIController.bFixedMouseSize;
             ch_FixedMouseSize.SetComponentValue(bFixedMouseSize, true);
             break;
         case ch_ReplaceHUDs:
-            bReplaceHUDs = HexedHUDController.bReplaceHUDs;
+            bReplaceHUDs = HUDController.bReplaceHUDs;
             ch_ReplaceHUDs.SetComponentValue(bReplaceHUDs, true);
             UpdateHUDSection();
             break;
         case ch_ScaleWeapons:
-            bScaleWeapons = HexedHUDController.default.bScaleWeapons;
+            bScaleWeapons = HUDController.default.bScaleWeapons;
             ch_ScaleWeapons.SetComponentValue(bScaleWeapons, true);
             break;
     }
@@ -71,36 +71,36 @@ function SaveSettings()
 
     Super.SaveSettings();
 
-    if (HexedGUIController.bSmallCursor != bSmallCursor)
+    if (GUIController.bSmallCursor != bSmallCursor)
     {
-        HexedGUIController.bSmallCursor = bSmallCursor;
-        HexedGUIController.UpdateCursor();
+        GUIController.bSmallCursor = bSmallCursor;
+        GUIController.UpdateCursor();
         bSave = true;
     }
-    if (HexedGUIController.bFixedMouseSize != bFixedMouseSize)
+    if (GUIController.bFixedMouseSize != bFixedMouseSize)
     {
-        HexedGUIController.bFixedMouseSize = bFixedMouseSize;
-        bSave = true;
-    }
-    if (bSave)
-    {
-        bSave = false;
-        HexedGUIController.SaveConfig();
-    }
-    if (HexedHUDController.bReplaceHUDs != bReplaceHUDs)
-    {
-        HexedHUDController.SetReplaceHUDs(bReplaceHUDs);
-        bSave = true;
-    }
-    if (HexedHUDController.bScaleWeapons != bScaleWeapons)
-    {
-        HexedHUDController.SetScaleWeapons(bScaleWeapons);
+        GUIController.bFixedMouseSize = bFixedMouseSize;
         bSave = true;
     }
     if (bSave)
     {
         bSave = false;
-        HexedHUDController.SaveConfig();
+        GUIController.SaveConfig();
+    }
+    if (HUDController.bReplaceHUDs != bReplaceHUDs)
+    {
+        HUDController.SetReplaceHUDs(bReplaceHUDs);
+        bSave = true;
+    }
+    if (HUDController.bScaleWeapons != bScaleWeapons)
+    {
+        HUDController.SetScaleWeapons(bScaleWeapons);
+        bSave = true;
+    }
+    if (bSave)
+    {
+        bSave = false;
+        HUDController.SaveConfig();
     }
 }
 
@@ -145,7 +145,7 @@ function InternalOnChange(GUIComponent Sender)
 
 function UpdateHUDSection()
 {
-    if (HexedHUDController.CheckConflictingPackages())
+    if (HUDController.CheckConflictingPackages())
     {
         ch_ReplaceHUDs.DisableMe();
         ch_ScaleWeapons.DisableMe();
