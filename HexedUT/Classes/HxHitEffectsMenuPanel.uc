@@ -1,4 +1,4 @@
-class HxIndicatorsMenuPanel extends HxMenuPanel;
+class HxHitEffectsMenuPanel extends HxMenuPanel;
 
 const SECTION_HIT_SOUNDS = 0;
 const SECTION_DAMAGE_NUMBERS = 2;
@@ -458,8 +458,8 @@ defaultproperties
         OnChange=CustomizeOnChange
     End Object
 
-    PanelCaption="Indicators"
-    PanelHint="Spawn protection and damage indicators"
+    PanelCaption="Hit Effects"
+    PanelHint="Hit sounds and damage numbers"
     bInsertFront=true
     bDoubleColumn=true
     Sections(0)=HitSoundsSection

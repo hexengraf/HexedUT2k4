@@ -82,7 +82,7 @@ simulated event PreBeginPlay()
     if (Level.NetMode != NM_DedicatedServer)
     {
         class'HxServerMenuPanel'.static.AddToMenu();
-        class'HxIndicatorsMenuPanel'.static.AddToMenu();
+        class'HxHitEffectsMenuPanel'.static.AddToMenu();
     }
 }
 
