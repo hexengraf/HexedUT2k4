@@ -5,12 +5,15 @@ const HIDE_DUE_INIT = "Initializing...";
 const HIDE_DUE_DISABLE = "Feature disabled on this server";
 const HIDE_DUE_ADMIN = "Requires administrator privileges";
 
-const MINIMUM_SECTION_HEIGHT = 0.1125;
+const BASE_WIN_TOP = 0.005;
+const BASE_WIN_BOTTOM = 0.961;
+const MINIMUM_SECTION_HEIGHT = 0.115;
 const COMPONENT_HEIGHT = 0.0515;
 
 var localized string PanelHint;
 var bool bInsertFront;
 var bool bDoubleColumn;
+var bool bFillPanelHeight;
 
 var automated array<AltSectionBackground> Sections;
 var private automated array<AltSectionBackground> HideSections;
@@ -75,6 +78,18 @@ function InitSections()
         InitSection(i);
         InitHideSection(i);
     }
+    if (bFillPanelHeight)
+    {
+        if (bDoubleColumn)
+        {
+            AutoFillColumnHeight(0, 2);
+            AutoFillColumnHeight(1, 2);
+        }
+        else
+        {
+            AutoFillColumnHeight(0, 1);
+        }
+    }
 }
 
 function InitSection(int i)
@@ -85,7 +100,7 @@ function InitSection(int i)
     }
     if (i == 0)
     {
-        Sections[i].WinTop = 0.005;
+        Sections[i].WinTop = BASE_WIN_TOP;
     }
     else if (bDoubleColumn)
     {
@@ -183,6 +198,39 @@ static function MirrorSection(AltSectionBackground Mirror, AltSectionBackground 
     Mirror.bFillClient = Original.bFillClient;
 }
 
+function AutoFillColumnHeight(int StartAt, int Step)
+{
+    local int i;
+    local int Count;
+    local float RemainingHeight;
+
+    for (i = StartAt; i < Sections.Length; i += Step)
+    {
+        if (Sections[i] != None)
+        {
+            RemainingHeight = BASE_WIN_BOTTOM - (Sections[i].WinTop + Sections[i].WinHeight);
+            ++Count;
+        }
+    }
+    if (RemainingHeight > 0)
+    {
+        RemainingHeight = RemainingHeight / Count;
+    }
+    for (i = StartAt; i < Sections.Length; i += Step)
+    {
+        if (Sections[i] != None)
+        {
+            if (i > StartAt)
+            {
+                Sections[i].WinTop += RemainingHeight;
+                HideSections[i].WinTop += RemainingHeight;
+            }
+            Sections[i].WinHeight += RemainingHeight;
+            HideSections[i].WinHeight += RemainingHeight;
+        }
+    }
+}
+
 function HideSection(int Section, bool bHidden, optional String Reason)
 {
     if (Sections[Section] != None)
@@ -229,6 +277,7 @@ defaultproperties
 {
     bInsertFront=false
     bDoubleColumn=false
+    bFillPanelHeight=true
 
     Begin Object class=GUILabel Name=HideMessage
         TextAlign=TXTA_Center

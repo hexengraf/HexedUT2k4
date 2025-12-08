@@ -401,7 +401,7 @@ defaultproperties
         ImageStyle=ISTY_Stretched
         ImageRenderStyle=MSTY_Alpha
         bStandardized=true
-        StandardHeight=0.032
+        StandardHeight=0.05
         TabOrder=12
         OnRendered=DrawDamageNumberPreview
     End Object
@@ -421,7 +421,6 @@ defaultproperties
     Begin Object class=GUIButton Name=PlaySound
         Caption="Play sound"
         bStandardized=true
-        StandardHeight=0.032
         OnClick=PlaySoundOnClick
         OnClickSound=CS_None
     End Object
