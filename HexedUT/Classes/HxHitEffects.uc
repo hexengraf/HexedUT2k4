@@ -78,9 +78,9 @@ var float GlobalScale;
 simulated event PreBeginPlay()
 {
     super.PreBeginPlay();
-    ValidateConfig();
     InitializeHitSounds();
     InitializeDamageNumbers();
+    ValidateConfig();
 }
 
 simulated function ValidateConfig()
