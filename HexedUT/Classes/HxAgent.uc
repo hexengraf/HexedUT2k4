@@ -14,6 +14,15 @@ var bool bAllowDamageNumbers;
 var bool bColoredDeathMessages;
 var float HealthLeechRatio;
 var int HealthLeechLimit;
+var float MaxSpeedMultiplier;
+var float AirControlMultiplier;
+var float BaseJumpMultiplier;
+var float MultiJumpMultiplier;
+var int BonusMultiJumps;
+var float DodgeMultiplier;
+var float DodgeSpeedMultiplier;
+var bool bDisableWallDodge;
+var bool bDisableDodgeJump;
 var int BonusStartingHealth;
 var int BonusStartingShield;
 var int BonusStartingGrenades;
@@ -24,16 +33,6 @@ var bool bDisableBerserkCombo;
 var bool bDisableBoosterCombo;
 var bool bDisableInvisibleCombo;
 var bool bDisableUDamage;
-var float MaxSpeedMultiplier;
-var float AirControlMultiplier;
-var float BaseJumpMultiplier;
-var float MultiJumpMultiplier;
-var int BonusMultiJumps;
-var float DodgeMultiplier;
-var float DodgeSpeedMultiplier;
-var bool bCanBoostDodge;
-var bool bDisableWallDodge;
-var bool bDisableDodgeJump;
 
 var MutHexedUT HexedUT;
 var PlayerController PC;
@@ -51,6 +50,15 @@ replication
         bColoredDeathMessages,
         HealthLeechRatio,
         HealthLeechLimit,
+        MaxSpeedMultiplier,
+        AirControlMultiplier,
+        BaseJumpMultiplier,
+        MultiJumpMultiplier,
+        BonusMultiJumps,
+        DodgeMultiplier,
+        DodgeSpeedMultiplier,
+        bDisableWallDodge,
+        bDisableDodgeJump,
         BonusStartingHealth,
         BonusStartingShield,
         BonusStartingGrenades,
@@ -60,17 +68,7 @@ replication
         bDisableBerserkCombo,
         bDisableBoosterCombo,
         bDisableInvisibleCombo,
-        bDisableUDamage,
-        MaxSpeedMultiplier,
-        AirControlMultiplier,
-        BaseJumpMultiplier,
-        MultiJumpMultiplier,
-        BonusMultiJumps,
-        DodgeMultiplier,
-        DodgeSpeedMultiplier,
-        bCanBoostDodge,
-        bDisableWallDodge,
-        bDisableDodgeJump;
+        bDisableUDamage;
 
     reliable if (Role < ROLE_Authority)
         RemoteSetProperty;

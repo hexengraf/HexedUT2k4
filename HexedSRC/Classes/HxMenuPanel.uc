@@ -5,8 +5,8 @@ const HIDE_DUE_INIT = "Initializing...";
 const HIDE_DUE_DISABLE = "Feature disabled on this server";
 const HIDE_DUE_ADMIN = "Requires administrator privileges";
 
-const MINIMUM_SECTION_HEIGHT = 0.1;
-const COMPONENT_HEIGHT = 0.0435;
+const MINIMUM_SECTION_HEIGHT = 0.1125;
+const COMPONENT_HEIGHT = 0.0515;
 
 var localized string PanelHint;
 var bool bInsertFront;
