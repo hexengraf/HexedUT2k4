@@ -3,7 +3,7 @@ class HxGUIQuitPage extends UT2K4QuitPage;
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
     Super.InitComponent(MyController, MyOwner);
-    QuitDesc.WinHeight = 0.035;
+    QuitDesc.WinHeight = 0.1;
 }
 
 defaultproperties

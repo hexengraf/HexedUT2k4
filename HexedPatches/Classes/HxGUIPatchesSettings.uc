@@ -9,6 +9,8 @@ var automated GUISectionBackground i_BG2;
 var automated GUISectionBackground i_BG3;
 var automated moCheckBox ch_SmallCursor;
 var automated moCheckBox ch_FixedMouseSize;
+var automated moCheckBox ch_ScaleWithY;
+var automated moNumericEdit	nu_OverrideFontSize;
 var automated moCheckBox ch_ReplaceHUDs;
 var automated moCheckBox ch_ScaleWeapons;
 var automated moCheckBox ch_SPShowTimer;
@@ -20,6 +22,8 @@ var automated moFloatEdit fl_SPPosY;
 var localized string PanelHint;
 var bool bSmallCursor;
 var bool bFixedMouseSize;
+var bool bScaleWithY;
+var int OverrideFontSize;
 var bool bReplaceHUDs;
 var bool bScaleWeapons;
 var bool bSPShowTimer;
@@ -35,6 +39,8 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 
     i_BG1.ManageComponent(ch_SmallCursor);
     i_BG1.ManageComponent(ch_FixedMouseSize);
+    i_BG1.ManageComponent(ch_ScaleWithY);
+    i_BG1.ManageComponent(nu_OverrideFontSize);
 
     i_BG2.ManageComponent(ch_ReplaceHUDs);
     i_BG2.ManageComponent(ch_ScaleWeapons);
@@ -53,11 +59,6 @@ function PopulateHexedControllers(HxGUIController MyController)
     OPTController = MyController.OPTController;
 }
 
-event ResolutionChanged(int NewX, int NewY)
-{
-    Super.ResolutionChanged(NewX, NewY);
-}
-
 function InternalOnLoadINI(GUIComponent Sender, string s)
 {
     switch (Sender)
@@ -69,6 +70,14 @@ function InternalOnLoadINI(GUIComponent Sender, string s)
         case ch_FixedMouseSize:
             bFixedMouseSize = GUIController.bFixedMouseSize;
             ch_FixedMouseSize.SetComponentValue(bFixedMouseSize, true);
+            break;
+        case ch_ScaleWithY:
+            bScaleWithY = class'HxFont'.default.bScaleWithY;
+            ch_ScaleWithY.SetComponentValue(bScaleWithY, true);
+            break;
+        case nu_OverrideFontSize:
+            OverrideFontSize = class'HxFont'.default.OverrideFontSize;
+            nu_OverrideFontSize.SetComponentValue(OverrideFontSize, true);
             break;
         case ch_ReplaceHUDs:
             bReplaceHUDs = HUDController.bReplaceHUDs;
@@ -122,6 +131,21 @@ function SaveSettings()
     {
         bSave = false;
         GUIController.SaveConfig();
+    }
+    if (class'HxFont'.default.bScaleWithY != bScaleWithY)
+    {
+        bScaleWithY = class'HxFont'.default.bScaleWithY;
+        bSave = true;
+    }
+    if (class'HxFont'.default.OverrideFontSize != OverrideFontSize)
+    {
+        OverrideFontSize = class'HxFont'.default.OverrideFontSize;
+        bSave = true;
+    }
+    if (bSave)
+    {
+        bSave = false;
+        class'HxFont'.static.StaticSaveConfig();
     }
     if (HUDController.bReplaceHUDs != bReplaceHUDs)
     {
@@ -178,6 +202,8 @@ function ResetClicked()
 
     class'HxGUIController'.static.ResetConfig("bSmallCursor");
     class'HxGUIController'.static.ResetConfig("bFixedMouseSize");
+    class'HxFont'.static.ResetConfig("bScaleWithY");
+    class'HxFont'.static.ResetConfig("OverrideFontSize");
     class'HxHUDController'.static.ResetConfig("bReplaceHUDs");
     class'HxHUDController'.static.ResetConfig("bScaleWeapons");
     class'HxHUDSpawnProtectionTimer'.static.ResetConfig("bShowTimer");
@@ -219,6 +245,12 @@ function InternalOnChange(GUIComponent Sender)
             break;
         case ch_FixedMouseSize:
             GUIController.bFixedMouseSize = ch_FixedMouseSize.IsChecked();
+            break;
+        case ch_ScaleWithY:
+            class'HxFont'.default.bScaleWithY = ch_ScaleWithY.IsChecked();
+            break;
+        case nu_OverrideFontSize:
+            class'HxFont'.default.OverrideFontSize = nu_OverrideFontSize.GetValue();
             break;
         case ch_ReplaceHUDs:
             HUDController.SetReplaceHUDs(ch_ReplaceHUDs.IsChecked());
@@ -295,23 +327,23 @@ static function AddToSettings()
 
 defaultproperties
 {
-    Begin Object class=GUISectionBackground Name=TemplateCursorSection
-        Caption="Cursor"
+    Begin Object class=GUISectionBackground Name=TemplateInterfaceSection
+        Caption="Interface"
         WinWidth=0.448633
-        WinHeight=0.199610
+        WinHeight=0.272527
         // WinHeight=0.901485
         WinLeft=0.031797
         WinTop=0.057604
         RenderWeight=0.001
     End Object
-    i_BG1=TemplateCursorSection
+    i_BG1=TemplateInterfaceSection
 
     Begin Object class=GUISectionBackground Name=TemplateHUDSection
         Caption="HUD"
         WinWidth=0.448633
         WinHeight=0.199610
         WinLeft=0.031797
-        WinTop=0.267214
+        WinTop=0.340131
         RenderWeight=0.001
     End Object
     i_BG2=TemplateHUDSection
@@ -321,7 +353,7 @@ defaultproperties
         WinWidth=0.448633
         WinHeight=0.308985
         WinLeft=0.031797
-        WinTop=0.476824
+        WinTop=0.549741
         RenderWeight=0.001
     End Object
     i_BG3=TemplateSPSection
@@ -335,7 +367,7 @@ defaultproperties
         bAutoSizeCaption=true
         bBoundToParent=true
         bScaleToParent=true
-        CaptionWidth=0.9
+        CaptionWidth=0.955
         bSquare=true
         ComponentJustification=TXTA_Left
         TabOrder=0
@@ -351,12 +383,45 @@ defaultproperties
         bAutoSizeCaption=true
         bBoundToParent=true
         bScaleToParent=true
-        CaptionWidth=0.9
+        CaptionWidth=0.955
         bSquare=true
         ComponentJustification=TXTA_Left
         TabOrder=1
     End Object
     ch_FixedMouseSize=TemplateFixedMouseSize
+
+    Begin Object class=moCheckBox Name=TemplateScaleWithY
+        Caption="Scale fonts with screen height"
+        Hint="Scale fonts with the screen height instead of the screen width. Restart required."
+        INIOption="@Internal"
+        OnLoadINI=InternalOnLoadINI
+        OnChange=InternalOnChange
+        bAutoSizeCaption=true
+        bBoundToParent=true
+        bScaleToParent=true
+        CaptionWidth=0.955
+        bSquare=true
+        ComponentJustification=TXTA_Left
+        TabOrder=2
+    End Object
+    ch_ScaleWithY=TemplateScaleWithY
+
+    Begin Object class=moNumericEdit Name=TemplateOverrideFontSize
+        Caption="Override font scale"
+        Hint="Override font scale (between 0 and 6). Use -1 for default scale. Restart required."
+        INIOption="@Internal"
+        OnLoadINI=InternalOnLoadINI
+        OnChange=InternalOnChange
+        MinValue=-1
+        MaxValue=6
+        bBoundToParent=true
+        bScaleToParent=true
+        CaptionWidth=0.725
+        bHeightFromComponent=false
+        ComponentJustification=TXTA_Left
+        TabOrder=3
+    End Object
+    nu_OverrideFontSize=TemplateOverrideFontSize
 
     Begin Object class=moCheckBox Name=TemplateReplaceHUDs
         Caption="Replace HUDs"
@@ -367,10 +432,10 @@ defaultproperties
         bAutoSizeCaption=true
         bBoundToParent=true
         bScaleToParent=true
-        CaptionWidth=0.9
+        CaptionWidth=0.955
         bSquare=true
         ComponentJustification=TXTA_Left
-        TabOrder=2
+        TabOrder=4
     End Object
     ch_ReplaceHUDs=TemplateReplaceHUDs
 
@@ -383,10 +448,10 @@ defaultproperties
         bAutoSizeCaption=true
         bBoundToParent=true
         bScaleToParent=true
-        CaptionWidth=0.9
+        CaptionWidth=0.955
         bSquare=true
         ComponentJustification=TXTA_Left
-        TabOrder=3
+        TabOrder=5
     End Object
     ch_ScaleWeapons=TemplateScaleWeapons
 
@@ -399,10 +464,10 @@ defaultproperties
         bAutoSizeCaption=true
         bBoundToParent=true
         bScaleToParent=true
-        CaptionWidth=0.9
+        CaptionWidth=0.955
         bSquare=true
         ComponentJustification=TXTA_Left
-        TabOrder=4
+        TabOrder=6
     End Object
     ch_SPShowTimer=TemplateSPShowTimer
 
@@ -415,10 +480,10 @@ defaultproperties
         bAutoSizeCaption=true
         bBoundToParent=true
         bScaleToParent=true
-        CaptionWidth=0.9
+        CaptionWidth=0.955
         bSquare=true
         ComponentJustification=TXTA_Left
-        TabOrder=5
+        TabOrder=7
     End Object
     ch_SPFollowHUDColor=TemplateSPFollowHUDColor
 
@@ -431,10 +496,10 @@ defaultproperties
         bAutoSizeCaption=true
         bBoundToParent=true
         bScaleToParent=true
-        CaptionWidth=0.9
+        CaptionWidth=0.955
         bSquare=true
         ComponentJustification=TXTA_Left
-        TabOrder=6
+        TabOrder=8
     End Object
     ch_SPPulsingDigits=TemplateSPPulsingDigits
 
@@ -452,7 +517,7 @@ defaultproperties
         CaptionWidth=0.725
         bHeightFromComponent=false
         ComponentJustification=TXTA_Left
-        TabOrder=7
+        TabOrder=9
     End Object
     fl_SPPosX=TemplateSPPosX
 
@@ -470,7 +535,7 @@ defaultproperties
         CaptionWidth=0.725
         bHeightFromComponent=false
         ComponentJustification=TXTA_Left
-        TabOrder=8
+        TabOrder=10
     End Object
     fl_SPPosY=TemplateSPPosY
 

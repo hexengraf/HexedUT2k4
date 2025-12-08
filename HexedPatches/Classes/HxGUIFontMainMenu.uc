@@ -1,10 +1,11 @@
-class HxGUIFontMainMenu extends GUIFont;
+class HxGUIFontMainMenu extends HxFont;
 
 defaultproperties
 {
     KeyName="UT2MainMenuFont"
     bScaled=true
     NormalXRes=1920
+    NormalYRes=1080
     FallBackRes=512
 
     FontArrayNames(0)=""
