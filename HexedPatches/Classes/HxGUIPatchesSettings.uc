@@ -6,16 +6,27 @@ var HxOPTController OPTController;
 
 var automated GUISectionBackground i_BG1;
 var automated GUISectionBackground i_BG2;
+var automated GUISectionBackground i_BG3;
 var automated moCheckBox ch_SmallCursor;
 var automated moCheckBox ch_FixedMouseSize;
 var automated moCheckBox ch_ReplaceHUDs;
 var automated moCheckBox ch_ScaleWeapons;
+var automated moCheckBox ch_SPShowTimer;
+var automated moCheckBox ch_SPFollowHUDColor;
+var automated moCheckBox ch_SPPulsingDigits;
+var automated moFloatEdit fl_SPPosX;
+var automated moFloatEdit fl_SPPosY;
 
 var localized string PanelHint;
 var bool bSmallCursor;
 var bool bFixedMouseSize;
 var bool bReplaceHUDs;
 var bool bScaleWeapons;
+var bool bSPShowTimer;
+var bool bSPFollowHUDColor;
+var bool bSPPulsingDigits;
+var float SPPosX;
+var float SPPosY;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
@@ -27,6 +38,12 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 
     i_BG2.ManageComponent(ch_ReplaceHUDs);
     i_BG2.ManageComponent(ch_ScaleWeapons);
+
+    i_BG3.ManageComponent(ch_SPShowTimer);
+    i_BG3.ManageComponent(ch_SPFollowHUDColor);
+    i_BG3.ManageComponent(ch_SPPulsingDigits);
+    i_BG3.ManageComponent(fl_SPPosX);
+    i_BG3.ManageComponent(fl_SPPosY);
 }
 
 function PopulateHexedControllers(HxGUIController MyController)
@@ -61,6 +78,26 @@ function InternalOnLoadINI(GUIComponent Sender, string s)
         case ch_ScaleWeapons:
             bScaleWeapons = HUDController.default.bScaleWeapons;
             ch_ScaleWeapons.SetComponentValue(bScaleWeapons, true);
+            break;
+        case ch_SPShowTimer:
+            bSPShowTimer = class'HxHUDSpawnProtectionTimer'.default.bShowTimer;
+            ch_SPShowTimer.SetComponentValue(bSPShowTimer, true);
+            break;
+        case ch_SPFollowHUDColor:
+            bSPFollowHUDColor = class'HxHUDSpawnProtectionTimer'.default.bFollowHUDColor;
+            ch_SPFollowHUDColor.SetComponentValue(bSPFollowHUDColor, true);
+            break;
+        case ch_SPPulsingDigits:
+            bSPPulsingDigits = class'HxHUDSpawnProtectionTimer'.default.bPulsingDigits;
+            ch_SPPulsingDigits.SetComponentValue(bSPPulsingDigits, true);
+            break;
+        case fl_SPPosX:
+            SPPosX = class'HxHUDSpawnProtectionTimer'.default.PosX;
+            fl_SPPosX.SetComponentValue(SPPosX, true);
+            break;
+        case fl_SPPosY:
+            SPPosY = class'HxHUDSpawnProtectionTimer'.default.PosY;
+            fl_SPPosY.SetComponentValue(SPPosY, true);
             break;
     }
 }
@@ -101,6 +138,36 @@ function SaveSettings()
         bSave = false;
         HUDController.SaveConfig();
     }
+    if (class'HxHUDSpawnProtectionTimer'.default.bShowTimer != bSPShowTimer)
+    {
+        bSPShowTimer = class'HxHUDSpawnProtectionTimer'.default.bShowTimer;
+        bSave = true;
+    }
+    if (class'HxHUDSpawnProtectionTimer'.default.bFollowHUDColor != bSPFollowHUDColor)
+    {
+        bSPFollowHUDColor = class'HxHUDSpawnProtectionTimer'.default.bFollowHUDColor;
+        bSave = true;
+    }
+    if (class'HxHUDSpawnProtectionTimer'.default.bPulsingDigits != bSPPulsingDigits)
+    {
+        bSPPulsingDigits = class'HxHUDSpawnProtectionTimer'.default.bPulsingDigits;
+        bSave = true;
+    }
+    if (class'HxHUDSpawnProtectionTimer'.default.PosX != SPPosX)
+    {
+        SPPosX = class'HxHUDSpawnProtectionTimer'.default.PosX;
+        bSave = true;
+    }
+    if (class'HxHUDSpawnProtectionTimer'.default.PosY != SPPosY)
+    {
+        SPPosY = class'HxHUDSpawnProtectionTimer'.default.PosY;
+        bSave = true;
+    }
+    if (bSave)
+    {
+        bSave = false;
+        class'HxHUDSpawnProtectionTimer'.static.StaticSaveConfig();
+    }
 }
 
 function ResetClicked()
@@ -113,6 +180,27 @@ function ResetClicked()
     class'HxGUIController'.static.ResetConfig("bFixedMouseSize");
     class'HxHUDController'.static.ResetConfig("bReplaceHUDs");
     class'HxHUDController'.static.ResetConfig("bScaleWeapons");
+    class'HxHUDSpawnProtectionTimer'.static.ResetConfig("bShowTimer");
+    class'HxHUDSpawnProtectionTimer'.static.ResetConfig("bFollowHUDColor");
+    class'HxHUDSpawnProtectionTimer'.static.ResetConfig("bPulsingDigits");
+    class'HxHUDSpawnProtectionTimer'.static.ResetConfig("PosX");
+    class'HxHUDSpawnProtectionTimer'.static.ResetConfig("PosY");
+
+    GUIController.SetSmallCursor(class'HxGUIController'.default.bSmallCursor);
+    GUIController.bFixedMouseSize = class'HxGUIController'.default.bFixedMouseSize;
+    HUDController.SetReplaceHUDs(class'HxHUDController'.default.bReplaceHUDs);
+    HUDController.SetScaleWeapons(class'HxHUDController'.default.bScaleWeapons);
+    class'HxHUDSpawnProtectionTimer'.static.SetShowTimer(
+        class'HxHUDSpawnProtectionTimer'.default.bShowTimer);
+    class'HxHUDSpawnProtectionTimer'.static.SetFollowHUDColor(
+        class'HxHUDSpawnProtectionTimer'.default.bFollowHUDColor);
+    class'HxHUDSpawnProtectionTimer'.static.SetPulsingDigits(
+        class'HxHUDSpawnProtectionTimer'.default.bPulsingDigits);
+    class'HxHUDSpawnProtectionTimer'.static.SetPosX(
+        class'HxHUDSpawnProtectionTimer'.default.PosX);
+    class'HxHUDSpawnProtectionTimer'.static.SetPosY(
+        class'HxHUDSpawnProtectionTimer'.default.PosY);
+    UpdateHUDSection();
 
     for (i = 0; i < Components.Length; ++i)
     {
@@ -127,12 +215,10 @@ function InternalOnChange(GUIComponent Sender)
     switch (Sender)
     {
         case ch_SmallCursor:
-            bSmallCursor = ch_SmallCursor.IsChecked();
             GUIController.SetSmallCursor(ch_SmallCursor.IsChecked());
             break;
         case ch_FixedMouseSize:
             GUIController.bFixedMouseSize = ch_FixedMouseSize.IsChecked();
-            bFixedMouseSize = ch_FixedMouseSize.IsChecked();
             break;
         case ch_ReplaceHUDs:
             HUDController.SetReplaceHUDs(ch_ReplaceHUDs.IsChecked());
@@ -140,6 +226,23 @@ function InternalOnChange(GUIComponent Sender)
             break;
         case ch_ScaleWeapons:
             HUDController.SetScaleWeapons(ch_ScaleWeapons.IsChecked());
+            break;
+        case ch_SPShowTimer:
+            class'HxHUDSpawnProtectionTimer'.static.SetShowTimer(ch_SPShowTimer.IsChecked());
+            break;
+        case ch_SPFollowHUDColor:
+            class'HxHUDSpawnProtectionTimer'.static.SetFollowHUDColor(
+                ch_SPFollowHUDColor.IsChecked());
+            break;
+        case ch_SPPulsingDigits:
+            class'HxHUDSpawnProtectionTimer'.static.SetPulsingDigits(
+                ch_SPPulsingDigits.IsChecked());
+            break;
+        case fl_SPPosX:
+            class'HxHUDSpawnProtectionTimer'.static.SetPosX(fl_SPPosX.GetValue());
+            break;
+        case fl_SPPosY:
+            class'HxHUDSpawnProtectionTimer'.static.SetPosY(fl_SPPosY.GetValue());
             break;
     }
 }
@@ -150,18 +253,33 @@ function UpdateHUDSection()
     {
         ch_ReplaceHUDs.DisableMe();
         ch_ScaleWeapons.DisableMe();
+        ch_SPShowTimer.DisableMe();
+        ch_SPFollowHUDColor.DisableMe();
+        ch_SPPulsingDigits.DisableMe();
+        fl_SPPosX.DisableMe();
+        fl_SPPosY.DisableMe();
     }
     else
     {
         ch_ReplaceHUDs.EnableMe();
     }
-    if (bReplaceHUDs)
+    if (HUDController.bReplaceHUDs)
     {
         ch_ScaleWeapons.EnableMe();
+        ch_SPShowTimer.EnableMe();
+        ch_SPFollowHUDColor.EnableMe();
+        ch_SPPulsingDigits.EnableMe();
+        fl_SPPosX.EnableMe();
+        fl_SPPosY.EnableMe();
     }
     else
     {
         ch_ScaleWeapons.DisableMe();
+        ch_SPShowTimer.DisableMe();
+        ch_SPFollowHUDColor.DisableMe();
+        ch_SPPulsingDigits.DisableMe();
+        fl_SPPosX.DisableMe();
+        fl_SPPosY.DisableMe();
     }
 }
 
@@ -177,7 +295,7 @@ static function AddToSettings()
 
 defaultproperties
 {
-    Begin Object class=GUISectionBackground Name=CursorSection
+    Begin Object class=GUISectionBackground Name=TemplateCursorSection
         Caption="Cursor"
         WinWidth=0.448633
         WinHeight=0.199610
@@ -186,9 +304,9 @@ defaultproperties
         WinTop=0.057604
         RenderWeight=0.001
     End Object
-    i_BG1=CursorSection
+    i_BG1=TemplateCursorSection
 
-    Begin Object class=GUISectionBackground Name=HUDSection
+    Begin Object class=GUISectionBackground Name=TemplateHUDSection
         Caption="HUD"
         WinWidth=0.448633
         WinHeight=0.199610
@@ -196,9 +314,19 @@ defaultproperties
         WinTop=0.267214
         RenderWeight=0.001
     End Object
-    i_BG2=HUDSection
+    i_BG2=TemplateHUDSection
 
-    Begin Object class=moCheckBox Name=SmallCursor
+    Begin Object class=GUISectionBackground Name=TemplateSPSection
+        Caption="Spawn Protection"
+        WinWidth=0.448633
+        WinHeight=0.308985
+        WinLeft=0.031797
+        WinTop=0.476824
+        RenderWeight=0.001
+    End Object
+    i_BG3=TemplateSPSection
+
+    Begin Object class=moCheckBox Name=TemplateSmallCursor
         Caption="Small cursor"
         Hint="Use a custom cursor to compensate the stupid scaling. Recommended for high resolutions."
         INIOption="@Internal"
@@ -212,9 +340,9 @@ defaultproperties
         ComponentJustification=TXTA_Left
         TabOrder=0
     End Object
-    ch_SmallCursor=SmallCursor
+    ch_SmallCursor=TemplateSmallCursor
 
-    Begin Object class=moCheckBox Name=FixedMouseSize
+    Begin Object class=moCheckBox Name=TemplateFixedMouseSize
         Caption="Fixed cursor size"
         Hint="Stop changing cursor size when it hovers a menu option."
         INIOption="@Internal"
@@ -228,9 +356,9 @@ defaultproperties
         ComponentJustification=TXTA_Left
         TabOrder=1
     End Object
-    ch_FixedMouseSize=FixedMouseSize
+    ch_FixedMouseSize=TemplateFixedMouseSize
 
-    Begin Object class=moCheckBox Name=ReplaceHUDs
+    Begin Object class=moCheckBox Name=TemplateReplaceHUDs
         Caption="Replace HUDs"
         Hint="Replace HUDs to fix widescreen scaling."
         INIOption="@Internal"
@@ -244,9 +372,9 @@ defaultproperties
         ComponentJustification=TXTA_Left
         TabOrder=2
     End Object
-    ch_ReplaceHUDs=ReplaceHUDs
+    ch_ReplaceHUDs=TemplateReplaceHUDs
 
-    Begin Object class=moCheckBox Name=ScaleWeapons
+    Begin Object class=moCheckBox Name=TemplateScaleWeapons
         Caption="Scale weapons"
         Hint="Scale FOV of displayed weapon models when using replaced HUDs."
         INIOption="@Internal"
@@ -260,9 +388,93 @@ defaultproperties
         ComponentJustification=TXTA_Left
         TabOrder=3
     End Object
-    ch_ScaleWeapons=ScaleWeapons
+    ch_ScaleWeapons=TemplateScaleWeapons
 
-     WinTop=0.15
+    Begin Object class=moCheckBox Name=TemplateSPShowTimer
+        Caption="Show timer"
+        Hint="Show timer indicating remaining duration while in spawn protection."
+        INIOption="@Internal"
+        OnLoadINI=InternalOnLoadINI
+        OnChange=InternalOnChange
+        bAutoSizeCaption=true
+        bBoundToParent=true
+        bScaleToParent=true
+        CaptionWidth=0.9
+        bSquare=true
+        ComponentJustification=TXTA_Left
+        TabOrder=4
+    End Object
+    ch_SPShowTimer=TemplateSPShowTimer
+
+    Begin Object class=moCheckBox Name=TemplateSPFollowHUDColor
+        Caption="Follow HUD's color"
+        Hint="Use the same color as the HUD for the timer's icon."
+        INIOption="@Internal"
+        OnLoadINI=InternalOnLoadINI
+        OnChange=InternalOnChange
+        bAutoSizeCaption=true
+        bBoundToParent=true
+        bScaleToParent=true
+        CaptionWidth=0.9
+        bSquare=true
+        ComponentJustification=TXTA_Left
+        TabOrder=5
+    End Object
+    ch_SPFollowHUDColor=TemplateSPFollowHUDColor
+
+    Begin Object class=moCheckBox Name=TemplateSPPulsingDigits
+        Caption="Pulsing digits"
+        Hint="Use pulsing digits for the time remaining."
+        INIOption="@Internal"
+        OnLoadINI=InternalOnLoadINI
+        OnChange=InternalOnChange
+        bAutoSizeCaption=true
+        bBoundToParent=true
+        bScaleToParent=true
+        CaptionWidth=0.9
+        bSquare=true
+        ComponentJustification=TXTA_Left
+        TabOrder=6
+    End Object
+    ch_SPPulsingDigits=TemplateSPPulsingDigits
+
+    Begin Object class=moFloatEdit Name=TemplateSPPosX
+        Caption="X position"
+        Hint="Adjust timer's position in the X axis."
+        INIOption="@Internal"
+        OnLoadINI=InternalOnLoadINI
+        OnChange=InternalOnChange
+        MinValue=0.0
+        MaxValue=1.0
+        Step=0.01
+        bBoundToParent=true
+        bScaleToParent=true
+        CaptionWidth=0.725
+        bHeightFromComponent=false
+        ComponentJustification=TXTA_Left
+        TabOrder=7
+    End Object
+    fl_SPPosX=TemplateSPPosX
+
+    Begin Object class=moFloatEdit Name=TemplateSPPosY
+        Caption="Y position"
+        Hint="Adjust timer's position in the Y axis."
+        INIOption="@Internal"
+        OnLoadINI=InternalOnLoadINI
+        OnChange=InternalOnChange
+        MinValue=0.0
+        MaxValue=1.0
+        Step=0.01
+        bBoundToParent=true
+        bScaleToParent=true
+        CaptionWidth=0.725
+        bHeightFromComponent=false
+        ComponentJustification=TXTA_Left
+        TabOrder=8
+    End Object
+    fl_SPPosY=TemplateSPPosY
+
+    WinTop=0.15
     WinLeft=0
     WinWidth=1
     WinHeight=0.74

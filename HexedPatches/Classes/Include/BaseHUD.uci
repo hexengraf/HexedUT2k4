@@ -1,4 +1,24 @@
 var float XYRatio;
+var HxHUDSpawnProtectionTimer SPTimer;
+
+simulated event PreBeginPlay()
+{
+    if (SPTimer == None)
+    {
+        SPTimer = Spawn(class'HxHUDSpawnProtectionTimer', Self);
+    }
+    Super.PreBeginPlay();
+}
+
+simulated event Destroyed()
+{
+    if (SPTimer != None)
+    {
+        SPTimer.Destroy();
+        SPTimer = None;
+    }
+    Super.Destroyed();
+}
 
 simulated function CheckCountdown(GameReplicationInfo GRI) {
     XYRatio = ResScaleX / ResScaleY;
@@ -49,6 +69,7 @@ simulated function DrawHudPassC(Canvas C)
         PawnOwner.Weapon.NewDrawWeaponInfo(
             C, C.ClipY - (52 * ResScaleY * HUDScale) - (15.2 * ResScaleY));
     }
+    SPTimer.Render(C);
 }
 
 simulated function DrawChargeBarBorder(Canvas C)

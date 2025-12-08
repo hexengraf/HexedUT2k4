@@ -2,10 +2,8 @@ class HxIndicatorsMenuPanel extends HxMenuPanel;
 
 const SECTION_HIT_SOUNDS = 0;
 const SECTION_DAMAGE_NUMBERS = 2;
-const SECTION_SPAWN_PROTECTION = 4;
 const SECTION_CUSTOMIZE = 1;
 
-var automated array<HxMenuOption> SpawnProtectionOptions;
 var automated array<HxMenuOption> HitEffectsOptions;
 var automated array<HxMenuOption> CustomizeOptions;
 
@@ -30,10 +28,6 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     for (i = 4; i < HitEffectsOptions.Length; ++i)
     {
         Sections[SECTION_DAMAGE_NUMBERS].ManageComponent(HitEffectsOptions[i]);
-    }
-    for (i = 0; i < SpawnProtectionOptions.Length; ++i)
-    {
-        Sections[SECTION_SPAWN_PROTECTION].ManageComponent(SpawnProtectionOptions[i]);
     }
     for (i = 0; i < CustomizeOptions.Length; ++i)
     {
@@ -67,10 +61,6 @@ function bool Initialize()
     Agent = class'HxAgent'.static.GetAgent(PlayerOwner());
     if (Agent != None)
     {
-        for (i = 0; i < SpawnProtectionOptions.Length; ++i)
-        {
-            SpawnProtectionOptions[i].Target = Agent.SpawnProtectionTimer;
-        }
         for (i = 0; i < HitEffectsOptions.Length; ++i)
         {
             HitEffectsOptions[i].Target = Agent.HitEffects;
@@ -87,10 +77,6 @@ function Refresh()
 {
     local int i;
 
-    for (i = 0; i < SpawnProtectionOptions.Length; ++i)
-    {
-        SpawnProtectionOptions[i].GetValueFromTarget();
-    }
     for (i = 0; i < HitEffectsOptions.Length; ++i)
     {
         HitEffectsOptions[i].GetValueFromTarget();
@@ -98,9 +84,7 @@ function Refresh()
     HitSoundsAfterChange();
     DamageNumbersAfterChange();
     DamageNumbersFontAfterChange();
-    SpawnProtectionAfterChange();
     RefreshCustomizeSection();
-    HideSection(SECTION_SPAWN_PROTECTION, false);
     HideSection(SECTION_HIT_SOUNDS, !Agent.bAllowHitSounds, HIDE_DUE_DISABLE);
     HideSection(SECTION_DAMAGE_NUMBERS, !Agent.bAllowDamageNumbers, HIDE_DUE_DISABLE);
     HideSection(
@@ -162,16 +146,6 @@ function DamageNumbersFontAfterChange()
     Agent.HitEffects.SaveConfig();
 }
 
-function SpawnProtectionAfterChange()
-{
-    local int i;
-
-    for (i = 1; i < SpawnProtectionOptions.Length; ++i)
-    {
-        SpawnProtectionOptions[i].SetEnable(Agent.SpawnProtectionTimer.bShowTimer);
-    }
-}
-
 function HitSoundsOnChange(GUIComponent C)
 {
     Super.TargetOnChange(C);
@@ -188,13 +162,6 @@ function DamageNumbersFontOnChange(GUIComponent C)
 {
     Super.TargetOnChange(C);
     DamageNumbersFontAfterChange();
-}
-
-function SpawnProtectionOnChange(GUIComponent C)
-{
-    Super.TargetOnChange(C);
-    SpawnProtectionAfterChange();
-
 }
 
 function CustomizeOnChange(GUIComponent C)
@@ -334,10 +301,6 @@ static function bool AddToMenu()
         {
             default.HitEffectsOptions[i].TabOrder = Order++;
         }
-        for (i = 0; i < default.SpawnProtectionOptions.Length; ++i)
-        {
-            default.SpawnProtectionOptions[i].TabOrder = Order++;
-        }
         for (i = 0; i < default.CustomizeOptions.Length; ++i)
         {
             default.CustomizeOptions[i].TabOrder = Order++;
@@ -365,10 +328,6 @@ defaultproperties
     Begin Object class=AltSectionBackground Name=DamagePointsSection
         Caption="Customize Damage Points"
         bRemapStack=false
-    End Object
-
-    Begin Object class=AltSectionBackground Name=SpawnProtectionSection
-        Caption="Spawn Protection"
     End Object
 
     Begin Object class=HxMenuCheckBox Name=HitSounds
@@ -424,36 +383,6 @@ defaultproperties
     End Object
 
     Begin Object class=HxMenuFloatEdit Name=DNPosY
-        Caption="Y position"
-        PropertyName="PosY"
-        OnChange=TargetOnChange
-    End Object
-
-    Begin Object class=HxMenuCheckBox Name=SPShowTimer
-        Caption="Show timer"
-        PropertyName="bShowTimer"
-        OnChange=SpawnProtectionOnChange
-    End Object
-
-    Begin Object class=HxMenuCheckBox Name=SPUseHUDColor
-        Caption="Use HUD color"
-        PropertyName="bUseHUDColor"
-        OnChange=SpawnProtectionOnChange
-    End Object
-
-    Begin Object class=HxMenuCheckBox Name=SPPulseDigits
-        Caption="Use pulsing digits"
-        PropertyName="bPulsingDigits"
-        OnChange=SpawnProtectionOnChange
-    End Object
-
-    Begin Object class=HxMenuFloatEdit Name=SPTimerPosX
-        Caption="X position"
-        PropertyName="PosX"
-        OnChange=TargetOnChange
-    End Object
-
-    Begin Object class=HxMenuFloatEdit Name=SPTimerPosY
         Caption="Y position"
         PropertyName="PosY"
         OnChange=TargetOnChange
@@ -537,13 +466,6 @@ defaultproperties
     Sections(1)=DamagePointsSection
     Sections(2)=DamageNumbersSection
     Sections(3)=None
-    Sections(4)=SpawnProtectionSection
-    Sections(5)=None
-    SpawnProtectionOptions(0)=SPShowTimer
-    SpawnProtectionOptions(1)=SPUseHUDColor
-    SpawnProtectionOptions(2)=SPPulseDigits
-    SpawnProtectionOptions(3)=SPTimerPosX
-    SpawnProtectionOptions(4)=SPTimerPosY
     HitEffectsOptions(0)=HitSounds
     HitEffectsOptions(1)=SelectedHitSound
     HitEffectsOptions(2)=HSVolume
