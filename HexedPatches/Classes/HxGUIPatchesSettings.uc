@@ -106,12 +106,12 @@ function InternalOnLoadINI(GUIComponent Sender, string s)
             nu_FOV43.SetComponentValue(FOV43, true);
             break;
         case ch_ReplaceHUDs:
-            bReplaceHUDs = HUDController.bReplaceHUDs;
+            bReplaceHUDs = class'HxHUDController'.default.bReplaceHUDs;
             ch_ReplaceHUDs.SetComponentValue(bReplaceHUDs, true);
             UpdateHUDSection();
             break;
         case ch_ScaleWeapons:
-            bScaleWeapons = HUDController.default.bScaleWeapons;
+            bScaleWeapons = class'HxHUDController'.default.bScaleWeapons;
             ch_ScaleWeapons.SetComponentValue(bScaleWeapons, true);
             break;
         case ch_SPShowTimer:
@@ -172,12 +172,12 @@ function SaveSettings()
     }
     if (class'HxGUIFont'.default.bScaleWithY != bScaleWithY)
     {
-        bScaleWithY = class'HxGUIFont'.default.bScaleWithY;
+        class'HxGUIFont'.default.bScaleWithY = bScaleWithY;
         bSave = true;
     }
     if (class'HxGUIFont'.default.OverrideFontSize != OverrideFontSize)
     {
-        OverrideFontSize = class'HxGUIFont'.default.OverrideFontSize;
+        class'HxGUIFont'.default.OverrideFontSize = OverrideFontSize;
         bSave = true;
     }
     if (bSave)
@@ -193,12 +193,12 @@ function SaveSettings()
     }
     if (HUDController.bReplaceHUDs != bReplaceHUDs)
     {
-        bReplaceHUDs = HUDController.bReplaceHUDs;
+        HUDController.SetReplaceHUDs(bReplaceHUDs);
         bSave = true;
     }
     if (HUDController.bScaleWeapons != bScaleWeapons)
     {
-        bScaleWeapons = HUDController.bScaleWeapons;
+        HUDController.SetScaleWeapons(bScaleWeapons);
         bSave = true;
     }
     if (bSave)
@@ -208,27 +208,27 @@ function SaveSettings()
     }
     if (class'HxHUDSpawnProtectionTimer'.default.bShowTimer != bSPShowTimer)
     {
-        bSPShowTimer = class'HxHUDSpawnProtectionTimer'.default.bShowTimer;
+        class'HxHUDSpawnProtectionTimer'.static.SetShowTimer(bSPShowTimer);
         bSave = true;
     }
     if (class'HxHUDSpawnProtectionTimer'.default.bFollowHUDColor != bSPFollowHUDColor)
     {
-        bSPFollowHUDColor = class'HxHUDSpawnProtectionTimer'.default.bFollowHUDColor;
+        class'HxHUDSpawnProtectionTimer'.static.SetFollowHUDColor(bSPFollowHUDColor);
         bSave = true;
     }
     if (class'HxHUDSpawnProtectionTimer'.default.bPulsingDigits != bSPPulsingDigits)
     {
-        bSPPulsingDigits = class'HxHUDSpawnProtectionTimer'.default.bPulsingDigits;
+        class'HxHUDSpawnProtectionTimer'.static.SetPulsingDigits(bSPPulsingDigits);
         bSave = true;
     }
     if (class'HxHUDSpawnProtectionTimer'.default.PosX != SPPosX)
     {
-        SPPosX = class'HxHUDSpawnProtectionTimer'.default.PosX;
+        class'HxHUDSpawnProtectionTimer'.static.SetPosX(SPPosX);
         bSave = true;
     }
     if (class'HxHUDSpawnProtectionTimer'.default.PosY != SPPosY)
     {
-        SPPosY = class'HxHUDSpawnProtectionTimer'.default.PosY;
+        class'HxHUDSpawnProtectionTimer'.static.SetPosY(SPPosY);
         bSave = true;
     }
     if (bSave)
@@ -282,25 +282,18 @@ function ResetClicked()
     class'HxNETController'.static.ResetConfig("CustomNetSpeed");
     class'HxNETController'.static.ResetConfig("MasterServer");
 
-    GUIController.SetSmallCursor(class'HxGUIController'.default.bSmallCursor);
-    HUDController.SetReplaceHUDs(class'HxHUDController'.default.bReplaceHUDs);
-    HUDController.SetScaleWeapons(class'HxHUDController'.default.bScaleWeapons);
-    class'HxHUDSpawnProtectionTimer'.static.SetShowTimer(
-        class'HxHUDSpawnProtectionTimer'.default.bShowTimer);
-    class'HxHUDSpawnProtectionTimer'.static.SetFollowHUDColor(
-        class'HxHUDSpawnProtectionTimer'.default.bFollowHUDColor);
-    class'HxHUDSpawnProtectionTimer'.static.SetPulsingDigits(
-        class'HxHUDSpawnProtectionTimer'.default.bPulsingDigits);
-    class'HxHUDSpawnProtectionTimer'.static.SetPosX(
-        class'HxHUDSpawnProtectionTimer'.default.PosX);
-    class'HxHUDSpawnProtectionTimer'.static.SetPosY(
-        class'HxHUDSpawnProtectionTimer'.default.PosY);
-    UpdateHUDSection();
-
     for (i = 0; i < Components.Length; ++i)
     {
         Components[i].LoadINI();
     }
+    GUIController.SetSmallCursor(bSmallCursor);
+    GUIController.bFixedMouseSize = bFixedMouseSize;
+    UpdateHUDSection();
+    class'HxHUDSpawnProtectionTimer'.static.SetShowTimer(bSPShowTimer);
+    class'HxHUDSpawnProtectionTimer'.static.SetFollowHUDColor(bSPFollowHUDColor);
+    class'HxHUDSpawnProtectionTimer'.static.SetPulsingDigits(bSPPulsingDigits);
+    class'HxHUDSpawnProtectionTimer'.static.SetPosX(SPPosX);
+    class'HxHUDSpawnProtectionTimer'.static.SetPosY(SPPosY);
 }
 
 function InternalOnChange(GUIComponent Sender)
@@ -316,36 +309,34 @@ function InternalOnChange(GUIComponent Sender)
             GUIController.bFixedMouseSize = ch_FixedMouseSize.IsChecked();
             break;
         case ch_ScaleWithY:
-            class'HxGUIFont'.default.bScaleWithY = ch_ScaleWithY.IsChecked();
+            bScaleWithY = ch_ScaleWithY.IsChecked();
             break;
         case nu_FOV43:
             break;
         case nu_OverrideFontSize:
-            class'HxGUIFont'.default.OverrideFontSize = nu_OverrideFontSize.GetValue();
+            OverrideFontSize = nu_OverrideFontSize.GetValue();
             break;
         case ch_ReplaceHUDs:
-            HUDController.SetReplaceHUDs(ch_ReplaceHUDs.IsChecked());
+            bReplaceHUDs = ch_ReplaceHUDs.IsChecked();
             UpdateHUDSection();
             break;
         case ch_ScaleWeapons:
-            HUDController.SetScaleWeapons(ch_ScaleWeapons.IsChecked());
+            bScaleWeapons = ch_ScaleWeapons.IsChecked();
             break;
         case ch_SPShowTimer:
-            class'HxHUDSpawnProtectionTimer'.static.SetShowTimer(ch_SPShowTimer.IsChecked());
+            bSPShowTimer = ch_SPShowTimer.IsChecked();
             break;
         case ch_SPFollowHUDColor:
-            class'HxHUDSpawnProtectionTimer'.static.SetFollowHUDColor(
-                ch_SPFollowHUDColor.IsChecked());
+            bSPFollowHUDColor = ch_SPFollowHUDColor.IsChecked();
             break;
         case ch_SPPulsingDigits:
-            class'HxHUDSpawnProtectionTimer'.static.SetPulsingDigits(
-                ch_SPPulsingDigits.IsChecked());
+            bSPPulsingDigits = ch_SPPulsingDigits.IsChecked();
             break;
         case fl_SPPosX:
-            class'HxHUDSpawnProtectionTimer'.static.SetPosX(fl_SPPosX.GetValue());
+            SPPosX = fl_SPPosX.GetValue();
             break;
         case fl_SPPosY:
-            class'HxHUDSpawnProtectionTimer'.static.SetPosY(fl_SPPosY.GetValue());
+            SPPosY = fl_SPPosY.GetValue();
             break;
         case ch_ValidateKeepAliveTime:
             bValidateKeepAliveTime = ch_ValidateKeepAliveTime.IsChecked();
@@ -376,7 +367,7 @@ function UpdateHUDSection()
     {
         ch_ReplaceHUDs.EnableMe();
     }
-    if (HUDController.bReplaceHUDs)
+    if (bReplaceHUDs)
     {
         ch_ScaleWeapons.EnableMe();
         ch_SPShowTimer.EnableMe();
