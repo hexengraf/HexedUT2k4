@@ -3,7 +3,6 @@ class HxGUIPatchesSettings extends Settings_Tabs;
 var automated GUISectionBackground i_BG1;
 var automated GUISectionBackground i_BG2;
 var automated GUISectionBackground i_BG3;
-var automated GUISectionBackground i_BG4;
 var automated moCheckBox ch_SmallCursor;
 var automated moCheckBox ch_FixedMouseSize;
 var automated moCheckBox ch_ScaleWithY;
@@ -56,16 +55,15 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 
     i_BG2.ManageComponent(ch_ReplaceHUDs);
     i_BG2.ManageComponent(ch_ScaleWeapons);
+    i_BG2.ManageComponent(ch_SPShowTimer);
+    i_BG2.ManageComponent(ch_SPFollowHUDColor);
+    i_BG2.ManageComponent(ch_SPPulsingDigits);
+    i_BG2.ManageComponent(fl_SPPosX);
+    i_BG2.ManageComponent(fl_SPPosY);
 
-    i_BG3.ManageComponent(ch_SPShowTimer);
-    i_BG3.ManageComponent(ch_SPFollowHUDColor);
-    i_BG3.ManageComponent(ch_SPPulsingDigits);
-    i_BG3.ManageComponent(fl_SPPosX);
-    i_BG3.ManageComponent(fl_SPPosY);
-
-    i_BG4.ManageComponent(ch_ValidateKeepAliveTime);
-    i_BG4.ManageComponent(nu_CustomNetSpeed);
-    i_BG4.ManageComponent(co_MasterServer);
+    i_BG3.ManageComponent(ch_ValidateKeepAliveTime);
+    i_BG3.ManageComponent(nu_CustomNetSpeed);
+    i_BG3.ManageComponent(co_MasterServer);
 
     for (i = 0; i < 2; ++i)
     {
@@ -405,7 +403,7 @@ defaultproperties
         WinHeight=0.308985
         // WinHeight=0.901485
         WinLeft=0.031797
-        WinTop=0.057604
+        WinTop=0.03
         RenderWeight=0.001
     End Object
     i_BG1=TemplateDisplaySection
@@ -413,32 +411,22 @@ defaultproperties
     Begin Object class=GUISectionBackground Name=TemplateHUDSection
         Caption="HUD"
         WinWidth=0.448633
-        WinHeight=0.199610
+        WinHeight=0.38190167
         WinLeft=0.031797
-        WinTop=0.376589
+        WinTop=0.348985
         RenderWeight=0.001
     End Object
     i_BG2=TemplateHUDSection
-
-    Begin Object class=GUISectionBackground Name=TemplateSPSection
-        Caption="Spawn Protection"
-        WinWidth=0.448633
-        WinHeight=0.308985
-        WinLeft=0.031797
-        WinTop=0.586199
-        RenderWeight=0.001
-    End Object
-    i_BG3=TemplateSPSection
 
     Begin Object class=GUISectionBackground Name=TemplateNetworkSection
         Caption="Network"
         WinWidth=0.448633
         WinHeight=0.23606834
-        WinLeft=0.517578
-        WinTop=0.057604
+        WinLeft=0.031797
+        WinTop=0.74088667
         RenderWeight=0.001
     End Object
-    i_BG4=TemplateNetworkSection
+    i_BG3=TemplateNetworkSection
 
     Begin Object class=moCheckBox Name=TemplateSmallCursor
         Caption="Small cursor"
@@ -555,8 +543,8 @@ defaultproperties
     ch_ScaleWeapons=TemplateScaleWeapons
 
     Begin Object class=moCheckBox Name=TemplateSPShowTimer
-        Caption="Show timer"
-        Hint="Show timer indicating remaining duration while in spawn protection."
+        Caption="Show spawn protection timer"
+        Hint="Show timer indicating remaining spawn protection duration."
         INIOption="@Internal"
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
@@ -571,7 +559,7 @@ defaultproperties
     ch_SPShowTimer=TemplateSPShowTimer
 
     Begin Object class=moCheckBox Name=TemplateSPFollowHUDColor
-        Caption="Follow HUD's color"
+        Caption="Timer follows HUD's color"
         Hint="Use the same color as the HUD for the timer's icon."
         INIOption="@Internal"
         OnLoadINI=InternalOnLoadINI
@@ -587,8 +575,8 @@ defaultproperties
     ch_SPFollowHUDColor=TemplateSPFollowHUDColor
 
     Begin Object class=moCheckBox Name=TemplateSPPulsingDigits
-        Caption="Pulsing digits"
-        Hint="Use pulsing digits for the time remaining."
+        Caption="Timer uses pulsing digits"
+        Hint="Use pulsing digits for the timer."
         INIOption="@Internal"
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
@@ -603,7 +591,7 @@ defaultproperties
     ch_SPPulsingDigits=TemplateSPPulsingDigits
 
     Begin Object class=moFloatEdit Name=TemplateSPPosX
-        Caption="X position"
+        Caption="Timer's X position"
         Hint="Adjust timer's position in the X axis."
         INIOption="@Internal"
         OnLoadINI=InternalOnLoadINI
@@ -621,7 +609,7 @@ defaultproperties
     fl_SPPosX=TemplateSPPosX
 
     Begin Object class=moFloatEdit Name=TemplateSPPosY
-        Caption="Y position"
+        Caption="Timer's Y position"
         Hint="Adjust timer's position in the Y axis."
         INIOption="@Internal"
         OnLoadINI=InternalOnLoadINI
