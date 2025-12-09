@@ -1,61 +1,91 @@
 # HexedUT2k4 - Hexed Unreal Tournament 2004
 
-The mutators and packages provided here were not extensively tested nor are guaranteed to work under every circumstance.
-You can download and use the latest release at your own risk.
+This is a collection of packages and mutators providing a variety of features and QoL improvements. The following packages are provided:
+* HexedPatches: provides QoL improvements, such as better scaling for fonts, HUDs, and weapons (unversioned, client-only package).
+* HexedSRC: package with base classes for other hexed-compliant mutators (versioned, server/client package).
+* HexedUT: main hexed mutator, provides hit sounds, damage numbers, colored death messages, changing hidden game parameters, and more (versioned, server/client package).
+* HexedUTComp: hexed-compliant version of UTComp, stripped down to eye height algorithms and NewNet weapons (versioned, server/client package).
 
 ## Installation
 
-Which archives you need to extract into your UT2004 installation depends on what you're going to use:
-* HexedUT: no dependencies, you only need to download and extract the corresponding archive.
-* HexedGUI: no dependencies, you only need to download and extract the corresponding archive.
-* HexedUTComp: depends on HexedUT, even if you don't enable `MutHexedUT` in your server, so download and extract both.
+Download the [latest release](https://github.com/hexengraf/HexedUT2k4/releases/latest) and extract it inside the root directory of your UT2004 installation, merging the `System` directory when asked. You can safely delete the `.uz2` files extracted to the root directory (only useful for download redirection servers).
 
-## HexedUT
-
-HexedUT is a UT2004 mutator that provides features that enhance the game experience without affecting core gameplay.
-It should be compatible with any other mutator (no core game classes are replaced) and can be used in dedicated/listen servers.
-
-Current features:
-* Hit sounds
-* Damage numbers
-
-To enable it in a dedicated server, add `HexedUTvN.MutHexedUT` to the mutators list (replace `N` with the current version).
-All configuration can be customized through an in-game menu accessible via `mutate HexedUT` command in the console.
-It is a good idea to bind it to a key (e.g. `set input F5 mutate HexedUT`).
-
-## HexedGUI
-
-HexedGUI is a client-side package providing better font scaling for higher resolutions (4K and 2K).
-Some fonts in some places end up clipped or bigger than their backgrounds, but I still find it better than dealing with super small fonts.
-Ideally, all GUI classes and related textures should be replaced to better handle scaling, but that is outside the scope of what I'm willing to do.
-
-To use HexedGUI, replace the GUIController in the `UT2004.ini`:
-
+To enable HexedPatches, open `System/UT2004.ini` and replace the default value of `GUIController` with `HexedPatches.HxGUIController`:
 ```ini
-[Engine.Engine]
 ; GUIController=GUI2K4.UT2K4GUIController
-GUIController=HexedGUI.HxGUIController
+GUIController=HexedPatches.HxGUIController
+```
+All configuration can be changed through a new tab called "Patches" in the settings.
+
+HexedUT and HexedUTComp provide MutHexedUT and MutUTComp mutators respectively. Enable them in-game or through the command line for your dedicated server. E.g.:
+```bash
+./ucc-bin server DM-Gestalt?game=XGame.xTeamGame?Mutator=HexedUTv2.MutHexedUT,HexedUTCompv2.MutUTComp ini=Server.ini -nohomedir
 ```
 
-Additionally, you can enable a cursor pointer replacement to make it smaller (only tested in 4K, might be too small in lower resolutions):
-```ini
-[HexedGUI.HxGUIController]
-bFixedMouseSize=True
-bSmallCursor=True
-```
+An in-game menu is provided to configure the mutators. To open it, execute either `mutate HexedMenu` or `mutate HexedUT` (the last one is only available if HexedUT is enabled).
+It is recommended to bind this command to a key (e.g. `set input F5 mutate HexedMenu`).
 
-And you can also override the resolution used to scale the fonts (useful if your monitor is full HD with high DPI):
-```ini
-[HexedGUI.HxGUIFont]
-OverrideX=2560 ; one of: 800, 1024, 1366, 1600, 1920, 2560, 3840
-```
+## Features
 
-There is no version number in the package name due to being client-side only, but the latest version will always be included with the latest version of HexedUT.
+### HexedPatches
 
-## HexedUTComp
+The following QoL improvements are provided:
+* Modern resolutions available in the settings menu.
+* Higher FOV limit in the settings menu.
+* Player models are no longer cropped in the settings menu (when using a widescreen resolution).
+* Better font scaling for higher resolutions (may cause some font cropping/overflow, since some background elements are not properly scaled).
+* Small cursor to compensate absurd scaling when using high resolutions.
+* Correct widescreen scaling for default HUDs.
+* A timer to indicate spawn protection duration.
+* Validate KeepAliveTimer to make sure it has the default value (0.2).
+* Persistent custom network speed (applied on every level change).
+* Master server selector (either 333network or OpenSpy).
+
+### HexedUT
+
+The following features are provided:
+* Hit sounds: pings and pongs to know when you hit someone.
+* Damage numbers: pop-up numbers to know how much damage you've dealt.
+* Colored death messages: easily identify from which team is the killer and the victim.
+* Health leech: part of damage dealt restores health, similar to the Vampire mutator, but with more customization.
+* Movement modifiers: change movement speed, jump acceleration, number of jumps, etc.
+* Starting values modifiers: add/remove health, shield, number of Assault Rifle grenades, adrenaline, etc.
+* Disable specific combos and/or UDamage on maps.
+
+### HexedUTComp
 
 [HexedUTComp](https://github.com/hexengraf/HexedUTComp) is a fork of [WSUTComp](https://github.com/zenakuten/WSUTComp) made to work together with HexedUT and significantly reduce the amount of features.
 For the sake of a streamlined building process, releases of HexedUTComp are bundled together with HexedUT here.
 
-To enable it in a dedicated server, add `HexedUTCompvN.MutUTComp` to the mutators list (replace `N` with the current version).
-`MutUTComp` can be enabled without enabling `MutHexedUT`, but if you want to use `mutate HexedUT` to configure it, you need to enable both.
+The following features are provided:
+* New eye height algorithm: fixes where your aim is on uneven terrain (such as ramps).
+* NewNet Weapons (a.k.a. enhanced netcode): ping compensation implementation.
+* Timed overtime: limit overtime duration.
+
+## Troubleshooting
+
+If you find any bugs, feel free to [open an issue](https://github.com/hexengraf/HexedUT2k4/issues/new/choose).
+
+### The cursor is too small
+
+The small cursor should be an adequate size for the most commonly used resolutions nowadays, but if you think it is too small, disable it in the Patches tab.
+
+### Fonts are too big or too small
+
+Font size is automatically determined based on the current resolution.
+You can override the font size in the Patches tab (a restart is required). Try different values (between 0 and 6) to find the one that suites your needs.
+
+### HUD options are grayed out
+
+You have foxWSFix enabled. In order to use HexedPatches's HUDs, you need to disable foxWSFix.
+Restore all `InputClass` values in `System/User.ini` to the default value:
+```ini
+InputClass=Class'Engine.PlayerInput'
+```
+
+### Can't access HexedUT's Server tab
+
+You need to log-in as administrator first. Open the in-game terminal and execute:
+```
+adminlogin YOUR_ADMIN_PASSWORD
+```
