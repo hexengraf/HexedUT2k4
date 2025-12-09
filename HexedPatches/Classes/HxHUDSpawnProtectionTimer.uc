@@ -61,16 +61,12 @@ state Protected
     simulated function Render(Canvas C)
     {
         local HudBase HUD;
-        local float OldResScaleX;
 
         if (bShowTimer)
         {
             HUD = HudBase(Owner);
-            OldResScaleX = HUD.ResScaleX;
-            HUD.ResScaleX = HUD.ResScaleY;
             HUD.DrawSpriteWidget(C, Icon);
             HUD.DrawNumericWidget(C, Counter, Digits);
-            HUD.ResScaleX = OldResScaleX;
         }
     }
 }
