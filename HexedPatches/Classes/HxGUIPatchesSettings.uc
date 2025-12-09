@@ -11,6 +11,7 @@ var automated moCheckBox ch_SmallCursor;
 var automated moCheckBox ch_FixedMouseSize;
 var automated moCheckBox ch_ScaleWithY;
 var automated moNumericEdit	nu_OverrideFontSize;
+var automated moNumericEdit	nu_FOV43;
 var automated moCheckBox ch_ReplaceHUDs;
 var automated moCheckBox ch_ScaleWeapons;
 var automated moCheckBox ch_SPShowTimer;
@@ -24,6 +25,7 @@ var bool bSmallCursor;
 var bool bFixedMouseSize;
 var bool bScaleWithY;
 var int OverrideFontSize;
+var int FOV43;
 var bool bReplaceHUDs;
 var bool bScaleWeapons;
 var bool bSPShowTimer;
@@ -41,6 +43,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     i_BG1.ManageComponent(ch_FixedMouseSize);
     i_BG1.ManageComponent(ch_ScaleWithY);
     i_BG1.ManageComponent(nu_OverrideFontSize);
+    i_BG1.ManageComponent(nu_FOV43);
 
     i_BG2.ManageComponent(ch_ReplaceHUDs);
     i_BG2.ManageComponent(ch_ScaleWeapons);
@@ -78,6 +81,11 @@ function InternalOnLoadINI(GUIComponent Sender, string s)
         case nu_OverrideFontSize:
             OverrideFontSize = class'HxGUIFont'.default.OverrideFontSize;
             nu_OverrideFontSize.SetComponentValue(OverrideFontSize, true);
+            break;
+        case nu_FOV43:
+            FOV43 =	class'HxAspectRatio'.static.ScaleFOV(
+                PlayerOwner().DefaultFOV, GUIController.GetCurrentAspectRatio(), 4/3);
+            nu_FOV43.SetComponentValue(FOV43, true);
             break;
         case ch_ReplaceHUDs:
             bReplaceHUDs = HUDController.bReplaceHUDs;
@@ -146,6 +154,12 @@ function SaveSettings()
     {
         bSave = false;
         class'HxGUIFont'.static.StaticSaveConfig();
+    }
+    if (FOV43 != nu_FOV43.GetValue())
+    {
+        FOV43 = nu_FOV43.GetValue();
+        PlayerOwner().FOV(
+            class'HxAspectRatio'.static.GetScaledFOV(FOV43, GUIController.GetCurrentAspectRatio()));
     }
     if (HUDController.bReplaceHUDs != bReplaceHUDs)
     {
@@ -249,6 +263,8 @@ function InternalOnChange(GUIComponent Sender)
         case ch_ScaleWithY:
             class'HxGUIFont'.default.bScaleWithY = ch_ScaleWithY.IsChecked();
             break;
+        case nu_FOV43:
+            break;
         case nu_OverrideFontSize:
             class'HxGUIFont'.default.OverrideFontSize = nu_OverrideFontSize.GetValue();
             break;
@@ -327,23 +343,23 @@ static function AddToSettings()
 
 defaultproperties
 {
-    Begin Object class=GUISectionBackground Name=TemplateInterfaceSection
-        Caption="Interface"
+    Begin Object class=GUISectionBackground Name=TemplateDisplaySection
+        Caption="Display"
         WinWidth=0.448633
-        WinHeight=0.272527
+        WinHeight=0.308985
         // WinHeight=0.901485
         WinLeft=0.031797
         WinTop=0.057604
         RenderWeight=0.001
     End Object
-    i_BG1=TemplateInterfaceSection
+    i_BG1=TemplateDisplaySection
 
     Begin Object class=GUISectionBackground Name=TemplateHUDSection
         Caption="HUD"
         WinWidth=0.448633
         WinHeight=0.199610
         WinLeft=0.031797
-        WinTop=0.340131
+        WinTop=0.376589
         RenderWeight=0.001
     End Object
     i_BG2=TemplateHUDSection
@@ -353,7 +369,7 @@ defaultproperties
         WinWidth=0.448633
         WinHeight=0.308985
         WinLeft=0.031797
-        WinTop=0.549741
+        WinTop=0.586199
         RenderWeight=0.001
     End Object
     i_BG3=TemplateSPSection
@@ -422,6 +438,23 @@ defaultproperties
         TabOrder=3
     End Object
     nu_OverrideFontSize=TemplateOverrideFontSize
+
+    Begin Object class=moNumericEdit Name=TemplateFOV43
+        Caption="4:3 FOV"
+        Hint="Desired 4:3 FOV value. This value will be internally scaled for the current aspect ratio."
+        INIOption="@Internal"
+        OnLoadINI=InternalOnLoadINI
+        OnChange=InternalOnChange
+        MinValue=80
+        MaxValue=140
+        bBoundToParent=true
+        bScaleToParent=true
+        CaptionWidth=0.725
+        bHeightFromComponent=false
+        ComponentJustification=TXTA_Left
+        TabOrder=3
+    End Object
+    nu_FOV43=TemplateFOV43
 
     Begin Object class=moCheckBox Name=TemplateReplaceHUDs
         Caption="Replace HUDs"

@@ -39,6 +39,15 @@ function SetSmallCursor(bool bValue)
     }
 }
 
+function float GetCurrentAspectRatio()
+{
+    local string X;
+    local string Y;
+
+    Divide(GetCurrentRes(), "x", X, Y);
+    return float(X) / float(Y);
+}
+
 defaultproperties
 {
     Begin Object Class=HxGUIFontMenu Name=GUIMenuFont

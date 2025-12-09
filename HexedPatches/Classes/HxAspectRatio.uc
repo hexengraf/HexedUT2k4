@@ -11,19 +11,19 @@ static function float GetMaximumFOV()
     return MAXIMUM_FOV;
 }
 
-static function float GetScale(float AspectRatio)
-{
-    return AspectRatio / DEFAULT_ASPECT_RATIO;
-}
-
 static function float GetScaledFOV(float FOV, float AspectRatio)
 {
-    if (AspectRatio ~= DEFAULT_ASPECT_RATIO)
+    return ScaleFOV(FOV, DEFAULT_ASPECT_RATIO, AspectRatio);
+}
+
+static function float ScaleFOV(float FOV, float FromAspectRatio, float ToAspectRatio)
+{
+    if (ToAspectRatio ~= FromAspectRatio)
     {
         return FOV;
     }
     return FClamp(
-        TO_DEGREES * (2 * ATan(GetScale(AspectRatio) * Tan(FOV / 2 * TO_RADIANS), 1)),
+        TO_DEGREES * (2 * ATan((ToAspectRatio / FromAspectRatio) * Tan(FOV / 2 * TO_RADIANS), 1)),
         MINIMUM_FOV,
         MAXIMUM_FOV);
 }
