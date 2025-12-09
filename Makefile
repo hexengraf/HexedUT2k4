@@ -24,10 +24,10 @@ requiresint:=HexedSRC HexedUT HexedPatches HexedUTComp
 
 -include $(.versionfiles)
 
-.projectversion:=$(HexedUT.version)
+.projectversion:=v2.0
 .versionedpackages:=$(foreach p,$(packages),$p$($p.version))
 .versionedintpackages:=$(foreach p,$(requiresint),$p$($p.version))
-.archive:=$(.outdir)/$(project)$(.projectversion).7z
+.archive:=$(.outdir)/$(project)$(.projectversion).zip
 .ufiles:=$(.versionedpackages:%=$(.outdir)/System/%.u)
 .intfiles:=$(.versionedintpackages:%=$(.outdir)/System/%.int)
 .compressedfiles:=$(.ufiles:$(.outdir)/System/%=$(.outdir)/%.uz2)
@@ -82,10 +82,10 @@ $(.outdir)/%.u.uz2: $(.outdir)/System/%.u
 	@cd ../
 	@cp System/$*.u.uz2 $(@D)
 
-$(.outdir)/%.7z: $(.targets) $(.compressedfiles)
+$(.outdir)/%.zip: $(.targets) $(.compressedfiles)
 	@rm -f $@
 	@cd $(.outdir)
-	@7z a -m0=lzma2 -mmt=8 -mx=9 $(@F) System/ $(.compressedfiles:$(.outdir)/%=%)
+	@7z a -mmt=8 -mx=9 $(@F) System/ $(.compressedfiles:$(.outdir)/%=%)
 
 $(.versionfiles): $(.outdir)/%.make: %/make.ini
 	@mkdir -p $(@D)
