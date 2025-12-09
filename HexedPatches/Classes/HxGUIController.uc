@@ -5,7 +5,7 @@ class HxGUIController extends UT2K4GUIController;
 var config bool bSmallCursor;
 
 var HxHUDController HUDController;
-var HxOPTController OPTController;
+var HxNETController NETController;
 
 event InitializeController()
 {
@@ -15,14 +15,15 @@ event InitializeController()
     UpdateSettingsPage();
     HUDController = HxHUDController(
         Master.AddInteraction("HexedPatches.HxHUDController", ViewportOwner));
-    OPTController = HxOPTController(
-        Master.AddInteraction("HexedPatches.HxOPTController", ViewportOwner));
+    NETController = HxNETController(
+        Master.AddInteraction("HexedPatches.HxNETController", ViewportOwner));
 }
 
 function UpdateSettingsPage()
 {
     class'UT2K4SettingsPage'.default.PanelClass[0] = "HexedPatches.HxGUIDetailSettings";
     class'UT2K4SettingsPage'.default.PanelClass[2] = "HexedPatches.HxGUIPlayerSettings";
+    class'UT2K4SettingsPage'.default.PanelClass[3] = "HexedPatches.HxGUIGameSettings";
     class'HxGUIPatchesSettings'.static.AddToSettings();
 }
 

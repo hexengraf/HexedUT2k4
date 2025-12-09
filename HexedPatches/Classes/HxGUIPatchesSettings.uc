@@ -1,12 +1,9 @@
 class HxGUIPatchesSettings extends Settings_Tabs;
 
-var HxGUIController GUIController;
-var HxHUDController HUDController;
-var HxOPTController OPTController;
-
 var automated GUISectionBackground i_BG1;
 var automated GUISectionBackground i_BG2;
 var automated GUISectionBackground i_BG3;
+var automated GUISectionBackground i_BG4;
 var automated moCheckBox ch_SmallCursor;
 var automated moCheckBox ch_FixedMouseSize;
 var automated moCheckBox ch_ScaleWithY;
@@ -19,6 +16,13 @@ var automated moCheckBox ch_SPFollowHUDColor;
 var automated moCheckBox ch_SPPulsingDigits;
 var automated moFloatEdit fl_SPPosX;
 var automated moFloatEdit fl_SPPosY;
+var automated moCheckBox ch_ValidateKeepAliveTime;
+var automated moNumericEdit	nu_CustomNetSpeed;
+var automated moComboBox co_MasterServer;
+
+var HxGUIController GUIController;
+var HxHUDController HUDController;
+var HxNETController NETController;
 
 var localized string PanelHint;
 var bool bSmallCursor;
@@ -33,9 +37,14 @@ var bool bSPFollowHUDColor;
 var bool bSPPulsingDigits;
 var float SPPosX;
 var float SPPosY;
+var bool bValidateKeepAliveTime;
+var int CustomNetSpeed;
+var HxNETController.EHxMasterServer MasterServer;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
+    local int i;
+
     PopulateHexedControllers(HxGUIController(MyController));
     Super.InitComponent(MyController, MyOwner);
 
@@ -53,13 +62,22 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     i_BG3.ManageComponent(ch_SPPulsingDigits);
     i_BG3.ManageComponent(fl_SPPosX);
     i_BG3.ManageComponent(fl_SPPosY);
+
+    i_BG4.ManageComponent(ch_ValidateKeepAliveTime);
+    i_BG4.ManageComponent(nu_CustomNetSpeed);
+    i_BG4.ManageComponent(co_MasterServer);
+
+    for (i = 0; i < 2; ++i)
+    {
+        co_MasterServer.AddItem(Mid(GetEnum(enum'EHxMasterServer', i), 17));
+    }
 }
 
 function PopulateHexedControllers(HxGUIController MyController)
 {
     GUIController = MyController;
     HUDController = MyController.HUDController;
-    OPTController = MyController.OPTController;
+    NETController = MyController.NETController;
 }
 
 function InternalOnLoadINI(GUIComponent Sender, string s)
@@ -115,6 +133,18 @@ function InternalOnLoadINI(GUIComponent Sender, string s)
         case fl_SPPosY:
             SPPosY = class'HxHUDSpawnProtectionTimer'.default.PosY;
             fl_SPPosY.SetComponentValue(SPPosY, true);
+            break;
+        case ch_ValidateKeepAliveTime:
+            bValidateKeepAliveTime = class'HxNETController'.default.bValidateKeepAliveTime;
+            ch_ValidateKeepAliveTime.SetComponentValue(bValidateKeepAliveTime, true);
+            break;
+        case nu_CustomNetSpeed:
+            CustomNetSpeed = class'HxNETController'.default.CustomNetSpeed;
+            nu_CustomNetSpeed.SetComponentValue(CustomNetSpeed, true);
+            break;
+        case co_MasterServer:
+            MasterServer = class'HxNETController'.default.MasterServer;
+            co_MasterServer.SilentSetIndex(MasterServer);
             break;
     }
 }
@@ -206,6 +236,29 @@ function SaveSettings()
         bSave = false;
         class'HxHUDSpawnProtectionTimer'.static.StaticSaveConfig();
     }
+    if (NETController.bValidateKeepAliveTime != bValidateKeepAliveTime)
+    {
+        NETController.bValidateKeepAliveTime = bValidateKeepAliveTime;
+        NETController.ValidateKeepAliveTime();
+        bSave = true;
+    }
+    if (NETController.CustomNetSpeed != CustomNetSpeed)
+    {
+        NETController.CustomNetSpeed = CustomNetSpeed;
+        NETController.UpdateCustomNetSpeed();
+        bSave = true;
+    }
+    if (NETController.MasterServer != MasterServer)
+    {
+        NETController.MasterServer = MasterServer;
+        NETController.UpdateMasterServer();
+        bSave = true;
+    }
+    if (bSave)
+    {
+        bSave = false;
+        NETController.SaveConfig();
+    }
 }
 
 function ResetClicked()
@@ -225,9 +278,11 @@ function ResetClicked()
     class'HxHUDSpawnProtectionTimer'.static.ResetConfig("bPulsingDigits");
     class'HxHUDSpawnProtectionTimer'.static.ResetConfig("PosX");
     class'HxHUDSpawnProtectionTimer'.static.ResetConfig("PosY");
+    class'HxNETController'.static.ResetConfig("bValidateKeepAliveTime");
+    class'HxNETController'.static.ResetConfig("CustomNetSpeed");
+    class'HxNETController'.static.ResetConfig("MasterServer");
 
     GUIController.SetSmallCursor(class'HxGUIController'.default.bSmallCursor);
-    GUIController.bFixedMouseSize = class'HxGUIController'.default.bFixedMouseSize;
     HUDController.SetReplaceHUDs(class'HxHUDController'.default.bReplaceHUDs);
     HUDController.SetScaleWeapons(class'HxHUDController'.default.bScaleWeapons);
     class'HxHUDSpawnProtectionTimer'.static.SetShowTimer(
@@ -291,6 +346,16 @@ function InternalOnChange(GUIComponent Sender)
             break;
         case fl_SPPosY:
             class'HxHUDSpawnProtectionTimer'.static.SetPosY(fl_SPPosY.GetValue());
+            break;
+        case ch_ValidateKeepAliveTime:
+            bValidateKeepAliveTime = ch_ValidateKeepAliveTime.IsChecked();
+            break;
+        case nu_CustomNetSpeed:
+            CustomNetSpeed = nu_CustomNetSpeed.GetValue();
+            break;
+        case co_MasterServer:
+            SetPropertyText(
+                "MasterServer", string(GetEnum(enum'EHxMasterServer', co_MasterServer.GetIndex())));
             break;
     }
 }
@@ -373,6 +438,16 @@ defaultproperties
         RenderWeight=0.001
     End Object
     i_BG3=TemplateSPSection
+
+    Begin Object class=GUISectionBackground Name=TemplateNetworkSection
+        Caption="Network"
+        WinWidth=0.448633
+        WinHeight=0.23606834
+        WinLeft=0.517578
+        WinTop=0.057604
+        RenderWeight=0.001
+    End Object
+    i_BG4=TemplateNetworkSection
 
     Begin Object class=moCheckBox Name=TemplateSmallCursor
         Caption="Small cursor"
@@ -571,6 +646,56 @@ defaultproperties
         TabOrder=10
     End Object
     fl_SPPosY=TemplateSPPosY
+
+    Begin Object class=moCheckBox Name=TemplateValidateKeepAliveTime
+        Caption="Validate KeepAliveTime value"
+        Hint="Set KeepAliveTime to its default value (0.2) to prevent values taken from bad advice."
+        INIOption="@Internal"
+        OnLoadINI=InternalOnLoadINI
+        OnChange=InternalOnChange
+        bAutoSizeCaption=true
+        bBoundToParent=true
+        bScaleToParent=true
+        CaptionWidth=0.955
+        bSquare=true
+        ComponentJustification=TXTA_Left
+        TabOrder=11
+    End Object
+    ch_ValidateKeepAliveTime=TemplateValidateKeepAliveTime
+
+    Begin Object class=moNumericEdit Name=TemplateCustomNetSpeed
+        Caption="Custom network speed"
+        Hint="Custom network speed to use for both internet and LAN games (applied on every level change)."
+        INIOption="@Internal"
+        OnLoadINI=InternalOnLoadINI
+        OnChange=InternalOnChange
+        MinValue=0
+        MaxValue=999999999
+        Step=1000000
+        bBoundToParent=true
+        bScaleToParent=true
+        CaptionWidth=0.725
+        bHeightFromComponent=false
+        ComponentJustification=TXTA_Left
+        TabOrder=12
+    End Object
+    nu_CustomNetSpeed=TemplateCustomNetSpeed
+
+    Begin Object class=moComboBox Name=TemplateMasterServer
+        Caption="Master server"
+        Hint="Select your preferred master server. Restart required."
+        INIOption="@Internal"
+        OnLoadINI=InternalOnLoadINI
+        OnChange=InternalOnChange
+        bBoundToParent=true
+        bScaleToParent=true
+        CaptionWidth=0.55
+        bReadOnly=true
+        bHeightFromComponent=false
+        ComponentJustification=TXTA_Left
+        TabOrder=13
+    End Object
+    co_MasterServer=TemplateMasterServer
 
     WinTop=0.15
     WinLeft=0
