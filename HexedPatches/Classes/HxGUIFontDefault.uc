@@ -1,4 +1,4 @@
-class HxGUIFontDefault extends HxFont;
+class HxGUIFontDefault extends HxGUIFont;
 
 defaultproperties
 {

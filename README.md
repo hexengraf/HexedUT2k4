@@ -46,7 +46,7 @@ bSmallCursor=True
 
 And you can also override the resolution used to scale the fonts (useful if your monitor is full HD with high DPI):
 ```ini
-[HexedGUI.HxFont]
+[HexedGUI.HxGUIFont]
 OverrideX=2560 ; one of: 800, 1024, 1366, 1600, 1920, 2560, 3840
 ```
 

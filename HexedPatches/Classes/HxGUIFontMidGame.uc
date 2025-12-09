@@ -1,4 +1,4 @@
-class HxGUIFontMidGame extends HxFont;
+class HxGUIFontMidGame extends HxGUIFont;
 
 static function Font GetMidGameFont(int xRes)
 {

@@ -1,4 +1,4 @@
-class HxGUIFontServerList extends HxFont;
+class HxGUIFontServerList extends HxGUIFont;
 
 defaultproperties
 {

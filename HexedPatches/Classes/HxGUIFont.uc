@@ -1,4 +1,4 @@
-class HxFont extends GUIFont
+class HxGUIFont extends GUIFont
     config(User);
 
 #exec new TrueTypeFontFactory Name="Impact52" Height=52 Kerning=2 DropShadowX=2 DropShadowY=2 Style=500 AntiAlias=1 USize=512 VSize=512 XPad=2 YPad=2 FontName="Impact"

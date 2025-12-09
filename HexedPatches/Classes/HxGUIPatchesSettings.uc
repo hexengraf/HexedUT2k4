@@ -72,11 +72,11 @@ function InternalOnLoadINI(GUIComponent Sender, string s)
             ch_FixedMouseSize.SetComponentValue(bFixedMouseSize, true);
             break;
         case ch_ScaleWithY:
-            bScaleWithY = class'HxFont'.default.bScaleWithY;
+            bScaleWithY = class'HxGUIFont'.default.bScaleWithY;
             ch_ScaleWithY.SetComponentValue(bScaleWithY, true);
             break;
         case nu_OverrideFontSize:
-            OverrideFontSize = class'HxFont'.default.OverrideFontSize;
+            OverrideFontSize = class'HxGUIFont'.default.OverrideFontSize;
             nu_OverrideFontSize.SetComponentValue(OverrideFontSize, true);
             break;
         case ch_ReplaceHUDs:
@@ -132,20 +132,20 @@ function SaveSettings()
         bSave = false;
         GUIController.SaveConfig();
     }
-    if (class'HxFont'.default.bScaleWithY != bScaleWithY)
+    if (class'HxGUIFont'.default.bScaleWithY != bScaleWithY)
     {
-        bScaleWithY = class'HxFont'.default.bScaleWithY;
+        bScaleWithY = class'HxGUIFont'.default.bScaleWithY;
         bSave = true;
     }
-    if (class'HxFont'.default.OverrideFontSize != OverrideFontSize)
+    if (class'HxGUIFont'.default.OverrideFontSize != OverrideFontSize)
     {
-        OverrideFontSize = class'HxFont'.default.OverrideFontSize;
+        OverrideFontSize = class'HxGUIFont'.default.OverrideFontSize;
         bSave = true;
     }
     if (bSave)
     {
         bSave = false;
-        class'HxFont'.static.StaticSaveConfig();
+        class'HxGUIFont'.static.StaticSaveConfig();
     }
     if (HUDController.bReplaceHUDs != bReplaceHUDs)
     {
@@ -202,8 +202,8 @@ function ResetClicked()
 
     class'HxGUIController'.static.ResetConfig("bSmallCursor");
     class'HxGUIController'.static.ResetConfig("bFixedMouseSize");
-    class'HxFont'.static.ResetConfig("bScaleWithY");
-    class'HxFont'.static.ResetConfig("OverrideFontSize");
+    class'HxGUIFont'.static.ResetConfig("bScaleWithY");
+    class'HxGUIFont'.static.ResetConfig("OverrideFontSize");
     class'HxHUDController'.static.ResetConfig("bReplaceHUDs");
     class'HxHUDController'.static.ResetConfig("bScaleWeapons");
     class'HxHUDSpawnProtectionTimer'.static.ResetConfig("bShowTimer");
@@ -247,10 +247,10 @@ function InternalOnChange(GUIComponent Sender)
             GUIController.bFixedMouseSize = ch_FixedMouseSize.IsChecked();
             break;
         case ch_ScaleWithY:
-            class'HxFont'.default.bScaleWithY = ch_ScaleWithY.IsChecked();
+            class'HxGUIFont'.default.bScaleWithY = ch_ScaleWithY.IsChecked();
             break;
         case nu_OverrideFontSize:
-            class'HxFont'.default.OverrideFontSize = nu_OverrideFontSize.GetValue();
+            class'HxGUIFont'.default.OverrideFontSize = nu_OverrideFontSize.GetValue();
             break;
         case ch_ReplaceHUDs:
             HUDController.SetReplaceHUDs(ch_ReplaceHUDs.IsChecked());
