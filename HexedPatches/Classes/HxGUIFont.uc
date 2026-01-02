@@ -6,6 +6,9 @@ class HxGUIFont extends GUIFont
 #exec new TrueTypeFontFactory Name="Verdana36" Height=36 Kerning=1 DropShadowX=0 DropShadowY=0 Style=700 AntiAlias=1 USize=256 VSize=256 XPad=2 YPad=2 FontName="Verdana"
 #exec new TrueTypeFontFactory Name="Verdana40" Height=40 Kerning=1 DropShadowX=0 DropShadowY=0 Style=700 AntiAlias=1 USize=512 VSize=512 XPad=2 YPad=2 FontName="Verdana"
 #exec new TrueTypeFontFactory Name="Verdana48" Height=48 Kerning=1 DropShadowX=0 DropShadowY=0 Style=700 AntiAlias=1 USize=512 VSize=512 XPad=2 YPad=2 FontName="Verdana"
+#exec new TrueTypeFontFactory Name="VerdanaLight12" Height=12 Kerning=1 DropShadowX=0 DropShadowY=0 Style=600 AntiAlias=1 USize=256 VSize=256 FontName="Verdana"
+#exec new TrueTypeFontFactory Name="VerdanaLight14" Height=14 Kerning=1 DropShadowX=0 DropShadowY=0 Style=600 AntiAlias=1 USize=256 VSize=256 FontName="Verdana"
+#exec new TrueTypeFontFactory Name="VerdanaLight18" Height=18 Kerning=1 DropShadowX=0 DropShadowY=0 Style=600 AntiAlias=1 USize=256 VSize=256 FontName="Verdana"
 
 const FONT_COUNT = 7;
 
