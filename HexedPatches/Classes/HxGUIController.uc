@@ -99,4 +99,5 @@ defaultproperties
     FontStack(9)=GUIMainMenuFont
     FontStack(10)=GUIMediumMenuFont
     MainMenuOptions(6)="HexedPatches.HxGUIQuitPage"
+	MapVotingMenu="HexedPatches.HxGUIMapVotingPage"
 }
