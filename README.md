@@ -1,10 +1,10 @@
 # HexedUT2k4 - Hexed Unreal Tournament 2004
 
 This is a collection of packages and mutators providing a variety of features and QoL improvements. The following packages are provided:
-* HexedPatches: provides QoL improvements, such as better scaling for fonts, HUDs, and weapons (unversioned, client-only package).
-* HexedSRC: package with base classes for other hexed-compliant mutators (versioned, server/client package).
 * HexedUT: main hexed mutator, provides hit sounds, damage numbers, colored death messages, changing hidden game parameters, and more (versioned, server/client package).
-* HexedUTComp: hexed-compliant version of UTComp, stripped down to eye height algorithms and NewNet weapons (versioned, server/client package).
+* HexedSRC: package with base classes for other hexed-compliant mutators (versioned, server/client package).
+* HexedPatches: provides QoL improvements, such as better scaling for fonts, HUDs, and weapons (non-versioned, client-only package).
+* HexedUTComp: hexed-compliant version of UTComp, stripped down to eye height algorithms and NewNet weapons (versioned, server/client package). Not thoroughly tested, so it might have some bugs (due to the process of stripping it down to NewNet weapons and eye height algorithms).
 
 ## Installation
 
@@ -40,6 +40,7 @@ The following QoL improvements are provided:
 * Validate KeepAliveTimer to make sure it has the default value (0.2).
 * Persistent custom network speed (applied on every level change).
 * Master server selector (either 333network or OpenSpy).
+* Embedded map previews in the map voting page.
 
 ### HexedUT
 
