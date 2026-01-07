@@ -1,37 +1,67 @@
 class HxGUIMapVoteFooter extends MapVoteFooter;
 
-var localized string VoteCaption;
+var int MaxHistory;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
-    sb_Background.WinHeight = 0.666;
-    ed_Chat.WinTop = sb_Background.WinTop + sb_Background.WinHeight + 0.01;
-    ed_Chat.WinLeft = 0;
-    ed_Chat.WinWidth = 1;
-    ed_Chat.CaptionWidth = 0.10;
-    ed_Chat.bBoundToParent = true;
-    ed_Chat.bScaleToParent = true;
-    b_Submit.Caption = VoteCaption;
-    b_Submit.bBoundToParent = true;
-    b_Submit.bScaleToParent = true;
-    b_Submit.WinTop = ed_Chat.WinTop + ed_Chat.WinHeight + 0.05;
-    b_Submit.WinLeft = 0;
-    b_Submit.WinWidth = 0.495;
-    b_Close.bBoundToParent = true;
-    b_Close.bScaleToParent = true;
-    b_Close.WinTop = ed_Chat.WinTop + ed_Chat.WinHeight + 0.05;
-    b_Close.WinLeft = 0.505;
-    b_Close.WinWidth = 0.495;
-
     Super.InitComponent(MyController, MyOwner);
+    sb_Background.UnManageComponent(lb_Chat);
+    OnDraw = None;
 }
 
-function bool MyOnDraw(canvas C)
+function ReceiveChat(string Msg)
 {
-    return false;
+    lb_Chat.AddText(Msg);
+    if (lb_Chat.MyScrollText.ItemCount > MaxHistory)
+    {
+        lb_Chat.MyScrollText.Remove(0, lb_Chat.MyScrollText.ItemCount - MaxHistory);
+    }
+    lb_Chat.MyScrollText.End();
 }
 
 defaultproperties
 {
-    VoteCaption="Vote"
+    Begin Object Class=AltSectionBackground Name=NewMapVoteFooterBackground
+        bVisible=false
+    End Object
+    sb_Background=NewMapVoteFooterBackground
+
+    Begin Object Class=HxGUIScrollTextBox Name=NewChatScrollBox
+        WinLeft=0
+        WinTop=0
+        WinWidth=1
+        WinHeight=0.82
+        HorizontalPadding=0.02
+        bBoundToParent=true
+        bScaleToParent=true
+        bVisibleWhenEmpty=true
+        bNoTeletype=true
+        bNeverFocus=true
+        bStripColors=false
+        bRequiresStyle=true
+        StyleName="NoBackground"
+        TabOrder=2
+    End Object
+    lb_Chat=NewChatScrollBox
+
+    Begin Object class=moEditBox Name=NewChatEditBox
+        Caption="Say:"
+        WinLeft=0
+        WinTop=0.85
+        WinWidth=1
+        WinHeight=0.15
+        CaptionWidth=0.11
+        OnKeyEvent=InternalOnKeyEvent
+        TabOrder=0
+        bStandardized=true
+        bBoundToParent=true
+        bScaleToParent=true
+    End Object
+    ed_Chat=NewChatEditBox
+
+    b_Accept=None
+    b_Submit=None
+    b_Close=None
+
+    MaxHistory=64
 }

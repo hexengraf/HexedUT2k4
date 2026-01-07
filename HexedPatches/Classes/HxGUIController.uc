@@ -9,8 +9,10 @@ var HxNETController NETController;
 
 event InitializeController()
 {
+    RegisterStyle(class'HxSTYSimpleList');
+    RegisterStyle(class'HxSTYScrollGrip');
+    RegisterStyle(class'HxSTYScrollZone');
     Super.InitializeController();
-
     SetSmallCursor(bSmallCursor);
     UpdateSettingsPage();
     HUDController = HxHUDController(
@@ -99,5 +101,5 @@ defaultproperties
     FontStack(9)=GUIMainMenuFont
     FontStack(10)=GUIMediumMenuFont
     MainMenuOptions(6)="HexedPatches.HxGUIQuitPage"
-	MapVotingMenu="HexedPatches.HxGUIMapVotingPage"
+    MapVotingMenu="HexedPatches.HxGUIMapVotingPage"
 }
