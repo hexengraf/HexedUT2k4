@@ -6,8 +6,8 @@ var automated GUISectionBackground i_BG3;
 var automated moCheckBox ch_SmallCursor;
 var automated moCheckBox ch_FixedMouseSize;
 var automated moCheckBox ch_ScaleWithY;
-var automated moNumericEdit	nu_OverrideFontSize;
-var automated moNumericEdit	nu_FOV43;
+var automated moNumericEdit nu_OverrideFontSize;
+var automated moNumericEdit nu_FOV43;
 var automated moCheckBox ch_ReplaceHUDs;
 var automated moCheckBox ch_ScaleWeapons;
 var automated moCheckBox ch_SPShowTimer;
@@ -16,7 +16,7 @@ var automated moCheckBox ch_SPPulsingDigits;
 var automated moFloatEdit fl_SPPosX;
 var automated moFloatEdit fl_SPPosY;
 var automated moCheckBox ch_ValidateKeepAliveTime;
-var automated moNumericEdit	nu_CustomNetSpeed;
+var automated moNumericEdit nu_CustomNetSpeed;
 var automated moComboBox co_MasterServer;
 
 var HxGUIController GUIController;
@@ -99,7 +99,7 @@ function InternalOnLoadINI(GUIComponent Sender, string s)
             nu_OverrideFontSize.SetComponentValue(OverrideFontSize, true);
             break;
         case nu_FOV43:
-            FOV43 =	class'HxAspectRatio'.static.ScaleFOV(
+            FOV43 = class'HxAspectRatio'.static.ScaleFOV(
                 PlayerOwner().DefaultFOV, GUIController.GetCurrentAspectRatio(), 4/3);
             nu_FOV43.SetComponentValue(FOV43, true);
             break;

@@ -9,7 +9,7 @@ function bool GripPreDraw(GUIComponent Sender)
     WinHeight = ActualHeight() + 2 * Width;
     MyDecreaseButton.SetVisibility(false);
     MyIncreaseButton.SetVisibility(false);
-	return Super.GripPreDraw(Sender);
+    return Super.GripPreDraw(Sender);
 }
 
 function ZoneClick(float Delta)
