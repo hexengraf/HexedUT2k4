@@ -53,53 +53,53 @@ function float GetCurrentAspectRatio()
 
 defaultproperties
 {
-    Begin Object Class=HxGUIFontMenu Name=GUIMenuFont
+    Begin Object Class=HxGUIFontMenu Name=NewGUIMenuFont
     End Object
 
-    Begin Object Class=HxGUIFontDefault Name=GUIDefaultFont
+    Begin Object Class=HxGUIFontDefault Name=NewGUIDefaultFont
     End Object
 
-    Begin Object Class=HxGUIFontLarge Name=GUILargeFont
+    Begin Object Class=HxGUIFontLarge Name=NewGUILargeFont
     End Object
 
-    Begin Object Class=HxGUIFontHeader Name=GUIHeaderFont
+    Begin Object Class=HxGUIFontHeader Name=NewGUIHeaderFont
     End Object
 
-    Begin Object Class=HxGUIFontSmall Name=GUISmallFont
+    Begin Object Class=HxGUIFontSmall Name=NewGUISmallFont
     End Object
 
-    Begin Object Class=HxGUIFontMidGame Name=GUIMidGameFont
+    Begin Object Class=HxGUIFontMidGame Name=NewGUIMidGameFont
     End Object
 
-    Begin Object Class=HxGUIFontSmallHeader Name=GUISmallHeaderFont
+    Begin Object Class=HxGUIFontSmallHeader Name=NewGUISmallHeaderFont
     End Object
 
-    Begin Object Class=HxGUIFontServerList Name=GUIServerListFont
+    Begin Object Class=HxGUIFontServerList Name=NewGUIServerListFont
     End Object
 
-    Begin Object Class=HxGUIFontIRC Name=GUIIRCFont
+    Begin Object Class=HxGUIFontIRC Name=NewGUIIRCFont
     End Object
 
-    Begin Object Class=HxGUIFontMainMenu Name=GUIMainMenuFont
+    Begin Object Class=HxGUIFontMainMenu Name=NewGUIMainMenuFont
     End Object
 
-    Begin Object Class=HxGUIFontMedium Name=GUIMediumMenuFont
+    Begin Object Class=HxGUIFontMedium Name=NewGUIMediumMenuFont
     End Object
 
     bSmallCursor=true
     bFixedMouseSize=true
     FONT_NUM=11
-    FontStack(0)=GUIMenuFont
-    FontStack(1)=GUIDefaultFont
-    FontStack(2)=GUILargeFont
-    FontStack(3)=GUIHeaderFont
-    FontStack(4)=GUISmallFont
-    FontStack(5)=GUIMidGameFont
-    FontStack(6)=GUISmallHeaderFont
-    FontStack(7)=GUIServerListFont
-    FontStack(8)=GUIIRCFont
-    FontStack(9)=GUIMainMenuFont
-    FontStack(10)=GUIMediumMenuFont
+    FontStack(0)=NewGUIMenuFont
+    FontStack(1)=NewGUIDefaultFont
+    FontStack(2)=NewGUILargeFont
+    FontStack(3)=NewGUIHeaderFont
+    FontStack(4)=NewGUISmallFont
+    FontStack(5)=NewGUIMidGameFont
+    FontStack(6)=NewGUISmallHeaderFont
+    FontStack(7)=NewGUIServerListFont
+    FontStack(8)=NewGUIIRCFont
+    FontStack(9)=NewGUIMainMenuFont
+    FontStack(10)=NewGUIMediumMenuFont
     MainMenuOptions(6)="HexedPatches.HxGUIQuitPage"
     MapVotingMenu="HexedPatches.HxGUIMapVotingPage"
 }

@@ -15,7 +15,5 @@ defaultproperties
     FontArrayNames(3)="UT2003Fonts.FontEurostile14"
     FontArrayNames(4)="UT2003Fonts.FontEurostile17" // last original
     FontArrayNames(5)="UT2003Fonts.FontEurostile21"
-    FontArrayNames(6)=""
-
-    FontArrayFonts(6)=Font'FontEurostile31'
+    FontArrayNames(6)="HexedPatches.FontEurostile31"
 }

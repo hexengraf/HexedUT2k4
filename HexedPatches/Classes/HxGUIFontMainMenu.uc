@@ -8,8 +8,6 @@ defaultproperties
     NormalYRes=1080
     FallBackRes=512
 
-    FontArrayNames(0)=""
+    FontArrayNames(0)="HexedPatches.Impact52"
     FontArrayNames(1)="2K4Fonts.Verdana24"
-
-    FontArrayFonts(0)=Font'Impact52'
 }
