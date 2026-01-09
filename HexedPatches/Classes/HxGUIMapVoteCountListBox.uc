@@ -1,20 +1,5 @@
 class HxGUIMapVoteCountListBox extends HxGUIMapVoteBaseListBox;
 
-function int GetSelectedGameTypeIndex()
-{
-    return HXGUIMapVoteCountList(List).GetSelectedGameTypeIndex();
-}
-
-function int GetSelectedMapIndex()
-{
-    return HXGUIMapVoteCountList(List).GetSelectedMapIndex();
-}
-
-function string GetSelectedMapName()
-{
-    return HXGUIMapVoteCountList(List).GetSelectedMapName();
-}
-
 function UpdatedVoteCount(int UpdatedIndex, bool bRemoved)
 {
     HXGUIMapVoteCountList(List).UpdatedVoteCount(UpdatedIndex, bRemoved);

@@ -3,7 +3,7 @@ class HxGUIMapVoteList extends HxGUIMapVoteBaseList;
 var array<int> MapIndices;
 var int SelectedGameType;
 
-function PopulateList()
+function OnPopulateList()
 {
     local PlayerController PC;
     local int Type;
@@ -18,12 +18,6 @@ function PopulateList()
             break;
         }
     }
-    UpdateList();
-}
-
-function SetSelectedGameType(int Type)
-{
-    SelectedGameType = Type;
     UpdateList();
 }
 
@@ -50,17 +44,6 @@ function UpdateList()
     NeedsSorting = true;
 }
 
-function Clear()
-{
-    MapIndices.Length = 0;
-    Super.Clear();
-}
-
-function VotingHandler.MapVoteMapList GetVRIEntry(int Row)
-{
-    return VRI.MapList[MapIndices[Row]];
-}
-
 function int GetSelectedMapIndex()
 {
     if(Index > -1)
@@ -77,6 +60,23 @@ function string GetSelectedMapName()
         return GetVRIEntry(SortData[Index].SortItem).MapName;
     }
     return "";
+}
+
+function SetSelectedGameType(int Type)
+{
+    SelectedGameType = Type;
+    UpdateList();
+}
+
+function Clear()
+{
+    MapIndices.Length = 0;
+    Super.Clear();
+}
+
+function VotingHandler.MapVoteMapList GetVRIEntry(int Row)
+{
+    return VRI.MapList[MapIndices[Row]];
 }
 
 function DrawItem(Canvas C, int i, float X, float Y, float W, float H, bool bSelected, bool bPending)

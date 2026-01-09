@@ -12,6 +12,7 @@ var automated GUILabel l_MapName;
 var automated GUILabel l_MapAuthor;
 var automated HxGUIScrollTextBox lb_MapDescription;
 
+var localized string LoadingText;
 var localized string PlayersText;
 
 var string SelectedMapName;
@@ -25,6 +26,15 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     SetTimer(0.02, true);
 }
 
+function InternalOnOpen()
+{
+    if (MVRI == None)
+    {
+	    MVRI = VotingReplicationInfo(PlayerOwner().VoteReplicationInfo);
+        SetTimer(0.02, true);
+    }
+}
+
 event Timer()
 {
     if (MVRI != None)
@@ -33,12 +43,16 @@ event Timer()
         {
             ShowDisabledMessage();
         }
+        else if (MVRI.GameConfig.Length < MVRI.GameConfigCount
+                 && MVRI.MapList.Length < MVRI.MapCount)
+        {
+            ShowLoadingCaption();
+        }
         else
         {
-            t_WindowTitle.Caption @= "("$lmsgMode[MVRI.Mode]$")";
-            InitializeGameTypeList();
+            PopulateLists();
+            KillTimer();
         }
-        KillTimer();
     }
 }
 
@@ -52,7 +66,12 @@ function ShowDisabledMessage()
     QuestionPage.OnClose = OnCloseQuestionPage;
 }
 
-function InitializeGameTypeList()
+function ShowLoadingCaption()
+{
+    t_WindowTitle.Caption = WindowName@"("$LoadingText$")";
+}
+
+function PopulateLists()
 {
     local int i;
 
@@ -62,6 +81,9 @@ function InitializeGameTypeList()
     }
     co_GameType.MyComboBox.List.SortList();
     co_GameType.SetIndex(co_GameType.FindExtra(string(MVRI.CurrentGameConfig)));
+    lb_MapVoteListBox.PopulateList(MVRI);
+    lb_MapVoteCountListBox.PopulateList(MVRI);
+    t_WindowTitle.Caption = WindowName@"("$lmsgMode[MVRI.Mode]$")";
 }
 
 function SendVote(optional GUIComponent Sender)
@@ -233,6 +255,23 @@ function string GetMapDescription(CacheManager.MapRecord Record)
         }
     }
     return Record.Description;
+}
+
+event Free()
+{
+    local VotingReplicationInfo VRI;
+    VRI = MVRI;
+    Super.Free();
+    MVRI = VRI;
+    lb_MapDescription.MyScrollText.EndScrolling();
+}
+
+function LevelChanged()
+{
+    MVRI = None;
+    UpdateMapPreview("");
+    co_GameType.ResetComponent();
+    Super.LevelChanged();
 }
 
 defaultproperties {
@@ -425,7 +464,9 @@ defaultproperties {
     lb_MapListBox=None
     i_MapCountListBackground=None
     i_MapListBackground=None
-    OnOpen=None
+    OnOpen=InternalOnOpen
+    bPersistent=true
 
+    LoadingText="LOADING..."
     PlayersText="players"
 }

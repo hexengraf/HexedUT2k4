@@ -1,6 +1,48 @@
 class HxGUIMapVoteBaseListBox extends GUIMultiColumnListBox;
 
 var automated GUIImage i_Background;
+var automated HxGUIMapVoteBaseList MyVoteBaseList;
+
+function InitComponent(GUIController MyController, GUIComponent MyOwner)
+{
+    Super.InitComponent(MyController, MyOwner);
+    MyVoteBaseList = HxGUIMapVoteBaseList(List);
+}
+
+function PopulateList(VotingReplicationInfo MVRI)
+{
+    MyVoteBaseList.PopulateList(MVRI);
+}
+
+function int GetSelectedGameTypeIndex()
+{
+    return MyVoteBaseList.GetSelectedGameTypeIndex();
+}
+
+function int GetSelectedMapIndex()
+{
+    return MyVoteBaseList.GetSelectedMapIndex();
+}
+
+function string GetSelectedMapName()
+{
+    return MyVoteBaseList.GetSelectedMapName();
+}
+
+function SetSelectedGameType(int Type)
+{
+    MyVoteBaseList.SetSelectedGameType(Type);
+}
+
+function Clear()
+{
+    MyVoteBaseList.Clear();
+}
+
+function LevelChanged()
+{
+    Clear();
+}
 
 function bool InternalOnPreDraw(Canvas C)
 {

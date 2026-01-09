@@ -3,25 +3,17 @@ class HxGUIMapVoteBaseList extends GUIMultiColumnList;
 var VotingReplicationInfo VRI;
 var int PreviousSortColumn;
 
-function PopulateList();
+function OnPopulateList();
 function string GetNormalizedString(int Row, int Column);
+function int GetSelectedGameTypeIndex();
+function int GetSelectedMapIndex();
+function string GetSelectedMapName();
+function SetSelectedGameType(int Type);
 
-function InitComponent(GUIController MyController, GUIComponent MyOwner)
+function PopulateList(VotingReplicationInfo MVRI)
 {
-    Super.InitComponent(MyController, MyOwner);
-    VRI = VotingReplicationInfo(PlayerOwner().VoteReplicationInfo);
-    SetTimer(0.02, true);
-}
-
-event Timer()
-{
-    if (VRI != None
-        && VRI.GameConfig.Length >= VRI.GameConfigCount
-        && VRI.MapList.Length >= VRI.MapCount)
-    {
-        PopulateList();
-        KillTimer();
-    }
+    VRI = MVRI;
+    OnPopulateList();
 }
 
 function string GetSortString(int Row)
@@ -37,12 +29,6 @@ event OnSortChanged()
 {
     Super.OnSortChanged();
     PreviousSortColumn = SortColumn;
-}
-
-function Free()
-{
-    VRI = None;
-    super.Free();
 }
 
 defaultproperties

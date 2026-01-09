@@ -1,20 +1,5 @@
 class HxGUIMapVoteListBox extends HxGUIMapVoteBaseListBox;
 
-function SetSelectedGameType(int Type)
-{
-    HxGUIMapVoteList(List).SetSelectedGameType(Type);
-}
-
-function int GetSelectedMapIndex()
-{
-    return HxGUIMapVoteList(List).GetSelectedMapIndex();
-}
-
-function string GetSelectedMapName()
-{
-    return HxGUIMapVoteList(List).GetSelectedMapName();
-}
-
 defaultproperties
 {
     HeaderColumnPerc(0)=0.50

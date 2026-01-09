@@ -20,6 +20,12 @@ function ReceiveChat(string Msg)
     lb_Chat.MyScrollText.End();
 }
 
+function LevelChanged()
+{
+    lb_Chat.SetContent("");
+    lb_Chat.MyScrollText.NewText = "";
+}
+
 defaultproperties
 {
     Begin Object Class=AltSectionBackground Name=NewMapVoteFooterBackground
