@@ -3,7 +3,8 @@ class HxGUIFont extends GUIFont
 
 #exec new TrueTypeFontFactory Name="Impact52" Height=52 Kerning=2 DropShadowX=2 DropShadowY=2 Style=500 AntiAlias=1 USize=512 VSize=512 XPad=2 YPad=2 FontName="Impact"
 #exec new TrueTypeFontFactory Name="FontEurostile31" Height=31 Kerning=2 DropShadowX=2 DropShadowY=2 Style=700 AntiAlias=1 USize=512 VSize=512 FontName="Eurostile"
-#exec new TrueTypeFontFactory Name="Verdana21" Height=21 Kerning=1 DropShadowX=0 DropShadowY=0 Style=700 AntiAlias=1 USize=256 VSize=256 XPad=2 YPad=2 FontName="Verdana"
+#exec new TrueTypeFontFactory Name="Verdana11" Height=11 Kerning=1 DropShadowX=0 DropShadowY=0 Style=600 AntiAlias=1 USize=256 VSize=256 FontName="Verdana"
+#exec new TrueTypeFontFactory Name="Verdana13" Height=13 Kerning=1 DropShadowX=0 DropShadowY=0 Style=700 AntiAlias=1 USize=256 VSize=256 FontName="Verdana"
 #exec new TrueTypeFontFactory Name="Verdana36" Height=36 Kerning=1 DropShadowX=0 DropShadowY=0 Style=700 AntiAlias=1 USize=256 VSize=256 XPad=2 YPad=2 FontName="Verdana"
 #exec new TrueTypeFontFactory Name="Verdana40" Height=40 Kerning=1 DropShadowX=0 DropShadowY=0 Style=700 AntiAlias=1 USize=512 VSize=512 XPad=2 YPad=2 FontName="Verdana"
 #exec new TrueTypeFontFactory Name="Verdana48" Height=48 Kerning=1 DropShadowX=0 DropShadowY=0 Style=700 AntiAlias=1 USize=512 VSize=512 XPad=2 YPad=2 FontName="Verdana"

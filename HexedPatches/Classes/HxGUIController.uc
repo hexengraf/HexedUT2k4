@@ -9,9 +9,6 @@ var HxNETController NETController;
 
 event InitializeController()
 {
-    RegisterStyle(class'HxSTYSimpleList');
-    RegisterStyle(class'HxSTYScrollGrip');
-    RegisterStyle(class'HxSTYScrollZone');
     Super.InitializeController();
     SetSmallCursor(bSmallCursor);
     UpdateSettingsPage();
@@ -86,9 +83,11 @@ defaultproperties
     Begin Object Class=HxGUIFontMedium Name=NewGUIMediumMenuFont
     End Object
 
+    Begin Object Class=HxGUIFontSmaller Name=HxGUISmallerFont
+    End Object
+
     bSmallCursor=true
     bFixedMouseSize=true
-    FONT_NUM=11
     FontStack(0)=NewGUIMenuFont
     FontStack(1)=NewGUIDefaultFont
     FontStack(2)=NewGUILargeFont
@@ -100,6 +99,14 @@ defaultproperties
     FontStack(8)=NewGUIIRCFont
     FontStack(9)=NewGUIMainMenuFont
     FontStack(10)=NewGUIMediumMenuFont
+    FontStack(11)=HxGUISmallerFont
+    FONT_NUM=12
+    DefaultStyleNames(60)="HexedPatches.HxSTYSmallList"
+    DefaultStyleNames(61)="HexedPatches.HxSTYSmallListSelection"
+    DefaultStyleNames(62)="HexedPatches.HxSTYSmallText"
+    DefaultStyleNames(63)="HexedPatches.HxSTYScrollGrip"
+    DefaultStyleNames(64)="HexedPatches.HxSTYScrollZone"
+    STYLE_NUM=65
     MainMenuOptions(6)="HexedPatches.HxGUIQuitPage"
     MapVotingMenu="HexedPatches.HxGUIMapVotingPage"
 }

@@ -27,8 +27,8 @@ defaultproperties
     End Object
     i_Background=Background
 
-    StyleName="HxSimpleList"
-    SelectedStyleName="ListSelection"
+    StyleName="HxSmallList"
+    SelectedStyleName="HxSmallListSelection"
     bVisibleWhenEmpty=true
     OnPreDraw=InternalOnPreDraw
 }

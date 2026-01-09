@@ -324,11 +324,13 @@ defaultproperties {
         WinLeft=0.6075
         WinTop=0.052930
         WinWidth=0.3725
-        WinHeight=0.4808468
+        WinHeight=0.67377
         TextFont="MediumFont"
         TextAlign=TXTA_Center
         VertAlign=TXTA_Center
         TextColor=(R=255,G=210,B=0,A=255)
+        BackColor=(R=37,G=71,B=139,A=255)
+        bTransparent=false
         RenderWeight=0.3
         bScaleToParent=true
         bBoundToParent=true
@@ -357,7 +359,7 @@ defaultproperties {
         TextAlign=TXTA_Center
         VertAlign=TXTA_Center
         TextColor=(R=255,G=210,B=0,A=255)
-        TextFont="UT2SmallFont"
+        TextFont="HxSmallerFont"
         FontScale=FNS_Small
         RenderWeight=0.3
         bScaleToParent=true
@@ -373,7 +375,7 @@ defaultproperties {
         TextAlign=TXTA_Center
         VertAlign=TXTA_Center
         TextColor=(R=255,G=210,B=0,A=255)
-        TextFont="UT2SmallFont"
+        TextFont="HxSmallerFont"
         FontScale=FNS_Small
         RenderWeight=0.3
         bScaleToParent=true
@@ -387,7 +389,7 @@ defaultproperties {
         WinWidth=0.3725
         WinHeight=0.1829232
         CharDelay=0.0065
-        EOLDelay=0.6
+        EOLDelay=0.5
         FontScale=FNS_Small
         TextAlign=TXTA_Center
         bCenter=true
@@ -396,6 +398,7 @@ defaultproperties {
         bNoTeletype=false
         bNeverFocus=true
         bStripColors=false
+        RenderWeight=0.25
         bBoundToParent=true
         bScaleToParent=true
     End Object

@@ -6,6 +6,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
     Super.InitComponent(MyController, MyOwner);
     sb_Background.UnManageComponent(lb_Chat);
+    ed_Chat.MyComponent.FontScale = ed_Chat.FontScale;
     OnDraw = None;
 }
 
@@ -43,12 +44,14 @@ defaultproperties
     lb_Chat=NewChatScrollBox
 
     Begin Object class=moEditBox Name=NewChatEditBox
-        Caption="Say:"
         WinLeft=0
         WinTop=0.85
         WinWidth=1
         WinHeight=0.15
-        CaptionWidth=0.11
+        Caption="Say:"
+        LabelFont="HxSmallerFont"
+        FontScale=FNS_Small
+        CaptionWidth=0.01
         OnKeyEvent=InternalOnKeyEvent
         TabOrder=0
         bStandardized=true

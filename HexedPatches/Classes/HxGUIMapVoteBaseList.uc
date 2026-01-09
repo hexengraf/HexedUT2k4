@@ -48,6 +48,6 @@ defaultproperties
     ExpandLastColumn=true
     bDropSource=false
     bDropTarget=false
-    StyleName="HxSimpleList"
-    SelectedStyleName="ListSelection"
+    StyleName="HxSmallList"
+    SelectedStyleName="HxSmallListSelection"
 }

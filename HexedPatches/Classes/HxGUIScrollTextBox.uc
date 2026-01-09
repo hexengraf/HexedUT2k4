@@ -144,7 +144,8 @@ defaultproperties
     MyScrollBar=NewTheScrollbar
 
     bRequiresStyle=true
-    StyleName="HxSimpleList"
+    StyleName="HxSmallText"
+    SelectedStyleName="HxSmallText"
     HorizontalPadding=0.02
     VerticalPadding=0.05
     ScrollBarWidth=0.025
