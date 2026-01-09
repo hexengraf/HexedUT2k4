@@ -48,6 +48,28 @@ function float GetCurrentAspectRatio()
     return float(X) / float(Y);
 }
 
+function RemovePersistentMenu(GUIPage Menu)
+{
+    local int i;
+
+    for (i = PersistentStack.Length - 1; i >= 0; i--)
+    {
+        if (PersistentStack[i] == Menu)
+        {
+            if (Menu.IsOpen())
+            {
+                RemoveMenu(Menu, true);
+            }
+            else
+            {
+                Menu.Free();
+            }
+            PersistentStack.Remove(i,1);
+            break;
+        }
+    }
+}
+
 defaultproperties
 {
     Begin Object Class=HxGUIFontMenu Name=NewGUIMenuFont

@@ -37,6 +37,12 @@ function InternalOnOpen()
     }
 }
 
+event ResolutionChanged(int NewX, int NewY)
+{
+    Super.ResolutionChanged(NewX, NewY);
+    HxGUIController(Controller).RemovePersistentMenu(Self);
+}
+
 event Timer()
 {
     if (MVRI != None)
