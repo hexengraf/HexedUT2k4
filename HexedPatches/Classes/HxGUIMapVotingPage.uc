@@ -388,11 +388,9 @@ defaultproperties {
         WinHeight=0.1829232
         CharDelay=0.0065
         EOLDelay=0.6
-        HorizontalPadding=0.045
-        StyleName="NoBackground"
         FontScale=FNS_Small
         TextAlign=TXTA_Center
-        VertAlign=TXTA_Center
+        bCenter=true
         bTabStop=false
         bVisibleWhenEmpty=true
         bNoTeletype=false

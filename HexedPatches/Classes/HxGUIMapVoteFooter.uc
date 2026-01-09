@@ -31,15 +31,13 @@ defaultproperties
         WinTop=0
         WinWidth=1
         WinHeight=0.82
-        HorizontalPadding=0.02
         bBoundToParent=true
         bScaleToParent=true
         bVisibleWhenEmpty=true
         bNoTeletype=true
         bNeverFocus=true
         bStripColors=false
-        bRequiresStyle=true
-        StyleName="NoBackground"
+        bCenter=false
         TabOrder=2
     End Object
     lb_Chat=NewChatScrollBox

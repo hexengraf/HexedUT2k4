@@ -1,10 +1,16 @@
 class HxGUIVertScrollBar extends GUIVertScrollBar;
 
+var bool bOutside;
+
 function bool GripPreDraw(GUIComponent Sender)
 {
     local float Width;
 
     Width = ActualWidth();
+    if (bOutside)
+    {
+        WinLeft = ActualLeft() + Width;
+    }
     WinTop = ActualTop() - Width;
     WinHeight = ActualHeight() + 2 * Width;
     MyDecreaseButton.SetVisibility(false);
