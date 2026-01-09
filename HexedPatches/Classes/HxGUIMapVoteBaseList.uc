@@ -15,7 +15,9 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 
 event Timer()
 {
-    if (VRI != None)
+    if (VRI != None
+        && VRI.GameConfig.Length >= VRI.GameConfigCount
+        && VRI.MapList.Length >= VRI.MapCount)
     {
         PopulateList();
         KillTimer();
