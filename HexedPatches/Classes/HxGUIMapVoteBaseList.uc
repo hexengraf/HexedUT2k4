@@ -8,7 +8,6 @@ function string GetNormalizedString(int Row, int Column);
 function int GetSelectedGameTypeIndex();
 function int GetSelectedMapIndex();
 function string GetSelectedMapName();
-function SetSelectedGameType(int Type);
 
 function PopulateList(VotingReplicationInfo MVRI)
 {

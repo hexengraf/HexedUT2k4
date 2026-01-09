@@ -47,9 +47,6 @@ function string GetSelectedMapName()
     return "";
 }
 
-function SetSelectedGameType(int Type)
-{ }
-
 function DrawItem(Canvas C, int i, float X, float Y, float W, float H, bool bSelected, bool bPending)
 {
     if (VRI == None)

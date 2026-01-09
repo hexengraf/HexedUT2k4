@@ -2,6 +2,7 @@ class HxGUIMapVotingPage extends MapVotingPage;
 
 var automated HxGUIMapVoteListBox lb_MapVoteListBox;
 var automated HxGUIMapVoteCountListBox lb_MapVoteCountListBox;
+var automated moComboBox co_MapSourceFilter;
 var automated AltSectionBackground sb_MapPreview;
 var automated GUIImage i_MapPreviewBackground;
 var automated GUIImage i_Preview;
@@ -23,6 +24,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     lb_MapVoteListBox.List.OnDblClick = OnMapListDoubleClick;
     lb_MapVoteCountListBox.List.OnDblClick = OnMapListDoubleClick;
     AdjustWindowSize(Controller.ResX, Controller.ResY);
+    PopulateStaticLists();
     SetTimer(0.02, true);
 }
 
@@ -50,7 +52,7 @@ event Timer()
         }
         else
         {
-            PopulateLists();
+            PopulateDynamicLists();
             KillTimer();
         }
     }
@@ -71,7 +73,7 @@ function ShowLoadingCaption()
     t_WindowTitle.Caption = WindowName@"("$LoadingText$")";
 }
 
-function PopulateLists()
+function PopulateDynamicLists()
 {
     local int i;
 
@@ -84,6 +86,17 @@ function PopulateLists()
     lb_MapVoteListBox.PopulateList(MVRI);
     lb_MapVoteCountListBox.PopulateList(MVRI);
     t_WindowTitle.Caption = WindowName@"("$lmsgMode[MVRI.Mode]$")";
+}
+
+function PopulateStaticLists()
+{
+    local int i;
+
+    for (i = 0; i < 3; ++i)
+    {
+        co_MapSourceFilter.AddItem(Mid(GetEnum(enum'EHxMapSource', i), 14));
+    }
+    co_MapSourceFilter.SilentSetIndex(0);
 }
 
 function SendVote(optional GUIComponent Sender)
@@ -130,6 +143,11 @@ function OnChangeGameType(GUIComponent Sender)
     {
         lb_MapVoteListBox.SetSelectedGameType(Type);
     }
+}
+
+function OnChangeMapSourceFilter(GUIComponent Sender)
+{
+    lb_MapVoteListBox.SetSelectedMapSource(co_MapSourceFilter.GetIndex());
 }
 
 function bool OnMapListDoubleClick(GUIComponent Sender)
@@ -287,17 +305,33 @@ defaultproperties {
     lb_MapVoteCountListBox=MapVoteCountListBox
 
     Begin Object class=moComboBox Name=GameTypeCombo
-        Caption="Game Type:"
+        Caption="Type:"
+        Hint="Select game type to show."
         WinLeft=0.02
         WinTop=0.27293
-        WinWidth=0.58
+        WinWidth=0.37
         WinHeight=0.037500
-        CaptionWidth=0.25
+        CaptionWidth=0.001
         bScaleToParent=true
         bBoundToParent=true
         OnChange=OnChangeGameType
     End Object
     co_GameType=GameTypeCombo
+
+    Begin Object class=moComboBox Name=MapSourceFilter
+        Caption="Source:"
+        Hint="Select map sources to show."
+        WinLeft=0.4
+        WinTop=0.27293
+        WinWidth=0.2
+        WinHeight=0.037500
+        CaptionWidth=0.001
+        bReadOnly=true
+        bBoundToParent=true
+        bScaleToParent=true
+        OnChange=OnChangeMapSourceFilter
+    End Object
+    co_MapSourceFilter=MapSourceFilter
 
     Begin Object Class=HxGUIMapVoteListBox Name=MapVoteListBox
         WinLeft=0.02

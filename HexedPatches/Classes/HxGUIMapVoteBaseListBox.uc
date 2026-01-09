@@ -29,11 +29,6 @@ function string GetSelectedMapName()
     return MyVoteBaseList.GetSelectedMapName();
 }
 
-function SetSelectedGameType(int Type)
-{
-    MyVoteBaseList.SetSelectedGameType(Type);
-}
-
 function Clear()
 {
     MyVoteBaseList.Clear();

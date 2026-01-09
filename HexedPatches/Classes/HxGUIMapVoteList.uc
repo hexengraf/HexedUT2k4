@@ -2,6 +2,7 @@ class HxGUIMapVoteList extends HxGUIMapVoteBaseList;
 
 var array<int> MapIndices;
 var int SelectedGameType;
+var int MapSourceFilter;
 
 function OnPopulateList()
 {
@@ -18,27 +19,22 @@ function OnPopulateList()
             break;
         }
     }
-    UpdateList();
+    Refresh();
 }
 
-function UpdateList()
+function Refresh()
 {
-    local array<string> Prefixes;
-    local int Prefix;
-    local int Map;
+    local int i;
 
     Clear();
-    Split(VRI.GameConfig[SelectedGameType].Prefix, ",", Prefixes);
-    for (Map = 0; Map < VRI.MapList.Length; ++Map)
+    class'HxMapVoteFilter'.static.SetGameTypeFilter(VRI.GameConfig[SelectedGameType].Prefix);
+
+    for (i = 0; i < VRI.MapList.Length; ++i)
     {
-        for (Prefix = 0; Prefix < Prefixes.Length; ++Prefix)
+        if (class'HxMapVoteFilter'.static.Filter(VRI.MapList[i]))
         {
-            if (StrCmp(VRI.MapList[Map].MapName, Prefixes[Prefix], len(Prefixes[Prefix])) == 0)
-            {
-                MapIndices[MapIndices.Length] = Map;
-                AddedItem();
-                break;
-            }
+            MapIndices[MapIndices.Length] = i;
+            AddedItem();
         }
     }
     NeedsSorting = true;
@@ -65,7 +61,19 @@ function string GetSelectedMapName()
 function SetSelectedGameType(int Type)
 {
     SelectedGameType = Type;
-    UpdateList();
+    if (VRI != None)
+    {
+        Refresh();
+    }
+}
+
+function SetSelectedMapSource(int Source)
+{
+    class'HxMapVoteFilter'.static.SetMapSourceFilter(Source);
+    if (VRI != None)
+    {
+        Refresh();
+    }
 }
 
 function Clear()
