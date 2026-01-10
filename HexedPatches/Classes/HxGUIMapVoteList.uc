@@ -151,10 +151,10 @@ defaultproperties
     ColumnHeadingHints(1)="Number of recommended players."
     ColumnHeadingHints(2)="Number of times the map has been played."
     ColumnHeadingHints(3)="Sequence, The number of games that have been played since this map was last played."
-    InitColumnPerc(0)=0.50
+    InitColumnPerc(0)=0.55
     InitColumnPerc(1)=0.175
-    InitColumnPerc(2)=0.175
-    InitColumnPerc(3)=0.10
+    InitColumnPerc(2)=0.15
+    InitColumnPerc(3)=0.075
 
     SortColumn=0
     PreviousSortColumn=0

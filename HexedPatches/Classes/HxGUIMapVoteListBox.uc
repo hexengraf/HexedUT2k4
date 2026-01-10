@@ -12,9 +12,9 @@ function FilterUpdated()
 
 defaultproperties
 {
-    HeaderColumnPerc(0)=0.50
+    HeaderColumnPerc(0)=0.55
     HeaderColumnPerc(1)=0.175
-    HeaderColumnPerc(2)=0.175
-    HeaderColumnPerc(3)=0.10
+    HeaderColumnPerc(2)=0.15
+    HeaderColumnPerc(3)=0.075
     DefaultListClass="HexedPatches.HxGUIMapVoteList"
 }
