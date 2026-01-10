@@ -10,5 +10,5 @@ defaultproperties
     FontArrayNames(3)="2K4Fonts.Verdana14"
     FontArrayNames(4)="2K4Fonts.Verdana16" // last original
     FontArrayNames(5)="2K4Fonts.Verdana20"
-    FontArrayNames(6)="2K4Fonts.Verdana32"
+    FontArrayNames(6)="2K4Fonts.Verdana30"
 }
