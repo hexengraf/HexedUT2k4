@@ -1,4 +1,6 @@
-class HxMapVoteFilter extends Object;
+class HxMapVoteFilter extends Object
+	Config(HxMapVoteFilters)
+	PerObjectConfig;
 
 enum EHxMapSource
 {
@@ -7,21 +9,23 @@ enum EHxMapSource
     HX_MAP_SOURCE_Custom,
 };
 
-var EHxMapSource MapSourceFilter;
+var config string Name;
+
+var EHxMapSource MapSource;
 var array<string> Prefixes;
 
-static function bool Filter(VotingHandler.MapVoteMapList Entry)
+function bool Test(VotingHandler.MapVoteMapList Entry)
 {
-    return FilterBySource(Entry.MapName) && FilterByType(Entry.MapName);
+    return TestSource(Entry.MapName) && TestPrefix(Entry.MapName);
 }
 
-static function bool FilterByType(string MapName)
+function bool TestPrefix(string MapName)
 {
-    local int Prefix;
+    local int i;
 
-    for (Prefix = 0; Prefix < default.Prefixes.Length; ++Prefix)
+    for (i = 0; i < Prefixes.Length; ++i)
     {
-        if (StrCmp(MapName, default.Prefixes[Prefix], len(default.Prefixes[Prefix])) == 0)
+        if (StrCmp(MapName, Prefixes[i], len(Prefixes[i])) == 0)
         {
             return true;
         }
@@ -29,9 +33,9 @@ static function bool FilterByType(string MapName)
     return false;
 }
 
-static function bool FilterBySource(string MapName)
+function bool TestSource(string MapName)
 {
-    switch (default.MapSourceFilter)
+    switch (MapSource)
     {
         case HX_MAP_SOURCE_Any:
             return true;
@@ -43,18 +47,19 @@ static function bool FilterBySource(string MapName)
     return true;
 }
 
-static function SetGameTypeFilter(string Prefix)
+function SetPrefix(string Prefix)
 {
-    default.Prefixes.Length = 0;
-    Split(Prefix, ",", default.Prefixes);
+    Prefixes.Length = 0;
+    Split(Prefix, ",", Prefixes);
 }
 
-static function SetMapSourceFilter(int Source)
+function SetMapSource(int Source)
 {
-    default.MapSourceFilter = EHxMapSource(Source);
+    MapSource = EHxMapSource(Source);
 }
 
 defaultproperties
 {
-    MapSourceFilter=HX_MAP_SOURCE_Any
+    Name="None"
+    MapSource=HX_MAP_SOURCE_Any
 }

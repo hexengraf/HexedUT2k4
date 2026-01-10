@@ -14,11 +14,6 @@ function PopulateList(VotingReplicationInfo MVRI)
     MyVoteBaseList.PopulateList(MVRI);
 }
 
-function int GetSelectedGameTypeIndex()
-{
-    return MyVoteBaseList.GetSelectedGameTypeIndex();
-}
-
 function int GetSelectedMapIndex()
 {
     return MyVoteBaseList.GetSelectedMapIndex();

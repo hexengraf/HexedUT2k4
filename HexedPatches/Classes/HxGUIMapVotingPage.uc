@@ -2,7 +2,7 @@ class HxGUIMapVotingPage extends MapVotingPage;
 
 var automated HxGUIMapVoteListBox lb_MapVoteListBox;
 var automated HxGUIMapVoteCountListBox lb_MapVoteCountListBox;
-var automated moComboBox co_MapSourceFilter;
+var automated moComboBox co_MapSource;
 var automated AltSectionBackground sb_MapPreview;
 var automated GUIImage i_MapPreviewBackground;
 var automated GUIImage i_Preview;
@@ -16,11 +16,16 @@ var automated HxGUIScrollTextBox lb_MapDescription;
 var localized string LoadingText;
 var localized string PlayersText;
 
+var HxMapVoteFilterManager FilterManager;
+var HxMapVoteFilter ActiveFilter;
 var string SelectedMapName;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
     Super.InitComponent(MyController, MyOwner);
+    FilterManager = new(Self) class'HxMapVoteFilterManager';
+    ActiveFilter = FilterManager.GetFilter();
+    lb_MapVoteListBox.SetFilter(ActiveFilter);
     lb_MapVoteListBox.List.OnDblClick = OnMapListDoubleClick;
     lb_MapVoteCountListBox.List.OnDblClick = OnMapListDoubleClick;
     AdjustWindowSize(Controller.ResX, Controller.ResY);
@@ -100,9 +105,9 @@ function PopulateStaticLists()
 
     for (i = 0; i < 3; ++i)
     {
-        co_MapSourceFilter.AddItem(Mid(GetEnum(enum'EHxMapSource', i), 14));
+        co_MapSource.AddItem(Mid(GetEnum(enum'EHxMapSource', i), 14));
     }
-    co_MapSourceFilter.SilentSetIndex(0);
+    co_MapSource.SilentSetIndex(0);
 }
 
 function SendVote(optional GUIComponent Sender)
@@ -144,16 +149,17 @@ function OnChangeGameType(GUIComponent Sender)
     local int Type;
 
     Type = int(co_GameType.GetExtra());
-
     if (Type > -1)
     {
-        lb_MapVoteListBox.SetSelectedGameType(Type);
+        ActiveFilter.SetPrefix(MVRI.GameConfig[Type].Prefix);
+        lb_MapVoteListBox.FilterUpdated();
     }
 }
 
-function OnChangeMapSourceFilter(GUIComponent Sender)
+function OnChangeMapSource(GUIComponent Sender)
 {
-    lb_MapVoteListBox.SetSelectedMapSource(co_MapSourceFilter.GetIndex());
+    ActiveFilter.SetMapSource(co_MapSource.GetIndex());
+    lb_MapVoteListBox.FilterUpdated();
 }
 
 function bool OnMapListDoubleClick(GUIComponent Sender)
@@ -309,6 +315,7 @@ defaultproperties {
         bScaleToParent=true
         bBoundToParent=true
         FontScale=FNS_Small
+        TabOrder=0
     End Object
     lb_MapVoteCountListBox=MapVoteCountListBox
 
@@ -323,10 +330,11 @@ defaultproperties {
         bScaleToParent=true
         bBoundToParent=true
         OnChange=OnChangeGameType
+        TabOrder=1
     End Object
     co_GameType=GameTypeCombo
 
-    Begin Object class=moComboBox Name=MapSourceFilter
+    Begin Object class=moComboBox Name=MapSource
         Caption="Source:"
         Hint="Select map sources to show."
         WinLeft=0.4
@@ -337,9 +345,10 @@ defaultproperties {
         bReadOnly=true
         bBoundToParent=true
         bScaleToParent=true
-        OnChange=OnChangeMapSourceFilter
+        OnChange=OnChangeMapSource
+        TabOrder=2
     End Object
-    co_MapSourceFilter=MapSourceFilter
+    co_MapSource=MapSource
 
     Begin Object Class=HxGUIMapVoteListBox Name=MapVoteListBox
         WinLeft=0.02
@@ -349,6 +358,7 @@ defaultproperties {
         bScaleToParent=true
         bBoundToParent=true
         FontScale=FNS_Small
+        TabOrder=3
     End Object
     lb_MapVoteListBox=MapVoteListBox
 
@@ -479,7 +489,7 @@ defaultproperties {
         bNoTeletype=false
         bNeverFocus=true
         bStripColors=false
-        RenderWeight=0.25
+        RenderWeight=0.2
         bBoundToParent=true
         bScaleToParent=true
     End Object
@@ -490,10 +500,10 @@ defaultproperties {
         WinTop=0.7367
         WinWidth=0.3725
         WinHeight=0.22
-        TabOrder=10
         RenderWeight=0.5
         bBoundToParent=true
         bScaleToParent=true
+        TabOrder=4
     End Object
     f_Chat=MatchSetupFooter
 

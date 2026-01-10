@@ -1,13 +1,13 @@
 class HxGUIMapVoteListBox extends HxGUIMapVoteBaseListBox;
 
-function SetSelectedGameType(int Type)
+function SetFilter(HxMapVoteFilter Filter)
 {
-    HxGUIMapVoteList(MyVoteBaseList).SetSelectedGameType(Type);
+    HxGUIMapVoteList(MyVoteBaseList).SetFilter(Filter);
 }
 
-function SetSelectedMapSource(int Source)
+function FilterUpdated()
 {
-    HxGUIMapVoteList(MyVoteBaseList).SetSelectedMapSource(Source);
+    HxGUIMapVoteList(MyVoteBaseList).FilterUpdated();
 }
 
 defaultproperties
