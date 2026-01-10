@@ -50,17 +50,18 @@ defaultproperties
     lb_Chat=NewChatScrollBox
 
     Begin Object class=moEditBox Name=NewChatEditBox
-        WinLeft=0
-        WinTop=0.85
-        WinWidth=1
-        WinHeight=0.15
         Caption="Say:"
+        WinLeft=0
+        WinTop=0.8575
+        WinWidth=1
+        WinHeight=0.1429
         LabelFont="HxSmallerFont"
         FontScale=FNS_Small
         CaptionWidth=0.01
         OnKeyEvent=InternalOnKeyEvent
         TabOrder=0
         bStandardized=true
+        StandardHeight=0.0275
         bBoundToParent=true
         bScaleToParent=true
     End Object

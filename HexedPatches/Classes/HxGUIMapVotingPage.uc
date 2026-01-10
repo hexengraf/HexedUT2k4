@@ -374,14 +374,15 @@ defaultproperties {
     Begin Object class=moEditBox Name=NameSearchBox
         Caption="Search:"
         WinLeft=0.02
-        WinTop=0.9237
+        WinTop=0.92527
         WinWidth=0.5575
-        WinHeight=0.033
+        WinHeight=0.03143
         LabelFont="HxSmallerFont"
         FontScale=FNS_Small
         CaptionWidth=0.001
         TabOrder=4
         bStandardized=true
+        StandardHeight=0.0275
         bBoundToParent=true
         bScaleToParent=true
         OnChange=OnChangeNameSearch
@@ -391,10 +392,12 @@ defaultproperties {
     Begin Object class=moCheckBox Name=CaseSensitiveCheckBox
         Hint="Case Sensitive"
         WinLeft=0.578
-        WinTop=0.9237
+        WinTop=0.92527
         WinWidth=0.0225
-        WinHeight=0.02
+        WinHeight=0.03143
         bSquare=true
+        bStandardized=true
+        StandardHeight=0.0275
         bBoundToParent=true
         bScaleToParent=true
         ComponentJustification=TXTA_Right
