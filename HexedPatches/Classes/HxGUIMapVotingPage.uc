@@ -183,6 +183,7 @@ function ResetMapPreview()
     l_MapPlayerCount.Caption = "";
     l_MapAuthor.Caption = "";
     lb_MapDescription.SetContent("");
+    lb_MapDescription.SetVisibility(false);
     i_Preview.Image = None;
     i_Preview.SetVisibility(false);
 }
@@ -244,6 +245,7 @@ function UpdateMapPreview(string MapName)
         {
             l_MapAuthor.Caption = "Author:"@Record.Author;
         }
+        lb_MapDescription.SetVisibility(true);
         lb_MapDescription.SetContent(GetMapDescription(Record));
         SelectedMapName = MapName;
     }
