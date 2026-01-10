@@ -3,6 +3,8 @@ class HxGUIMapVotingPage extends MapVotingPage;
 var automated HxGUIMapVoteListBox lb_MapVoteListBox;
 var automated HxGUIMapVoteCountListBox lb_MapVoteCountListBox;
 var automated moComboBox co_MapSource;
+var automated moEditBox ed_NameSearch;
+var automated moCheckBox ch_CaseSensitive;
 var automated AltSectionBackground sb_MapPreview;
 var automated GUIImage i_MapPreviewBackground;
 var automated GUIImage i_Preview;
@@ -28,6 +30,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     lb_MapVoteListBox.SetFilter(ActiveFilter);
     lb_MapVoteListBox.List.OnDblClick = OnMapListDoubleClick;
     lb_MapVoteCountListBox.List.OnDblClick = OnMapListDoubleClick;
+    ed_NameSearch.MyComponent.FontScale = ed_NameSearch.FontScale;
     AdjustWindowSize(Controller.ResX, Controller.ResY);
     PopulateStaticLists();
     SetTimer(0.02, true);
@@ -159,6 +162,12 @@ function OnChangeGameType(GUIComponent Sender)
 function OnChangeMapSource(GUIComponent Sender)
 {
     ActiveFilter.SetMapSource(co_MapSource.GetIndex());
+    lb_MapVoteListBox.FilterUpdated();
+}
+
+function OnChangeNameSearch(GUIComponent Sender)
+{
+    ActiveFilter.SetNameSearch(ed_NameSearch.GetText(), ch_CaseSensitive.IsChecked());
     lb_MapVoteListBox.FilterUpdated();
 }
 
@@ -325,7 +334,7 @@ defaultproperties {
         WinLeft=0.02
         WinTop=0.27293
         WinWidth=0.37
-        WinHeight=0.037500
+        WinHeight=0.0375
         CaptionWidth=0.001
         bScaleToParent=true
         bBoundToParent=true
@@ -340,7 +349,7 @@ defaultproperties {
         WinLeft=0.4
         WinTop=0.27293
         WinWidth=0.2
-        WinHeight=0.037500
+        WinHeight=0.0375
         CaptionWidth=0.001
         bReadOnly=true
         bBoundToParent=true
@@ -354,13 +363,45 @@ defaultproperties {
         WinLeft=0.02
         WinTop=0.32043
         WinWidth=0.58
-        WinHeight=0.63627
+        WinHeight=0.597667
         bScaleToParent=true
         bBoundToParent=true
         FontScale=FNS_Small
         TabOrder=3
     End Object
     lb_MapVoteListBox=MapVoteListBox
+
+    Begin Object class=moEditBox Name=NameSearchBox
+        Caption="Search:"
+        WinLeft=0.02
+        WinTop=0.9237
+        WinWidth=0.5575
+        WinHeight=0.033
+        LabelFont="HxSmallerFont"
+        FontScale=FNS_Small
+        CaptionWidth=0.001
+        TabOrder=4
+        bStandardized=true
+        bBoundToParent=true
+        bScaleToParent=true
+        OnChange=OnChangeNameSearch
+    End Object
+    ed_NameSearch=NameSearchBox
+
+    Begin Object class=moCheckBox Name=CaseSensitiveCheckBox
+        Hint="Case Sensitive"
+        WinLeft=0.578
+        WinTop=0.9237
+        WinWidth=0.0225
+        WinHeight=0.02
+        bSquare=true
+        bBoundToParent=true
+        bScaleToParent=true
+        ComponentJustification=TXTA_Right
+        TabOrder=5
+        OnChange=OnChangeNameSearch
+    End Object
+    ch_CaseSensitive=CaseSensitiveCheckBox
 
     Begin Object Class=GUIImage Name=MapPreviewBackground
         WinLeft=0.6075
@@ -495,7 +536,7 @@ defaultproperties {
     End Object
     lb_MapDescription=MapDescription
 
-    Begin Object Class=HxGUIMapVoteFooter Name=MatchSetupFooter
+    Begin Object Class=HxGUIMapVoteFooter Name=MapVoteFooter
         WinLeft=0.6075
         WinTop=0.7367
         WinWidth=0.3725
@@ -503,9 +544,9 @@ defaultproperties {
         RenderWeight=0.5
         bBoundToParent=true
         bScaleToParent=true
-        TabOrder=4
+        TabOrder=6
     End Object
-    f_Chat=MatchSetupFooter
+    f_Chat=MapVoteFooter
 
     WinTop=0.05
     WinLeft=0.0025
