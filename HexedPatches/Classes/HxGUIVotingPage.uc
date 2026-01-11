@@ -463,7 +463,7 @@ defaultproperties {
 
     Begin Object class=moEditBox Name=SearchNameEditBox
         Caption="Search:"
-        Hint="Search maps by name. Supports * to match anything, ^ to match the begin of name, and $ to match the end of name."
+        Hint="Search by map name. * matches anything. ^ and $ matches begin and end of name."
         WinLeft=0.02
         WinTop=0.92527
         WinWidth=0.5575
@@ -481,7 +481,7 @@ defaultproperties {
     ed_SearchName=SearchNameEditBox
 
     Begin Object class=moEditBox Name=SearchPlayersEditBox
-        Hint="Search maps by number of recommended players. Use a single number to get all maps that accommodate this number of players. Use - to specify both minimum and maximum players. Supports * to match anything, and either >, <, or = followed by a number to match values with a comparison."
+        Hint="Search by player count. One number shows maps that support it. Two numbers separated by - shows min-max player counts. * matches anything. > or < or = followed by a number matches with comparison."
         WinTop=0.92527
         WinHeight=0.03143
         LabelFont="HxSmallerFont"
@@ -497,7 +497,7 @@ defaultproperties {
     ed_SearchPlayers=SearchPlayersEditBox
 
     Begin Object class=moEditBox Name=SearchPlayedEditBox
-        Hint="Search maps by number of times played. Supports * to match anything, and either >, <, or = followed by a number to match values with a comparison."
+        Hint="Search by played count. * matches anything. > or < or = followed by a number matches with comparison."
         WinTop=0.92527
         WinHeight=0.03143
         LabelFont="HxSmallerFont"
@@ -513,7 +513,7 @@ defaultproperties {
     ed_SearchPlayed=SearchPlayedEditBox
 
     Begin Object class=moEditBox Name=SearchSeqEditBox
-        Hint="Search maps by sequence number. Supports * to match anything, and either >, <, or = followed by a number to match values with a comparison."
+        Hint="Search by sequence. * matches anything. > or < or = followed by a number matches with comparison."
         WinTop=0.92527
         WinHeight=0.03143
         LabelFont="HxSmallerFont"
