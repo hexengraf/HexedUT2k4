@@ -29,11 +29,6 @@ function Clear()
     MyVoteBaseList.Clear();
 }
 
-function LevelChanged()
-{
-    Clear();
-}
-
 function bool InternalOnPreDraw(Canvas C)
 {
     i_Background.WinTop = Header.ActualHeight();
