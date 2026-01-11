@@ -5,9 +5,9 @@ function UpdatedVoteCount(int UpdatedIndex, bool bRemoved)
     HXGUIMapVoteCountList(MyVoteBaseList).UpdatedVoteCount(UpdatedIndex, bRemoved);
 }
 
-function int GetSelectedGameTypeIndex()
+function int GetGameTypeIndex()
 {
-    return HXGUIMapVoteCountList(MyVoteBaseList).GetSelectedGameTypeIndex();
+    return HXGUIMapVoteCountList(MyVoteBaseList).GetGameTypeIndex();
 }
 
 defaultproperties

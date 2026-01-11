@@ -28,14 +28,22 @@ function UpdatedVoteCount(int UpdatedIndex, bool bRemoved)
     NeedsSorting = true;
 }
 
-function int GetSelectedGameTypeIndex()
+function int GetGameTypeIndex()
 {
-    return VRI.MapVoteCount[SortData[Index].SortItem].GameConfigIndex;
+    if (Index > -1)
+    {
+        return VRI.MapVoteCount[SortData[Index].SortItem].GameConfigIndex;
+    }
+    return Index;
 }
 
-function int GetSelectedMapIndex()
+function int GetMapIndex()
 {
-    return VRI.MapVoteCount[SortData[Index].SortItem].MapIndex;
+    if (Index > -1)
+    {
+        return VRI.MapVoteCount[SortData[Index].SortItem].MapIndex;
+    }
+    return Index;
 }
 
 function string GetSelectedMapName()

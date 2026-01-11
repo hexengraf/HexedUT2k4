@@ -1,7 +1,7 @@
 class HxGUIMapVotingPage extends MapVotingPage;
 
-var automated HxGUIMapVoteListBox lb_MapVoteListBox;
-var automated HxGUIMapVoteCountListBox lb_MapVoteCountListBox;
+var automated HxGUIMapVoteListBox lb_MapList;
+var automated HxGUIMapVoteCountListBox lb_VoteList;
 var automated moComboBox co_MapSource;
 var automated moEditBox ed_SearchName;
 var automated moEditBox ed_SearchPlayers;
@@ -32,9 +32,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     Super.InitComponent(MyController, MyOwner);
     FilterManager = new(Self) class'HxMapVoteFilterManager';
     ActiveFilter = FilterManager.GetFilter();
-    lb_MapVoteListBox.SetFilter(ActiveFilter);
-    lb_MapVoteListBox.List.OnDblClick = OnMapListDoubleClick;
-    lb_MapVoteCountListBox.List.OnDblClick = OnMapListDoubleClick;
+    lb_MapList.SetFilter(ActiveFilter);
     AdjustWindowSize(Controller.ResX, Controller.ResY);
     PropagateEditBoxProperties();
     PopulateLocalLists();
@@ -80,13 +78,13 @@ event Timer()
 function ShowInitialState()
 {
     MVRI = None;
-    lb_MapVoteCountListBox.Clear();
-    lb_MapVoteCountListBox.DisableMe();
+    lb_VoteList.Clear();
+    lb_VoteList.DisableMe();
     co_GameType.ResetComponent();
     co_GameType.DisableMe();
     co_MapSource.DisableMe();
-    lb_MapVoteListBox.Clear();
-    lb_MapVoteListBox.DisableMe();
+    lb_MapList.Clear();
+    lb_MapList.DisableMe();
     ed_SearchName.DisableMe();
     ed_SearchPlayers.SetText("");
     ed_SearchPlayers.DisableMe();
@@ -110,10 +108,10 @@ function ShowLoadingState()
 function ShowReadyState()
 {
     t_WindowTitle.Caption = WindowName@"("$lmsgMode[MVRI.Mode]$")";
-    lb_MapVoteCountListBox.EnableMe();
+    lb_VoteList.EnableMe();
     co_GameType.EnableMe();
     co_MapSource.EnableMe();
-    lb_MapVoteListBox.EnableMe();
+    lb_MapList.EnableMe();
     ed_SearchName.EnableMe();
     ed_SearchPlayers.EnableMe();
     ed_SearchPlayed.EnableMe();
@@ -121,8 +119,8 @@ function ShowReadyState()
     ch_CaseSensitive.EnableMe();
     l_ReceivingMapList.SetVisibility(false);
     PopulateGameTypeList();
-    lb_MapVoteListBox.PopulateList(MVRI);
-    lb_MapVoteCountListBox.PopulateList(MVRI);
+    lb_MapList.PopulateList(MVRI);
+    lb_VoteList.PopulateList(MVRI);
 }
 
 function ShowDisabledMessage()
@@ -163,21 +161,25 @@ function PopulateLocalLists()
     co_MapSource.SetIndex(0);
 }
 
-function SendVote(optional GUIComponent Sender)
+function SendVoteFrom(HxGUIMapVoteBaseListBox Sender)
+{
+    switch (Sender)
+    {
+        case lb_VoteList:
+            SendMapVote(lb_VoteList.GetMapIndex(), lb_VoteList.GetGameTypeIndex());
+            break;
+        case lb_MapList:
+            SendMapVote(lb_MapList.GetMapIndex(), co_GameType.GetExtra());
+            break;
+        default:
+            break;
+    }
+}
+
+function SendMapVote(int Map, coerce int Type)
 {
     local PlayerController PC;
-    local int Type;
-    local int Map;
 
-    if (Sender == lb_MapVoteCountListBox.List) {
-        Map = lb_MapVoteCountListBox.GetSelectedMapIndex();
-        Type = lb_MapVoteCountListBox.GetSelectedGameTypeIndex();
-    }
-    else
-    {
-        Map = lb_MapVoteListBox.GetSelectedMapIndex();
-        Type = int(co_GameType.GetExtra());
-    }
     if (Map > -1)
     {
         PC = PlayerOwner();
@@ -194,7 +196,7 @@ function SendVote(optional GUIComponent Sender)
 
 function UpdateMapVoteCount(int UpdatedIndex, bool bRemoved)
 {
-    lb_MapVoteCountListBox.UpdatedVoteCount(UpdatedIndex, bRemoved);
+    lb_VoteList.UpdatedVoteCount(UpdatedIndex, bRemoved);
 }
 
 function OnChangeGameType(GUIComponent Sender)
@@ -205,44 +207,38 @@ function OnChangeGameType(GUIComponent Sender)
     if (Type > -1)
     {
         ActiveFilter.SetPrefix(MVRI.GameConfig[Type].Prefix);
-        lb_MapVoteListBox.FilterUpdated();
+        lb_MapList.FilterUpdated();
     }
 }
 
 function OnChangeMapSource(GUIComponent Sender)
 {
     ActiveFilter.SetMapSource(co_MapSource.GetIndex());
-    lb_MapVoteListBox.FilterUpdated();
+    lb_MapList.FilterUpdated();
 }
 
 function OnChangeNameSearch(GUIComponent Sender)
 {
     ActiveFilter.SetSearchBarName(ed_SearchName.GetText(), ch_CaseSensitive.IsChecked());
-    lb_MapVoteListBox.FilterUpdated();
+    lb_MapList.FilterUpdated();
 }
 
 function OnChangePlayersSearch(GUIComponent Sender)
 {
     ActiveFilter.SetSearchBarPlayers(ed_SearchPlayers.GetText());
-    lb_MapVoteListBox.FilterUpdated();
+    lb_MapList.FilterUpdated();
 }
 
 function OnChangePlayedSearch(GUIComponent Sender)
 {
     ActiveFilter.SetSearchBarPlayed(ed_SearchPlayed.GetText());
-    lb_MapVoteListBox.FilterUpdated();
+    lb_MapList.FilterUpdated();
 }
 
 function OnChangeSequenceSearch(GUIComponent Sender)
 {
     ActiveFilter.SetSearchBarSequence(ed_SearchSeq.GetText());
-    lb_MapVoteListBox.FilterUpdated();
-}
-
-function bool OnMapListDoubleClick(GUIComponent Sender)
-{
-    SendVote(Sender);
-    return true;
+    lb_MapList.FilterUpdated();
 }
 
 function OnCloseQuestionPage(optional bool bCanceled)
@@ -290,13 +286,13 @@ function bool InternalOnPreDraw(Canvas C)
 
 function string GetFocusedMapName()
 {
-    if (lb_MapVoteListBox.bHasFocus)
+    if (lb_MapList.bHasFocus)
     {
-        return lb_MapVoteListBox.GetSelectedMapName();
+        return lb_MapList.GetSelectedMapName();
     }
-    if (lb_MapVoteCountListBox.bHasFocus)
+    if (lb_VoteList.bHasFocus)
     {
-        return lb_MapVoteCountListBox.GetSelectedMapName();
+        return lb_VoteList.GetSelectedMapName();
     }
     return SelectedMapName;
 }
@@ -349,16 +345,16 @@ function UpdateSearchBarWidth()
 {
     local float Width;
 
-    if (lb_MapVoteListBox.List.ColumnWidths.Length >= 3)
+    if (lb_MapList.List.ColumnWidths.Length >= 3)
     {
         Width = ActualWidth();
-        ed_SearchName.WinWidth = (lb_MapVoteListBox.List.ColumnWidths[0] / Width) - 0.001;
+        ed_SearchName.WinWidth = (lb_MapList.List.ColumnWidths[0] / Width) - 0.001;
         ed_SearchPlayers.WinLeft = ed_SearchName.WinLeft + ed_SearchName.WinWidth + 0.001;
-        ed_SearchPlayers.WinWidth = (lb_MapVoteListBox.List.ColumnWidths[1] / Width) - 0.001;
+        ed_SearchPlayers.WinWidth = (lb_MapList.List.ColumnWidths[1] / Width) - 0.001;
         ed_SearchPlayed.WinLeft = ed_SearchPlayers.WinLeft + ed_SearchPlayers.WinWidth + 0.001;
-        ed_SearchPlayed.WinWidth = (lb_MapVoteListBox.List.ColumnWidths[2] / Width) - 0.001;
+        ed_SearchPlayed.WinWidth = (lb_MapList.List.ColumnWidths[2] / Width) - 0.001;
         ed_SearchSeq.WinLeft = ed_SearchPlayed.WinLeft + ed_SearchPlayed.WinWidth + 0.001;
-        ed_SearchSeq.WinWidth = lb_MapVoteListBox.WinWidth - ed_SearchSeq.WinLeft - 0.0013;
+        ed_SearchSeq.WinWidth = lb_MapList.WinWidth - ed_SearchSeq.WinLeft - 0.0013;
     }
 }
 
@@ -410,7 +406,7 @@ function LevelChanged()
 }
 
 defaultproperties {
-    Begin Object Class=HxGUIMapVoteCountListBox Name=MapVoteCountListBox
+    Begin Object Class=HxGUIMapVoteCountListBox Name=VoteListBox
         WinLeft=0.02
         WinTop=0.052930
         WinWidth=0.58
@@ -420,7 +416,7 @@ defaultproperties {
         FontScale=FNS_Small
         TabOrder=0
     End Object
-    lb_MapVoteCountListBox=MapVoteCountListBox
+    lb_VoteList=VoteListBox
 
     Begin Object class=moComboBox Name=GameTypeCombo
         Caption="Type:"
@@ -453,7 +449,7 @@ defaultproperties {
     End Object
     co_MapSource=MapSource
 
-    Begin Object Class=HxGUIMapVoteListBox Name=MapVoteListBox
+    Begin Object Class=HxGUIMapVoteListBox Name=MapListBox
         WinLeft=0.02
         WinTop=0.32043
         WinWidth=0.58
@@ -463,7 +459,7 @@ defaultproperties {
         FontScale=FNS_Small
         TabOrder=3
     End Object
-    lb_MapVoteListBox=MapVoteListBox
+    lb_MapList=MapListBox
 
     Begin Object class=moEditBox Name=SearchNameEditBox
         Caption="Search:"
@@ -716,7 +712,6 @@ defaultproperties {
     lb_MapListBox=None
     i_MapCountListBackground=None
     i_MapListBackground=None
-    OnOpen=InternalOnOpen
     bPersistent=true
 
     LoadingText="LOADING..."

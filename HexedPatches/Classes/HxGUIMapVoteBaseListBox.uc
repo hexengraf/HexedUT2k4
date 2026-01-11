@@ -7,6 +7,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
     Super.InitComponent(MyController, MyOwner);
     MyVoteBaseList = HxGUIMapVoteBaseList(List);
+    MyVoteBaseList.OnDblClick = InternalOnDblClick;
 }
 
 function PopulateList(VotingReplicationInfo MVRI)
@@ -14,9 +15,9 @@ function PopulateList(VotingReplicationInfo MVRI)
     MyVoteBaseList.PopulateList(MVRI);
 }
 
-function int GetSelectedMapIndex()
+function int GetMapIndex()
 {
-    return MyVoteBaseList.GetSelectedMapIndex();
+    return MyVoteBaseList.GetMapIndex();
 }
 
 function string GetSelectedMapName()
@@ -34,6 +35,26 @@ function bool InternalOnPreDraw(Canvas C)
     i_Background.WinTop = Header.ActualHeight();
     i_Background.WinWidth = List.WinWidth;
     i_Background.WinHeight = List.WinHeight;
+    return false;
+}
+
+function bool InternalOnKeyEvent(out byte Key, out byte KeyState, float Delta)
+{
+    if (EInputKey(Key) == IK_Enter && HxGUIMapVotingPage(PageOwner) != None)
+    {
+        HxGUIMapVotingPage(PageOwner).SendVoteFrom(Self);
+        return true;
+    }
+    return false;
+}
+
+function bool InternalOnDblClick(GUIComponent Sender)
+{
+    if (HxGUIMapVotingPage(PageOwner) != None)
+    {
+        HxGUIMapVotingPage(PageOwner).SendVoteFrom(Self);
+        return true;
+    }
     return false;
 }
 
@@ -58,4 +79,5 @@ defaultproperties
     SelectedStyleName="HxSmallListSelection"
     bVisibleWhenEmpty=true
     OnPreDraw=InternalOnPreDraw
+    OnKeyEvent=InternalOnKeyEvent
 }

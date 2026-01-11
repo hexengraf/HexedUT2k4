@@ -5,7 +5,7 @@ var int PreviousSortColumn;
 
 function OnPopulateList();
 function string GetNormalizedString(int Row, int Column);
-function int GetSelectedMapIndex();
+function int GetMapIndex();
 function string GetSelectedMapName();
 
 function PopulateList(VotingReplicationInfo MVRI)

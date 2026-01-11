@@ -27,7 +27,7 @@ function FilterUpdated()
     }
 }
 
-function int GetSelectedMapIndex()
+function int GetMapIndex()
 {
     if(Index > -1)
     {
