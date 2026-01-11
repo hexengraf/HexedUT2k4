@@ -1,7 +1,7 @@
-class HxGUIMapVotingPage extends MapVotingPage;
+class HxGUIVotingPage extends MapVotingPage;
 
-var automated HxGUIMapVoteListBox lb_MapList;
-var automated HxGUIMapVoteCountListBox lb_VoteList;
+var automated HxGUIVotingMapListBox lb_MapList;
+var automated HxGUIVotingVoteListBox lb_VoteList;
 var automated moComboBox co_MapSource;
 var automated moEditBox ed_SearchName;
 var automated moEditBox ed_SearchPlayers;
@@ -161,7 +161,7 @@ function PopulateLocalLists()
     co_MapSource.SetIndex(0);
 }
 
-function SendVoteFrom(HxGUIMapVoteBaseListBox Sender)
+function SendVoteFrom(HxGUIVotingBaseListBox Sender)
 {
     switch (Sender)
     {
@@ -406,7 +406,7 @@ function LevelChanged()
 }
 
 defaultproperties {
-    Begin Object Class=HxGUIMapVoteCountListBox Name=VoteListBox
+    Begin Object Class=HxGUIVotingVoteListBox Name=VoteListBox
         WinLeft=0.02
         WinTop=0.052930
         WinWidth=0.58
@@ -449,7 +449,7 @@ defaultproperties {
     End Object
     co_MapSource=MapSource
 
-    Begin Object Class=HxGUIMapVoteListBox Name=MapListBox
+    Begin Object Class=HxGUIVotingMapListBox Name=MapListBox
         WinLeft=0.02
         WinTop=0.32043
         WinWidth=0.58
@@ -692,7 +692,7 @@ defaultproperties {
     End Object
     lb_MapDescription=MapDescription
 
-    Begin Object Class=HxGUIMapVoteFooter Name=MapVoteFooter
+    Begin Object Class=HxGUIVotingFooter Name=MapVoteFooter
         WinLeft=0.6075
         WinTop=0.7367
         WinWidth=0.3725

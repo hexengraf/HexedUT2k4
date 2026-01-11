@@ -1,4 +1,4 @@
-class HxGUIMapVoteBaseList extends GUIMultiColumnList;
+class HxGUIVotingBaseList extends GUIMultiColumnList;
 
 var VotingReplicationInfo VRI;
 var int PreviousSortColumn;

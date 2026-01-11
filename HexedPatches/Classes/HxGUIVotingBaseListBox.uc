@@ -1,12 +1,12 @@
-class HxGUIMapVoteBaseListBox extends GUIMultiColumnListBox;
+class HxGUIVotingBaseListBox extends GUIMultiColumnListBox;
 
 var automated GUIImage i_Background;
-var automated HxGUIMapVoteBaseList MyVoteBaseList;
+var automated HxGUIVotingBaseList MyVoteBaseList;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
     Super.InitComponent(MyController, MyOwner);
-    MyVoteBaseList = HxGUIMapVoteBaseList(List);
+    MyVoteBaseList = HxGUIVotingBaseList(List);
     MyVoteBaseList.OnDblClick = InternalOnDblClick;
 }
 
@@ -40,9 +40,9 @@ function bool InternalOnPreDraw(Canvas C)
 
 function bool InternalOnKeyEvent(out byte Key, out byte KeyState, float Delta)
 {
-    if (EInputKey(Key) == IK_Enter && HxGUIMapVotingPage(PageOwner) != None)
+    if (EInputKey(Key) == IK_Enter && HxGUIVotingPage(PageOwner) != None)
     {
-        HxGUIMapVotingPage(PageOwner).SendVoteFrom(Self);
+        HxGUIVotingPage(PageOwner).SendVoteFrom(Self);
         return true;
     }
     return false;
@@ -50,9 +50,9 @@ function bool InternalOnKeyEvent(out byte Key, out byte KeyState, float Delta)
 
 function bool InternalOnDblClick(GUIComponent Sender)
 {
-    if (HxGUIMapVotingPage(PageOwner) != None)
+    if (HxGUIVotingPage(PageOwner) != None)
     {
-        HxGUIMapVotingPage(PageOwner).SendVoteFrom(Self);
+        HxGUIVotingPage(PageOwner).SendVoteFrom(Self);
         return true;
     }
     return false;

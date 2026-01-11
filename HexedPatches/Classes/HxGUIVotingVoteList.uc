@@ -1,4 +1,4 @@
-class HXGUIMapVoteCountList extends HxGUIMapVoteBaseList;
+class HxGUIVotingVoteList extends HxGUIVotingBaseList;
 
 function OnPopulateList()
 {

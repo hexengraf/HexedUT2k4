@@ -130,5 +130,5 @@ defaultproperties
     DefaultStyleNames(64)="HexedPatches.HxSTYScrollZone"
     STYLE_NUM=65
     MainMenuOptions(6)="HexedPatches.HxGUIQuitPage"
-    MapVotingMenu="HexedPatches.HxGUIMapVotingPage"
+    MapVotingMenu="HexedPatches.HxGUIVotingPage"
 }

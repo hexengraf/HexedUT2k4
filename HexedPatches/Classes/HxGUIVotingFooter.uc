@@ -1,4 +1,4 @@
-class HxGUIMapVoteFooter extends MapVoteFooter;
+class HxGUIVotingFooter extends MapVoteFooter;
 
 var int MaxHistory;
 

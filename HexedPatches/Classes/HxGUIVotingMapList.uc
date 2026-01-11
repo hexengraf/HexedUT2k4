@@ -1,4 +1,4 @@
-class HxGUIMapVoteList extends HxGUIMapVoteBaseList;
+class HxGUIVotingMapList extends HxGUIVotingBaseList;
 
 var array<int> MapIndices;
 var HxMapVoteFilter ActiveFilter;
