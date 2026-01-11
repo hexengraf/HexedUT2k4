@@ -259,9 +259,13 @@ function PropagateEditBoxProperties()
 {
     ed_SearchName.MyComponent.Hint = ed_SearchName.Hint;
     ed_SearchName.Hint = "";
+    ed_SearchName.MyComponent.ToolTip.ExpirationSeconds = 5;
     ed_SearchName.MyComponent.FontScale = ed_SearchName.FontScale;
+    ed_SearchPlayers.MyComponent.ToolTip.ExpirationSeconds = 10;
     ed_SearchPlayers.MyComponent.FontScale = ed_SearchPlayers.FontScale;
+    ed_SearchPlayed.MyComponent.ToolTip.ExpirationSeconds = 6;
     ed_SearchPlayed.MyComponent.FontScale = ed_SearchPlayed.FontScale;
+    ed_SearchSeq.MyComponent.ToolTip.ExpirationSeconds = 6;
     ed_SearchSeq.MyComponent.FontScale = ed_SearchSeq.FontScale;
 }
 
