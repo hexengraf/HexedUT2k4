@@ -9,6 +9,15 @@ enum EHxMapSource
     HX_MAP_SOURCE_Custom,
 };
 
+enum EHxOperation
+{
+    HX_OPERATION_DontCare,
+    HX_OPERATION_LessThan,
+    HX_OPERATION_GreaterThan,
+    HX_OPERATION_EqualTo,
+    HX_OPERATION_EqualTo_Implicit,
+};
+
 struct HxPseudoRegex
 {
     var bool bEnabled;
@@ -18,18 +27,51 @@ struct HxPseudoRegex
     var array<string> Parts;
 };
 
+struct HxValueConstraint
+{
+    var EHxOperation Operation;
+    var int Value;
+};
+
+struct HxRangeConstraint
+{
+    var HxValueConstraint Min;
+    var HxValueConstraint Max;
+};
+
+struct HxSearchBar
+{
+    var HxPseudoRegex Name;
+    var HxRangeConstraint Players;
+    var HxValueConstraint Played;
+    var HxValueConstraint Sequence;
+};
+
 var config string Name;
 
 var EHxMapSource MapSource;
 var array<string> Prefixes;
-var HxPseudoRegex NameSearch;
+var HxSearchBar SearchBar;
 
-function bool Test(VotingHandler.MapVoteMapList Entry)
+function bool Match(VotingHandler.MapVoteMapList Entry)
 {
-    return TestSource(Entry.MapName) && TestPrefix(Entry.MapName) && MatchName(Entry.MapName);
+    return SourceMatch(Entry.MapName)
+        && PrefixMatch(Entry.MapName)
+        && RegexMatch(Entry.MapName, SearchBar.Name)
+        && ValueMatch(Entry.PlayCount, SearchBar.Played)
+        && ValueMatch(Entry.Sequence, SearchBar.Sequence)
+        && PropertiesMatch(Entry.MapName);
 }
 
-function bool TestSource(string MapName)
+function bool PropertiesMatch(string MapName)
+{
+    local CacheManager.MapRecord Record;
+
+    Record = class'CacheManager'.static.GetMapRecord(MapName);
+    return RangeMatch(Record.PlayerCountMin, Record.PlayerCountMax, SearchBar.Players);
+}
+
+function bool SourceMatch(string MapName)
 {
     switch (MapSource)
     {
@@ -43,7 +85,7 @@ function bool TestSource(string MapName)
     return true;
 }
 
-function bool TestPrefix(string MapName)
+function bool PrefixMatch(string MapName)
 {
     local int i;
 
@@ -57,58 +99,24 @@ function bool TestPrefix(string MapName)
     return false;
 }
 
-function bool MatchName(string MapName)
+function SetSearchBarName(string RawString, optional bool bCaseSensitive)
 {
-    return RegexMatch(MapName, NameSearch);
+    SearchBar.Name = ParseRegex(RawString, bCaseSensitive);
 }
 
-function bool RegexMatch(string Text, HxPseudoRegex Regex)
+function SetSearchBarPlayers(string RawString)
 {
-    local int Position;
-    local int Size;
-    local int i;
-
-    if (!Regex.bEnabled)
-    {
-        return true;
-    }
-    if (!Regex.bCaseSensitive)
-    {
-        Text = Caps(Text);
-    }
-    if (Regex.Prefix != "")
-    {
-        Log("Prefix:"@Regex.Prefix);
-        Size = Len(Regex.Prefix);
-        if (StrCmp(Text, Regex.Prefix, Size, Regex.bCaseSensitive) != 0)
-        {
-            return false;
-        }
-        Text = Mid(Text, Size);
-    }
-    for (i = 0; i < Regex.Parts.Length; ++i)
-    {
-        Position = InStr(Text, Regex.Parts[i]);
-        if (Position < 0)
-        {
-            return false;
-        }
-        Text = Mid(Text, Position + Len(Regex.Parts[i]));
-    }
-    if (Regex.Suffix != "")
-    {
-        Size = Len(Regex.Suffix);
-        if (StrCmp(Right(Text, Size), Regex.Suffix, Size, Regex.bCaseSensitive) != 0)
-        {
-            return false;
-        }
-    }
-    return true;
+    SearchBar.Players = ParseRangeConstraint(RawString);
 }
 
-function SetNameSearch(string RawRegex, optional bool bCaseSensitive)
+function SetSearchBarPlayed(string RawString)
 {
-    NameSearch = ParseRegex(RawRegex, bCaseSensitive);
+    SearchBar.Played = ParseValueConstraint(RawString);
+}
+
+function SetSearchBarSequence(string RawString)
+{
+    SearchBar.Sequence = ParseValueConstraint(RawString);
 }
 
 function SetPrefix(string Prefix)
@@ -122,7 +130,7 @@ function SetMapSource(int Source)
     MapSource = EHxMapSource(Source);
 }
 
-static function HxPseudoRegex ParseRegex(string RawRegex, optional bool bCaseSensitive)
+static function HxPseudoRegex ParseRegex(string RawString, optional bool bCaseSensitive)
 {
     local HxPseudoRegex Regex;
     local int Length;
@@ -130,15 +138,15 @@ static function HxPseudoRegex ParseRegex(string RawRegex, optional bool bCaseSen
 
     Regex.bCaseSensitive = bCaseSensitive;
 
-    if (RawRegex == "")
+    if (RawString == "")
     {
         return Regex;
     }
     if (!bCaseSensitive)
     {
-        RawRegex = Caps(RawRegex);
+        RawString = Caps(RawString);
     }
-    Split(RawRegex, "*", Regex.Parts);
+    Split(RawString, "*", Regex.Parts);
     if (StrCmp(Regex.Parts[0], "^", 1) == 0)
     {
         if (Len(Regex.Parts[0]) > 1)
@@ -174,6 +182,143 @@ static function HxPseudoRegex ParseRegex(string RawRegex, optional bool bCaseSen
     }
     Regex.bEnabled = Regex.Parts.Length > 0 || Regex.Prefix != "" || Regex.Suffix != "";
     return Regex;
+}
+
+static function HxRangeConstraint ParseRangeConstraint(string RawString)
+{
+    local HxRangeConstraint Constraint;
+    local string Min;
+    local string Max;
+
+    ReplaceText(RawString, " ", "");
+    if (RawString == "")
+    {
+        return Constraint;
+    }
+    if (Divide(RawString, "-", Min, Max))
+    {
+        Constraint.Min = ParseValueConstraint(Min);
+        Constraint.Max = ParseValueConstraint(Max);
+    }
+    else
+    {
+        Constraint.Min = ParseValueConstraint(RawString);
+        if (Constraint.Min.Operation == HX_OPERATION_EqualTo_Implicit)
+        {
+            Constraint.Max.Operation = HX_OPERATION_GreaterThan;
+            Constraint.Max.Value = Constraint.Min.Value - 1;
+            Constraint.Min.Operation = HX_OPERATION_LessThan;
+            Constraint.Min.Value = Constraint.Min.Value + 1;
+        }
+        else
+        {
+            Constraint.Max = Constraint.Min;
+        }
+    }
+    return Constraint;
+}
+
+static function HxValueConstraint ParseValueConstraint(string RawString)
+{
+    local HxValueConstraint Constraint;
+    local string Operation;
+
+    if (InStr(RawString, "*") > -1 || RawString == "")
+    {
+        return Constraint;
+    }
+    Operation = Left(RawString, 1);
+    if (Operation == "<")
+    {
+        RawString = Right(RawString, Len(RawString) - 1);
+        Constraint.Operation = HX_OPERATION_LessThan;
+    }
+    else if (Operation == ">")
+    {
+        RawString = Right(RawString, Len(RawString) - 1);
+        Constraint.Operation = HX_OPERATION_GreaterThan;
+    }
+    else if (Operation == "=")
+    {
+        RawString = Right(RawString, Len(RawString) - 1);
+        Constraint.Operation = HX_OPERATION_EqualTo;
+    }
+    else
+    {
+        Constraint.Operation = HX_OPERATION_EqualTo_Implicit;
+    }
+    if (RawString != "")
+    {
+        Constraint.Value = int(RawString);
+    }
+    return Constraint;
+}
+
+static function bool RegexMatch(string Text, HxPseudoRegex Regex)
+{
+    local int Position;
+    local int Size;
+    local int i;
+
+    if (!Regex.bEnabled)
+    {
+        return true;
+    }
+    if (!Regex.bCaseSensitive)
+    {
+        Text = Caps(Text);
+    }
+    if (Regex.Prefix != "")
+    {
+        Size = Len(Regex.Prefix);
+        if (StrCmp(Text, Regex.Prefix, Size, Regex.bCaseSensitive) != 0)
+        {
+            return false;
+        }
+        Text = Mid(Text, Size);
+    }
+    for (i = 0; i < Regex.Parts.Length; ++i)
+    {
+        Position = InStr(Text, Regex.Parts[i]);
+        if (Position < 0)
+        {
+            return false;
+        }
+        Text = Mid(Text, Position + Len(Regex.Parts[i]));
+    }
+    if (Regex.Suffix != "")
+    {
+        Size = Len(Regex.Suffix);
+        if (StrCmp(Right(Text, Size), Regex.Suffix, Size, Regex.bCaseSensitive) != 0)
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+function bool RangeMatch(int Min, int Max, HxRangeConstraint Constraint)
+{
+    return ValueMatch(Min, Constraint.Min) && ValueMatch(Max, Constraint.Max);
+}
+
+function bool ValueMatch(int Value, HxValueConstraint Constraint)
+{
+    switch (Constraint.Operation)
+    {
+        case HX_OPERATION_DontCare:
+            return true;
+        case HX_OPERATION_LessThan:
+            return Value < Constraint.Value;
+        case HX_OPERATION_GreaterThan:
+            return Value > Constraint.Value;
+        case HX_OPERATION_EqualTo:
+        case HX_OPERATION_EqualTo_Implicit:
+            return Value == Constraint.Value;
+        default:
+            break;
+    }
+    return true;
 }
 
 defaultproperties

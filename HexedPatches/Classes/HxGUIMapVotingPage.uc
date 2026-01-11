@@ -4,6 +4,9 @@ var automated HxGUIMapVoteListBox lb_MapVoteListBox;
 var automated HxGUIMapVoteCountListBox lb_MapVoteCountListBox;
 var automated moComboBox co_MapSource;
 var automated moEditBox ed_NameSearch;
+var automated moEditBox ed_PlayersSearch;
+var automated moEditBox ed_PlayedSearch;
+var automated moEditBox ed_SequenceSearch;
 var automated moCheckBox ch_CaseSensitive;
 var automated AltSectionBackground sb_MapPreview;
 var automated GUIImage i_MapPreviewBackground;
@@ -30,10 +33,10 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     lb_MapVoteListBox.SetFilter(ActiveFilter);
     lb_MapVoteListBox.List.OnDblClick = OnMapListDoubleClick;
     lb_MapVoteCountListBox.List.OnDblClick = OnMapListDoubleClick;
-    ed_NameSearch.MyComponent.FontScale = ed_NameSearch.FontScale;
     AdjustWindowSize(Controller.ResX, Controller.ResY);
-    PopulateStaticLists();
-    SetTimer(0.02, true);
+    PropagateFontScale();
+    PopulateLocalLists();
+    MVRI = None;
 }
 
 function InternalOnOpen()
@@ -60,13 +63,13 @@ event Timer()
             ShowDisabledMessage();
         }
         else if (MVRI.GameConfig.Length < MVRI.GameConfigCount
-                 && MVRI.MapList.Length < MVRI.MapCount)
+                 || MVRI.MapList.Length < MVRI.MapCount)
         {
             ShowLoadingCaption();
         }
         else
         {
-            PopulateDynamicLists();
+            PopulateRemoteLists();
             KillTimer();
         }
     }
@@ -87,7 +90,7 @@ function ShowLoadingCaption()
     t_WindowTitle.Caption = WindowName@"("$LoadingText$")";
 }
 
-function PopulateDynamicLists()
+function PopulateRemoteLists()
 {
     local int i;
 
@@ -102,7 +105,7 @@ function PopulateDynamicLists()
     t_WindowTitle.Caption = WindowName@"("$lmsgMode[MVRI.Mode]$")";
 }
 
-function PopulateStaticLists()
+function PopulateLocalLists()
 {
     local int i;
 
@@ -167,7 +170,25 @@ function OnChangeMapSource(GUIComponent Sender)
 
 function OnChangeNameSearch(GUIComponent Sender)
 {
-    ActiveFilter.SetNameSearch(ed_NameSearch.GetText(), ch_CaseSensitive.IsChecked());
+    ActiveFilter.SetSearchBarName(ed_NameSearch.GetText(), ch_CaseSensitive.IsChecked());
+    lb_MapVoteListBox.FilterUpdated();
+}
+
+function OnChangePlayersSearch(GUIComponent Sender)
+{
+    ActiveFilter.SetSearchBarPlayers(ed_PlayersSearch.GetText());
+    lb_MapVoteListBox.FilterUpdated();
+}
+
+function OnChangePlayedSearch(GUIComponent Sender)
+{
+    ActiveFilter.SetSearchBarPlayed(ed_PlayedSearch.GetText());
+    lb_MapVoteListBox.FilterUpdated();
+}
+
+function OnChangeSequenceSearch(GUIComponent Sender)
+{
+    ActiveFilter.SetSearchBarSequence(ed_SequenceSearch.GetText());
     lb_MapVoteListBox.FilterUpdated();
 }
 
@@ -191,6 +212,14 @@ function AdjustWindowSize(coerce float X, coerce float Y)
     WinLeft = default.WinLeft + ((default.WinWidth - WinWidth) / 2);
 }
 
+function PropagateFontScale()
+{
+    ed_NameSearch.MyComponent.FontScale = ed_NameSearch.FontScale;
+    ed_PlayersSearch.MyComponent.FontScale = ed_PlayersSearch.FontScale;
+    ed_PlayedSearch.MyComponent.FontScale = ed_PlayedSearch.FontScale;
+    ed_SequenceSearch.MyComponent.FontScale = ed_SequenceSearch.FontScale;
+}
+
 function ResetMapPreview()
 {
     SelectedMapName = "";
@@ -206,6 +235,7 @@ function ResetMapPreview()
 function bool InternalOnPreDraw(Canvas C)
 {
     UpdateMapPreview(GetFocusedMapName());
+    UpdateSearchBar();
     return Super.InternalOnPreDraw(C);
 }
 
@@ -263,6 +293,23 @@ function UpdateMapPreview(string MapName)
         lb_MapDescription.SetVisibility(true);
         lb_MapDescription.SetContent(GetMapDescription(Record));
         SelectedMapName = MapName;
+    }
+}
+
+function UpdateSearchBar()
+{
+    local float Width;
+
+    if (lb_MapVoteListBox.List.ColumnWidths.Length >= 3)
+    {
+        Width = ActualWidth();
+        ed_NameSearch.WinWidth = (lb_MapVoteListBox.List.ColumnWidths[0] / Width) - 0.001;
+        ed_PlayersSearch.WinLeft = ed_NameSearch.WinLeft + ed_NameSearch.WinWidth + 0.001;
+        ed_PlayersSearch.WinWidth = (lb_MapVoteListBox.List.ColumnWidths[1] / Width) - 0.001;
+        ed_PlayedSearch.WinLeft = ed_PlayersSearch.WinLeft + ed_PlayersSearch.WinWidth + 0.001;
+        ed_PlayedSearch.WinWidth = (lb_MapVoteListBox.List.ColumnWidths[2] / Width) - 0.001;
+        ed_SequenceSearch.WinLeft = ed_PlayedSearch.WinLeft + ed_PlayedSearch.WinWidth + 0.001;
+        ed_SequenceSearch.WinWidth = lb_MapVoteListBox.WinWidth - ed_SequenceSearch.WinLeft - 0.001;
     }
 }
 
@@ -389,11 +436,56 @@ defaultproperties {
     End Object
     ed_NameSearch=NameSearchBox
 
+    Begin Object class=moEditBox Name=PlayersSearchEditBox
+        WinTop=0.92527
+        WinHeight=0.03143
+        LabelFont="HxSmallerFont"
+        FontScale=FNS_Small
+        CaptionWidth=0.001
+        TabOrder=5
+        bStandardized=true
+        StandardHeight=0.0275
+        bBoundToParent=true
+        bScaleToParent=true
+        OnChange=OnChangePlayersSearch
+    End Object
+    ed_PlayersSearch=PlayersSearchEditBox
+
+    Begin Object class=moEditBox Name=PlayedSearchEditBox
+        WinTop=0.92527
+        WinHeight=0.03143
+        LabelFont="HxSmallerFont"
+        FontScale=FNS_Small
+        CaptionWidth=0.001
+        TabOrder=6
+        bStandardized=true
+        StandardHeight=0.0275
+        bBoundToParent=true
+        bScaleToParent=true
+        OnChange=OnChangePlayedSearch
+    End Object
+    ed_PlayedSearch=PlayedSearchEditBox
+
+    Begin Object class=moEditBox Name=SequenceSearchEditBox
+        WinTop=0.92527
+        WinHeight=0.03143
+        LabelFont="HxSmallerFont"
+        FontScale=FNS_Small
+        CaptionWidth=0.001
+        TabOrder=7
+        bStandardized=true
+        StandardHeight=0.0275
+        bBoundToParent=true
+        bScaleToParent=true
+        OnChange=OnChangeSequenceSearch
+    End Object
+    ed_SequenceSearch=SequenceSearchEditBox
+
     Begin Object class=moCheckBox Name=CaseSensitiveCheckBox
         Hint="Case Sensitive"
-        WinLeft=0.578
+        WinLeft=0.5805
         WinTop=0.92527
-        WinWidth=0.0225
+        WinWidth=0.02
         WinHeight=0.03143
         bSquare=true
         bStandardized=true
@@ -401,7 +493,7 @@ defaultproperties {
         bBoundToParent=true
         bScaleToParent=true
         ComponentJustification=TXTA_Right
-        TabOrder=5
+        TabOrder=8
         OnChange=OnChangeNameSearch
     End Object
     ch_CaseSensitive=CaseSensitiveCheckBox
@@ -547,7 +639,7 @@ defaultproperties {
         RenderWeight=0.5
         bBoundToParent=true
         bScaleToParent=true
-        TabOrder=6
+        TabOrder=9
     End Object
     f_Chat=MapVoteFooter
 
