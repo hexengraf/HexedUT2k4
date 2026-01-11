@@ -66,8 +66,8 @@ defaultproperties
         WinWidth=1
         WinHeight=1
         Image=Material'2K4Menus.NewControls.NewFooter'
-        Y1=2
-        ImageColor=(R=255,G=255,B=255,A=192)
+        Y1=10
+        ImageColor=(R=255,G=255,B=255,A=255)
         ImageStyle=ISTY_Stretched
         bScaleToParent=true
         bBoundToParent=true

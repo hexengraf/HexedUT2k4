@@ -555,8 +555,8 @@ defaultproperties {
         WinWidth=0.3725
         WinHeight=0.4808468
         Image=Material'2K4Menus.NewControls.NewFooter'
-        Y1=2
-        ImageColor=(R=255,G=255,B=255,A=192)
+        Y1=10
+        ImageColor=(R=255,G=255,B=255,A=255)
         ImageStyle=ISTY_Stretched
         RenderWeight=0.1
         bScaleToParent=true
@@ -606,7 +606,7 @@ defaultproperties {
         TextAlign=TXTA_Center
         VertAlign=TXTA_Center
         TextColor=(R=255,G=210,B=0,A=255)
-        BackColor=(R=37,G=71,B=139,A=255)
+        BackColor=(R=38,G=59,B=126,A=255)
         bTransparent=false
         bVisible=false
         RenderWeight=1
@@ -625,7 +625,7 @@ defaultproperties {
         TextAlign=TXTA_Center
         VertAlign=TXTA_Center
         TextColor=(R=255,G=210,B=0,A=255)
-        BackColor=(R=37,G=71,B=139,A=255)
+        BackColor=(R=38,G=59,B=126,A=255)
         bTransparent=false
         RenderWeight=1
         bScaleToParent=true

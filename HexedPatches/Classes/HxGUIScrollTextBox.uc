@@ -7,12 +7,19 @@ enum EHxLayoutState
     HX_LAYOUT_Updated,
 };
 
+struct HxColorReplacement
+{
+    var Color Match;
+    var Color ReplaceWith;
+};
+
 var automated GUIImage i_Background;
 
 var float HorizontalPadding;
 var float VerticalPadding;
 var float ScrollBarWidth;
 var Color BackgroundColor;
+var array<HxColorReplacement> ColorReplacements;
 var bool bCenter;
 
 var EHxLayoutState LayoutState;
@@ -117,10 +124,52 @@ function CenterText()
     }
 }
 
+function string ReplaceColorCodes(string Text)
+{
+    local Color Color;
+    local string NewText;
+    local string Code;
+    local int Position;
+    local int i;
+
+    Position = InStr(Text, Chr(27));
+    while (Position > -1)
+    {
+        NewText $= Left(Text, Position);
+        Code = Mid(Text, Position, 4);
+        Color.R = Asc(Mid(Code, 1, 1));
+        Color.G = Asc(Mid(Code, 2, 1));
+        Color.B = Asc(Mid(Code, 3, 1));
+        for (i = 0; i < ColorReplacements.Length; ++i)
+        {
+            if (Color == ColorReplacements[i].Match)
+            {
+                Color = ColorReplacements[i].ReplaceWith;
+            }
+        }
+        NewText $= MakeColorCode(Color);
+        Text = Mid(Text, Position + 4);
+        Position = InStr(Text, Chr(27));
+    }
+    return NewText$Text;
+}
+
 function SetContent(string NewContent, optional string sep)
 {
     LayoutState = HX_LAYOUT_Outdated;
     Super.SetContent(NewContent, sep);
+}
+
+function AddText(string NewText)
+{
+    if (ColorReplacements.Length > 0)
+    {
+        Super.AddText(ReplaceColorCodes(NewText));
+    }
+    else
+    {
+        Super.AddText(NewText);
+    }
 }
 
 defaultproperties
@@ -131,7 +180,7 @@ defaultproperties
         WinWidth=1
         WinHeight=1
         Image=Material'2K4Menus.NewControls.NewFooter'
-        Y1=2
+        Y1=10
         ImageStyle=ISTY_Stretched
         RenderWeight=0.1
     End Object
@@ -149,7 +198,7 @@ defaultproperties
     HorizontalPadding=0.02
     VerticalPadding=0.05
     ScrollBarWidth=0.025
-    BackgroundColor=(R=255,G=255,B=255,A=192)
+    BackgroundColor=(R=255,G=255,B=255,A=255)
     bCenter=false
     OnPreDraw=InternalOnPreDraw
 }

@@ -1,6 +1,8 @@
 class HxGUIVotingFooter extends MapVoteFooter;
 
 var int MaxHistory;
+var Color FallbackColor;
+var Color MessageColor;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
@@ -10,9 +12,19 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     OnDraw = None;
 }
 
-function ReceiveChat(string Msg)
+function ReceiveChat(string Message)
 {
-    lb_Chat.AddText(Msg);
+    local string Name;
+    local string Text;
+
+    if (Divide(Message, ":", Name, Text))
+    {
+        lb_Chat.AddText(MakeColorCode(FallbackColor)$Name$":"$MakeColorCode(MessageColor)$Text);
+    }
+    else
+    {
+        lb_Chat.AddText(MakeColorCode(FallbackColor)$StripColorCodes(Message));
+    }
     if (lb_Chat.MyScrollText.ItemCount > MaxHistory)
     {
         lb_Chat.MyScrollText.Remove(0, lb_Chat.MyScrollText.ItemCount - MaxHistory);
@@ -43,7 +55,8 @@ defaultproperties
         bVisibleWhenEmpty=true
         bNoTeletype=true
         bNeverFocus=true
-        bStripColors=false
+        bStripColors=true
+        ColorReplacements(0)=(Match=(R=200,G=1,B=1),ReplaceWith=(R=255,G=66,B=66))
         bCenter=false
         TabOrder=2
     End Object
@@ -72,4 +85,6 @@ defaultproperties
     b_Close=None
 
     MaxHistory=64
+    FallbackColor=(R=239,G=191,B=4,A=255)
+    MessageColor=(R=236,G=236,B=236)
 }

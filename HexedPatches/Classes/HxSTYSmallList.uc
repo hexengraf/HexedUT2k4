@@ -10,7 +10,7 @@ defaultproperties
     FontNames(3)="HxSmallerFont"
     FontNames(4)="HxSmallerFont"
 
-    FontColors(4)=(R=172,G=172,B=172,A=255)
+    FontColors(4)=(R=255,G=255,B=255,A=255)
 
     BorderOffsets(0)=5
     BorderOffsets(1)=5
