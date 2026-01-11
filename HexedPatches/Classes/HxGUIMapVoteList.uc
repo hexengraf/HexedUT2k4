@@ -7,9 +7,10 @@ function OnPopulateList()
 {
     local int i;
 
+    Clear();
     for (i = 0; i < VRI.MapList.Length; ++i)
     {
-        if (ActiveFilter.Test(VRI.MapList[i]))
+        if (ActiveFilter.Match(VRI.MapList[i]))
         {
             MapIndices[MapIndices.Length] = i;
             AddedItem();
@@ -20,7 +21,6 @@ function OnPopulateList()
 
 function FilterUpdated()
 {
-    Clear();
     if (VRI != None)
     {
         OnPopulateList();
@@ -53,7 +53,7 @@ function SetFilter(HxMapVoteFilter Filter)
 
 function Clear()
 {
-    MapIndices.Length = 0;
+	MapIndices.Remove(0, MapIndices.Length);
     Super.Clear();
 }
 
