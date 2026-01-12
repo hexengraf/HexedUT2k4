@@ -199,7 +199,7 @@ defaultproperties
     bRequiresStyle=true
     StyleName="HxSmallText"
     SelectedStyleName="HxSmallText"
-	DefaultListClass="HexedPatches.HxGUIScrollText"
+    DefaultListClass="HexedPatches.HxGUIScrollText"
     LineSpacing=0.002
     HorizontalPadding=0.02
     VerticalPadding=0.05

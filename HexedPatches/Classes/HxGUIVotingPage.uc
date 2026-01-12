@@ -42,7 +42,7 @@ function InternalOnOpen()
 {
     if (MVRI == None)
     {
-	    MVRI = VotingReplicationInfo(PlayerOwner().VoteReplicationInfo);
+        MVRI = VotingReplicationInfo(PlayerOwner().VoteReplicationInfo);
         SetTimer(0.02, true);
     }
 }

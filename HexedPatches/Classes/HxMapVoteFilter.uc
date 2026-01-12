@@ -1,6 +1,6 @@
 class HxMapVoteFilter extends Object
-	Config(HxMapVoteFilters)
-	PerObjectConfig;
+    Config(HxMapVoteFilters)
+    PerObjectConfig;
 
 enum EHxMapSource
 {

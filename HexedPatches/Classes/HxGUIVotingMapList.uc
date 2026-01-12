@@ -53,7 +53,7 @@ function SetFilter(HxMapVoteFilter Filter)
 
 function Clear()
 {
-	MapIndices.Remove(0, MapIndices.Length);
+    MapIndices.Remove(0, MapIndices.Length);
     Super.Clear();
 }
 
