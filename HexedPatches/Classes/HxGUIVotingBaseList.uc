@@ -1,5 +1,7 @@
 class HxGUIVotingBaseList extends GUIMultiColumnList;
 
+var float LineSpacing;
+
 var VotingReplicationInfo VRI;
 var int PreviousSortColumn;
 
@@ -45,11 +47,22 @@ function bool InternalOnKeyEvent(out byte Key, out byte State, float Delta)
     return Super.InternalOnKeyEvent(Key, State, Delta);
 }
 
+function float GetSpacedItemHeight(Canvas C)
+{
+    local float XL;
+    local float YL;
+
+    Style.TextSize(C, MenuState, "A", XL, YL, FontScale);
+    return Round(YL + LineSpacing * C.ClipY);
+}
+
 defaultproperties
 {
+    LineSpacing=0.003
     ExpandLastColumn=true
     bDropSource=false
     bDropTarget=false
     StyleName="HxSmallList"
     SelectedStyleName="HxSmallListSelection"
+    GetItemHeight=GetSpacedItemHeight
 }

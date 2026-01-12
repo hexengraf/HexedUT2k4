@@ -42,7 +42,7 @@ function bool InternalOnPreDraw(Canvas C)
     }
     if (bCenter)
     {
-        CenterText();
+        CenterText(C);
     }
     return false;
 }
@@ -78,7 +78,7 @@ function SetPaddedPosition(float Left, float Top, float Width, float Height)
     SetPosition(Left + XOffset, Top + YOffset, Width - (2 * XOffset), Height - (2 * YOffset), true);
 }
 
-function CenterText()
+function CenterText(Canvas C)
 {
     local float MaxHeight;
     local float ContentHeight;
@@ -98,6 +98,9 @@ function CenterText()
             {
                 MaxHeight = ActualHeight();
                 ContentHeight = MyScrollText.ItemCount * MyScrollText.ItemHeight;
+                Log("MyScrollText.ItemCount:"@MyScrollText.ItemCount);
+                Log("MaxHeight:"@MaxHeight);
+                Log("ContentHeight:"@ContentHeight);
                 if (ContentHeight > MaxHeight)
                 {
                     SetPosition(
@@ -195,6 +198,7 @@ defaultproperties
     bRequiresStyle=true
     StyleName="HxSmallText"
     SelectedStyleName="HxSmallText"
+	DefaultListClass="HexedPatches.HxGUIScrollText"
     HorizontalPadding=0.02
     VerticalPadding=0.05
     ScrollBarWidth=0.025
