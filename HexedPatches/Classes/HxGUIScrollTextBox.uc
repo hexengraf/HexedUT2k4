@@ -103,9 +103,6 @@ function CenterText(Canvas C)
             {
                 MaxHeight = ActualHeight();
                 ContentHeight = MyScrollText.ItemCount * MyScrollText.ItemHeight;
-                Log("MyScrollText.ItemCount:"@MyScrollText.ItemCount);
-                Log("MaxHeight:"@MaxHeight);
-                Log("ContentHeight:"@ContentHeight);
                 if (ContentHeight > MaxHeight)
                 {
                     SetPosition(
