@@ -16,15 +16,17 @@ function OnPopulateList()
             AddedItem();
         }
     }
-    NeedsSorting = true;
+    SortList();
 }
 
-function FilterUpdated()
+function bool FilterUpdated(optional string SelectMapName)
 {
     if (VRI != None)
     {
         OnPopulateList();
+        return SetIndexByMapName(SelectMapName);
     }
+    return false;
 }
 
 function int GetMapIndex()
@@ -36,13 +38,32 @@ function int GetMapIndex()
     return -1;
 }
 
-function string GetSelectedMapName()
+function string GetMapName()
 {
     if(Index > -1)
     {
         return GetVRIEntry(SortData[Index].SortItem).MapName;
     }
     return "";
+}
+
+function bool SetIndexByMapName(string MapName)
+{
+    local int i;
+
+    if (MapName != "")
+    {
+        for (i = 0; i < MapIndices.Length; ++i)
+        {
+            if (GetVRIEntry(SortData[i].SortItem).MapName == MapName)
+            {
+                SetTopItem(i - ItemsPerPage / 2);
+                SetIndex(i);
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 function SetFilter(HxMapVoteFilter Filter)
@@ -151,10 +172,10 @@ defaultproperties
     ColumnHeadingHints(1)="Number of recommended players."
     ColumnHeadingHints(2)="Number of times the map has been played."
     ColumnHeadingHints(3)="Sequence, The number of games that have been played since this map was last played."
-    InitColumnPerc(0)=0.55
+    InitColumnPerc(0)=0.525
     InitColumnPerc(1)=0.175
     InitColumnPerc(2)=0.15
-    InitColumnPerc(3)=0.075
+    InitColumnPerc(3)=0.15
 
     SortColumn=0
     PreviousSortColumn=0

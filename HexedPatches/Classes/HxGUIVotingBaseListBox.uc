@@ -3,11 +3,15 @@ class HxGUIVotingBaseListBox extends GUIMultiColumnListBox;
 var automated GUIImage i_Background;
 var automated HxGUIVotingBaseList MyVoteBaseList;
 
+var bool bScrollBarVisible;
+var float SizeShiftScale;
+
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
     Super.InitComponent(MyController, MyOwner);
     MyVoteBaseList = HxGUIVotingBaseList(List);
     MyVoteBaseList.OnDblClick = InternalOnDblClick;
+    SizeShiftScale = 1.0 - HxGUIVertScrollBar(MyScrollBar).WidthScale;
 }
 
 function PopulateList(VotingReplicationInfo MVRI)
@@ -20,9 +24,9 @@ function int GetMapIndex()
     return MyVoteBaseList.GetMapIndex();
 }
 
-function string GetSelectedMapName()
+function string GetMapName()
 {
-    return MyVoteBaseList.GetSelectedMapName();
+    return MyVoteBaseList.GetMapName();
 }
 
 function Clear()
@@ -33,8 +37,23 @@ function Clear()
 function bool InternalOnPreDraw(Canvas C)
 {
     i_Background.WinTop = Header.ActualHeight();
-    i_Background.WinWidth = List.WinWidth;
     i_Background.WinHeight = List.WinHeight;
+    if (List.ItemCount > List.ItemsPerPage)
+    {
+        if (!bScrollBarVisible)
+        {
+            i_Background.WinWidth = ActualWidth();
+            WinWidth = i_Background.WinWidth + (Header.ActualHeight() * SizeShiftScale);
+            bScrollBarVisible = true;
+            return true;
+        }
+    }
+    else if (bScrollBarVisible)
+    {
+        WinWidth = i_Background.WinWidth;
+        bScrollBarVisible = false;
+        return true;
+    }
     return false;
 }
 
@@ -74,6 +93,12 @@ defaultproperties
         RenderWeight=0.1
     End Object
     i_Background=Background
+
+    Begin Object Class=HxGUIVertScrollBar Name=NewTheScrollbar
+        WidthScale=0.6
+        bScaleToParent=true
+    End Object
+    MyScrollBar=NewTheScrollbar
 
     StyleName="HxSmallList"
     SelectedStyleName="HxSmallListSelection"

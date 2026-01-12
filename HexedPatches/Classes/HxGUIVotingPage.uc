@@ -206,38 +206,46 @@ function OnChangeGameType(GUIComponent Sender)
     if (Type > -1)
     {
         ActiveFilter.SetPrefix(MVRI.GameConfig[Type].Prefix);
-        lb_MapList.FilterUpdated();
+        OnFilterChange();
     }
 }
 
 function OnChangeMapSource(GUIComponent Sender)
 {
     ActiveFilter.SetMapSource(co_MapSource.GetIndex());
-    lb_MapList.FilterUpdated();
+    OnFilterChange();
 }
 
 function OnChangeNameSearch(GUIComponent Sender)
 {
     ActiveFilter.SetSearchBarName(ed_SearchName.GetText(), ch_CaseSensitive.IsChecked());
-    lb_MapList.FilterUpdated();
+    OnFilterChange();
 }
 
 function OnChangePlayersSearch(GUIComponent Sender)
 {
     ActiveFilter.SetSearchBarPlayers(ed_SearchPlayers.GetText());
-    lb_MapList.FilterUpdated();
+    OnFilterChange();
 }
 
 function OnChangePlayedSearch(GUIComponent Sender)
 {
     ActiveFilter.SetSearchBarPlayed(ed_SearchPlayed.GetText());
-    lb_MapList.FilterUpdated();
+    OnFilterChange();
 }
 
 function OnChangeSequenceSearch(GUIComponent Sender)
 {
     ActiveFilter.SetSearchBarSequence(ed_SearchSeq.GetText());
-    lb_MapList.FilterUpdated();
+    OnFilterChange();
+}
+
+function OnFilterChange()
+{
+    if (!lb_MapList.FilterUpdated(SelectedMapName))
+    {
+        ResetMapPreview();
+    }
 }
 
 function OnCloseQuestionPage(optional bool bCanceled)
@@ -289,11 +297,11 @@ function string GetFocusedMapName()
 {
     if (lb_MapList.bHasFocus)
     {
-        return lb_MapList.GetSelectedMapName();
+        return lb_MapList.GetMapName();
     }
     if (lb_VoteList.bHasFocus)
     {
-        return lb_VoteList.GetSelectedMapName();
+        return lb_VoteList.GetMapName();
     }
     return SelectedMapName;
 }
@@ -354,7 +362,7 @@ function UpdateSearchBarWidth()
         ed_SearchPlayed.WinLeft = ed_SearchPlayers.WinLeft + ed_SearchPlayers.WinWidth + 0.001;
         ed_SearchPlayed.WinWidth = (lb_MapList.List.ColumnWidths[2] / Width) - 0.001;
         ed_SearchSeq.WinLeft = ed_SearchPlayed.WinLeft + ed_SearchPlayed.WinWidth + 0.001;
-        ed_SearchSeq.WinWidth = lb_MapList.WinWidth - ed_SearchSeq.WinLeft - 0.0013;
+        ed_SearchSeq.WinWidth = ch_CaseSensitive.WinLeft - ed_SearchSeq.WinLeft - 0.002;
     }
 }
 

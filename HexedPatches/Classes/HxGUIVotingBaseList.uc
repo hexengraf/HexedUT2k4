@@ -8,7 +8,7 @@ var int PreviousSortColumn;
 function OnPopulateList();
 function string GetNormalizedString(int Row, int Column);
 function int GetMapIndex();
-function string GetSelectedMapName();
+function string GetMapName();
 
 function PopulateList(VotingReplicationInfo MVRI)
 {
@@ -59,7 +59,6 @@ function float GetSpacedItemHeight(Canvas C)
 defaultproperties
 {
     LineSpacing=0.003
-    ExpandLastColumn=true
     bDropSource=false
     bDropTarget=false
     StyleName="HxSmallList"

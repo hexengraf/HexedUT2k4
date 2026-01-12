@@ -49,7 +49,7 @@ defaultproperties
         WinLeft=0
         WinTop=0
         WinWidth=1
-        WinHeight=0.82
+        WinHeight=0.824
         bBoundToParent=true
         bScaleToParent=true
         bVisibleWhenEmpty=true

@@ -46,7 +46,7 @@ function int GetMapIndex()
     return Index;
 }
 
-function string GetSelectedMapName()
+function string GetMapName()
 {
     if (Index > -1)
     {

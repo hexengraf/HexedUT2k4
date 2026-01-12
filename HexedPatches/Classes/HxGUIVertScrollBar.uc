@@ -1,21 +1,28 @@
 class HxGUIVertScrollBar extends GUIVertScrollBar;
 
+var float WidthScale;
 var bool bOutside;
 
 function bool GripPreDraw(GUIComponent Sender)
 {
-    local float Width;
-
-    Width = ActualWidth();
+    if (WidthScale != 1.0)
+    {
+        WinWidth = ActualWidth() * WidthScale;
+    }
+    else
+    {
+        WinWidth = ActualWidth();
+    }
     if (bOutside)
     {
-        WinLeft = ActualLeft() + Width;
+        WinLeft = ActualLeft() + WinWidth;
     }
-    WinTop = ActualTop() - Width;
-    WinHeight = ActualHeight() + 2 * Width;
+    WinTop = ActualTop() - WinWidth;
+    WinHeight = ActualHeight() + 2 * WinWidth;
     MyDecreaseButton.SetVisibility(false);
     MyIncreaseButton.SetVisibility(false);
-    return Super.GripPreDraw(Sender);
+    Super.GripPreDraw(Sender);
+    return true;
 }
 
 function ZoneClick(float Delta)
@@ -49,6 +56,8 @@ defaultproperties
         OnMousePressed=GripPressed
     End Object
 
+    WidthScale=1.0
+    bOutside=false
     MyScrollZone=ScrollZone
     MyDecreaseButton=UpBut
     MyIncreaseButton=DownBut

@@ -5,16 +5,16 @@ function SetFilter(HxMapVoteFilter Filter)
     HxGUIVotingMapList(MyVoteBaseList).SetFilter(Filter);
 }
 
-function FilterUpdated()
+function bool FilterUpdated(optional string SelectMapName)
 {
-    HxGUIVotingMapList(MyVoteBaseList).FilterUpdated();
+    return HxGUIVotingMapList(MyVoteBaseList).FilterUpdated(SelectMapName);
 }
 
 defaultproperties
 {
-    HeaderColumnPerc(0)=0.55
+    HeaderColumnPerc(0)=0.525
     HeaderColumnPerc(1)=0.175
     HeaderColumnPerc(2)=0.15
-    HeaderColumnPerc(3)=0.075
+    HeaderColumnPerc(3)=0.15
     DefaultListClass="HexedPatches.HxGUIVotingMapList"
 }
