@@ -423,7 +423,7 @@ defaultproperties {
         Hint="Select game type to show."
         WinLeft=0.02
         WinTop=0.27293
-        WinWidth=0.37
+        WinWidth=0.39
         WinHeight=0.0375
         CaptionWidth=0.001
         bScaleToParent=true
@@ -436,9 +436,9 @@ defaultproperties {
     Begin Object class=moComboBox Name=MapSource
         Caption="Source:"
         Hint="Select map sources to show."
-        WinLeft=0.4
+        WinLeft=0.42
         WinTop=0.27293
-        WinWidth=0.2
+        WinWidth=0.18
         WinHeight=0.0375
         CaptionWidth=0.001
         bReadOnly=true
