@@ -85,6 +85,6 @@ defaultproperties
     b_Close=None
 
     MaxHistory=64
-    FallbackColor=(R=239,G=191,B=4,A=255)
+    FallbackColor=(R=255,G=210,B=0,A=255)
     MessageColor=(R=236,G=236,B=236)
 }
