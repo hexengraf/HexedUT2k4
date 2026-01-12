@@ -1,5 +1,6 @@
 class HxGUIScrollTextBox extends GUIScrollTextBox;
 
+
 enum EHxLayoutState
 {
     HX_LAYOUT_Outdated,
@@ -15,12 +16,14 @@ struct HxColorReplacement
 
 var automated GUIImage i_Background;
 
+var float LineSpacing;
 var float HorizontalPadding;
 var float VerticalPadding;
 var float ScrollBarWidth;
 var Color BackgroundColor;
 var array<HxColorReplacement> ColorReplacements;
 var bool bCenter;
+var bool bScrollBarOutside;
 
 var EHxLayoutState LayoutState;
 var bool bPaddingApplied;
@@ -30,7 +33,9 @@ var int SavedOffsets[4];
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
     Super.InitComponent(MyController, MyOwner);
+    HxGUIScrollText(MyScrollText).LineSpacing = LineSpacing;
     MyScrollBar.WinWidth = ScrollBarWidth;
+    HxGUIVertScrollBar(MyScrollBar).bOutside = bScrollBarOutside;
     i_Background.ImageColor = BackgroundColor;
 }
 
@@ -66,7 +71,7 @@ function SetPaddedPosition(float Left, float Top, float Width, float Height)
 
     BufferWidth = MyScrollBar.ActualWidth();
     XOffset = HorizontalPadding * Width;
-    if (!bCenter)
+    if (!bCenter && bScrollBarOutside)
     {
         Width -= BufferWidth / 2;
     }
@@ -190,7 +195,6 @@ defaultproperties
     i_Background=Background
 
     Begin Object Class=HxGUIVertScrollBar Name=NewTheScrollbar
-        bOutside=true
         bScaleToParent=true
     End Object
     MyScrollBar=NewTheScrollbar
@@ -199,10 +203,12 @@ defaultproperties
     StyleName="HxSmallText"
     SelectedStyleName="HxSmallText"
 	DefaultListClass="HexedPatches.HxGUIScrollText"
+    LineSpacing=0.002
     HorizontalPadding=0.02
     VerticalPadding=0.05
     ScrollBarWidth=0.025
     BackgroundColor=(R=255,G=255,B=255,A=255)
     bCenter=false
+    bScrollBarOutside=true
     OnPreDraw=InternalOnPreDraw
 }

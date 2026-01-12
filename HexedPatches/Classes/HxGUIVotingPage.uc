@@ -14,9 +14,8 @@ var automated GUIImage i_Preview;
 var automated GUILabel l_ReceivingMapList;
 var automated GUILabel l_NoMapSelected;
 var automated GUILabel l_NoPreview;
-var automated GUILabel l_MapPlayerCount;
 var automated GUILabel l_MapName;
-var automated GUILabel l_MapAuthor;
+var automated HxGUIScrollTextBox lb_MapPreviewFooter;
 var automated HxGUIScrollTextBox lb_MapDescription;
 
 var localized string LoadingText;
@@ -273,10 +272,8 @@ function ResetMapPreview()
 {
     SelectedMapName = "";
     l_MapName.Caption = "";
-    l_MapPlayerCount.Caption = "";
-    l_MapAuthor.Caption = "";
+    lb_MapPreviewFooter.SetContent("");
     lb_MapDescription.SetContent("");
-    lb_MapDescription.SetVisibility(false);
     i_Preview.Image = None;
     i_Preview.SetVisibility(false);
 }
@@ -329,17 +326,16 @@ function UpdateMapPreview(string MapName)
         l_MapName.Caption = Record.FriendlyName;
         if (Record.PlayerCountMin == Record.PlayerCountMax)
         {
-            l_MapPlayerCount.Caption = Record.PlayerCountMin@PlayersText;
+            lb_MapPreviewFooter.SetContent(Record.PlayerCountMin@PlayersText);
         }
         else
         {
-            l_MapPlayerCount.Caption = Record.PlayerCountMin@"-"@Record.PlayerCountMax@PlayersText;
+            lb_MapPreviewFooter.SetContent(Record.PlayerCountMin@"-"@Record.PlayerCountMax@PlayersText);
         }
         if (Record.Author != "")
         {
-            l_MapAuthor.Caption = "Author:"@Record.Author;
+            lb_MapPreviewFooter.AddText("Author:"@Record.Author);
         }
-        lb_MapDescription.SetVisibility(true);
         lb_MapDescription.SetContent(GetMapDescription(Record));
         SelectedMapName = MapName;
     }
@@ -568,7 +564,7 @@ defaultproperties {
         WinLeft=0.62325
         WinTop=0.0945
         WinWidth=0.34
-        WinHeight=0.3715355877502963
+        WinHeight=0.37154
         ImageColor=(R=255,G=255,B=255,A=255)
         ImageStyle=ISTY_Scaled
         ImageRenderStyle=MSTY_Normal
@@ -583,7 +579,7 @@ defaultproperties {
         WinLeft=0.62325
         WinTop=0.0945
         WinWidth=0.34
-        WinHeight=0.37583079685723614
+        WinHeight=0.37154
         TextFont="MediumFont"
         TextAlign=TXTA_Center
         VertAlign=TXTA_Center
@@ -646,35 +642,25 @@ defaultproperties {
     End Object
     l_MapName=MapNameLabel
 
-    Begin Object class=GUILabel Name=MapPlayerCountLabel
+    Begin Object Class=HxGUIScrollTextBox Name=MapPreviewFooterTextBox
         WinLeft=0.6075
-        WinTop=0.4703307968572361
+        WinTop=0.46604
         WinWidth=0.3725
-        WinHeight=0.03
-        TextAlign=TXTA_Center
-        VertAlign=TXTA_Center
-        TextColor=(R=255,G=210,B=0,A=255)
-        TextFont="HxSmallerFont"
+        WinHeight=0.0677368
         FontScale=FNS_Small
-        bScaleToParent=true
-        bBoundToParent=true
-    End Object
-    l_MapPlayerCount=MapPlayerCountLabel
-
-    Begin Object class=GUILabel Name=MapAuthorLabel
-        WinLeft=0.6075
-        WinTop=0.5003307968572361
-        WinWidth=0.3725
-        WinHeight=0.03
         TextAlign=TXTA_Center
-        VertAlign=TXTA_Center
-        TextColor=(R=255,G=210,B=0,A=255)
-        TextFont="HxSmallerFont"
-        FontScale=FNS_Small
-        bScaleToParent=true
+        LineSpacing=0.005
+        VerticalPadding=0.085
+        bScrollBarOutside=false
+        bTabStop=false
+        bVisibleWhenEmpty=true
+        bNoTeletype=true
+        bNeverFocus=true
+        bStripColors=false
         bBoundToParent=true
+        bScaleToParent=true
     End Object
-    l_MapAuthor=MapAuthorLabel
+    lb_MapPreviewFooter=MapPreviewFooterTextBox
 
     Begin Object Class=HxGUIScrollTextBox Name=MapDescription
         WinLeft=0.6075
