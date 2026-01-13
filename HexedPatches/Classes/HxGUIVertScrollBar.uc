@@ -1,21 +1,26 @@
 class HxGUIVertScrollBar extends GUIVertScrollBar;
 
 var float WidthScale;
-var bool bOutside;
+var eTextAlign ScaledAlign;
 
 function bool GripPreDraw(GUIComponent Sender)
 {
     if (WidthScale != 1.0)
     {
         WinWidth = ActualWidth() * WidthScale;
+        switch (ScaledAlign)
+        {
+            case TXTA_Center:
+                WinLeft = ActualLeft() + WinWidth / 2;
+                break;
+            case TXTA_Right:
+                WinLeft = ActualLeft() + WinWidth;
+                break;
+        }
     }
     else
     {
         WinWidth = ActualWidth();
-    }
-    if (bOutside)
-    {
-        WinLeft = ActualLeft() + WinWidth;
     }
     WinTop = ActualTop() - WinWidth;
     WinHeight = ActualHeight() + 2 * WinWidth;
@@ -57,7 +62,7 @@ defaultproperties
     End Object
 
     WidthScale=1.0
-    bOutside=false
+    ScaledAlign=TXTA_Left
     MyScrollZone=ScrollZone
     MyDecreaseButton=UpBut
     MyIncreaseButton=DownBut

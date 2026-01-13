@@ -658,8 +658,7 @@ defaultproperties {
         FontScale=FNS_Small
         TextAlign=TXTA_Center
         LineSpacing=0.005
-        VerticalPadding=0.085
-        bScrollBarOutside=false
+        TopPadding=0.075
         bTabStop=false
         bVisibleWhenEmpty=true
         bNoTeletype=true
@@ -670,7 +669,7 @@ defaultproperties {
     End Object
     lb_MapPreviewFooter=MapPreviewFooterTextBox
 
-    Begin Object Class=HxGUIScrollTextBox Name=MapDescription
+    Begin Object Class=HxGUIScrollTextBox Name=MapDescriptionTextBox
         WinLeft=0.6075
         WinTop=0.5437768
         WinWidth=0.3725
@@ -679,7 +678,11 @@ defaultproperties {
         EOLDelay=0.5
         FontScale=FNS_Small
         TextAlign=TXTA_Center
-        bCenter=true
+        VertAlign=TXTA_Center
+        LeftPadding=0.05
+        TopPadding=0.05
+        RightPadding=0.05
+        BottomPadding=0.05
         bTabStop=false
         bVisibleWhenEmpty=true
         bNoTeletype=false
@@ -688,7 +691,7 @@ defaultproperties {
         bBoundToParent=true
         bScaleToParent=true
     End Object
-    lb_MapDescription=MapDescription
+    lb_MapDescription=MapDescriptionTextBox
 
     Begin Object Class=HxGUIVotingFooter Name=MapVoteFooter
         WinLeft=0.6075
