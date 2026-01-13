@@ -1,6 +1,9 @@
 class HxGUIVotingBaseList extends GUIMultiColumnList;
 
 var float LineSpacing;
+var float ColumnSpacing;
+var float LeftPadding;
+var float TopPadding;
 
 var VotingReplicationInfo VRI;
 var int PreviousSortColumn;
@@ -66,6 +69,7 @@ function bool InternalOnPreDraw(Canvas C)
 {
     local float OwnerWidth;
     local float CurrentWidth;
+    local float Padding;
 
     if (bInit)
     {
@@ -74,6 +78,11 @@ function bool InternalOnPreDraw(Canvas C)
     Super.InternalOnPreDraw(C);
     OwnerWidth = MenuOwner.ActualWidth();
     CurrentWidth = ActualWidth();
+    CellSpacing = ColumnSpacing * C.ClipX;
+    Padding = TopPadding * MenuOwner.ActualHeight();
+    WinTop = ActualTop() + Padding;
+    WinHeight = ActualHeight() - Padding;
+
     if (CurrentWidth < OwnerWidth)
     {
         if (HxScrollbar != None && HxScrollbar.ForceRelativeWidth > 0)
@@ -98,6 +107,19 @@ function bool InternalOnPreDraw(Canvas C)
     return false;
 }
 
+function GetCellLeftWidth(int Column, out float Left, out float Width)
+{
+    local float Padding;
+
+    Super.GetCellLeftWidth(Column, left, Width);
+    if (Column == 0)
+    {
+        Padding = LeftPadding * MenuOwner.ActualWidth();
+        Left += Padding;
+        Width -= Padding;
+    }
+}
+
 function float GetSpacedItemHeight(Canvas C)
 {
     local float XL;
@@ -120,6 +142,9 @@ function bool InternalOnDblClick(GUIComponent Sender)
 defaultproperties
 {
     LineSpacing=0.003
+    ColumnSpacing=0.001
+    LeftPadding=0.005
+    TopPadding=0.005
     bDropSource=false
     bDropTarget=false
     ExpandLastColumn=true
