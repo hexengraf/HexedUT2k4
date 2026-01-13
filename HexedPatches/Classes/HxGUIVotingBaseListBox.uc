@@ -45,8 +45,8 @@ function Clear()
 
 function bool InternalOnPreDraw(Canvas C)
 {
-    i_Background.WinTop = Header.ActualHeight();
-    i_Background.WinHeight = List.WinHeight;
+    i_Background.WinTop = Header.RelativeHeight();
+    i_Background.WinHeight = 1.0 - i_Background.WinTop;
     return false;
 }
 
