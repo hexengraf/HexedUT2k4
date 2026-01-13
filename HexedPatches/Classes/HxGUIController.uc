@@ -106,7 +106,9 @@ defaultproperties
     DefaultStyleNames(62)="HexedPatches.HxSTYSmallText"
     DefaultStyleNames(63)="HexedPatches.HxSTYScrollGrip"
     DefaultStyleNames(64)="HexedPatches.HxSTYScrollZone"
-    STYLE_NUM=65
+    DefaultStyleNames(65)="HexedPatches.HxSTYEditBox"
+    DefaultStyleNames(66)="HexedPatches.HxSTYSmallLabel"
+    STYLE_NUM=67
     MainMenuOptions(6)="HexedPatches.HxGUIQuitPage"
     MapVotingMenu="HexedPatches.HxGUIVotingPage"
 }

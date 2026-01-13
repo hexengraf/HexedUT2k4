@@ -32,6 +32,14 @@ function ReceiveChat(string Message)
     lb_Chat.MyScrollText.End();
 }
 
+function FixEditBoxStyle(GUIComponent NewComp, GUIComponent Sender)
+{
+    if (GUIEditBox(NewComp) != None)
+    {
+        NewComp.StyleName = "HxEditBox";
+    }
+}
+
 function LevelChanged()
 {
     lb_Chat.SetContent("");
@@ -71,7 +79,7 @@ defaultproperties
         WinTop=0.8575
         WinWidth=1
         WinHeight=0.1429
-        LabelFont="HxSmallerFont"
+        LabelStyleName="HxSmallLabel"
         FontScale=FNS_Small
         CaptionWidth=0.01
         OnKeyEvent=InternalOnKeyEvent
@@ -80,6 +88,7 @@ defaultproperties
         StandardHeight=0.0275
         bBoundToParent=true
         bScaleToParent=true
+        OnCreateComponent=FixEditBoxStyle
     End Object
     ed_Chat=NewChatEditBox
 

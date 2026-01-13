@@ -4,9 +4,9 @@ var automated HxGUIVotingMapListBox lb_MapList;
 var automated HxGUIVotingVoteListBox lb_VoteList;
 var automated moComboBox co_MapSource;
 var automated moEditBox ed_SearchName;
-var automated moEditBox ed_SearchPlayers;
-var automated moEditBox ed_SearchPlayed;
-var automated moEditBox ed_SearchSeq;
+var automated GUIEditBox ed_SearchPlayers;
+var automated GUIEditBox ed_SearchPlayed;
+var automated GUIEditBox ed_SearchSeq;
 var automated moCheckBox ch_CaseSensitive;
 var automated AltSectionBackground sb_MapPreview;
 var automated GUIImage i_MapPreviewBackground;
@@ -253,6 +253,14 @@ function OnCloseQuestionPage(optional bool bCanceled)
     Controller.CloseMenu(bCanceled);
 }
 
+function FixEditBoxStyle(GUIComponent NewComp, GUIComponent Sender)
+{
+    if (GUIEditBox(NewComp) != None)
+    {
+        NewComp.StyleName = "HxEditBox";
+    }
+}
+
 function AdjustWindowSize(coerce float X, coerce float Y)
 {
     local float Coefficient;
@@ -266,14 +274,12 @@ function PropagateEditBoxProperties()
 {
     ed_SearchName.MyComponent.Hint = ed_SearchName.Hint;
     ed_SearchName.Hint = "";
+    ed_SearchName.MyComponent.StyleName = "HxEditBox";
     ed_SearchName.MyComponent.ToolTip.ExpirationSeconds = 5;
     ed_SearchName.MyComponent.FontScale = ed_SearchName.FontScale;
-    ed_SearchPlayers.MyComponent.ToolTip.ExpirationSeconds = 10;
-    ed_SearchPlayers.MyComponent.FontScale = ed_SearchPlayers.FontScale;
-    ed_SearchPlayed.MyComponent.ToolTip.ExpirationSeconds = 6;
-    ed_SearchPlayed.MyComponent.FontScale = ed_SearchPlayed.FontScale;
-    ed_SearchSeq.MyComponent.ToolTip.ExpirationSeconds = 6;
-    ed_SearchSeq.MyComponent.FontScale = ed_SearchSeq.FontScale;
+    ed_SearchPlayers.ToolTip.ExpirationSeconds = 10;
+    ed_SearchPlayed.ToolTip.ExpirationSeconds = 6;
+    ed_SearchSeq.ToolTip.ExpirationSeconds = 6;
 }
 
 function ResetMapPreview()
@@ -476,7 +482,8 @@ defaultproperties {
         WinTop=0.92527
         WinWidth=0.5575
         WinHeight=0.03143
-        LabelFont="HxSmallerFont"
+        StyleName="HxEditBox"
+        LabelStyleName="HxSmallLabel"
         FontScale=FNS_Small
         CaptionWidth=0.001
         TabOrder=4
@@ -485,16 +492,16 @@ defaultproperties {
         bBoundToParent=true
         bScaleToParent=true
         OnChange=OnChangeNameSearch
+        OnCreateComponent=FixEditBoxStyle
     End Object
     ed_SearchName=SearchNameEditBox
 
-    Begin Object class=moEditBox Name=SearchPlayersEditBox
+    Begin Object class=GUIEditBox Name=SearchPlayersEditBox
         Hint="Search by player count. One number shows maps that support it. Two numbers separated by - shows min-max player counts. * matches anything. > or < or = followed by a number matches with comparison."
         WinTop=0.92527
         WinHeight=0.03143
-        LabelFont="HxSmallerFont"
+        StyleName="HxEditBox"
         FontScale=FNS_Small
-        CaptionWidth=0.001
         TabOrder=5
         bStandardized=true
         StandardHeight=0.0275
@@ -504,13 +511,12 @@ defaultproperties {
     End Object
     ed_SearchPlayers=SearchPlayersEditBox
 
-    Begin Object class=moEditBox Name=SearchPlayedEditBox
+    Begin Object class=GUIEditBox Name=SearchPlayedEditBox
         Hint="Search by played count. * matches anything. > or < or = followed by a number matches with comparison."
         WinTop=0.92527
         WinHeight=0.03143
-        LabelFont="HxSmallerFont"
+        StyleName="HxEditBox"
         FontScale=FNS_Small
-        CaptionWidth=0.001
         TabOrder=6
         bStandardized=true
         StandardHeight=0.0275
@@ -520,13 +526,12 @@ defaultproperties {
     End Object
     ed_SearchPlayed=SearchPlayedEditBox
 
-    Begin Object class=moEditBox Name=SearchSeqEditBox
+    Begin Object class=GUIEditBox Name=SearchSeqEditBox
         Hint="Search by sequence. * matches anything. > or < or = followed by a number matches with comparison."
         WinTop=0.92527
         WinHeight=0.03143
-        LabelFont="HxSmallerFont"
+        StyleName="HxEditBox"
         FontScale=FNS_Small
-        CaptionWidth=0.001
         TabOrder=7
         bStandardized=true
         StandardHeight=0.0275
