@@ -1,29 +1,25 @@
 class HxGUIVertScrollBar extends GUIVertScrollBar;
 
-var float WidthScale;
-var eTextAlign ScaledAlign;
+var float ForceRelativeWidth;
 
 function bool GripPreDraw(GUIComponent Sender)
 {
-    if (WidthScale != 1.0)
+    local float MyWidth;
+    local float OwnerWidth;
+
+    if (ForceRelativeWidth > 0)
     {
-        WinWidth = ActualWidth() * WidthScale;
-        switch (ScaledAlign)
-        {
-            case TXTA_Center:
-                WinLeft = ActualLeft() + WinWidth / 2;
-                break;
-            case TXTA_Right:
-                WinLeft = ActualLeft() + WinWidth;
-                break;
-        }
+        OwnerWidth = MenuOwner.ActualWidth();
+        MyWidth = ForceRelativeWidth * OwnerWidth;
+        WinWidth = RelativeWidth(MyWidth);
+        WinLeft = RelativeLeft(MenuOwner.ActualLeft() + OwnerWidth - MyWidth);
     }
     else
     {
-        WinWidth = ActualWidth();
+        MyWidth = ActualWidth();
     }
-    WinTop = ActualTop() - WinWidth;
-    WinHeight = ActualHeight() + 2 * WinWidth;
+    WinTop = MyList.ActualTop() - MyWidth;
+    WinHeight = MyList.ActualHeight() + 2 * MyWidth;
     MyDecreaseButton.SetVisibility(false);
     MyIncreaseButton.SetVisibility(false);
     Super.GripPreDraw(Sender);
@@ -61,8 +57,7 @@ defaultproperties
         OnMousePressed=GripPressed
     End Object
 
-    WidthScale=1.0
-    ScaledAlign=TXTA_Left
+    ForceRelativeWidth=0
     MyScrollZone=ScrollZone
     MyDecreaseButton=UpBut
     MyIncreaseButton=DownBut

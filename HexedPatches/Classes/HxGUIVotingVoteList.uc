@@ -112,8 +112,8 @@ defaultproperties
     ColumnHeadingHints(1)="Map name."
     ColumnHeadingHints(2)="Number of votes registered for this map."
     InitColumnPerc(0)=0.4
-    InitColumnPerc(1)=0.45
-    InitColumnPerc(2)=0.15
+    InitColumnPerc(1)=0.475
+    InitColumnPerc(2)=0.125
 
     SortColumn=2
     PreviousSortColumn=2

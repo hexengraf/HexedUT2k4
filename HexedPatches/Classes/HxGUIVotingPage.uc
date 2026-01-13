@@ -50,7 +50,7 @@ function InternalOnOpen()
 event ResolutionChanged(int NewX, int NewY)
 {
     Super.ResolutionChanged(NewX, NewY);
-    HxGUIController(Controller).RemovePersistentMenu(Self);
+    AdjustWindowSize(NewX, NewY);
 }
 
 event Timer()
@@ -160,7 +160,7 @@ function PopulateLocalLists()
     co_MapSource.SetIndex(0);
 }
 
-function SendVoteFrom(HxGUIVotingBaseListBox Sender)
+function SendVoteFrom(GUIComponent Sender)
 {
     switch (Sender)
     {
