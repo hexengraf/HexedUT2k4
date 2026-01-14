@@ -19,6 +19,7 @@ project:=HexedUT2k4
 packages:=HexedSRC HexedUT HexedPatches HexedUTComp
 requiresint:=HexedSRC HexedUT HexedPatches HexedUTComp
 requirescompressed:=HexedSRC HexedUT HexedUTComp
+miscfiles:=README.md LICENSE
 
 .outdir:=build
 .versionfiles:=$(packages:%=$(.outdir)/%.make)
@@ -26,13 +27,14 @@ requirescompressed:=HexedSRC HexedUT HexedUTComp
 -include $(.versionfiles)
 
 .projectversion:=v2.0
-.versionedpackages:=$(foreach p,$(packages),$p$($p.version))
-.versionedintpackages:=$(foreach p,$(requiresint),$p$($p.version))
-.versionedcompressed:=$(foreach p,$(requirescompressed),$p$($p.version))
+.packages:=$(foreach p,$(packages),$p$($p.version))
+.intpackages:=$(foreach p,$(requiresint),$p$($p.version))
+.compressedpackages:=$(foreach p,$(requirescompressed),$p$($p.version))
 .archive:=$(.outdir)/$(project)$(.projectversion).zip
-.ufiles:=$(.versionedpackages:%=$(.outdir)/System/%.u)
-.intfiles:=$(.versionedintpackages:%=$(.outdir)/System/%.int)
-.compressedfiles:=$(.versionedcompressed:%=$(.outdir)/%.u.uz2)
+.miscfiles:=$(addprefix $(.outdir)/$(project)$(.projectversion)-, $(miscfiles))
+.ufiles:=$(.packages:%=$(.outdir)/System/%.u)
+.intfiles:=$(.intpackages:%=$(.outdir)/System/%.int)
+.compressedfiles:=$(.compressedpackages:%=$(.outdir)/%.u.uz2)
 .targets:=$(.ufiles) $(.intfiles)
 .winecmd:=WINEPREFIX=~/.ucc-prefix wine
 .findsources=$(wildcard $1/Classes/*.uc) $(wildcard $1/Classes/Include/*.uci)
@@ -84,10 +86,13 @@ $(.outdir)/%.u.uz2: $(.outdir)/System/%.u
 	@cd ../
 	@cp System/$*.u.uz2 $(@D)
 
-$(.outdir)/%.zip: $(.targets) $(.compressedfiles)
+$(.outdir)/%.zip: $(.targets) $(.compressedfiles) $(.miscfiles)
 	@rm -f $@
 	@cd $(.outdir)
-	@7z a -mmt=8 -mx=9 $(@F) System/ $(.compressedfiles:$(.outdir)/%=%)
+	@7z a -mmt=8 -mx=9 $(@F) System/ $(.compressedfiles:$(.outdir)/%=%) $(.miscfiles:$(.outdir)/%=%)
+
+$(.outdir)/$(project)$(.projectversion)-%: %
+	@cp $^ $@
 
 $(.versionfiles): $(.outdir)/%.make: %/make.ini
 	@mkdir -p $(@D)
