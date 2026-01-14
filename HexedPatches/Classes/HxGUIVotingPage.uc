@@ -17,13 +17,17 @@ var automated GUILabel l_NoPreview;
 var automated GUILabel l_MapName;
 var automated HxGUIScrollTextBox lb_MapPreviewFooter;
 var automated HxGUIScrollTextBox lb_MapDescription;
+var automated GUIButton b_SelectRandom;
+var automated GUIButton b_SubmitVote;
 
 var localized string LoadingText;
-var localized string ReceivingMapListText;
+var localized string RetrievingMapListText;
 var localized string PlayersText;
 
 var HxMapVoteFilterManager FilterManager;
 var HxMapVoteFilter ActiveFilter;
+var int SelectedGameType;
+var int SelectedMap;
 var string SelectedMapName;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
@@ -99,7 +103,7 @@ function ShowInitialState()
 function ShowLoadingState()
 {
     t_WindowTitle.Caption = WindowName@"("$LoadingText$")";
-    l_ReceivingMapList.Caption = ReceivingMapListText@"("$MVRI.MapList.Length$"/"$MVRI.MapCount$")";
+    l_ReceivingMapList.Caption = RetrievingMapListText@"("$MVRI.MapList.Length$"/"$MVRI.MapCount$")";
     l_ReceivingMapList.SetVisibility(true);
     PopulateGameTypeList();
 }
@@ -146,7 +150,8 @@ function PopulateGameTypeList()
         co_GameType.AddItem(MVRI.GameConfig[i].GameName, none, string(i));
     }
     co_GameType.MyComboBox.List.SortList();
-    co_GameType.SetIndex(co_GameType.FindExtra(string(MVRI.CurrentGameConfig)));
+    SelectedGameType = co_GameType.FindExtra(string(MVRI.CurrentGameConfig));
+    co_GameType.SetIndex(SelectedGameType);
 }
 
 function PopulateLocalLists()
@@ -158,39 +163,6 @@ function PopulateLocalLists()
         co_MapSource.AddItem(Mid(GetEnum(enum'EHxMapSource', i), 14));
     }
     co_MapSource.SetIndex(0);
-}
-
-function SendVoteFrom(GUIComponent Sender)
-{
-    switch (Sender)
-    {
-        case lb_VoteList:
-            SendMapVote(lb_VoteList.GetMapIndex(), lb_VoteList.GetGameTypeIndex());
-            break;
-        case lb_MapList:
-            SendMapVote(lb_MapList.GetMapIndex(), co_GameType.GetExtra());
-            break;
-        default:
-            break;
-    }
-}
-
-function SendMapVote(int Map, coerce int Type)
-{
-    local PlayerController PC;
-
-    if (Map > -1)
-    {
-        PC = PlayerOwner();
-        if (MVRI.MapList[Map].bEnabled || PC.PlayerReplicationInfo.bAdmin)
-        {
-            MVRI.SendMapVote(Map, Type);
-        }
-        else
-        {
-            PC.ClientMessage(lmsgMapDisabled);
-        }
-    }
 }
 
 function UpdateMapVoteCount(int UpdatedIndex, bool bRemoved)
@@ -210,10 +182,49 @@ function OnChangeGameType(GUIComponent Sender)
     }
 }
 
+function OnVote()
+{
+    local PlayerController PC;
+
+    if (SelectedMap > -1 && SelectedGameType > -1)
+    {
+        PC = PlayerOwner();
+        if (MVRI.MapList[SelectedMap].bEnabled || PC.PlayerReplicationInfo.bAdmin)
+        {
+            MVRI.SendMapVote(SelectedMap, SelectedGameType);
+        }
+        else
+        {
+            PC.ClientMessage(lmsgMapDisabled);
+        }
+    }
+}
+
 function OnChangeMapSource(GUIComponent Sender)
 {
     ActiveFilter.SetMapSource(co_MapSource.GetIndex());
     OnFilterChange();
+}
+
+function OnChangeSelectedMap(GUIComponent Sender)
+{
+    local int NewSelectedMap;
+
+    NewSelectedMap = HxGUIVotingBaseListBox(Sender).GetMapIndex();
+    if (NewSelectedMap > -1)
+    {
+        switch (Sender)
+        {
+            case lb_VoteList:
+                SelectedGameType = lb_VoteList.GetGameTypeIndex();
+                break;
+            case lb_MapList:
+                SelectedGameType = int(co_GameType.GetExtra());
+                break;
+        }
+        SelectedMap = NewSelectedMap;
+        UpdateMapPreview(HxGUIVotingBaseListBox(Sender).GetMapName());
+    }
 }
 
 function OnChangeNameSearch(GUIComponent Sender)
@@ -242,10 +253,26 @@ function OnChangeSequenceSearch(GUIComponent Sender)
 
 function OnFilterChange()
 {
-    if (!lb_MapList.FilterUpdated(SelectedMapName))
+    lb_MapList.FilterUpdated(SelectedMapName);
+}
+
+function bool OnClickSelectRandom(GUIComponent Sender)
+{
+    if (lb_VoteList.bHasFocus && !lb_VoteList.IsEmpty())
     {
-        ResetMapPreview();
+        lb_VoteList.SelectRandom();
     }
+    else
+    {
+        lb_MapList.SelectRandom();
+    }
+    return true;
+}
+
+function bool OnClickSubmitVote(GUIComponent Sender)
+{
+    OnVote();
+    return true;
 }
 
 function OnCloseQuestionPage(optional bool bCanceled)
@@ -294,22 +321,8 @@ function ResetMapPreview()
 
 function bool InternalOnPreDraw(Canvas C)
 {
-    UpdateMapPreview(GetFocusedMapName());
     UpdateSearchBarWidth();
     return Super.InternalOnPreDraw(C);
-}
-
-function string GetFocusedMapName()
-{
-    if (lb_MapList.bHasFocus)
-    {
-        return lb_MapList.GetMapName();
-    }
-    if (lb_VoteList.bHasFocus)
-    {
-        return lb_VoteList.GetMapName();
-    }
-    return SelectedMapName;
 }
 
 function UpdateMapPreview(string MapName)
@@ -428,11 +441,13 @@ defaultproperties {
         bScaleToParent=true
         bBoundToParent=true
         FontScale=FNS_Small
+        NotifySelection=OnChangeSelectedMap
+        NotifyVote=OnVote
         TabOrder=0
     End Object
     lb_VoteList=VoteListBox
 
-    Begin Object class=moComboBox Name=GameTypeCombo
+    Begin Object class=moComboBox Name=GameTypeComboBox
         Caption="Type:"
         Hint="Select game type to show."
         WinLeft=0.02
@@ -445,9 +460,9 @@ defaultproperties {
         OnChange=OnChangeGameType
         TabOrder=1
     End Object
-    co_GameType=GameTypeCombo
+    co_GameType=GameTypeComboBox
 
-    Begin Object class=moComboBox Name=MapSource
+    Begin Object class=moComboBox Name=MapSourceComboBox
         Caption="Source:"
         Hint="Select map sources to show."
         WinLeft=0.42
@@ -461,16 +476,18 @@ defaultproperties {
         OnChange=OnChangeMapSource
         TabOrder=2
     End Object
-    co_MapSource=MapSource
+    co_MapSource=MapSourceComboBox
 
     Begin Object Class=HxGUIVotingMapListBox Name=MapListBox
         WinLeft=0.02
         WinTop=0.32043
         WinWidth=0.58
-        WinHeight=0.597667
+        WinHeight=0.60099
         bScaleToParent=true
         bBoundToParent=true
         FontScale=FNS_Small
+        NotifySelection=OnChangeSelectedMap
+        NotifyVote=OnVote
         TabOrder=3
     End Object
     lb_MapList=MapListBox
@@ -562,7 +579,7 @@ defaultproperties {
         WinLeft=0.6075
         WinTop=0.052930
         WinWidth=0.3725
-        WinHeight=0.4808468
+        WinHeight=0.64061
         Image=Material'2K4Menus.NewControls.NewFooter'
         Y1=10
         ImageColor=(R=255,G=255,B=255,A=255)
@@ -588,7 +605,7 @@ defaultproperties {
     i_Preview=MapPreviewImage
 
     Begin Object Class=GUILabel Name=NoPreviewLabel
-        Caption="No preview available"
+        Caption="No Preview Available"
         WinLeft=0.62325
         WinTop=0.0945
         WinWidth=0.34
@@ -625,11 +642,11 @@ defaultproperties {
     l_ReceivingMapList=ReceivingMapListLabel
 
     Begin Object Class=GUILabel Name=NoMapSelectedLabel
-        Caption="No map selected"
+        Caption="No Map Selected"
         WinLeft=0.6075
         WinTop=0.052930
         WinWidth=0.3725
-        WinHeight=0.67377
+        WinHeight=0.64061
         TextFont="MediumFont"
         TextAlign=TXTA_Center
         VertAlign=TXTA_Center
@@ -659,7 +676,7 @@ defaultproperties {
         WinLeft=0.6075
         WinTop=0.46604
         WinWidth=0.3725
-        WinHeight=0.0677368
+        WinHeight=0.0575
         FontScale=FNS_Small
         TextAlign=TXTA_Center
         LineSpacing=0.005
@@ -676,18 +693,18 @@ defaultproperties {
 
     Begin Object Class=HxGUIScrollTextBox Name=MapDescriptionTextBox
         WinLeft=0.6075
-        WinTop=0.5437768
+        WinTop=0.52354
         WinWidth=0.3725
-        WinHeight=0.1829232
+        WinHeight=0.17
         CharDelay=0.0065
         EOLDelay=0.5
         FontScale=FNS_Small
         TextAlign=TXTA_Center
         VertAlign=TXTA_Center
         LeftPadding=0.05
-        TopPadding=0.05
+        TopPadding=0.04
         RightPadding=0.05
-        BottomPadding=0.05
+        BottomPadding=0.04
         bTabStop=false
         bVisibleWhenEmpty=true
         bNoTeletype=false
@@ -698,6 +715,44 @@ defaultproperties {
     End Object
     lb_MapDescription=MapDescriptionTextBox
 
+    Begin Object Class=GUIButton Name=SelectRandomButton
+        Caption="Select Random"
+        Hint="Select a random map from the map list (or vote list if focused and non-empty)."
+        WinLeft=0.6075
+        WinTop=0.69462
+        WinWidth=0.18625
+        WinHeight=0.041
+        FontScale=FNS_Small
+        bStandardized=false
+        StandardHeight=0.0325
+        OnClick=OnClickSelectRandom
+        TabOrder=9
+        bNeverFocus=true
+        bRepeatClick=false
+        bBoundToParent=true
+        bScaleToParent=true
+    End Object
+    b_SelectRandom=SelectRandomButton
+
+    Begin Object Class=GUIButton Name=SubmitVoteButton
+        Caption="Submit Vote"
+        Hint="Vote for the currently selected map."
+        WinLeft=0.79375
+        WinTop=0.69462
+        WinWidth=0.18625
+        WinHeight=0.041
+        FontScale=FNS_Small
+        bStandardized=false
+        StandardHeight=0.0325
+        OnClick=OnClickSubmitVote
+        TabOrder=10
+        bNeverFocus=true
+        bRepeatClick=false
+        bBoundToParent=true
+        bScaleToParent=true
+    End Object
+    b_SubmitVote=SubmitVoteButton
+
     Begin Object Class=HxGUIVotingFooter Name=MapVoteFooter
         WinLeft=0.6075
         WinTop=0.7367
@@ -705,7 +760,7 @@ defaultproperties {
         WinHeight=0.22
         bBoundToParent=true
         bScaleToParent=true
-        TabOrder=9
+        TabOrder=11
     End Object
     f_Chat=MapVoteFooter
 
@@ -721,6 +776,6 @@ defaultproperties {
     bPersistent=true
 
     LoadingText="LOADING..."
-    ReceivingMapListText="Receiving map list from server"
+    RetrievingMapListText="Retrieving Map List"
     PlayersText="players"
 }

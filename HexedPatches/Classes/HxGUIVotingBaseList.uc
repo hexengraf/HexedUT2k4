@@ -129,16 +129,6 @@ function float GetSpacedItemHeight(Canvas C)
     return Round(YL + LineSpacing * C.ClipY);
 }
 
-function bool InternalOnDblClick(GUIComponent Sender)
-{
-    if (HxGUIVotingPage(PageOwner) != None)
-    {
-        HxGUIVotingPage(PageOwner).SendVoteFrom(MenuOwner);
-        return true;
-    }
-    return false;
-}
-
 defaultproperties
 {
     LineSpacing=0.003
@@ -151,6 +141,5 @@ defaultproperties
     StyleName="HxSmallList"
     SelectedStyleName="HxSmallListSelection"
     GetItemHeight=GetSpacedItemHeight
-    OnDblClick=InternalOnDblClick
     bReInit=true
 }

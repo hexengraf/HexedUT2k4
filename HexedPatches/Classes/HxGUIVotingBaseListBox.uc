@@ -5,10 +5,15 @@ var automated HxGUIVotingBaseList MyVoteBaseList;
 
 var float ScrollbarWidth;
 
+delegate NotifySelection(GUIComponent Sender);
+delegate NotifyVote();
+
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
     Super.InitComponent(MyController, MyOwner);
     MyVoteBaseList = HxGUIVotingBaseList(List);
+    MyVoteBaseList.OnChange = OnChangeList;
+    MyVoteBaseList.OnDblClick = OnDbkClickList;
     HxGUIVertScrollBar(MyScrollBar).ForceRelativeWidth = ScrollbarWidth;
 }
 
@@ -21,6 +26,28 @@ event ResolutionChanged(int NewX, int NewY)
         HeaderColumnPerc[i] = default.HeaderColumnPerc[i];
     }
     Super.ResolutionChanged(NewX, NewY);
+}
+
+event MenuStateChange(eMenuState NewState)
+{
+    Super.MenuStateChange(NewState);
+
+    if (NewState == MSAT_Focused)
+    {
+        NotifySelection(Self);
+    }
+}
+
+function OnChangeList(GUIComponent Sender)
+{
+    NotifySelection(Self);
+}
+
+function bool OnDbkClickList(GUIComponent Sender)
+{
+    // NotifySelection(Self);
+    NotifyVote();
+    return true;
 }
 
 function PopulateList(VotingReplicationInfo MVRI)
@@ -36,6 +63,19 @@ function int GetMapIndex()
 function string GetMapName()
 {
     return MyVoteBaseList.GetMapName();
+}
+
+function SelectRandom()
+{
+    if (MyVoteBaseList.ItemCount > 0)
+    {
+        MyVoteBaseList.SetIndex(Rand(MyVoteBaseList.ItemCount));
+    }
+}
+
+function bool IsEmpty()
+{
+    return MyVoteBaseList.ItemCount == 0;
 }
 
 function Clear()
@@ -54,7 +94,7 @@ function bool InternalOnKeyEvent(out byte Key, out byte KeyState, float Delta)
 {
     if (EInputKey(Key) == IK_Enter && HxGUIVotingPage(PageOwner) != None)
     {
-        HxGUIVotingPage(PageOwner).SendVoteFrom(Self);
+        NotifyVote();
         return true;
     }
     return false;

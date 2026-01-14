@@ -19,17 +19,29 @@ function ReceiveChat(string Message)
 
     if (Divide(Message, ":", Name, Text))
     {
-        lb_Chat.AddText(MakeColorCode(FallbackColor)$Name$":"$MakeColorCode(MessageColor)$Text);
+        AddText(MakeColorCode(FallbackColor)$Name$":"$MakeColorCode(MessageColor)$Text);
     }
     else
     {
-        lb_Chat.AddText(MakeColorCode(FallbackColor)$StripColorCodes(Message));
+        AddText(MakeColorCode(FallbackColor)$StripColorCodes(Message));
     }
     if (lb_Chat.MyScrollText.ItemCount > MaxHistory)
     {
         lb_Chat.MyScrollText.Remove(0, lb_Chat.MyScrollText.ItemCount - MaxHistory);
     }
     lb_Chat.MyScrollText.End();
+}
+
+function AddText(string Message)
+{
+    if (lb_Chat.MyScrollText.ItemCount > 0)
+    {
+        lb_Chat.AddText(Message);
+    }
+    else
+    {
+        lb_Chat.SetContent(Message);
+    }
 }
 
 function FixEditBoxStyle(GUIComponent NewComp, GUIComponent Sender)
@@ -57,7 +69,7 @@ defaultproperties
         WinLeft=0
         WinTop=0
         WinWidth=1
-        WinHeight=0.823
+        WinHeight=0.84
         LeftPadding=0.02
         TopPadding=0.05
         RightPadding=0.02
