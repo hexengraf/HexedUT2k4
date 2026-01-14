@@ -40,7 +40,13 @@ The following QoL improvements are provided:
 * Validate KeepAliveTimer to make sure it has the default value (0.2).
 * Persistent custom network speed (applied on every level change).
 * Master server selector (either 333network or OpenSpy).
-* Embedded map previews in the map voting page.
+* Enhanced map voting page:
+    * On-screen map previews: screenshots, number of players, author and description.
+    * New column with the recommended minimum/maximum of players.
+    * Search bar for each column of the map list.
+    * New button to select a random map.
+    * Filter by source: any map, official maps or custom maps.
+    * Several improvements to font size, line spacing, alignments, backgrounds and colors.
 
 ### HexedUT
 
