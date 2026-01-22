@@ -83,11 +83,11 @@ function Clear()
     MyVoteBaseList.Clear();
 }
 
-function bool InternalOnPreDraw(Canvas C)
+function bool OnBackgroundPreDraw(Canvas C)
 {
-    i_Background.WinTop = Header.RelativeHeight();
-    i_Background.WinHeight = 1.0 - i_Background.WinTop;
-    return false;
+    i_Background.WinTop = i_Background.RelativeTop(MyList.ActualTop());
+    i_Background.WinHeight = 1 - i_Background.WinTop;
+    return true;
 }
 
 function bool InternalOnKeyEvent(out byte Key, out byte KeyState, float Delta)
@@ -104,16 +104,17 @@ defaultproperties
 {
     Begin Object Class=GUIImage Name=Background
         WinLeft=0
-        WinTop=0
+        WinTop=0.02
         WinWidth=1
-        WinHeight=1
+        WinHeight=0.98
         Image=Material'2K4Menus.NewControls.NewFooter'
         Y1=10
         ImageColor=(R=255,G=255,B=255,A=255)
         ImageStyle=ISTY_Stretched
         bScaleToParent=true
         bBoundToParent=true
-        RenderWeight=0.1
+        RenderWeight=0.2
+        OnPreDraw=OnBackgroundPreDraw
     End Object
     i_Background=Background
 
@@ -126,6 +127,5 @@ defaultproperties
     StyleName="HxSmallList"
     SelectedStyleName="HxSmallListSelection"
     bVisibleWhenEmpty=true
-    OnPreDraw=InternalOnPreDraw
     OnKeyEvent=InternalOnKeyEvent
 }
