@@ -158,6 +158,9 @@ function string GetNormalizedString(int Row, int Column)
 
 function string GetMapSizeString(CacheManager.MapRecord Record)
 {
+    if (Record.PlayerCountMax == 0) {
+        return "?";
+    }
     if (Record.PlayerCountMin == Record.PlayerCountMax)
     {
         return string(Record.PlayerCountMin);

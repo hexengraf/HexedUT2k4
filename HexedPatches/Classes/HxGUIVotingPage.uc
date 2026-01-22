@@ -13,8 +13,8 @@ var automated GUIImage i_MapPreviewBackground;
 var automated GUIImage i_MapPreviewBackgroundBorder;
 var automated GUIImage i_Preview;
 var automated GUIImage i_PreviewBorder;
-var automated GUILabel l_ReceivingMapList;
-var automated GUILabel l_NoMapSelected;
+var automated GUILabel l_RetrievingMapList;
+var automated GUILabel l_NoMapInformation;
 var automated GUILabel l_NoPreview;
 var automated GUILabel l_MapName;
 var automated HxGUIScrollTextBox lb_MapPreviewFooter;
@@ -24,7 +24,10 @@ var automated GUIButton b_SubmitVote;
 
 var localized string LoadingText;
 var localized string RetrievingMapListText;
+var localized string NoMapSelectedText;
+var localized string MapInformationUnavailableText;
 var localized string PlayersText;
+var localized string AuthorText;
 
 var HxMapVoteFilterManager FilterManager;
 var HxMapVoteFilter ActiveFilter;
@@ -100,15 +103,15 @@ function ShowInitialState()
     ed_SearchSeq.SetText("");
     ed_SearchSeq.DisableMe();
     ch_CaseSensitive.DisableMe();
-    l_ReceivingMapList.SetVisibility(false);
+    l_RetrievingMapList.SetVisibility(false);
     UpdateMapPreview("");
 }
 
 function ShowLoadingState()
 {
     t_WindowTitle.Caption = WindowName@"("$LoadingText$")";
-    l_ReceivingMapList.Caption = RetrievingMapListText@"("$MVRI.MapList.Length$"/"$MVRI.MapCount$")";
-    l_ReceivingMapList.SetVisibility(true);
+    l_RetrievingMapList.Caption = RetrievingMapListText@"("$MVRI.MapList.Length$"/"$MVRI.MapCount$")";
+    l_RetrievingMapList.SetVisibility(true);
     PopulateGameTypeList();
 }
 
@@ -124,7 +127,7 @@ function ShowReadyState()
     ed_SearchPlayed.EnableMe();
     ed_SearchSeq.EnableMe();
     ch_CaseSensitive.EnableMe();
-    l_ReceivingMapList.SetVisibility(false);
+    l_RetrievingMapList.SetVisibility(false);
     PopulateGameTypeList();
     lb_MapList.PopulateList(MVRI);
     lb_VoteList.PopulateList(MVRI);
@@ -313,7 +316,13 @@ function PropagateEditBoxProperties()
     ed_SearchSeq.ToolTip.ExpirationSeconds = 6;
 }
 
-function ResetMapPreview()
+function bool InternalOnPreDraw(Canvas C)
+{
+    UpdateSearchBarWidth();
+    return Super.InternalOnPreDraw(C);
+}
+
+function ResetMapPreview(string Caption)
 {
     SelectedMapName = "";
     l_MapName.Caption = "";
@@ -321,12 +330,9 @@ function ResetMapPreview()
     lb_MapDescription.SetContent("");
     i_Preview.Image = None;
     i_Preview.SetVisibility(false);
-}
-
-function bool InternalOnPreDraw(Canvas C)
-{
-    UpdateSearchBarWidth();
-    return Super.InternalOnPreDraw(C);
+    l_NoPreview.SetVisibility(false);
+    l_NoMapInformation.Caption = Caption;
+    l_NoMapInformation.SetVisibility(true);
 }
 
 function UpdateMapPreview(string MapName)
@@ -335,39 +341,53 @@ function UpdateMapPreview(string MapName)
 
     if (MapName == "")
     {
-        ResetMapPreview();
-        l_NoPreview.SetVisibility(false);
-        l_NoMapSelected.SetVisibility(true);
+        ResetMapPreview(NoMapSelectedText);
     }
     else if (MapName != SelectedMapName)
     {
         Record = class'CacheManager'.static.GetMapRecord(MapName);
-        if (Record.ScreenshotRef != "") {
-            i_Preview.Image = Material(DynamicLoadObject(Record.ScreenshotRef, class'Material'));
-            i_Preview.SetVisibility(true);
-            l_NoPreview.SetVisibility(false);
-            l_NoMapSelected.SetVisibility(false);
+        if (Record.MapName == "")
+        {
+            ResetMapPreview(MapInformationUnavailableText);
         }
         else
         {
-            ResetMapPreview();
-            l_NoPreview.SetVisibility(true);
-            l_NoMapSelected.SetVisibility(false);
+            if (Record.ScreenshotRef != "")
+            {
+                i_Preview.Image = Material(
+                    DynamicLoadObject(Record.ScreenshotRef, class'Material'));
+            }
+            else
+            {
+                i_Preview.Image = None;
+            }
+            i_Preview.SetVisibility(i_Preview.Image != None);
+            l_NoPreview.SetVisibility(i_Preview.Image == None);
+            l_NoMapInformation.SetVisibility(false);
+            l_MapName.Caption = Record.FriendlyName;
+            if (Record.PlayerCountMax == 0)
+            {
+                lb_MapPreviewFooter.SetContent("?"@PlayersText);
+            }
+            else if (Record.PlayerCountMin == Record.PlayerCountMax)
+            {
+                lb_MapPreviewFooter.SetContent(Record.PlayerCountMin@PlayersText);
+            }
+            else
+            {
+                lb_MapPreviewFooter.SetContent(
+                    Record.PlayerCountMin@"-"@Record.PlayerCountMax@PlayersText);
+            }
+            if (Record.Author != "")
+            {
+                lb_MapPreviewFooter.AddText(AuthorText$":"@Record.Author);
+            }
+            else
+            {
+                lb_MapPreviewFooter.AddText(AuthorText$": N/A");
+            }
+            lb_MapDescription.SetContent(GetMapDescription(Record));
         }
-        l_MapName.Caption = Record.FriendlyName;
-        if (Record.PlayerCountMin == Record.PlayerCountMax)
-        {
-            lb_MapPreviewFooter.SetContent(Record.PlayerCountMin@PlayersText);
-        }
-        else
-        {
-            lb_MapPreviewFooter.SetContent(Record.PlayerCountMin@"-"@Record.PlayerCountMax@PlayersText);
-        }
-        if (Record.Author != "")
-        {
-            lb_MapPreviewFooter.AddText("Author:"@Record.Author);
-        }
-        lb_MapDescription.SetContent(GetMapDescription(Record));
         SelectedMapName = MapName;
     }
 }
@@ -584,7 +604,6 @@ defaultproperties {
         WinTop=0.05433
         WinWidth=0.3605
         WinHeight=0.623875
-        // WinHeight=0.38664
         Image=Material'2K4Menus.NewControls.NewFooter'
         Y1=10
         ImageColor=(R=255,G=255,B=255,A=255)
@@ -656,7 +675,7 @@ defaultproperties {
     End Object
     l_NoPreview=NoPreviewLabel
 
-    Begin Object Class=GUILabel Name=ReceivingMapListLabel
+    Begin Object Class=GUILabel Name=RetrievingMapListLabel
         WinLeft=0.02
         WinTop=0.32043
         WinWidth=0.59
@@ -672,10 +691,9 @@ defaultproperties {
         bScaleToParent=true
         bBoundToParent=true
     End Object
-    l_ReceivingMapList=ReceivingMapListLabel
+    l_RetrievingMapList=RetrievingMapListLabel
 
-    Begin Object Class=GUILabel Name=NoMapSelectedLabel
-        Caption="No Map Selected"
+    Begin Object Class=GUILabel Name=NoMapInformationLabel
         WinLeft=0.6185
         WinTop=0.05433
         WinWidth=0.3605
@@ -690,7 +708,7 @@ defaultproperties {
         bScaleToParent=true
         bBoundToParent=true
     End Object
-    l_NoMapSelected=NoMapSelectedLabel
+    l_NoMapInformation=NoMapInformationLabel
 
     Begin Object class=GUILabel Name=MapNameLabel
         WinLeft=0.6185
@@ -734,9 +752,9 @@ defaultproperties {
         FontScale=FNS_Small
         TextAlign=TXTA_Center
         VertAlign=TXTA_Center
-        LeftPadding=0.05
+        LeftPadding=0.04
         TopPadding=0.04
-        RightPadding=0.05
+        RightPadding=0.04
         BottomPadding=0.04
         bTabStop=false
         bVisibleWhenEmpty=true
@@ -810,5 +828,8 @@ defaultproperties {
 
     LoadingText="LOADING..."
     RetrievingMapListText="Retrieving Map List"
+    NoMapSelectedText="No Map Selected"
+    MapInformationUnavailableText="Map Information Unavailable"
     PlayersText="players"
+    AuthorText="Author"
 }
