@@ -81,6 +81,8 @@ event Timer()
 function ShowInitialState()
 {
     MVRI = None;
+    SelectedGameType = -1;
+    SelectedMap = -1;
     lb_VoteList.Clear();
     lb_VoteList.DisableMe();
     co_GameType.ResetComponent();
