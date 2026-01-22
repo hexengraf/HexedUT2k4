@@ -131,21 +131,29 @@ function DrawRow(Canvas C, GUIStyles DrawStyle, int Row, float Y, float H)
 
 function string GetNormalizedString(int Row, int Column)
 {
+    local VotingHandler.MapVoteMapList Entry;
     local CacheManager.MapRecord Record;
 
+    Entry = GetVRIEntry(Row);
     switch (Column)
     {
         case 1:
-            Record = class'CacheManager'.static.GetMapRecord(GetVRIEntry(Row).MapName);
+            Record = class'CacheManager'.static.GetMapRecord(Entry.MapName);
+            if (Record.PlayerCountMax == 0) {
+                return "999999999999";
+            }
             return NormalizeNumber(Record.PlayerCountMin)$NormalizeNumber(Record.PlayerCountMax);
         case 2:
-            return NormalizeNumber(GetVRIEntry(Row).PlayCount);
+            return NormalizeNumber(Entry.PlayCount);
         case 3:
-            return NormalizeNumber(GetVRIEntry(Row).Sequence);
+            if (Entry.Sequence == 0) {
+                return "999999";
+            }
+            return NormalizeNumber(Entry.Sequence);
         default:
             break;
     }
-    return left(Caps(GetVRIEntry(Row).MapName), 20);
+    return left(Caps(Entry.MapName), 20);
 }
 
 function string GetMapSizeString(CacheManager.MapRecord Record)
@@ -167,15 +175,15 @@ defaultproperties
     ColumnHeadings(0)="Name"
     ColumnHeadings(1)="Players"
     ColumnHeadings(2)="Played"
-    ColumnHeadings(3)="Seq"
+    ColumnHeadings(3)="Recent"
     ColumnHeadingHints(0)="Map name."
     ColumnHeadingHints(1)="Number of recommended players."
     ColumnHeadingHints(2)="Number of times the map has been played."
-    ColumnHeadingHints(3)="Sequence, The number of games that have been played since this map was last played."
-    InitColumnPerc(0)=0.575
-    InitColumnPerc(1)=0.175
+    ColumnHeadingHints(3)="How recently this map has been played."
+    InitColumnPerc(0)=0.565
+    InitColumnPerc(1)=0.16
     InitColumnPerc(2)=0.15
-    InitColumnPerc(3)=0.10
+    InitColumnPerc(3)=0.125
 
     SortColumn=0
     PreviousSortColumn=0
