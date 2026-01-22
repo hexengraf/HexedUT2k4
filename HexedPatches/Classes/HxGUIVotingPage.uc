@@ -1,9 +1,11 @@
 class HxGUIVotingPage extends MapVotingPage;
 
-var automated HxGUIVotingMapListBox lb_MapList;
 var automated HxGUIVotingVoteListBox lb_VoteList;
+var automated GUIImage i_VoteListBorder;
 var automated moComboBox co_MapSource;
 var automated moEditBox ed_SearchName;
+var automated HxGUIVotingMapListBox lb_MapList;
+var automated GUIImage i_MapListBorder;
 var automated GUIEditBox ed_SearchPlayers;
 var automated GUIEditBox ed_SearchPlayed;
 var automated GUIEditBox ed_SearchSeq;
@@ -458,10 +460,10 @@ function LevelChanged()
 
 defaultproperties {
     Begin Object Class=HxGUIVotingVoteListBox Name=VoteListBox
-        WinLeft=0.02
-        WinTop=0.052930
-        WinWidth=0.59
-        WinHeight=0.21
+        WinLeft=0.021
+        WinTop=0.05433
+        WinWidth=0.588
+        WinHeight=0.2072
         bScaleToParent=true
         bBoundToParent=true
         FontScale=FNS_Small
@@ -471,12 +473,26 @@ defaultproperties {
     End Object
     lb_VoteList=VoteListBox
 
+    Begin Object Class=GUIImage Name=VoteListBorder
+        WinLeft=0.02
+        WinTop=0.052930
+        WinWidth=0.59
+        WinHeight=0.21
+        Image=Material'engine.WhiteSquareTexture'
+        ImageColor=(R=255,G=255,B=255,A=78)
+        ImageStyle=ISTY_Stretched
+        RenderWeight=0.1
+        bScaleToParent=true
+        bBoundToParent=true
+    End Object
+    i_VoteListBorder=VoteListBorder
+
     Begin Object class=moComboBox Name=GameTypeComboBox
-        Caption="Type:"
+        Caption="Game Type:"
         Hint="Select game type to show."
         WinLeft=0.02
         WinTop=0.27293
-        WinWidth=0.39
+        WinWidth=0.415
         WinHeight=0.0375
         CaptionWidth=0.001
         bScaleToParent=true
@@ -489,9 +505,9 @@ defaultproperties {
     Begin Object class=moComboBox Name=MapSourceComboBox
         Caption="Source:"
         Hint="Select map sources to show."
-        WinLeft=0.42
+        WinLeft=0.445
         WinTop=0.27293
-        WinWidth=0.19
+        WinWidth=0.165
         WinHeight=0.0375
         CaptionWidth=0.001
         bReadOnly=true
@@ -503,10 +519,10 @@ defaultproperties {
     co_MapSource=MapSourceComboBox
 
     Begin Object Class=HxGUIVotingMapListBox Name=MapListBox
-        WinLeft=0.02
-        WinTop=0.32043
-        WinWidth=0.59
-        WinHeight=0.60099
+        WinLeft=0.021
+        WinTop=0.315
+        WinWidth=0.588
+        WinHeight=0.60502
         bScaleToParent=true
         bBoundToParent=true
         FontScale=FNS_Small
@@ -515,6 +531,20 @@ defaultproperties {
         TabOrder=3
     End Object
     lb_MapList=MapListBox
+
+    Begin Object Class=GUIImage Name=MapListBorder
+        WinLeft=0.02
+        WinTop=0.3136
+        WinWidth=0.59
+        WinHeight=0.60782
+        Image=Material'engine.WhiteSquareTexture'
+        ImageColor=(R=255,G=255,B=255,A=78)
+        ImageStyle=ISTY_Stretched
+        RenderWeight=0.1
+        bScaleToParent=true
+        bBoundToParent=true
+    End Object
+    i_MapListBorder=MapListBorder
 
     Begin Object class=moEditBox Name=SearchNameEditBox
         Caption="Search:"
@@ -619,7 +649,7 @@ defaultproperties {
         WinTop=0.052930
         WinWidth=0.3625
         WinHeight=0.626675
-        Image=Texture'engine.WhiteSquareTexture'
+        Image=Material'engine.WhiteSquareTexture'
         ImageColor=(R=255,G=255,B=255,A=78)
         ImageStyle=ISTY_Stretched
         RenderWeight=0.1
@@ -647,7 +677,7 @@ defaultproperties {
         WinTop=0.0931
         WinWidth=0.342
         WinHeight=0.34647
-        Image=Texture'engine.WhiteSquareTexture'
+        Image=Material'engine.WhiteSquareTexture'
         ImageColor=(R=255,G=255,B=255,A=96)
         ImageStyle=ISTY_Stretched
         RenderWeight=0.4
@@ -676,10 +706,10 @@ defaultproperties {
     l_NoPreview=NoPreviewLabel
 
     Begin Object Class=GUILabel Name=RetrievingMapListLabel
-        WinLeft=0.02
-        WinTop=0.32043
-        WinWidth=0.59
-        WinHeight=0.597667
+        WinLeft=0.021
+        WinTop=0.315
+        WinWidth=0.588
+        WinHeight=0.60502
         TextFont="MediumFont"
         TextAlign=TXTA_Center
         VertAlign=TXTA_Center
@@ -773,7 +803,6 @@ defaultproperties {
         WinTop=0.6856525
         WinWidth=0.1795
         WinHeight=0.045
-        FontScale=FNS_Small
         bStandardized=false
         StandardHeight=0.0325
         OnClick=OnClickSelectRandom
@@ -792,7 +821,6 @@ defaultproperties {
         WinTop=0.6856525
         WinWidth=0.1795
         WinHeight=0.045
-        FontScale=FNS_Small
         bStandardized=false
         StandardHeight=0.0325
         OnClick=OnClickSubmitVote

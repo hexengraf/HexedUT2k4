@@ -55,23 +55,6 @@ function string GetMapName()
     return "";
 }
 
-function DrawItem(Canvas C, int i, float X, float Y, float W, float H, bool bSelected, bool bPending)
-{
-    if (VRI == None)
-    {
-        return;
-    }
-    if (bSelected)
-    {
-        SelectedStyle.Draw(C, MenuState, X, Y - 2, W, H + 2);
-        DrawRow(C, SelectedStyle, i, Y, H);
-    }
-    else
-    {
-        DrawRow(C, Style, i, Y, H);
-    }
-}
-
 function DrawRow(Canvas C, GUIStyles DrawStyle, int Row, float Y, float H)
 {
     local VotingHandler.MapVoteScore Entry;
@@ -105,18 +88,14 @@ function string GetNormalizedString(int Row, int Column)
 
 defaultproperties
 {
-    ColumnHeadings(0)="Game type"
+    ColumnHeadings(0)="Game Type"
     ColumnHeadings(1)="Name"
     ColumnHeadings(2)="Votes"
-    ColumnHeadingHints(0)="Game type."
-    ColumnHeadingHints(1)="Map name."
-    ColumnHeadingHints(2)="Number of votes registered for this map."
-    InitColumnPerc(0)=0.4
-    InitColumnPerc(1)=0.475
-    InitColumnPerc(2)=0.125
+    ColumnHeadingHints(0)="Voted game type."
+    ColumnHeadingHints(1)="Voted map name."
+    ColumnHeadingHints(2)="Number of votes."
 
     SortColumn=2
     PreviousSortColumn=2
     SortDescending=true
-    OnDrawItem=DrawItem
 }

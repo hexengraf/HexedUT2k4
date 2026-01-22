@@ -13,7 +13,7 @@ function int GetGameTypeIndex()
 defaultproperties
 {
     HeaderColumnPerc(0)=0.4
-    HeaderColumnPerc(1)=0.475
-    HeaderColumnPerc(2)=0.125
+    HeaderColumnPerc(1)=0.48
+    HeaderColumnPerc(2)=0.12
     DefaultListClass="HexedPatches.HxGUIVotingVoteList"
 }

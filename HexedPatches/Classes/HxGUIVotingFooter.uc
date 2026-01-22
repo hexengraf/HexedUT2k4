@@ -72,7 +72,7 @@ defaultproperties
         WinTop=0
         WinWidth=1
         WinHeight=0.84
-        Image=Texture'engine.WhiteSquareTexture'
+        Image=Material'engine.WhiteSquareTexture'
         ImageColor=(R=255,G=255,B=255,A=78)
         ImageStyle=ISTY_Stretched
         RenderWeight=0.1
@@ -86,10 +86,6 @@ defaultproperties
         WinTop=0.006364
         WinWidth=0.99448
         WinHeight=0.827272
-        // WinLeft=0
-        // WinTop=0
-        // WinWidth=1
-        // WinHeight=0.84
         LeftPadding=0.02
         TopPadding=0.05
         RightPadding=0.02

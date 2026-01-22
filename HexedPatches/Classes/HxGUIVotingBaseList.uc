@@ -1,4 +1,5 @@
-class HxGUIVotingBaseList extends GUIMultiColumnList;
+class HxGUIVotingBaseList extends GUIMultiColumnList
+    abstract;
 
 var float LineSpacing;
 var float ColumnSpacing;
@@ -12,6 +13,7 @@ var bool bReInit;
 var HxGUIVertScrollBar HxScrollbar;
 
 function OnPopulateList();
+function DrawRow(Canvas C, GUIStyles DrawStyle, int Row, float Y, float H);
 function string GetNormalizedString(int Row, int Column);
 function int GetMapIndex();
 function string GetMapName();
@@ -129,6 +131,23 @@ function float GetSpacedItemHeight(Canvas C)
     return Round(YL + LineSpacing * C.ClipY);
 }
 
+function DrawItem(Canvas C, int i, float X, float Y, float W, float H, bool bSelected, bool bPending)
+{
+    if (VRI == None)
+    {
+        return;
+    }
+    if (bSelected)
+    {
+        SelectedStyle.Draw(C, MenuState, X, Y - 2, W, H + 2);
+        DrawRow(C, SelectedStyle, i, Y, H);
+    }
+    else
+    {
+        DrawRow(C, Style, i, Y, H);
+    }
+}
+
 defaultproperties
 {
     LineSpacing=0.003
@@ -142,4 +161,5 @@ defaultproperties
     SelectedStyleName="HxSmallListSelection"
     GetItemHeight=GetSpacedItemHeight
     bReInit=true
+    OnDrawItem=DrawItem
 }

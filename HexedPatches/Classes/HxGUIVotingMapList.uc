@@ -83,23 +83,6 @@ function VotingHandler.MapVoteMapList GetVRIEntry(int Row)
     return VRI.MapList[MapIndices[Row]];
 }
 
-function DrawItem(Canvas C, int i, float X, float Y, float W, float H, bool bSelected, bool bPending)
-{
-    if (VRI == None)
-    {
-        return;
-    }
-    if (bSelected)
-    {
-        SelectedStyle.Draw(C, MenuState, X, Y - 2, W, H + 2);
-        DrawRow(C, SelectedStyle, i, Y, H);
-    }
-    else
-    {
-        DrawRow(C, Style, i, Y, H);
-    }
-}
-
 function DrawRow(Canvas C, GUIStyles DrawStyle, int Row, float Y, float H)
 {
     local VotingHandler.MapVoteMapList Entry;
@@ -183,12 +166,7 @@ defaultproperties
     ColumnHeadingHints(1)="Number of recommended players."
     ColumnHeadingHints(2)="Number of times the map has been played."
     ColumnHeadingHints(3)="How recently this map has been played."
-    InitColumnPerc(0)=0.565
-    InitColumnPerc(1)=0.16
-    InitColumnPerc(2)=0.15
-    InitColumnPerc(3)=0.125
 
     SortColumn=0
     PreviousSortColumn=0
-    OnDrawItem=DrawItem
 }

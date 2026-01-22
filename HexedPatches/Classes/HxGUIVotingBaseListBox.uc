@@ -1,4 +1,5 @@
-class HxGUIVotingBaseListBox extends GUIMultiColumnListBox;
+class HxGUIVotingBaseListBox extends GUIMultiColumnListBox
+    abstract;
 
 var automated GUIImage i_Background;
 var automated HxGUIVotingBaseList MyVoteBaseList;
@@ -45,7 +46,6 @@ function OnChangeList(GUIComponent Sender)
 
 function bool OnDbkClickList(GUIComponent Sender)
 {
-    // NotifySelection(Self);
     NotifyVote();
     return true;
 }
@@ -83,13 +83,6 @@ function Clear()
     MyVoteBaseList.Clear();
 }
 
-function bool OnBackgroundPreDraw(Canvas C)
-{
-    i_Background.WinTop = i_Background.RelativeTop(MyList.ActualTop());
-    i_Background.WinHeight = 1 - i_Background.WinTop;
-    return true;
-}
-
 function bool InternalOnKeyEvent(out byte Key, out byte KeyState, float Delta)
 {
     if (EInputKey(Key) == IK_Enter && HxGUIVotingPage(PageOwner) != None)
@@ -100,8 +93,43 @@ function bool InternalOnKeyEvent(out byte Key, out byte KeyState, float Delta)
     return false;
 }
 
+function bool OnHeaderPreDraw(Canvas C)
+{
+    Header.WinHeight *= 1.2;
+    return true;
+}
+
+function OnHeaderRendered(Canvas C)
+{
+    local float Thickness;
+    local float Height;
+    local int i;
+
+    C.SetDrawColor(255, 255, 255, 78);
+    C.Style = 5;
+    Thickness = Round(0.0015 * C.ClipY);
+    Height = Header.ActualHeight() - Thickness;
+    C.SetPos(Header.ActualLeft(), Header.ActualTop() + Height);
+    C.DrawTileStretched(Material'engine.WhiteSquareTexture', Header.ActualWidth(), Thickness);
+    C.SetPos(C.CurX - (Thickness / 2), C.CurY - Height);
+
+    for (i = 0; i < MyVoteBaseList.ColumnHeadings.Length - 1; ++i)
+    {
+        C.SetPos(C.CurX + MyVoteBaseList.ColumnWidths[i], C.CurY);
+        C.DrawTileStretched(Material'engine.WhiteSquareTexture', Thickness, Height);
+    }
+}
+
 defaultproperties
 {
+    Begin Object Class=GUIMultiColumnListHeader Name=MyNewHeader
+        StyleName="HxListHeader"
+        BarStyleName="HxListHeader"
+        OnPreDraw=OnHeaderPreDraw
+        OnRendered=OnHeaderRendered
+    End Object
+	Header=MyNewHeader
+
     Begin Object Class=GUIImage Name=Background
         WinLeft=0
         WinTop=0.02
@@ -110,11 +138,13 @@ defaultproperties
         Image=Material'2K4Menus.NewControls.NewFooter'
         Y1=10
         ImageColor=(R=255,G=255,B=255,A=255)
+        // Image=Material'engine.WhiteSquareTexture'
+        // ImageColor=(R=36,G=70,B=136,A=255)
+        // ImageColor=(R=37,G=71,B=139,A=255)
         ImageStyle=ISTY_Stretched
         bScaleToParent=true
         bBoundToParent=true
         RenderWeight=0.2
-        OnPreDraw=OnBackgroundPreDraw
     End Object
     i_Background=Background
 
