@@ -1,5 +1,7 @@
 class HxGUIVotingFooter extends MapVoteFooter;
 
+var automated GUIImage i_ChatScrollBoxBorder;
+
 var int MaxHistory;
 var Color FallbackColor;
 var Color MessageColor;
@@ -65,11 +67,29 @@ defaultproperties
     End Object
     sb_Background=NewMapVoteFooterBackground
 
-    Begin Object Class=HxGUIScrollTextBox Name=NewChatScrollBox
+    Begin Object Class=GUIImage Name=ChatScrollBoxBorder
         WinLeft=0
         WinTop=0
         WinWidth=1
         WinHeight=0.84
+        Image=Texture'engine.WhiteSquareTexture'
+        ImageColor=(R=255,G=255,B=255,A=78)
+        ImageStyle=ISTY_Stretched
+        RenderWeight=0.1
+        bScaleToParent=true
+        bBoundToParent=true
+    End Object
+    i_ChatScrollBoxBorder=ChatScrollBoxBorder
+
+    Begin Object Class=HxGUIScrollTextBox Name=NewChatScrollBox
+        WinLeft=0.00276
+        WinTop=0.006364
+        WinWidth=0.99448
+        WinHeight=0.827272
+        // WinLeft=0
+        // WinTop=0
+        // WinWidth=1
+        // WinHeight=0.84
         LeftPadding=0.02
         TopPadding=0.05
         RightPadding=0.02

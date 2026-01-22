@@ -10,7 +10,9 @@ var automated GUIEditBox ed_SearchSeq;
 var automated moCheckBox ch_CaseSensitive;
 var automated AltSectionBackground sb_MapPreview;
 var automated GUIImage i_MapPreviewBackground;
+var automated GUIImage i_MapPreviewBackgroundBorder;
 var automated GUIImage i_Preview;
+var automated GUIImage i_PreviewBorder;
 var automated GUILabel l_ReceivingMapList;
 var automated GUILabel l_NoMapSelected;
 var automated GUILabel l_NoPreview;
@@ -578,19 +580,34 @@ defaultproperties {
     ch_CaseSensitive=CaseSensitiveCheckBox
 
     Begin Object Class=GUIImage Name=MapPreviewBackground
-        WinLeft=0.6175
-        WinTop=0.052930
-        WinWidth=0.3625
-        WinHeight=0.61274
+        WinLeft=0.6185
+        WinTop=0.05433
+        WinWidth=0.3605
+        WinHeight=0.623875
+        // WinHeight=0.38664
         Image=Material'2K4Menus.NewControls.NewFooter'
         Y1=10
         ImageColor=(R=255,G=255,B=255,A=255)
+        ImageStyle=ISTY_Stretched
+        RenderWeight=0.2
+        bScaleToParent=true
+        bBoundToParent=true
+    End Object
+    i_MapPreviewBackground=MapPreviewBackground
+
+    Begin Object Class=GUIImage Name=MapPreviewBackgroundBorder
+        WinLeft=0.6175
+        WinTop=0.052930
+        WinWidth=0.3625
+        WinHeight=0.626675
+        Image=Texture'engine.WhiteSquareTexture'
+        ImageColor=(R=255,G=255,B=255,A=78)
         ImageStyle=ISTY_Stretched
         RenderWeight=0.1
         bScaleToParent=true
         bBoundToParent=true
     End Object
-    i_MapPreviewBackground=MapPreviewBackground
+    i_MapPreviewBackgroundBorder=MapPreviewBackgroundBorder
 
     Begin Object Class=GUIImage Name=MapPreviewImage
         WinLeft=0.62825
@@ -605,6 +622,20 @@ defaultproperties {
         bBoundToParent=true
     End Object
     i_Preview=MapPreviewImage
+
+    Begin Object Class=GUIImage Name=MapPreviewImageBorder
+        WinLeft=0.62725
+        WinTop=0.0931
+        WinWidth=0.342
+        WinHeight=0.34647
+        Image=Texture'engine.WhiteSquareTexture'
+        ImageColor=(R=255,G=255,B=255,A=96)
+        ImageStyle=ISTY_Stretched
+        RenderWeight=0.4
+        bScaleToParent=true
+        bBoundToParent=true
+    End Object
+    i_PreviewBorder=MapPreviewImageBorder
 
     Begin Object Class=GUILabel Name=NoPreviewLabel
         Caption="No Preview Available"
@@ -645,10 +676,10 @@ defaultproperties {
 
     Begin Object Class=GUILabel Name=NoMapSelectedLabel
         Caption="No Map Selected"
-        WinLeft=0.6175
-        WinTop=0.052930
-        WinWidth=0.3625
-        WinHeight=0.61274
+        WinLeft=0.6185
+        WinTop=0.05433
+        WinWidth=0.3605
+        WinHeight=0.623875
         TextFont="MediumFont"
         TextAlign=TXTA_Center
         VertAlign=TXTA_Center
@@ -662,10 +693,10 @@ defaultproperties {
     l_NoMapSelected=NoMapSelectedLabel
 
     Begin Object class=GUILabel Name=MapNameLabel
-        WinLeft=0.6175
-        WinTop=0.052930
-        WinWidth=0.3625
-        WinHeight=0.04157
+        WinLeft=0.6185
+        WinTop=0.05433
+        WinWidth=0.3605
+        WinHeight=0.04017
         TextAlign=TXTA_Center
         VertAlign=TXTA_Right
         TextColor=(R=255,G=210,B=0,A=255)
@@ -675,14 +706,14 @@ defaultproperties {
     l_MapName=MapNameLabel
 
     Begin Object Class=HxGUIScrollTextBox Name=MapPreviewFooterTextBox
-        WinLeft=0.6175
-        WinTop=0.43817
-        WinWidth=0.3625
-        WinHeight=0.0575
+        WinLeft=0.6185
+        WinTop=0.43957
+        WinWidth=0.3605
+        WinHeight=0.0561
         FontScale=FNS_Small
         TextAlign=TXTA_Center
         LineSpacing=0.005
-        TopPadding=0.075
+        TopPadding=0.05
         bTabStop=false
         bVisibleWhenEmpty=true
         bNoTeletype=true
@@ -694,10 +725,10 @@ defaultproperties {
     lb_MapPreviewFooter=MapPreviewFooterTextBox
 
     Begin Object Class=HxGUIScrollTextBox Name=MapDescriptionTextBox
-        WinLeft=0.6175
-        WinTop=0.49567
-        WinWidth=0.3625
-        WinHeight=0.183935
+        WinLeft=0.6185
+        WinTop=0.49707
+        WinWidth=0.3605
+        WinHeight=0.181135
         CharDelay=0.0065
         EOLDelay=0.5
         FontScale=FNS_Small
