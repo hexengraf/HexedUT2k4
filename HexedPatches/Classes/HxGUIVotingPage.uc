@@ -436,7 +436,7 @@ defaultproperties {
     Begin Object Class=HxGUIVotingVoteListBox Name=VoteListBox
         WinLeft=0.02
         WinTop=0.052930
-        WinWidth=0.58
+        WinWidth=0.59
         WinHeight=0.21
         bScaleToParent=true
         bBoundToParent=true
@@ -467,7 +467,7 @@ defaultproperties {
         Hint="Select map sources to show."
         WinLeft=0.42
         WinTop=0.27293
-        WinWidth=0.18
+        WinWidth=0.19
         WinHeight=0.0375
         CaptionWidth=0.001
         bReadOnly=true
@@ -481,7 +481,7 @@ defaultproperties {
     Begin Object Class=HxGUIVotingMapListBox Name=MapListBox
         WinLeft=0.02
         WinTop=0.32043
-        WinWidth=0.58
+        WinWidth=0.59
         WinHeight=0.60099
         bScaleToParent=true
         bBoundToParent=true
@@ -560,7 +560,7 @@ defaultproperties {
 
     Begin Object class=moCheckBox Name=CaseSensitiveCheckBox
         Hint="Case Sensitive"
-        WinLeft=0.5805
+        WinLeft=0.5905
         WinTop=0.92527
         WinWidth=0.02
         WinHeight=0.03143
@@ -576,10 +576,10 @@ defaultproperties {
     ch_CaseSensitive=CaseSensitiveCheckBox
 
     Begin Object Class=GUIImage Name=MapPreviewBackground
-        WinLeft=0.6075
+        WinLeft=0.6175
         WinTop=0.052930
-        WinWidth=0.3725
-        WinHeight=0.64061
+        WinWidth=0.3625
+        WinHeight=0.61274
         Image=Material'2K4Menus.NewControls.NewFooter'
         Y1=10
         ImageColor=(R=255,G=255,B=255,A=255)
@@ -591,10 +591,10 @@ defaultproperties {
     i_MapPreviewBackground=MapPreviewBackground
 
     Begin Object Class=GUIImage Name=MapPreviewImage
-        WinLeft=0.62325
+        WinLeft=0.62825
         WinTop=0.0945
         WinWidth=0.34
-        WinHeight=0.37154
+        WinHeight=0.34367
         ImageColor=(R=255,G=255,B=255,A=255)
         ImageStyle=ISTY_Scaled
         ImageRenderStyle=MSTY_Normal
@@ -606,10 +606,10 @@ defaultproperties {
 
     Begin Object Class=GUILabel Name=NoPreviewLabel
         Caption="No Preview Available"
-        WinLeft=0.62325
+        WinLeft=0.62825
         WinTop=0.0945
         WinWidth=0.34
-        WinHeight=0.37154
+        WinHeight=0.34367
         TextFont="MediumFont"
         TextAlign=TXTA_Center
         VertAlign=TXTA_Center
@@ -626,7 +626,7 @@ defaultproperties {
     Begin Object Class=GUILabel Name=ReceivingMapListLabel
         WinLeft=0.02
         WinTop=0.32043
-        WinWidth=0.58
+        WinWidth=0.59
         WinHeight=0.597667
         TextFont="MediumFont"
         TextAlign=TXTA_Center
@@ -643,10 +643,10 @@ defaultproperties {
 
     Begin Object Class=GUILabel Name=NoMapSelectedLabel
         Caption="No Map Selected"
-        WinLeft=0.6075
+        WinLeft=0.6175
         WinTop=0.052930
-        WinWidth=0.3725
-        WinHeight=0.64061
+        WinWidth=0.3625
+        WinHeight=0.61274
         TextFont="MediumFont"
         TextAlign=TXTA_Center
         VertAlign=TXTA_Center
@@ -660,9 +660,9 @@ defaultproperties {
     l_NoMapSelected=NoMapSelectedLabel
 
     Begin Object class=GUILabel Name=MapNameLabel
-        WinLeft=0.6075
+        WinLeft=0.6175
         WinTop=0.052930
-        WinWidth=0.3725
+        WinWidth=0.3625
         WinHeight=0.04157
         TextAlign=TXTA_Center
         VertAlign=TXTA_Right
@@ -673,9 +673,9 @@ defaultproperties {
     l_MapName=MapNameLabel
 
     Begin Object Class=HxGUIScrollTextBox Name=MapPreviewFooterTextBox
-        WinLeft=0.6075
-        WinTop=0.46604
-        WinWidth=0.3725
+        WinLeft=0.6175
+        WinTop=0.43817
+        WinWidth=0.3625
         WinHeight=0.0575
         FontScale=FNS_Small
         TextAlign=TXTA_Center
@@ -692,10 +692,10 @@ defaultproperties {
     lb_MapPreviewFooter=MapPreviewFooterTextBox
 
     Begin Object Class=HxGUIScrollTextBox Name=MapDescriptionTextBox
-        WinLeft=0.6075
-        WinTop=0.52354
-        WinWidth=0.3725
-        WinHeight=0.17
+        WinLeft=0.6175
+        WinTop=0.49567
+        WinWidth=0.3625
+        WinHeight=0.183935
         CharDelay=0.0065
         EOLDelay=0.5
         FontScale=FNS_Small
@@ -718,10 +718,10 @@ defaultproperties {
     Begin Object Class=GUIButton Name=SelectRandomButton
         Caption="Select Random"
         Hint="Select a random map from the map list (or vote list if focused and non-empty)."
-        WinLeft=0.6075
-        WinTop=0.69462
-        WinWidth=0.18625
-        WinHeight=0.041
+        WinLeft=0.6175
+        WinTop=0.6856525
+        WinWidth=0.1795
+        WinHeight=0.045
         FontScale=FNS_Small
         bStandardized=false
         StandardHeight=0.0325
@@ -737,10 +737,10 @@ defaultproperties {
     Begin Object Class=GUIButton Name=SubmitVoteButton
         Caption="Submit Vote"
         Hint="Vote for the currently selected map."
-        WinLeft=0.79375
-        WinTop=0.69462
-        WinWidth=0.18625
-        WinHeight=0.041
+        WinLeft=0.8005
+        WinTop=0.6856525
+        WinWidth=0.1795
+        WinHeight=0.045
         FontScale=FNS_Small
         bStandardized=false
         StandardHeight=0.0325
@@ -754,9 +754,9 @@ defaultproperties {
     b_SubmitVote=SubmitVoteButton
 
     Begin Object Class=HxGUIVotingFooter Name=MapVoteFooter
-        WinLeft=0.6075
+        WinLeft=0.6175
         WinTop=0.7367
-        WinWidth=0.3725
+        WinWidth=0.3625
         WinHeight=0.22
         bBoundToParent=true
         bScaleToParent=true
