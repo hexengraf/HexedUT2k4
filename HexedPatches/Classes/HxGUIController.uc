@@ -109,7 +109,8 @@ defaultproperties
     DefaultStyleNames(65)="HexedPatches.HxSTYEditBox"
     DefaultStyleNames(66)="HexedPatches.HxSTYSmallLabel"
     DefaultStyleNames(67)="HexedPatches.HxSTYListHeader"
-    STYLE_NUM=68
+    DefaultStyleNames(68)="HexedPatches.HxSTYFlatButton"
+    STYLE_NUM=69
     MainMenuOptions(6)="HexedPatches.HxGUIQuitPage"
     MapVotingMenu="HexedPatches.HxGUIVotingPage"
 }

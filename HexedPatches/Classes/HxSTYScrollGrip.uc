@@ -18,9 +18,9 @@ defaultproperties
 
     ImgColors(0)=(R=32,G=50,B=106,A=100)
     ImgColors(1)=(R=32,G=50,B=106,A=200)
-    ImgColors(2)=(R=32,G=50,B=106,A=100)
+    ImgColors(2)=(R=32,G=50,B=106,A=200)
     ImgColors(3)=(R=32,G=50,B=106,A=255)
-    ImgColors(4)=(R=32,G=50,B=106,A=200)
+    ImgColors(4)=(R=32,G=50,B=106,A=0)
 
     ImgWidths(0)=-1
     ImgWidths(1)=-1

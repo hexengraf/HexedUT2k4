@@ -67,29 +67,17 @@ defaultproperties
     End Object
     sb_Background=NewMapVoteFooterBackground
 
-    Begin Object Class=GUIImage Name=ChatScrollBoxBorder
+    Begin Object Class=HxGUIScrollTextBox Name=NewChatScrollBox
         WinLeft=0
         WinTop=0
         WinWidth=1
         WinHeight=0.84
-        Image=Material'engine.WhiteSquareTexture'
-        ImageColor=(R=255,G=255,B=255,A=78)
-        ImageStyle=ISTY_Stretched
-        RenderWeight=0.1
-        bScaleToParent=true
-        bBoundToParent=true
-    End Object
-    i_ChatScrollBoxBorder=ChatScrollBoxBorder
-
-    Begin Object Class=HxGUIScrollTextBox Name=NewChatScrollBox
-        WinLeft=0.00276
-        WinTop=0.006364
-        WinWidth=0.99448
-        WinHeight=0.827272
         LeftPadding=0.02
         TopPadding=0.05
         RightPadding=0.02
         BottomPadding=0.05
+        VertAlign=TXTA_Right
+        bAutoSpacing=true
         bVisibleWhenEmpty=true
         bNoTeletype=true
         bNeverFocus=true

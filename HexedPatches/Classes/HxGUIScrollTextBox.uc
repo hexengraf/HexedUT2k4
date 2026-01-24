@@ -6,18 +6,22 @@ struct HxColorReplacement
     var Color ReplaceWith;
 };
 
-var automated GUIImage i_Background;
+var automated HxGUIFramedImage i_Background;
 var HxGUIScrollText ScrollText;
 
 var eTextAlign VertAlign;
+var bool bAutoSpacing;
 var float LineSpacing;
 var float LeftPadding;
 var float TopPadding;
 var float RightPadding;
 var float BottomPadding;
-
 var float ScrollbarWidth;
+var float FrameThickness;
+var Material BackgroundImage;
+var eImgStyle BackgroundStyle;
 var Color BackgroundColor;
+var bool bBackgroundVisible;
 
 var array<HxColorReplacement> ColorReplacements;
 
@@ -26,12 +30,19 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     Super.InitComponent(MyController, MyOwner);
     ScrollText = HxGUIScrollText(MyScrollText);
     ScrollText.VertAlign = VertAlign;
+    ScrollText.bAutoSpacing = bAutoSpacing;
     ScrollText.LineSpacing = LineSpacing;
     ScrollText.LeftPadding = LeftPadding;
     ScrollText.TopPadding = TopPadding;
     ScrollText.RightPadding = RightPadding;
     ScrollText.BottomPadding = BottomPadding;
     MyScrollBar.WinWidth = ScrollbarWidth;
+    i_Background.SetImage(BackgroundImage);
+    i_Background.SetImageStyle(BackgroundStyle);
+    i_Background.SetImageColor(BackgroundColor);
+    i_Background.FrameThickness = FrameThickness;
+    i_Background.SetVisibility(bBackgroundVisible);
+    HxGUIVertScrollBar(MyScrollBar).FrameThickness = FrameThickness;
 }
 
 function string ReplaceColorCodes(string Text)
@@ -88,16 +99,18 @@ function AddText(string NewText)
     }
 }
 
+function float GetItemHeight(Canvas C)
+{
+    return ScrollText.GetItemHeight(C);
+}
+
 defaultproperties
 {
-    Begin Object Class=GUIImage Name=Background
+    Begin Object Class=HxGUIFramedImage Name=Background
         WinLeft=0
         WinTop=0
         WinWidth=1
         WinHeight=1
-        Image=Material'2K4Menus.NewControls.NewFooter'
-        Y1=10
-        ImageStyle=ISTY_Stretched
         RenderWeight=0.1
         bBoundToParent=true
         bScaleToParent=true
@@ -114,11 +127,16 @@ defaultproperties
     SelectedStyleName="HxSmallText"
     DefaultListClass="HexedPatches.HxGUIScrollText"
     VertAlign=TXTA_Left
+    bAutoSpacing=false
     LineSpacing=0.002
-    ScrollbarWidth=0.03
     LeftPadding=0
     TopPadding=0
     RightPadding=0
     BottomPadding=0
-    BackgroundColor=(R=255,G=255,B=255,A=255)
+    ScrollbarWidth=0.03
+    FrameThickness=0.001
+    BackgroundImage=Material'engine.WhiteSquareTexture'
+    BackgroundStyle=ISTY_Scaled
+    BackgroundColor=(R=38,G=59,B=126,A=255)
+    bBackgroundVisible=true
 }

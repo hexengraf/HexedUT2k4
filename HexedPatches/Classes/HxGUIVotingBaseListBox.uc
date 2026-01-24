@@ -1,10 +1,11 @@
 class HxGUIVotingBaseListBox extends GUIMultiColumnListBox
     abstract;
 
-var automated GUIImage i_Background;
+var automated HxGUIFramedImage fi_Background;
 var automated HxGUIVotingBaseList MyVoteBaseList;
 
 var float ScrollbarWidth;
+var float FrameThickness;
 
 delegate NotifySelection(GUIComponent Sender);
 delegate NotifyVote();
@@ -13,9 +14,12 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
     Super.InitComponent(MyController, MyOwner);
     MyVoteBaseList = HxGUIVotingBaseList(List);
+    MyVoteBaseList.FrameThickness = FrameThickness;
     MyVoteBaseList.OnChange = OnChangeList;
     MyVoteBaseList.OnDblClick = OnDbkClickList;
     HxGUIVertScrollBar(MyScrollBar).ForceRelativeWidth = ScrollbarWidth;
+    HxGUIVertScrollBar(MyScrollBar).FrameThickness = FrameThickness;
+    fi_Background.FrameThickness = FrameThickness;
 }
 
 event ResolutionChanged(int NewX, int NewY)
@@ -102,22 +106,27 @@ function bool OnHeaderPreDraw(Canvas C)
 function OnHeaderRendered(Canvas C)
 {
     local float Thickness;
+    local float Width;
     local float Height;
     local int i;
 
-    C.SetDrawColor(255, 255, 255, 78);
     C.Style = 5;
-    Thickness = Round(0.0015 * C.ClipY);
+    C.DrawColor = fi_Background.FrameColor;
+    Thickness = Round(FrameThickness * C.ClipY);
+    Width = Header.ActualWidth();
     Height = Header.ActualHeight() - Thickness;
     C.SetPos(Header.ActualLeft(), Header.ActualTop() + Height);
-    C.DrawTileStretched(Material'engine.WhiteSquareTexture', Header.ActualWidth(), Thickness);
-    C.SetPos(C.CurX - (Thickness / 2), C.CurY - Height);
-
+    C.DrawTileStretched(fi_Background.FrameMaterial, Width, Thickness);
+    C.SetPos(C.CurX, C.CurY - Height);
+    C.DrawTileStretched(fi_Background.FrameMaterial, Width, Thickness);
+    C.DrawTileStretched(fi_Background.FrameMaterial, Thickness, Height);
     for (i = 0; i < MyVoteBaseList.ColumnHeadings.Length - 1; ++i)
     {
         C.SetPos(C.CurX + MyVoteBaseList.ColumnWidths[i], C.CurY);
-        C.DrawTileStretched(Material'engine.WhiteSquareTexture', Thickness, Height);
+        C.DrawTileStretched(fi_Background.FrameMaterial, Thickness, Height);
     }
+    C.SetPos(C.CurX + MyVoteBaseList.ColumnWidths[i] - Thickness, C.CurY);
+    C.DrawTileStretched(fi_Background.FrameMaterial, Thickness, Height);
 }
 
 defaultproperties
@@ -130,23 +139,17 @@ defaultproperties
     End Object
 	Header=MyNewHeader
 
-    Begin Object Class=GUIImage Name=Background
+    Begin Object Class=HxGUIFramedImage Name=Background
         WinLeft=0
         WinTop=0.02
         WinWidth=1
         WinHeight=0.98
-        Image=Material'2K4Menus.NewControls.NewFooter'
-        Y1=10
-        ImageColor=(R=255,G=255,B=255,A=255)
-        // Image=Material'engine.WhiteSquareTexture'
-        // ImageColor=(R=36,G=70,B=136,A=255)
-        // ImageColor=(R=37,G=71,B=139,A=255)
-        ImageStyle=ISTY_Stretched
+        RenderWeight=0.1
+        ImageColor=(R=38,G=59,B=126,A=255)
         bScaleToParent=true
         bBoundToParent=true
-        RenderWeight=0.2
     End Object
-    i_Background=Background
+    fi_Background=Background
 
     Begin Object Class=HxGUIVertScrollBar Name=NewTheScrollbar
         bScaleToParent=true
@@ -154,6 +157,7 @@ defaultproperties
     MyScrollBar=NewTheScrollbar
 
     ScrollbarWidth=0.02
+    FrameThickness=0.001
     StyleName="HxSmallList"
     SelectedStyleName="HxSmallListSelection"
     bVisibleWhenEmpty=true

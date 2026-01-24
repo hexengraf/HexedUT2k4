@@ -12,9 +12,9 @@ function bool FilterUpdated(optional string SelectMapName)
 
 defaultproperties
 {
-    HeaderColumnPerc(0)=0.63
+    HeaderColumnPerc(0)=0.62
     HeaderColumnPerc(1)=0.14
     HeaderColumnPerc(2)=0.13
-    HeaderColumnPerc(3)=0.10
+    HeaderColumnPerc(3)=0.11
     DefaultListClass="HexedPatches.HxGUIVotingMapList"
 }

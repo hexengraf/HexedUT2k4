@@ -5,6 +5,7 @@ var float LineSpacing;
 var float ColumnSpacing;
 var float LeftPadding;
 var float TopPadding;
+var float FrameThickness;
 
 var VotingReplicationInfo VRI;
 var int PreviousSortColumn;
@@ -73,10 +74,6 @@ function bool InternalOnPreDraw(Canvas C)
     local float CurrentWidth;
     local float Padding;
 
-    if (bInit)
-    {
-        return false;
-    }
     Super.InternalOnPreDraw(C);
     OwnerWidth = MenuOwner.ActualWidth();
     CurrentWidth = ActualWidth();
@@ -89,7 +86,7 @@ function bool InternalOnPreDraw(Canvas C)
     {
         if (HxScrollbar != None && HxScrollbar.ForceRelativeWidth > 0)
         {
-            WinWidth = OwnerWidth * (1 - HxScrollbar.ForceRelativeWidth);
+            WinWidth = Round(OwnerWidth * (1 - HxScrollbar.ForceRelativeWidth));
         }
         else
         {
@@ -127,19 +124,23 @@ function float GetSpacedItemHeight(Canvas C)
     local float XL;
     local float YL;
 
-    Style.TextSize(C, MenuState, "A", XL, YL, FontScale);
-    return Round(YL + LineSpacing * C.ClipY);
+    Style.TextSize(C, MenuState, "q|W", XL, YL, FontScale);
+    return YL + Round(LineSpacing * C.ClipY);
 }
 
 function DrawItem(Canvas C, int i, float X, float Y, float W, float H, bool bSelected, bool bPending)
 {
+    local float Offset;
+
     if (VRI == None)
     {
         return;
     }
     if (bSelected)
     {
-        SelectedStyle.Draw(C, MenuState, X, Y - 2, W, H + 2);
+        Offset = Round(FrameThickness * C.ClipY);
+        SelectedStyle.Draw(
+            C, MenuState, ActualLeft() + Offset, Y, ActualWidth() - 2 * Offset, H);
         DrawRow(C, SelectedStyle, i, Y, H);
     }
     else
@@ -154,6 +155,7 @@ defaultproperties
     ColumnSpacing=0.001
     LeftPadding=0.005
     TopPadding=0.005
+    FrameThickness=0.001
     bDropSource=false
     bDropTarget=false
     ExpandLastColumn=true

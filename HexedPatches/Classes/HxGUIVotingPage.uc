@@ -10,32 +10,16 @@ var automated GUIEditBox ed_SearchPlayers;
 var automated GUIEditBox ed_SearchPlayed;
 var automated GUIEditBox ed_SearchSeq;
 var automated moCheckBox ch_CaseSensitive;
-var automated AltSectionBackground sb_MapPreview;
-var automated GUIImage i_MapPreviewBackground;
-var automated GUIImage i_MapPreviewBackgroundBorder;
-var automated GUIImage i_Preview;
-var automated GUIImage i_PreviewBorder;
 var automated GUILabel l_RetrievingMapList;
-var automated GUILabel l_NoMapInformation;
-var automated GUILabel l_NoPreview;
-var automated GUILabel l_MapName;
-var automated HxGUIScrollTextBox lb_MapPreviewFooter;
-var automated HxGUIScrollTextBox lb_MapDescription;
-var automated GUIButton b_SelectRandom;
-var automated GUIButton b_SubmitVote;
+var automated HxGUIVotingMapBanner MapBanner;
 
 var localized string LoadingText;
 var localized string RetrievingMapListText;
-var localized string NoMapSelectedText;
-var localized string MapInformationUnavailableText;
-var localized string PlayersText;
-var localized string AuthorText;
 
 var HxMapVoteFilterManager FilterManager;
 var HxMapVoteFilter ActiveFilter;
 var int SelectedGameType;
 var int SelectedMap;
-var string SelectedMapName;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
@@ -106,7 +90,7 @@ function ShowInitialState()
     ed_SearchSeq.DisableMe();
     ch_CaseSensitive.DisableMe();
     l_RetrievingMapList.SetVisibility(false);
-    UpdateMapPreview("");
+    MapBanner.SetMap("");
 }
 
 function ShowLoadingState()
@@ -191,7 +175,7 @@ function OnChangeGameType(GUIComponent Sender)
     }
 }
 
-function OnVote()
+function SubmitVote()
 {
     local PlayerController PC;
 
@@ -206,6 +190,18 @@ function OnVote()
         {
             PC.ClientMessage(lmsgMapDisabled);
         }
+    }
+}
+
+function SelectRandom()
+{
+    if (lb_VoteList.bHasFocus && !lb_VoteList.IsEmpty())
+    {
+        lb_VoteList.SelectRandom();
+    }
+    else
+    {
+        lb_MapList.SelectRandom();
     }
 }
 
@@ -232,7 +228,7 @@ function OnChangeSelectedMap(GUIComponent Sender)
                 break;
         }
         SelectedMap = NewSelectedMap;
-        UpdateMapPreview(HxGUIVotingBaseListBox(Sender).GetMapName());
+        MapBanner.SetMap(HxGUIVotingBaseListBox(Sender).GetMapName());
     }
 }
 
@@ -262,26 +258,7 @@ function OnChangeSequenceSearch(GUIComponent Sender)
 
 function OnFilterChange()
 {
-    lb_MapList.FilterUpdated(SelectedMapName);
-}
-
-function bool OnClickSelectRandom(GUIComponent Sender)
-{
-    if (lb_VoteList.bHasFocus && !lb_VoteList.IsEmpty())
-    {
-        lb_VoteList.SelectRandom();
-    }
-    else
-    {
-        lb_MapList.SelectRandom();
-    }
-    return true;
-}
-
-function bool OnClickSubmitVote(GUIComponent Sender)
-{
-    OnVote();
-    return true;
+    lb_MapList.FilterUpdated(MapBanner.DisplayedMap);
 }
 
 function OnCloseQuestionPage(optional bool bCanceled)
@@ -324,76 +301,6 @@ function bool InternalOnPreDraw(Canvas C)
     return Super.InternalOnPreDraw(C);
 }
 
-function ResetMapPreview(string Caption)
-{
-    SelectedMapName = "";
-    l_MapName.Caption = "";
-    lb_MapPreviewFooter.SetContent("");
-    lb_MapDescription.SetContent("");
-    i_Preview.Image = None;
-    i_Preview.SetVisibility(false);
-    l_NoPreview.SetVisibility(false);
-    l_NoMapInformation.Caption = Caption;
-    l_NoMapInformation.SetVisibility(true);
-}
-
-function UpdateMapPreview(string MapName)
-{
-    local CacheManager.MapRecord Record;
-
-    if (MapName == "")
-    {
-        ResetMapPreview(NoMapSelectedText);
-    }
-    else if (MapName != SelectedMapName)
-    {
-        Record = class'CacheManager'.static.GetMapRecord(MapName);
-        if (Record.MapName == "")
-        {
-            ResetMapPreview(MapInformationUnavailableText);
-        }
-        else
-        {
-            if (Record.ScreenshotRef != "")
-            {
-                i_Preview.Image = Material(
-                    DynamicLoadObject(Record.ScreenshotRef, class'Material'));
-            }
-            else
-            {
-                i_Preview.Image = None;
-            }
-            i_Preview.SetVisibility(i_Preview.Image != None);
-            l_NoPreview.SetVisibility(i_Preview.Image == None);
-            l_NoMapInformation.SetVisibility(false);
-            l_MapName.Caption = Record.FriendlyName;
-            if (Record.PlayerCountMax == 0)
-            {
-                lb_MapPreviewFooter.SetContent("?"@PlayersText);
-            }
-            else if (Record.PlayerCountMin == Record.PlayerCountMax)
-            {
-                lb_MapPreviewFooter.SetContent(Record.PlayerCountMin@PlayersText);
-            }
-            else
-            {
-                lb_MapPreviewFooter.SetContent(
-                    Record.PlayerCountMin@"-"@Record.PlayerCountMax@PlayersText);
-            }
-            if (Record.Author != "")
-            {
-                lb_MapPreviewFooter.AddText(AuthorText$":"@Record.Author);
-            }
-            else
-            {
-                lb_MapPreviewFooter.AddText(AuthorText$": N/A");
-            }
-            lb_MapDescription.SetContent(GetMapDescription(Record));
-        }
-        SelectedMapName = MapName;
-    }
-}
-
 function UpdateSearchBarWidth()
 {
     local float Width;
@@ -411,45 +318,12 @@ function UpdateSearchBarWidth()
     }
 }
 
-function string GetMapDescription(CacheManager.MapRecord Record)
-{
-    local DecoText Deco;
-    local string Description;
-    local string PackageName;
-    local string DecoTextName;
-    local int i;
-
-    if (class'CacheManager'.static.Is2003Content(Record.MapName) && Record.TextName != "")
-    {
-        if (!Divide(Record.TextName, ".", PackageName, DecoTextName))
-        {
-            PackageName = "XMaps";
-            DecoTextName = Record.TextName;
-        }
-        Deco = class'xUtil'.static.LoadDecoText(PackageName, DecoTextName);
-        if (Deco != None)
-        {
-            for (i = 0; i < Deco.Rows.Length; ++i)
-            {
-                if (Description != "")
-                {
-                    Description $= "|";
-                }
-                Description $= Deco.Rows[i];
-            }
-            return Description;
-        }
-    }
-    return Record.Description;
-}
-
 event Free()
 {
     local VotingReplicationInfo VRI;
     VRI = MVRI;
     Super.Free();
     MVRI = VRI;
-    lb_MapDescription.MyScrollText.EndScrolling();
 }
 
 function LevelChanged()
@@ -460,32 +334,18 @@ function LevelChanged()
 
 defaultproperties {
     Begin Object Class=HxGUIVotingVoteListBox Name=VoteListBox
-        WinLeft=0.021
-        WinTop=0.05433
-        WinWidth=0.588
-        WinHeight=0.2072
+        WinLeft=0.02
+        WinTop=0.052930
+        WinWidth=0.5907
+        WinHeight=0.21
         bScaleToParent=true
         bBoundToParent=true
         FontScale=FNS_Small
         NotifySelection=OnChangeSelectedMap
-        NotifyVote=OnVote
+        NotifyVote=SubmitVote
         TabOrder=0
     End Object
     lb_VoteList=VoteListBox
-
-    Begin Object Class=GUIImage Name=VoteListBorder
-        WinLeft=0.02
-        WinTop=0.052930
-        WinWidth=0.59
-        WinHeight=0.21
-        Image=Material'engine.WhiteSquareTexture'
-        ImageColor=(R=255,G=255,B=255,A=78)
-        ImageStyle=ISTY_Stretched
-        RenderWeight=0.1
-        bScaleToParent=true
-        bBoundToParent=true
-    End Object
-    i_VoteListBorder=VoteListBorder
 
     Begin Object class=moComboBox Name=GameTypeComboBox
         Caption="Game Type:"
@@ -507,7 +367,7 @@ defaultproperties {
         Hint="Select map sources to show."
         WinLeft=0.445
         WinTop=0.27293
-        WinWidth=0.165
+        WinWidth=0.1657
         WinHeight=0.0375
         CaptionWidth=0.001
         bReadOnly=true
@@ -519,32 +379,18 @@ defaultproperties {
     co_MapSource=MapSourceComboBox
 
     Begin Object Class=HxGUIVotingMapListBox Name=MapListBox
-        WinLeft=0.021
-        WinTop=0.315
-        WinWidth=0.588
-        WinHeight=0.60502
+        WinLeft=0.02
+        WinTop=0.3136
+        WinWidth=0.5907
+        WinHeight=0.60782
         bScaleToParent=true
         bBoundToParent=true
         FontScale=FNS_Small
         NotifySelection=OnChangeSelectedMap
-        NotifyVote=OnVote
+        NotifyVote=SubmitVote
         TabOrder=3
     End Object
     lb_MapList=MapListBox
-
-    Begin Object Class=GUIImage Name=MapListBorder
-        WinLeft=0.02
-        WinTop=0.3136
-        WinWidth=0.59
-        WinHeight=0.60782
-        Image=Material'engine.WhiteSquareTexture'
-        ImageColor=(R=255,G=255,B=255,A=78)
-        ImageStyle=ISTY_Stretched
-        RenderWeight=0.1
-        bScaleToParent=true
-        bBoundToParent=true
-    End Object
-    i_MapListBorder=MapListBorder
 
     Begin Object class=moEditBox Name=SearchNameEditBox
         Caption="Search:"
@@ -629,87 +475,11 @@ defaultproperties {
     End Object
     ch_CaseSensitive=CaseSensitiveCheckBox
 
-    Begin Object Class=GUIImage Name=MapPreviewBackground
-        WinLeft=0.6185
-        WinTop=0.05433
-        WinWidth=0.3605
-        WinHeight=0.623875
-        Image=Material'2K4Menus.NewControls.NewFooter'
-        Y1=10
-        ImageColor=(R=255,G=255,B=255,A=255)
-        ImageStyle=ISTY_Stretched
-        RenderWeight=0.2
-        bScaleToParent=true
-        bBoundToParent=true
-    End Object
-    i_MapPreviewBackground=MapPreviewBackground
-
-    Begin Object Class=GUIImage Name=MapPreviewBackgroundBorder
-        WinLeft=0.6175
-        WinTop=0.052930
-        WinWidth=0.3625
-        WinHeight=0.626675
-        Image=Material'engine.WhiteSquareTexture'
-        ImageColor=(R=255,G=255,B=255,A=78)
-        ImageStyle=ISTY_Stretched
-        RenderWeight=0.1
-        bScaleToParent=true
-        bBoundToParent=true
-    End Object
-    i_MapPreviewBackgroundBorder=MapPreviewBackgroundBorder
-
-    Begin Object Class=GUIImage Name=MapPreviewImage
-        WinLeft=0.62825
-        WinTop=0.0945
-        WinWidth=0.34
-        WinHeight=0.34367
-        ImageColor=(R=255,G=255,B=255,A=255)
-        ImageStyle=ISTY_Scaled
-        ImageRenderStyle=MSTY_Normal
-        RenderWeight=0.5
-        bScaleToParent=true
-        bBoundToParent=true
-    End Object
-    i_Preview=MapPreviewImage
-
-    Begin Object Class=GUIImage Name=MapPreviewImageBorder
-        WinLeft=0.62725
-        WinTop=0.0931
-        WinWidth=0.342
-        WinHeight=0.34647
-        Image=Material'engine.WhiteSquareTexture'
-        ImageColor=(R=255,G=255,B=255,A=96)
-        ImageStyle=ISTY_Stretched
-        RenderWeight=0.4
-        bScaleToParent=true
-        bBoundToParent=true
-    End Object
-    i_PreviewBorder=MapPreviewImageBorder
-
-    Begin Object Class=GUILabel Name=NoPreviewLabel
-        Caption="No Preview Available"
-        WinLeft=0.62825
-        WinTop=0.0945
-        WinWidth=0.34
-        WinHeight=0.34367
-        TextFont="MediumFont"
-        TextAlign=TXTA_Center
-        VertAlign=TXTA_Center
-        TextColor=(R=255,G=210,B=0,A=255)
-        RenderWeight=0.5
-        bVisible=false
-        bMultiline=true
-        bTransparent=false
-        bScaleToParent=true
-        bBoundToParent=true
-    End Object
-    l_NoPreview=NoPreviewLabel
-
     Begin Object Class=GUILabel Name=RetrievingMapListLabel
-        WinLeft=0.021
-        WinTop=0.315
-        WinWidth=0.588
-        WinHeight=0.60502
+        WinLeft=0.02
+        WinTop=0.3136
+        WinWidth=0.59
+        WinHeight=0.60782
         TextFont="MediumFont"
         TextAlign=TXTA_Center
         VertAlign=TXTA_Center
@@ -723,114 +493,17 @@ defaultproperties {
     End Object
     l_RetrievingMapList=RetrievingMapListLabel
 
-    Begin Object Class=GUILabel Name=NoMapInformationLabel
-        WinLeft=0.6185
-        WinTop=0.05433
-        WinWidth=0.3605
-        WinHeight=0.623875
-        TextFont="MediumFont"
-        TextAlign=TXTA_Center
-        VertAlign=TXTA_Center
-        TextColor=(R=255,G=210,B=0,A=255)
-        BackColor=(R=38,G=59,B=126,A=255)
-        bTransparent=false
-        RenderWeight=1
-        bScaleToParent=true
-        bBoundToParent=true
-    End Object
-    l_NoMapInformation=NoMapInformationLabel
-
-    Begin Object class=GUILabel Name=MapNameLabel
-        WinLeft=0.6185
-        WinTop=0.05433
-        WinWidth=0.3605
-        WinHeight=0.04017
-        TextAlign=TXTA_Center
-        VertAlign=TXTA_Right
-        TextColor=(R=255,G=210,B=0,A=255)
-        bScaleToParent=true
-        bBoundToParent=true
-    End Object
-    l_MapName=MapNameLabel
-
-    Begin Object Class=HxGUIScrollTextBox Name=MapPreviewFooterTextBox
-        WinLeft=0.6185
-        WinTop=0.43957
-        WinWidth=0.3605
-        WinHeight=0.0561
-        FontScale=FNS_Small
-        TextAlign=TXTA_Center
-        LineSpacing=0.005
-        TopPadding=0.05
-        bTabStop=false
-        bVisibleWhenEmpty=true
-        bNoTeletype=true
-        bNeverFocus=true
-        bStripColors=false
-        bBoundToParent=true
-        bScaleToParent=true
-    End Object
-    lb_MapPreviewFooter=MapPreviewFooterTextBox
-
-    Begin Object Class=HxGUIScrollTextBox Name=MapDescriptionTextBox
-        WinLeft=0.6185
-        WinTop=0.49707
-        WinWidth=0.3605
-        WinHeight=0.181135
-        CharDelay=0.0065
-        EOLDelay=0.5
-        FontScale=FNS_Small
-        TextAlign=TXTA_Center
-        VertAlign=TXTA_Center
-        LeftPadding=0.04
-        TopPadding=0.04
-        RightPadding=0.04
-        BottomPadding=0.04
-        bTabStop=false
-        bVisibleWhenEmpty=true
-        bNoTeletype=false
-        bNeverFocus=true
-        bStripColors=false
-        bBoundToParent=true
-        bScaleToParent=true
-    End Object
-    lb_MapDescription=MapDescriptionTextBox
-
-    Begin Object Class=GUIButton Name=SelectRandomButton
-        Caption="Select Random"
-        Hint="Select a random map from the map list (or vote list if focused and non-empty)."
+    Begin Object Class=HxGUIVotingMapBanner Name=VotingMapBanner
         WinLeft=0.6175
-        WinTop=0.6856525
-        WinWidth=0.1795
-        WinHeight=0.045
-        bStandardized=false
-        StandardHeight=0.0325
-        OnClick=OnClickSelectRandom
-        TabOrder=9
-        bNeverFocus=true
-        bRepeatClick=false
+        WinTop=0.052930
+        WinWidth=0.3625
+        WinHeight=0.67391
         bBoundToParent=true
         bScaleToParent=true
+        SelectRandom=SelectRandom
+        SubmitVote=SubmitVote
     End Object
-    b_SelectRandom=SelectRandomButton
-
-    Begin Object Class=GUIButton Name=SubmitVoteButton
-        Caption="Submit Vote"
-        Hint="Vote for the currently selected map."
-        WinLeft=0.8005
-        WinTop=0.6856525
-        WinWidth=0.1795
-        WinHeight=0.045
-        bStandardized=false
-        StandardHeight=0.0325
-        OnClick=OnClickSubmitVote
-        TabOrder=10
-        bNeverFocus=true
-        bRepeatClick=false
-        bBoundToParent=true
-        bScaleToParent=true
-    End Object
-    b_SubmitVote=SubmitVoteButton
+    MapBanner=VotingMapBanner
 
     Begin Object Class=HxGUIVotingFooter Name=MapVoteFooter
         WinLeft=0.6175
@@ -856,8 +529,4 @@ defaultproperties {
 
     LoadingText="LOADING..."
     RetrievingMapListText="Retrieving Map List"
-    NoMapSelectedText="No Map Selected"
-    MapInformationUnavailableText="Map Information Unavailable"
-    PlayersText="players"
-    AuthorText="Author"
 }
