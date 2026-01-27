@@ -1,6 +1,7 @@
 class HxGUIVotingBaseList extends GUIMultiColumnList
     abstract;
 
+var bool bAutoSpacing;
 var float LineSpacing;
 var float ColumnSpacing;
 var float LeftPadding;
@@ -12,6 +13,8 @@ var int PreviousSortColumn;
 
 var bool bReInit;
 var HxGUIVertScrollBar HxScrollbar;
+var float MyItemHeight;
+var int MyItemsPerPage;
 
 function OnPopulateList();
 function DrawRow(Canvas C, GUIStyles DrawStyle, int Row, float Y, float H);
@@ -29,6 +32,22 @@ event ResolutionChanged(int NewX, int NewY)
 {
     Super.ResolutionChanged(NewX, NewY);
     bReInit = true;
+}
+
+function float GetSpacedItemHeight(Canvas C)
+{
+    local float XL;
+    local float YL;
+
+    Style.TextSize(C, MenuState, "q|W", XL, YL, FontScale);
+    MyItemHeight = YL + Round(LineSpacing * C.ClipY);
+    if (bAutoSpacing)
+    {
+        MyItemsPerPage = WinHeight / MyItemHeight;
+        MyItemHeight = YL + FMax(0, int((WinHeight - (MyItemsPerPage * YL)) / MyItemsPerPage));
+    }
+    MyItemsPerPage = WinHeight / MyItemHeight;
+    return MyItemHeight;
 }
 
 function PopulateList(VotingReplicationInfo MVRI)
@@ -70,17 +89,20 @@ function bool InternalOnKeyEvent(out byte Key, out byte State, float Delta)
 
 function bool InternalOnPreDraw(Canvas C)
 {
+    local float Offset;
     local float OwnerWidth;
     local float CurrentWidth;
-    local float Padding;
 
     Super.InternalOnPreDraw(C);
     OwnerWidth = MenuOwner.ActualWidth();
     CurrentWidth = ActualWidth();
     CellSpacing = ColumnSpacing * C.ClipX;
-    Padding = TopPadding * MenuOwner.ActualHeight();
-    WinTop = ActualTop() + Padding;
-    WinHeight = ActualHeight() - Padding;
+    WinTop = ActualTop();
+    WinHeight = ActualHeight();
+    GetSpacedItemHeight(C);
+    Offset = FMax(0, (WinHeight - (MyItemsPerPage * MyItemHeight)) / 2);
+    WinTop += Offset;
+    WinHeight -= Offset;
 
     if (CurrentWidth < OwnerWidth)
     {
@@ -101,9 +123,8 @@ function bool InternalOnPreDraw(Canvas C)
         {
             ColumnWidths[ColumnWidths.Length - 1] += OwnerWidth - CurrentWidth;
         }
-        return true;
     }
-    return false;
+    return true;
 }
 
 function GetCellLeftWidth(int Column, out float Left, out float Width)
@@ -117,15 +138,6 @@ function GetCellLeftWidth(int Column, out float Left, out float Width)
         Left += Padding;
         Width -= Padding;
     }
-}
-
-function float GetSpacedItemHeight(Canvas C)
-{
-    local float XL;
-    local float YL;
-
-    Style.TextSize(C, MenuState, "q|W", XL, YL, FontScale);
-    return YL + Round(LineSpacing * C.ClipY);
 }
 
 function DrawItem(Canvas C, int i, float X, float Y, float W, float H, bool bSelected, bool bPending)
@@ -151,10 +163,10 @@ function DrawItem(Canvas C, int i, float X, float Y, float W, float H, bool bSel
 
 defaultproperties
 {
+    bAutoSpacing=true
     LineSpacing=0.003
     ColumnSpacing=0.001
     LeftPadding=0.005
-    TopPadding=0.005
     FrameThickness=0.001
     bDropSource=false
     bDropTarget=false

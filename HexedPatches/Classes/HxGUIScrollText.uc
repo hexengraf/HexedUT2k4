@@ -31,10 +31,10 @@ function float GetSpacedItemHeight(Canvas C)
     MyItemHeight = YL + Round(LineSpacing * C.ClipY);
     if (bAutoSpacing)
     {
-        MyItemsPerPage = int(NewHeight / MyItemHeight);
-        MyItemHeight = YL + int((NewHeight - (MyItemsPerPage * YL)) / MyItemsPerPage);
+        MyItemsPerPage = NewHeight / MyItemHeight;
+        MyItemHeight = YL + FMax(0, int((NewHeight - (MyItemsPerPage * YL)) / MyItemsPerPage));
     }
-    MyItemsPerPage = int(NewHeight / MyItemHeight);
+    MyItemsPerPage = NewHeight / MyItemHeight;
     return MyItemHeight;
 }
 
@@ -42,7 +42,6 @@ function bool InternalOnPreDraw(Canvas C)
 {
     if (bInit || bNewContent || NewText != "")
     {
-        bInit = false;
         UpdateNewCoordinates(C);
     }
     WinLeft = NewLeft;
@@ -67,6 +66,7 @@ function UpdateNewCoordinates(Canvas C)
     local float ScrollbarOffset;
     local float ActualRightPadding;
 
+    bInit = false;
     NewWidth = MenuOwner.ActualWidth();
     NewHeight = MenuOwner.ActualHeight();
     NewLeft = LeftPadding * NewWidth;
@@ -79,42 +79,11 @@ function UpdateNewCoordinates(Canvas C)
     NewTop += MenuOwner.ActualTop();
     GetSpacedItemHeight(C);
     UpdateItemCount(C);
-    if (ItemCount > MyItemsPerPage)
+    ApplyAlignment();
+    if (ItemCount <= MyItemsPerPage)
     {
-        ApplyVerticalAlignment(MyItemsPerPage * MyItemHeight);
-    }
-    else
-    {
-        ApplyVerticalAlignment(ItemCount * MyItemHeight);
         NewWidth += ScrollbarOffset;
     }
-}
-
-function ApplyVerticalAlignment(float ContentHeight)
-{
-    local float VerticalOffset;
-
-    switch (VertAlign)
-    {
-        case TXTA_Left:
-            VerticalOffset = 0;
-            break;
-        case TXTA_Center:
-            if (ItemCount > 0)
-            {
-                VerticalOffset = FMax(0, (NewHeight - ContentHeight) / 2);
-            }
-            else
-            {
-                VerticalOffset = 0;
-            }
-            break;
-        case TXTA_Right:
-            VerticalOffset = FMax(0, NewHeight - FMax(MyItemHeight, ContentHeight));
-            break;
-    }
-    NewHeight -= VerticalOffset;
-    NewTop += VerticalOffset;
 }
 
 function UpdateItemCount(Canvas C)
@@ -143,6 +112,28 @@ function AddToItemCount(Canvas C, string Text)
     C.Font = SavedFont;
     ItemCount += Lines.Length;
     Lines.Remove(0, Lines.Length);
+}
+
+function ApplyAlignment()
+{
+    local float Offset;
+
+    Offset = 0;
+    if (ItemCount < MyItemsPerPage && ItemCount > 0 && VertAlign != TXTA_Left)
+    {
+        switch (VertAlign)
+        {
+            case TXTA_Center:
+                Offset = FMax(0, (NewHeight - (ItemCount * MyItemHeight)) / 2);
+                break;
+            case TXTA_Right:
+                Offset = FMax(0, NewHeight - ItemCount * MyItemHeight);
+                break;
+        }
+    }
+    Offset += FMax(0, (NewHeight - Offset - (MyItemsPerPage * MyItemHeight)) / 2);
+    NewTop += Offset;
+    NewHeight -= Offset;
 }
 
 defaultproperties
