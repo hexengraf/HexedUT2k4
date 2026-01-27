@@ -28,5 +28,5 @@ function InternalOnCreateComponent(GUIComponent NewComp, GUIComponent Sender)
 defaultproperties
 {
     DefaultComponentClass="XInterface.GUIButton"
-	OnCreateComponent=InternalOnCreateComponent
+    OnCreateComponent=InternalOnCreateComponent
 }

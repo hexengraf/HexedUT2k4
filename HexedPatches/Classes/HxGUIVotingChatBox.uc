@@ -16,7 +16,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     local ExtendedConsole Console;
 
     Super.InitComponent(MyController, MyOwner);
-	Console = ExtendedConsole(Controller.ViewportOwner.Console);
+    Console = ExtendedConsole(Controller.ViewportOwner.Console);
     if (Console != None)
     {
         Console.OnChatMessage = ReceiveChat;

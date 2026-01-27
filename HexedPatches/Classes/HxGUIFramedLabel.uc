@@ -47,5 +47,5 @@ defaultproperties
     BackColor=(R=32,G=50,B=106,A=255)
     bTransparent=false
     DefaultComponentClass="XInterface.GUILabel"
-	OnCreateComponent=InternalOnCreateComponent
+    OnCreateComponent=InternalOnCreateComponent
 }

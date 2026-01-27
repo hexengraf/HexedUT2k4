@@ -137,7 +137,7 @@ defaultproperties
         OnPreDraw=OnHeaderPreDraw
         OnRendered=OnHeaderRendered
     End Object
-	Header=MyNewHeader
+    Header=MyNewHeader
 
     Begin Object Class=HxGUIFramedImage Name=Background
         WinLeft=0
