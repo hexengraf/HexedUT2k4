@@ -12,6 +12,7 @@ var automated GUIEditBox ed_SearchSeq;
 var automated moCheckBox ch_CaseSensitive;
 var automated GUILabel l_RetrievingMapList;
 var automated HxGUIVotingMapBanner MapBanner;
+var automated HxGUIVotingChatBox ChatBox;
 
 var localized string LoadingText;
 var localized string RetrievingMapListText;
@@ -505,7 +506,7 @@ defaultproperties {
     End Object
     MapBanner=VotingMapBanner
 
-    Begin Object Class=HxGUIVotingFooter Name=MapVoteFooter
+    Begin Object Class=HxGUIVotingChatBox Name=VotingChatBox
         WinLeft=0.6175
         WinTop=0.7367
         WinWidth=0.3625
@@ -514,7 +515,7 @@ defaultproperties {
         bScaleToParent=true
         TabOrder=11
     End Object
-    f_Chat=MapVoteFooter
+    ChatBox=VotingChatBox
 
     WinTop=0.05
     WinLeft=0.0025
@@ -525,6 +526,7 @@ defaultproperties {
     lb_MapListBox=None
     i_MapCountListBackground=None
     i_MapListBackground=None
+    f_Chat=None
     bPersistent=true
 
     LoadingText="LOADING..."
