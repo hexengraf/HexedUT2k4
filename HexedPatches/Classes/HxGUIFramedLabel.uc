@@ -21,7 +21,8 @@ function InternalOnCreateComponent(GUIComponent NewComp, GUIComponent Sender)
     if (GUILabel(NewComp) != None)
     {
         FramedLabel = GUILabel(NewComp);
-        FramedLabel.StyleName = "HxListHeader";
+        FramedLabel.StyleName = StyleName;
+        FramedLabel.FontScale = FontScale;
         FramedLabel.TextAlign = TextAlign;
         FramedLabel.TextColor = TextColor;
         FramedLabel.FocusedTextColor = FocusedTextColor;
@@ -41,6 +42,7 @@ function SetCaption(string NewCaption)
 
 defaultproperties
 {
+    StyleName="HxListHeader"
     TextAlign=TXTA_Center
     TextColor=(R=255,G=210,B=0,A=255)
     FocusedTextColor=(R=255,G=210,B=0,A=255)

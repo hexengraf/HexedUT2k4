@@ -22,6 +22,10 @@ var Material BackgroundImage;
 var eImgStyle BackgroundStyle;
 var Color BackgroundColor;
 var bool bBackgroundVisible;
+var int BackgroundX1;
+var int BackgroundX2;
+var int BackgroundY1;
+var int BackgroundY2;
 
 var array<HxColorReplacement> ColorReplacements;
 
@@ -40,6 +44,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     i_Background.SetImage(BackgroundImage);
     i_Background.SetImageStyle(BackgroundStyle);
     i_Background.SetImageColor(BackgroundColor);
+    i_Background.SetImageSize(BackgroundX1, BackgroundX2, BackgroundY1, BackgroundY2);
     i_Background.FrameThickness = FrameThickness;
     i_Background.SetVisibility(bBackgroundVisible);
     HxGUIVertScrollBar(MyScrollBar).FrameThickness = FrameThickness;
@@ -139,4 +144,8 @@ defaultproperties
     BackgroundStyle=ISTY_Scaled
     BackgroundColor=(R=38,G=59,B=126,A=255)
     bBackgroundVisible=true
+    BackgroundX1=-1
+    BackgroundX2=-1
+    BackgroundY1=-1
+    BackgroundY2=-1
 }

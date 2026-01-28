@@ -54,6 +54,18 @@ function SetImageColor(Color C)
     FramedImage.ImageColor = C;
 }
 
+function SetImageSize(int X1, int X2, int Y1, int Y2)
+{
+    Self.X1 = X1;
+    Self.X2 = X2;
+    Self.Y1 = Y1;
+    Self.Y2 = Y2;
+    FramedImage.X1 = X1;
+    FramedImage.Y1 = Y1;
+    FramedImage.X2 = X2;
+    FramedImage.Y2 = Y2;
+}
+
 defaultproperties
 {
     DefaultComponentClass="XInterface.GUIImage"
