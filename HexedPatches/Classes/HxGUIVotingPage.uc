@@ -356,6 +356,7 @@ defaultproperties {
         WinWidth=0.415
         WinHeight=0.0375
         CaptionWidth=0.001
+        bReadOnly=true
         bScaleToParent=true
         bBoundToParent=true
         OnChange=OnChangeGameType
