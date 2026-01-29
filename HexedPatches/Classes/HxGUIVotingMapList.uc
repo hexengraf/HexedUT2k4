@@ -2,6 +2,7 @@ class HxGUIVotingMapList extends HxGUIVotingBaseList;
 
 var array<int> MapIndices;
 var HxMapVoteFilter ActiveFilter;
+var string LastMapSelected;
 
 function OnPopulateList()
 {
@@ -19,12 +20,16 @@ function OnPopulateList()
     SortList();
 }
 
-function bool FilterUpdated(optional string SelectMapName)
+function bool Refresh()
 {
     if (VRI != None)
     {
+        if (Index > -1)
+        {
+            LastMapSelected = GetMapName();
+        }
         OnPopulateList();
-        return SetIndexByMapName(SelectMapName);
+        return SetIndexByMapName(LastMapSelected);
     }
     return false;
 }
@@ -69,8 +74,45 @@ function bool SetIndexByMapName(string MapName)
 function SetFilter(HxMapVoteFilter Filter)
 {
     ActiveFilter = Filter;
-    FilterUpdated();
+    Refresh();
 }
+
+function SetPrefix(string Prefix)
+{
+    ActiveFilter.SetPrefix(Prefix);
+    Refresh();
+}
+
+function SetMapSource(int Source)
+{
+    ActiveFilter.SetMapSource(Source);
+    Refresh();
+}
+
+function SearchName(string SearchTerm, optional bool bCaseSensitive)
+{
+    ActiveFilter.SearchName(SearchTerm, bCaseSensitive);
+    Refresh();
+}
+
+function SearchPlayers(string SearchTerm)
+{
+    ActiveFilter.SearchPlayers(SearchTerm);
+    Refresh();
+}
+
+function SearchPlayed(string SearchTerm)
+{
+    ActiveFilter.SearchPlayed(SearchTerm);
+    Refresh();
+}
+
+function SearchRecent(string SearchTerm)
+{
+    ActiveFilter.SearchRecent(SearchTerm);
+    Refresh();
+}
+
 
 function Clear()
 {

@@ -44,7 +44,7 @@ struct HxSearchBar
     var HxPseudoRegex Name;
     var HxRangeConstraint Players;
     var HxValueConstraint Played;
-    var HxValueConstraint Sequence;
+    var HxValueConstraint Recent;
 };
 
 var config string Name;
@@ -59,7 +59,7 @@ function bool Match(VotingHandler.MapVoteMapList Entry)
         && PrefixMatch(Entry.MapName)
         && RegexMatch(Entry.MapName, SearchBar.Name)
         && ValueMatch(Entry.PlayCount, SearchBar.Played)
-        && ValueMatch(Entry.Sequence, SearchBar.Sequence)
+        && ValueMatch(Entry.Sequence, SearchBar.Recent)
         && PropertiesMatch(Entry.MapName);
 }
 
@@ -99,24 +99,24 @@ function bool PrefixMatch(string MapName)
     return false;
 }
 
-function SetSearchBarName(string RawString, optional bool bCaseSensitive)
+function SearchName(string RawString, optional bool bCaseSensitive)
 {
     SearchBar.Name = ParseRegex(RawString, bCaseSensitive);
 }
 
-function SetSearchBarPlayers(string RawString)
+function SearchPlayers(string RawString)
 {
     SearchBar.Players = ParseRangeConstraint(RawString);
 }
 
-function SetSearchBarPlayed(string RawString)
+function SearchPlayed(string RawString)
 {
     SearchBar.Played = ParseValueConstraint(RawString);
 }
 
-function SetSearchBarSequence(string RawString)
+function SearchRecent(string RawString)
 {
-    SearchBar.Sequence = ParseValueConstraint(RawString);
+    SearchBar.Recent = ParseValueConstraint(RawString);
 }
 
 function SetPrefix(string Prefix)

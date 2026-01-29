@@ -2,12 +2,12 @@ class HxGUIVotingVoteListBox extends HxGUIVotingBaseListBox;
 
 function UpdatedVoteCount(int UpdatedIndex, bool bRemoved)
 {
-    HxGUIVotingVoteList(MyVoteBaseList).UpdatedVoteCount(UpdatedIndex, bRemoved);
+    HxGUIVotingVoteList(MyVotingBaseList).UpdatedVoteCount(UpdatedIndex, bRemoved);
 }
 
 function int GetGameTypeIndex()
 {
-    return HxGUIVotingVoteList(MyVoteBaseList).GetGameTypeIndex();
+    return HxGUIVotingVoteList(MyVotingBaseList).GetGameTypeIndex();
 }
 
 defaultproperties

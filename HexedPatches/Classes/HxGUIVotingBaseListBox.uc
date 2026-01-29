@@ -2,7 +2,8 @@ class HxGUIVotingBaseListBox extends GUIMultiColumnListBox
     abstract;
 
 var automated HxGUIFramedImage fi_Background;
-var automated HxGUIVotingBaseList MyVoteBaseList;
+var automated HxGUIVotingBaseList MyVotingBaseList;
+var automated HxGUIVotingSearchBar SearchBar;
 
 var float ScrollbarWidth;
 var float FrameThickness;
@@ -13,10 +14,10 @@ delegate NotifyVote();
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
     Super.InitComponent(MyController, MyOwner);
-    MyVoteBaseList = HxGUIVotingBaseList(List);
-    MyVoteBaseList.FrameThickness = FrameThickness;
-    MyVoteBaseList.OnChange = OnChangeList;
-    MyVoteBaseList.OnDblClick = OnDbkClickList;
+    MyVotingBaseList = HxGUIVotingBaseList(List);
+    MyVotingBaseList.FrameThickness = FrameThickness;
+    MyVotingBaseList.OnChange = OnChangeList;
+    MyVotingBaseList.OnDblClick = OnDbkClickList;
     HxGUIVertScrollBar(MyScrollBar).ForceRelativeWidth = ScrollbarWidth;
     HxGUIVertScrollBar(MyScrollBar).FrameThickness = FrameThickness;
     fi_Background.FrameThickness = FrameThickness;
@@ -30,6 +31,7 @@ event ResolutionChanged(int NewX, int NewY)
     {
         HeaderColumnPerc[i] = default.HeaderColumnPerc[i];
     }
+    bInit = true;
     Super.ResolutionChanged(NewX, NewY);
 }
 
@@ -56,35 +58,54 @@ function bool OnDbkClickList(GUIComponent Sender)
 
 function PopulateList(VotingReplicationInfo MVRI)
 {
-    MyVoteBaseList.PopulateList(MVRI);
+    MyVotingBaseList.PopulateList(MVRI);
 }
 
 function int GetMapIndex()
 {
-    return MyVoteBaseList.GetMapIndex();
+    return MyVotingBaseList.GetMapIndex();
 }
 
 function string GetMapName()
 {
-    return MyVoteBaseList.GetMapName();
+    return MyVotingBaseList.GetMapName();
 }
 
 function SelectRandom()
 {
-    if (MyVoteBaseList.ItemCount > 0)
+    if (MyVotingBaseList.ItemCount > 0)
     {
-        MyVoteBaseList.SetIndex(Rand(MyVoteBaseList.ItemCount));
+        MyVotingBaseList.SetIndex(Rand(MyVotingBaseList.ItemCount));
     }
 }
 
 function bool IsEmpty()
 {
-    return MyVoteBaseList.ItemCount == 0;
+    return MyVotingBaseList.ItemCount == 0;
 }
 
 function Clear()
 {
-    MyVoteBaseList.Clear();
+    if (SearchBar != None)
+    {
+        SearchBar.Clear();
+    }
+    MyVotingBaseList.Clear();
+}
+
+function bool InternalOnPreDraw(Canvas C)
+{
+    if (bInit)
+    {
+        if (SearchBar != None)
+        {
+            SearchBar.UpdateHeight(C);
+            SearchBar.WinTop = SearchBar.RelativeHeight(ActualHeight() - SearchBar.ActualHeight());
+        }
+        bInit = false;
+        return true;
+    }
+    return false;
 }
 
 function bool InternalOnKeyEvent(out byte Key, out byte KeyState, float Delta)
@@ -104,18 +125,18 @@ function bool OnHoverHeader(GUIComponent Sender)
     local float Right;
 
     Left = Header.ActualLeft() + 5;
-    for (i = 0; i < MyVoteBaseList.ColumnHeadingHints.Length; ++i)
+    for (i = 0; i < MyVotingBaseList.ColumnHeadingHints.Length; ++i)
     {
-        Right = Left + MyVoteBaseList.ColumnWidths[i] - 10;
+        Right = Left + MyVotingBaseList.ColumnWidths[i] - 10;
         if (Controller.MouseX > Left && Controller.MouseX < Right)
         {
-            if (Header.Hint != MyVoteBaseList.ColumnHeadingHints[i])
+            if (Header.Hint != MyVotingBaseList.ColumnHeadingHints[i])
             {
-                Header.SetHint(MyVoteBaseList.ColumnHeadingHints[i]);
+                Header.SetHint(MyVotingBaseList.ColumnHeadingHints[i]);
             }
             break;
         }
-        left += MyVoteBaseList.ColumnWidths[i];
+        left += MyVotingBaseList.ColumnWidths[i];
     }
     return false;
 }
@@ -143,12 +164,12 @@ function OnRenderedHeder(Canvas C)
     C.SetPos(C.CurX, C.CurY - Height);
     C.DrawTileStretched(fi_Background.FrameMaterial, Width, Thickness);
     C.DrawTileStretched(fi_Background.FrameMaterial, Thickness, Height);
-    for (i = 0; i < MyVoteBaseList.ColumnHeadings.Length - 1; ++i)
+    for (i = 0; i < MyVotingBaseList.ColumnHeadings.Length - 1; ++i)
     {
-        C.SetPos(C.CurX + MyVoteBaseList.ColumnWidths[i], C.CurY);
+        C.SetPos(C.CurX + MyVotingBaseList.ColumnWidths[i], C.CurY);
         C.DrawTileStretched(fi_Background.FrameMaterial, Thickness, Height);
     }
-    C.SetPos(C.CurX + MyVoteBaseList.ColumnWidths[i] - Thickness, C.CurY);
+    C.SetPos(C.CurX + MyVotingBaseList.ColumnWidths[i] - Thickness, C.CurY);
     C.DrawTileStretched(fi_Background.FrameMaterial, Thickness, Height);
 }
 
@@ -189,5 +210,6 @@ defaultproperties
     StyleName="HxSmallList"
     SelectedStyleName="HxSmallListSelection"
     bVisibleWhenEmpty=true
+    OnPreDraw=InternalOnPreDraw
     OnKeyEvent=InternalOnKeyEvent
 }

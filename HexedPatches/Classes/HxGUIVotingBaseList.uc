@@ -13,6 +13,7 @@ var int PreviousSortColumn;
 
 var bool bReInit;
 var HxGUIVertScrollBar HxScrollbar;
+var HxGUIVotingSearchBar SearchBar;
 var float MyItemHeight;
 var int MyItemsPerPage;
 
@@ -26,6 +27,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
     Super.InitComponent(MyController, MyOwner);
     HxScrollbar = HxGUIVertScrollBar(MyScrollBar);
+    SearchBar = HxGUIVotingBaseListBox(MenuOwner).SearchBar;
 }
 
 event ResolutionChanged(int NewX, int NewY)
@@ -99,6 +101,10 @@ function bool InternalOnPreDraw(Canvas C)
     CellSpacing = ColumnSpacing * C.ClipX;
     WinTop = ActualTop();
     WinHeight = ActualHeight();
+    if (SearchBar != None)
+    {
+        WinHeight -= SearchBar.ActualHeight();
+    }
     GetSpacedItemHeight(C);
     Offset = FMax(0, (WinHeight - (MyItemsPerPage * MyItemHeight)) / 2);
     WinTop += Offset;

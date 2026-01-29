@@ -3,13 +3,8 @@ class HxGUIVotingPage extends MapVotingPage;
 var automated HxGUIVotingVoteListBox lb_VoteList;
 var automated GUIImage i_VoteListBorder;
 var automated moComboBox co_MapSource;
-var automated moEditBox ed_SearchName;
 var automated HxGUIVotingMapListBox lb_MapList;
 var automated GUIImage i_MapListBorder;
-var automated GUIEditBox ed_SearchPlayers;
-var automated GUIEditBox ed_SearchPlayed;
-var automated GUIEditBox ed_SearchSeq;
-var automated moCheckBox ch_CaseSensitive;
 var automated GUILabel l_RetrievingMapList;
 var automated HxGUIVotingMapBanner MapBanner;
 var automated HxGUIVotingChatBox ChatBox;
@@ -29,7 +24,6 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     ActiveFilter = FilterManager.GetFilter();
     lb_MapList.SetFilter(ActiveFilter);
     AdjustWindowSize(Controller.ResX, Controller.ResY);
-    PropagateEditBoxProperties();
     PopulateLocalLists();
     ShowInitialState();
 }
@@ -82,14 +76,6 @@ function ShowInitialState()
     co_MapSource.DisableMe();
     lb_MapList.Clear();
     lb_MapList.DisableMe();
-    ed_SearchName.DisableMe();
-    ed_SearchPlayers.SetText("");
-    ed_SearchPlayers.DisableMe();
-    ed_SearchPlayed.SetText("");
-    ed_SearchPlayed.DisableMe();
-    ed_SearchSeq.SetText("");
-    ed_SearchSeq.DisableMe();
-    ch_CaseSensitive.DisableMe();
     l_RetrievingMapList.SetVisibility(false);
     MapBanner.SetMap("");
 }
@@ -109,11 +95,6 @@ function ShowReadyState()
     co_GameType.EnableMe();
     co_MapSource.EnableMe();
     lb_MapList.EnableMe();
-    ed_SearchName.EnableMe();
-    ed_SearchPlayers.EnableMe();
-    ed_SearchPlayed.EnableMe();
-    ed_SearchSeq.EnableMe();
-    ch_CaseSensitive.EnableMe();
     l_RetrievingMapList.SetVisibility(false);
     PopulateGameTypeList();
     lb_MapList.PopulateList(MVRI);
@@ -171,8 +152,7 @@ function OnChangeGameType(GUIComponent Sender)
     Type = int(co_GameType.GetExtra());
     if (Type > -1)
     {
-        ActiveFilter.SetPrefix(MVRI.GameConfig[Type].Prefix);
-        OnFilterChange();
+        lb_MapList.SetPrefix(MVRI.GameConfig[Type].Prefix);
     }
 }
 
@@ -208,8 +188,7 @@ function SelectRandom()
 
 function OnChangeMapSource(GUIComponent Sender)
 {
-    ActiveFilter.SetMapSource(co_MapSource.GetIndex());
-    OnFilterChange();
+    lb_MapList.SetMapSource(co_MapSource.GetIndex());
 }
 
 function OnChangeSelectedMap(GUIComponent Sender)
@@ -233,35 +212,6 @@ function OnChangeSelectedMap(GUIComponent Sender)
     }
 }
 
-function OnChangeNameSearch(GUIComponent Sender)
-{
-    ActiveFilter.SetSearchBarName(ed_SearchName.GetText(), ch_CaseSensitive.IsChecked());
-    OnFilterChange();
-}
-
-function OnChangePlayersSearch(GUIComponent Sender)
-{
-    ActiveFilter.SetSearchBarPlayers(ed_SearchPlayers.GetText());
-    OnFilterChange();
-}
-
-function OnChangePlayedSearch(GUIComponent Sender)
-{
-    ActiveFilter.SetSearchBarPlayed(ed_SearchPlayed.GetText());
-    OnFilterChange();
-}
-
-function OnChangeSequenceSearch(GUIComponent Sender)
-{
-    ActiveFilter.SetSearchBarSequence(ed_SearchSeq.GetText());
-    OnFilterChange();
-}
-
-function OnFilterChange()
-{
-    lb_MapList.FilterUpdated(MapBanner.DisplayedMap);
-}
-
 function OnCloseQuestionPage(optional bool bCanceled)
 {
     Controller.CloseMenu(bCanceled);
@@ -282,41 +232,6 @@ function AdjustWindowSize(coerce float X, coerce float Y)
     Coefficient = (4.0 / 3.0) / (X / Y);
     WinWidth = default.WinWidth * Coefficient;
     WinLeft = default.WinLeft + ((default.WinWidth - WinWidth) / 2);
-}
-
-function PropagateEditBoxProperties()
-{
-    ed_SearchName.MyComponent.Hint = ed_SearchName.Hint;
-    ed_SearchName.Hint = "";
-    ed_SearchName.MyComponent.StyleName = "HxEditBox";
-    ed_SearchName.MyComponent.ToolTip.ExpirationSeconds = 5;
-    ed_SearchName.MyComponent.FontScale = ed_SearchName.FontScale;
-    ed_SearchPlayers.ToolTip.ExpirationSeconds = 10;
-    ed_SearchPlayed.ToolTip.ExpirationSeconds = 6;
-    ed_SearchSeq.ToolTip.ExpirationSeconds = 6;
-}
-
-function bool InternalOnPreDraw(Canvas C)
-{
-    UpdateSearchBarWidth();
-    return Super.InternalOnPreDraw(C);
-}
-
-function UpdateSearchBarWidth()
-{
-    local float Width;
-
-    if (lb_MapList.List.ColumnWidths.Length >= 3)
-    {
-        Width = ActualWidth();
-        ed_SearchName.WinWidth = (lb_MapList.List.ColumnWidths[0] / Width) - 0.001;
-        ed_SearchPlayers.WinLeft = ed_SearchName.WinLeft + ed_SearchName.WinWidth + 0.001;
-        ed_SearchPlayers.WinWidth = (lb_MapList.List.ColumnWidths[1] / Width) - 0.001;
-        ed_SearchPlayed.WinLeft = ed_SearchPlayers.WinLeft + ed_SearchPlayers.WinWidth + 0.001;
-        ed_SearchPlayed.WinWidth = (lb_MapList.List.ColumnWidths[2] / Width) - 0.001;
-        ed_SearchSeq.WinLeft = ed_SearchPlayed.WinLeft + ed_SearchPlayed.WinWidth + 0.001;
-        ed_SearchSeq.WinWidth = ch_CaseSensitive.WinLeft - ed_SearchSeq.WinLeft - 0.002;
-    }
 }
 
 event Free()
@@ -384,7 +299,7 @@ defaultproperties {
         WinLeft=0.02
         WinTop=0.3136
         WinWidth=0.5907
-        WinHeight=0.60782
+        WinHeight=0.6431
         bScaleToParent=true
         bBoundToParent=true
         FontScale=FNS_Small
@@ -394,94 +309,11 @@ defaultproperties {
     End Object
     lb_MapList=MapListBox
 
-    Begin Object class=moEditBox Name=SearchNameEditBox
-        Caption="Search:"
-        Hint="Search by map name. * matches anything. ^ and $ matches begin and end of name."
-        WinLeft=0.02
-        WinTop=0.92527
-        WinWidth=0.5575
-        WinHeight=0.03143
-        StyleName="HxEditBox"
-        LabelStyleName="HxSmallLabel"
-        FontScale=FNS_Small
-        CaptionWidth=0.001
-        TabOrder=4
-        bStandardized=true
-        StandardHeight=0.0275
-        bBoundToParent=true
-        bScaleToParent=true
-        OnChange=OnChangeNameSearch
-        OnCreateComponent=FixEditBoxStyle
-    End Object
-    ed_SearchName=SearchNameEditBox
-
-    Begin Object class=GUIEditBox Name=SearchPlayersEditBox
-        Hint="Search by player count. One number shows maps that support it. Two numbers separated by - shows min-max player counts. * matches anything. > or < or = followed by a number matches with comparison."
-        WinTop=0.92527
-        WinHeight=0.03143
-        StyleName="HxEditBox"
-        FontScale=FNS_Small
-        TabOrder=5
-        bStandardized=true
-        StandardHeight=0.0275
-        bBoundToParent=true
-        bScaleToParent=true
-        OnChange=OnChangePlayersSearch
-    End Object
-    ed_SearchPlayers=SearchPlayersEditBox
-
-    Begin Object class=GUIEditBox Name=SearchPlayedEditBox
-        Hint="Search by played count. * matches anything. > or < or = followed by a number matches with comparison."
-        WinTop=0.92527
-        WinHeight=0.03143
-        StyleName="HxEditBox"
-        FontScale=FNS_Small
-        TabOrder=6
-        bStandardized=true
-        StandardHeight=0.0275
-        bBoundToParent=true
-        bScaleToParent=true
-        OnChange=OnChangePlayedSearch
-    End Object
-    ed_SearchPlayed=SearchPlayedEditBox
-
-    Begin Object class=GUIEditBox Name=SearchSeqEditBox
-        Hint="Search by sequence. * matches anything. > or < or = followed by a number matches with comparison."
-        WinTop=0.92527
-        WinHeight=0.03143
-        StyleName="HxEditBox"
-        FontScale=FNS_Small
-        TabOrder=7
-        bStandardized=true
-        StandardHeight=0.0275
-        bBoundToParent=true
-        bScaleToParent=true
-        OnChange=OnChangeSequenceSearch
-    End Object
-    ed_SearchSeq=SearchSeqEditBox
-
-    Begin Object class=moCheckBox Name=CaseSensitiveCheckBox
-        Hint="Case Sensitive"
-        WinLeft=0.5905
-        WinTop=0.92527
-        WinWidth=0.02
-        WinHeight=0.03143
-        bSquare=true
-        bStandardized=true
-        StandardHeight=0.0275
-        bBoundToParent=true
-        bScaleToParent=true
-        ComponentJustification=TXTA_Right
-        TabOrder=8
-        OnChange=OnChangeNameSearch
-    End Object
-    ch_CaseSensitive=CaseSensitiveCheckBox
-
     Begin Object Class=GUILabel Name=RetrievingMapListLabel
         WinLeft=0.02
         WinTop=0.3136
-        WinWidth=0.59
-        WinHeight=0.60782
+        WinWidth=0.5907
+        WinHeight=0.6431
         TextFont="MediumFont"
         TextAlign=TXTA_Center
         VertAlign=TXTA_Center
@@ -514,7 +346,7 @@ defaultproperties {
         WinHeight=0.22
         bBoundToParent=true
         bScaleToParent=true
-        TabOrder=11
+        TabOrder=4
     End Object
     ChatBox=VotingChatBox
 
