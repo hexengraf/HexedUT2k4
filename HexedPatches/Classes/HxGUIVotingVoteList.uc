@@ -89,11 +89,11 @@ function string GetNormalizedString(int Row, int Column)
 defaultproperties
 {
     ColumnHeadings(0)="Game Type"
-    ColumnHeadings(1)="Name"
+    ColumnHeadings(1)="Map Name"
     ColumnHeadings(2)="Votes"
-    ColumnHeadingHints(0)="Voted game type."
-    ColumnHeadingHints(1)="Voted map name."
-    ColumnHeadingHints(2)="Number of votes."
+    ColumnHeadingHints(0)="Click to sort by game type."
+    ColumnHeadingHints(1)="Click to sort by map name."
+    ColumnHeadingHints(2)="Click to sort by number of votes."
 
     SortColumn=2
     PreviousSortColumn=2

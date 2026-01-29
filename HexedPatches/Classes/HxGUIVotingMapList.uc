@@ -158,14 +158,14 @@ static function string NormalizeNumber(int Value)
 
 defaultproperties
 {
-    ColumnHeadings(0)="Name"
+    ColumnHeadings(0)="Map Name"
     ColumnHeadings(1)="Players"
     ColumnHeadings(2)="Played"
     ColumnHeadings(3)="Recent"
-    ColumnHeadingHints(0)="Map name."
-    ColumnHeadingHints(1)="Number of recommended players."
-    ColumnHeadingHints(2)="Number of times the map has been played."
-    ColumnHeadingHints(3)="How recently this map has been played."
+    ColumnHeadingHints(0)="Click to sort by map name."
+    ColumnHeadingHints(1)="Click to sort by number of recommended players."
+    ColumnHeadingHints(2)="Click to sort by number of times the map has been played."
+    ColumnHeadingHints(3)="Click to sort by how recently this map has been played."
 
     SortColumn=0
     PreviousSortColumn=0

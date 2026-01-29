@@ -97,13 +97,36 @@ function bool InternalOnKeyEvent(out byte Key, out byte KeyState, float Delta)
     return false;
 }
 
-function bool OnHeaderPreDraw(Canvas C)
+function bool OnHoverHeader(GUIComponent Sender)
+{
+    local int i;
+    local float Left;
+    local float Right;
+
+    Left = Header.ActualLeft() + 5;
+    for (i = 0; i < MyVoteBaseList.ColumnHeadingHints.Length; ++i)
+    {
+        Right = Left + MyVoteBaseList.ColumnWidths[i] - 10;
+        if (Controller.MouseX > Left && Controller.MouseX < Right)
+        {
+            if (Header.Hint != MyVoteBaseList.ColumnHeadingHints[i])
+            {
+                Header.SetHint(MyVoteBaseList.ColumnHeadingHints[i]);
+            }
+            break;
+        }
+        left += MyVoteBaseList.ColumnWidths[i];
+    }
+    return false;
+}
+
+function bool OnPreDrawHeader(Canvas C)
 {
     Header.WinHeight *= 1.2;
     return true;
 }
 
-function OnHeaderRendered(Canvas C)
+function OnRenderedHeder(Canvas C)
 {
     local float Thickness;
     local float Width;
@@ -131,11 +154,16 @@ function OnHeaderRendered(Canvas C)
 
 defaultproperties
 {
+    Begin Object Class=GUIToolTip Name=HeaderToolTip
+    End Object
+
     Begin Object Class=GUIMultiColumnListHeader Name=MyNewHeader
         StyleName="HxListHeader"
         BarStyleName="HxListHeader"
-        OnPreDraw=OnHeaderPreDraw
-        OnRendered=OnHeaderRendered
+        ToolTip=HeaderToolTip
+        OnHover=OnHoverHeader
+        OnPreDraw=OnPreDrawHeader
+        OnRendered=OnRenderedHeder
     End Object
     Header=MyNewHeader
 
