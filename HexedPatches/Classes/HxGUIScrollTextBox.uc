@@ -142,7 +142,7 @@ defaultproperties
     FrameThickness=0.001
     BackgroundImage=Material'engine.WhiteSquareTexture'
     BackgroundStyle=ISTY_Scaled
-    BackgroundColor=(R=38,G=59,B=126,A=255)
+    BackgroundColor=(R=28,G=43,B=91,A=255)
     bBackgroundVisible=true
     BackgroundX1=-1
     BackgroundX2=-1

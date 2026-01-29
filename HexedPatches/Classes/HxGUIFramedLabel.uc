@@ -46,7 +46,7 @@ defaultproperties
     TextAlign=TXTA_Center
     TextColor=(R=255,G=210,B=0,A=255)
     FocusedTextColor=(R=255,G=210,B=0,A=255)
-    BackColor=(R=32,G=50,B=106,A=255)
+    BackColor=(R=28,G=43,B=91,A=255)
     bTransparent=false
     DefaultComponentClass="XInterface.GUILabel"
     OnCreateComponent=InternalOnCreateComponent

@@ -4,13 +4,19 @@ defaultproperties
 {
     KeyName="HxFlatButton"
 
+    FontNames(0)="HxSmallerFont"
+    FontNames(1)="HxSmallerFont"
+    FontNames(2)="HxSmallerFont"
+    FontNames(3)="HxSmallerFont"
+    FontNames(4)="HxSmallerFont"
+
     Images(0)=Material'engine.WhiteSquareTexture'
     Images(1)=Material'engine.WhiteSquareTexture'
     Images(2)=Material'engine.WhiteSquareTexture'
     Images(3)=Material'engine.WhiteSquareTexture'
     Images(4)=Material'engine.WhiteSquareTexture'
 
-    ImgColors(0)=(R=32,G=50,B=106,A=255)
+    ImgColors(0)=(R=38,G=59,B=126,A=255)
     ImgColors(1)=(R=35,G=90,B=160,A=255)
     ImgColors(2)=(R=35,G=90,B=160,A=255)
     ImgColors(3)=(R=43,G=110,B=195,A=255)

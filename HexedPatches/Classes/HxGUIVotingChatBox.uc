@@ -277,7 +277,7 @@ defaultproperties
     End Object
     ed_Input=ChatInputBox
 
-    ImageColor=(R=38,G=59,B=126,A=255)
+    ImageColor=(R=28,G=43,B=91,A=255)
     MaxChatHistory=256
     MaxInputHistory=128
     MessageColor=(R=236,G=236,B=236)

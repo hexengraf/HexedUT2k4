@@ -26,13 +26,15 @@ delegate SubmitVote();
 function ResetBanner(string Caption)
 {
     DisplayedMap = "";
-    fl_Header.SetCaption("");
+    fl_Header.SetVisibility(false);
     fi_Preview.SetVisibility(false);
     l_NoPreview.SetVisibility(false);
+    lb_Description.SetVisibility(false);
+    l_NoInformation.SetVisibility(true);
+    fl_Header.SetCaption("");
+    l_NoInformation.Caption = Caption;
     lb_Information.SetContent("");
     lb_Description.SetContent("");
-    l_NoInformation.Caption = Caption;
-    l_NoInformation.SetVisibility(true);
 }
 
 function SetMap(string MapName)
@@ -64,9 +66,11 @@ function SetMap(string MapName)
         fl_Header.SetCaption(Record.FriendlyName);
         SetMapInformation(Record);
         lb_Description.SetContent(GetMapDescription(Record));
+        fl_Header.SetVisibility(true);
         fi_Preview.SetVisibility(true);
         l_NoPreview.SetVisibility(fi_Preview.Image == None);
         l_NoInformation.SetVisibility(false);
+        lb_Description.SetVisibility(true);
     }
 }
 
@@ -277,6 +281,13 @@ defaultproperties
         TextAlign=TXTA_Center
         VertAlign=TXTA_Center
         bBackgroundVisible=true
+        BackgroundImage=Material'2K4Menus.BKRenders.ScanLines'
+        BackgroundStyle=ISTY_Stretched
+        BackgroundColor=(R=113,G=159,B=205,A=32)
+        BackgroundX1=0
+        BackgroundY1=0
+        BackgroundX2=8
+        BackgroundY2=128
         LeftPadding=0.04
         TopPadding=0.04
         RightPadding=0.04
@@ -296,8 +307,6 @@ defaultproperties
         TextAlign=TXTA_Center
         VertAlign=TXTA_Center
         TextColor=(R=255,G=210,B=0,A=255)
-        BackColor=(R=38,G=59,B=126,A=255)
-        bTransparent=false
         RenderWeight=1
         bScaleToParent=true
         bBoundToParent=true
@@ -336,6 +345,6 @@ defaultproperties
     PlayersLabel="players"
     AuthorLabel="Author"
 
-    ImageColor=(R=32,G=50,B=106,A=255)
+    ImageColor=(R=28,G=43,B=91,A=255)
     OnPreDrawInit=AlignComponents
 }
