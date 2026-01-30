@@ -250,10 +250,10 @@ function LevelChanged()
 
 defaultproperties {
     Begin Object Class=HxGUIVotingVoteListBox Name=VoteListBox
-        WinLeft=0.02
-        WinTop=0.052930
-        WinWidth=0.5907
-        WinHeight=0.21
+        WinLeft=0.0135
+        WinTop=0.04
+        WinWidth=0.605
+        WinHeight=0.224
         bScaleToParent=true
         bBoundToParent=true
         FontScale=FNS_Small
@@ -266,9 +266,9 @@ defaultproperties {
     Begin Object class=moComboBox Name=GameTypeComboBox
         Caption="Game Type:"
         Hint="Select game type to show."
-        WinLeft=0.02
-        WinTop=0.27293
-        WinWidth=0.415
+        WinLeft=0.0135
+        WinTop=0.2735
+        WinWidth=0.4293
         WinHeight=0.0375
         CaptionWidth=0.001
         bReadOnly=true
@@ -282,8 +282,8 @@ defaultproperties {
     Begin Object class=moComboBox Name=MapSourceComboBox
         Caption="Source:"
         Hint="Select map sources to show."
-        WinLeft=0.445
-        WinTop=0.27293
+        WinLeft=0.4528
+        WinTop=0.2735
         WinWidth=0.1657
         WinHeight=0.0375
         CaptionWidth=0.001
@@ -296,10 +296,10 @@ defaultproperties {
     co_MapSource=MapSourceComboBox
 
     Begin Object Class=HxGUIVotingMapListBox Name=MapListBox
-        WinLeft=0.02
-        WinTop=0.3136
-        WinWidth=0.5907
-        WinHeight=0.6431
+        WinLeft=0.0135
+        WinTop=0.32
+        WinWidth=0.605
+        WinHeight=0.6497
         bScaleToParent=true
         bBoundToParent=true
         FontScale=FNS_Small
@@ -310,16 +310,14 @@ defaultproperties {
     lb_MapList=MapListBox
 
     Begin Object Class=GUILabel Name=RetrievingMapListLabel
-        WinLeft=0.02
-        WinTop=0.3136
-        WinWidth=0.5907
-        WinHeight=0.6431
+        WinLeft=0.0135
+        WinTop=0.32
+        WinWidth=0.605
+        WinHeight=0.6497
         TextFont="MediumFont"
         TextAlign=TXTA_Center
         VertAlign=TXTA_Center
         TextColor=(R=255,G=210,B=0,A=255)
-        BackColor=(R=38,G=59,B=126,A=255)
-        bTransparent=false
         bVisible=false
         RenderWeight=1
         bScaleToParent=true
@@ -328,10 +326,10 @@ defaultproperties {
     l_RetrievingMapList=RetrievingMapListLabel
 
     Begin Object Class=HxGUIVotingMapBanner Name=VotingMapBanner
-        WinLeft=0.6175
-        WinTop=0.052930
+        WinLeft=0.624
+        WinTop=0.04
         WinWidth=0.3625
-        WinHeight=0.67391
+        WinHeight=0.7
         bBoundToParent=true
         bScaleToParent=true
         SelectRandom=SelectRandom
@@ -340,8 +338,8 @@ defaultproperties {
     MapBanner=VotingMapBanner
 
     Begin Object Class=HxGUIVotingChatBox Name=VotingChatBox
-        WinLeft=0.6175
-        WinTop=0.7367
+        WinLeft=0.624
+        WinTop=0.7497
         WinWidth=0.3625
         WinHeight=0.22
         bBoundToParent=true
@@ -350,10 +348,8 @@ defaultproperties {
     End Object
     ChatBox=VotingChatBox
 
-    WinTop=0.05
     WinLeft=0.0025
     WinWidth=0.995
-    WinHeight=0.875
 
     lb_VoteCountListBox=None
     lb_MapListBox=None

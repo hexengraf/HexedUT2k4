@@ -335,7 +335,7 @@ defaultproperties
     End Object
     fb_SubmitVote=SubmitVoteButton
 
-    MaxPreviewWidth=0.95
+    MaxPreviewWidth=0.94
     NoMapLabel="No Map Selected"
     NoInfoLabel="Map Information Unavailable"
     PlayersLabel="players"
