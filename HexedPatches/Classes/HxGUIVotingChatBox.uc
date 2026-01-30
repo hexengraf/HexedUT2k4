@@ -211,7 +211,7 @@ function bool AlignComponents(Canvas C)
     ed_Input.WinTop = fb_InputType.WinTop;
     ed_Input.WinWidth = 1.0 - ed_Input.WinLeft;
     ed_Input.WinHeight = fb_InputType.WinHeight;
-    lb_Chat.WinHeight = fb_InputType.WinTop;
+    lb_Chat.WinHeight = fb_InputType.WinTop + lb_Chat.RelativeHeight(FrameThickness * C.ClipY);
     return false;
 }
 
@@ -243,9 +243,10 @@ defaultproperties
         bVisibleWhenEmpty=true
         bNoTeletype=true
         bNeverFocus=true
-        bBackgroundVisible=false
+        bHideFrame=true
         bStripColors=true
         ColorReplacements(0)=(Match=(R=200,G=1,B=1),ReplaceWith=(R=255,G=66,B=66))
+        RenderWeight=1
         bBoundToParent=true
         bScaleToParent=true
         TabOrder=2
@@ -277,7 +278,7 @@ defaultproperties
     End Object
     ed_Input=ChatInputBox
 
-    ImageColor=(R=28,G=43,B=91,A=255)
+    ImageSources(0)=(Color=(R=28,G=43,B=91,A=255),Style=ISTY_Stretched,RenderWeight=0.1)
     MaxChatHistory=256
     MaxInputHistory=128
     MessageColor=(R=236,G=236,B=236)

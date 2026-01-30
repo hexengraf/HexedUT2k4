@@ -1,84 +1,69 @@
 class HxGUIFramedImage extends HxGUIFramedMultiComponent;
 
-var Material Image;
-var Color ImageColor;
-var eImgStyle ImageStyle;
-var EMenuRenderStyle ImageRenderStyle;
-var Material FallbackImage;
-var Color FallbackColor;
-var int X1;
-var int Y1;
-var int X2;
-var int Y2;
+struct HxGUIImageSource
+{
+    var Material Image;
+    var Color Color;
+    var eImgStyle Style;
+    var eImgAlign Align;
+    var float RenderWeight;
+    var bool bSubImage;
+    var int X1;
+    var int Y1;
+    var int X2;
+    var int Y2;
+};
 
-var GUIImage FramedImage;
+var EMenuRenderStyle RenderStyle;
+var array<HxGUIImageSource> ImageSources;
+var array<GUIImage> Images;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
+    local int i;
+
     Super.InitComponent(MyController, MyOwner);
-    FramedImage = GUIImage(CreateComponent("XInterface.GUIImage", true));
-    FramedImage.Image = Image;
-    FramedImage.ImageColor = ImageColor;
-    FramedImage.ImageStyle = ImageStyle;
-    FramedImage.ImageRenderStyle = ImageRenderStyle;
-    FramedImage.X1 = X1;
-    FramedImage.Y1 = Y1;
-    FramedImage.X2 = X2;
-    FramedImage.Y2 = Y2;
-}
-
-function SetImage(Material M)
-{
-    Image = M;
-    if (Image != None)
+    for (i = 0; i < ImageSources.Length; ++i)
     {
-        FramedImage.Image = Image;
-        FramedImage.ImageColor = ImageColor;
-    }
-    else
-    {
-        FramedImage.Image = FallbackImage;
-        FramedImage.ImageColor = FallbackColor;
+        CreateImage(ImageSources[i]);
     }
 }
 
-function SetImageStyle(eImgStyle Style)
+function AddImage(HxGUIImageSource Source)
 {
-    ImageStyle = Style;
-    FramedImage.ImageStyle = ImageStyle;
+    ImageSources[ImageSources.Length] = Source;
+    CreateImage(Source);
 }
 
-function SetImageColor(Color C)
+function CreateImage(HxGUIImageSource Source)
 {
-    ImageColor = C;
-    FramedImage.ImageColor = C;
-}
+    Local GUIImage NewImage;
 
-function SetImageSize(int X1, int X2, int Y1, int Y2)
-{
-    Self.X1 = X1;
-    Self.X2 = X2;
-    Self.Y1 = Y1;
-    Self.Y2 = Y2;
-    FramedImage.X1 = X1;
-    FramedImage.Y1 = Y1;
-    FramedImage.X2 = X2;
-    FramedImage.Y2 = Y2;
+    NewImage = GUIImage(CreateComponent("XInterface.GUIImage", true));
+    NewImage.Image = Source.Image;
+    NewImage.ImageColor = Source.Color;
+    NewImage.ImageStyle = Source.Style;
+    NewImage.ImageAlign = Source.Align;
+    if (Source.RenderWeight > 0)
+    {
+        NewImage.RenderWeight = Source.RenderWeight;
+    }
+    if (Source.bSubImage)
+    {
+        NewImage.X1 = Source.X1;
+        NewImage.Y1 = Source.Y1;
+        NewImage.X2 = Source.X2;
+        NewImage.Y2 = Source.Y2;
+    }
+    if (NewImage.Image == None)
+    {
+        NewImage.Image = Material'engine.WhiteSquareTexture';
+    }
+    NewImage.ImageRenderStyle = RenderStyle;
+    Images[Images.Length] = NewImage;
 }
 
 defaultproperties
 {
-    Image=Material'engine.WhiteSquareTexture'
-    ImageColor=(R=255,G=255,B=255,A=255)
-    ImageStyle=ISTY_Stretched
-    ImageRenderStyle=MSTY_Alpha
-    X1=-1
-    Y1=-1
-    X2=-1
-    Y2=-1
-    FallbackImage=Material'engine.WhiteSquareTexture'
-    FallbackColor=(R=0,G=0,B=0,A=255)
-    bNeverFocus=true
-    OnPreDraw=InternalOnPreDraw
-    OnRendered=InternalOnRendered
+    RenderStyle=MSTY_Alpha
 }

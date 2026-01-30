@@ -57,18 +57,19 @@ function SetMap(string MapName)
         }
         if (Record.ScreenshotRef != "")
         {
-            fi_Preview.SetImage(Material(DynamicLoadObject(Record.ScreenshotRef, class'Material')));
+            fi_Preview.Images[1].Image = Material(
+                DynamicLoadObject(Record.ScreenshotRef, class'Material'));
         }
         else
         {
-            fi_Preview.SetImage(None);
+            fi_Preview.Images[1].Image = None;
         }
         l_Header.Caption = Record.FriendlyName;
         SetMapInformation(Record);
         lb_Description.SetContent(GetMapDescription(Record));
         l_Header.SetVisibility(true);
         fi_Preview.SetVisibility(true);
-        l_NoPreview.SetVisibility(fi_Preview.Image == None);
+        l_NoPreview.SetVisibility(fi_Preview.Images[1].Image == None);
         l_NoInformation.SetVisibility(false);
         lb_Description.SetVisibility(true);
     }
@@ -140,10 +141,10 @@ function bool AlignComponents(Canvas C)
 
 function AlignNoInformationLabel()
 {
-    l_NoInformation.WinLeft = FramedImage.WinLeft;
-    l_NoInformation.WinTop = FramedImage.WinTop;
-    l_NoInformation.WinWidth = FramedImage.WinWidth;
-    l_NoInformation.WinHeight = FramedImage.WinHeight - fb_SelectRandom.WinHeight;
+    l_NoInformation.WinLeft = Images[0].WinLeft;
+    l_NoInformation.WinTop = Images[0].WinTop;
+    l_NoInformation.WinWidth = Images[0].WinWidth;
+    l_NoInformation.WinHeight = Images[0].WinHeight - fb_SelectRandom.WinHeight;
 }
 
 function float AlignHeader(Canvas C)
@@ -155,11 +156,11 @@ function float AlignHeader(Canvas C)
 
 function float AlignFooter(Canvas C)
 {
-    fb_SelectRandom.WinWidth += FramedImage.WinLeft / 2;
+    fb_SelectRandom.WinWidth += Images[0].WinLeft / 2;
     fb_SelectRandom.WinHeight = fb_SelectRandom.RelativeHeight(
         fb_SelectRandom.GetFontHeight(C) * MEDIUM_FONT_SPACING);
     fb_SelectRandom.WinTop = 1.0 - fb_SelectRandom.WinHeight;
-    fb_SubmitVote.WinLeft -= FramedImage.WinLeft / 2;
+    fb_SubmitVote.WinLeft -= Images[0].WinLeft / 2;
     fb_SubmitVote.WinTop = fb_SelectRandom.WinTop;
     fb_SubmitVote.WinWidth = fb_SelectRandom.WinWidth;
     fb_SubmitVote.WinHeight = fb_SelectRandom.WinHeight;
@@ -184,7 +185,7 @@ function AlignPreview(Canvas C, float FilledHeight)
         fi_Preview.WinWidth = (3 / 2) * fi_Preview.WinHeight * (TotalHeight / TotalWidth);
     }
     fi_Preview.WinLeft = (1.0 - fi_Preview.WinWidth) / 2;
-    fi_Preview.WinTop = l_Header.WinTop + l_Header.WinHeight - FramedImage.WinTop;
+    fi_Preview.WinTop = l_Header.WinTop + l_Header.WinHeight - Images[0].WinTop;
     l_NoPreview.WinLeft = fi_Preview.WinLeft;
     l_NoPreview.WinTop = fi_Preview.WinTop;
     l_NoPreview.WinWidth = fi_Preview.WinWidth;
@@ -196,10 +197,10 @@ function AlignDescription(Canvas C)
     local float ItemHeight;
 
     ItemHeight = lb_Information.GetItemHeight(C);
-    lb_Information.WinTop = fi_Preview.WinTop + fi_Preview.WinHeight - FramedImage.WinTop;
+    lb_Information.WinTop = fi_Preview.WinTop + fi_Preview.WinHeight - Images[0].WinTop;
     lb_Information.WinHeight = lb_Information.RelativeHeight(ItemHeight * 2 * SMALL_FONT_SPACING);
-    lb_Description.WinTop = lb_Information.WinTop + lb_Information.WinHeight - FramedImage.WinTop;
-    lb_Description.WinHeight = fb_SelectRandom.WinTop - lb_Description.WinTop + FramedImage.WinTop;
+    lb_Description.WinTop = lb_Information.WinTop + lb_Information.WinHeight - Images[0].WinTop;
+    lb_Description.WinHeight = fb_SelectRandom.WinTop - lb_Description.WinTop + Images[0].WinTop;
 }
 
 function bool OnClickSelectRandom(GUIComponent Sender)
@@ -230,9 +231,8 @@ defaultproperties
 
     Begin Object Class=HxGUIFramedImage Name=PreviewImage
         RenderWeight=0.5
-        ImageStyle=ISTY_Scaled
-        ImageRenderStyle=MSTY_Normal
-        FrameColor=(R=113,G=159,B=205,A=255)
+        ImageSources(0)=(Color=(R=0,G=0,B=0,A=255),Style=ISTY_Stretched)
+        ImageSources(1)=(Color=(R=255,G=255,B=255,A=255),Style=ISTY_Scaled,RenderWeight=1)
         bScaleToParent=true
         bBoundToParent=true
     End Object
@@ -262,7 +262,7 @@ defaultproperties
         LeftPadding=0.04
         RightPadding=0.04
         Separator=""
-        bBackgroundVisible=false
+        bHideFrame=true
         bTabStop=false
         bVisibleWhenEmpty=true
         bNoTeletype=true
@@ -281,14 +281,7 @@ defaultproperties
         FontScale=FNS_Small
         TextAlign=TXTA_Center
         VertAlign=TXTA_Center
-        bBackgroundVisible=true
-        BackgroundImage=Material'2K4Menus.BKRenders.ScanLines'
-        BackgroundStyle=ISTY_Stretched
-        BackgroundColor=(R=113,G=159,B=205,A=32)
-        BackgroundX1=0
-        BackgroundY1=0
-        BackgroundX2=8
-        BackgroundY2=128
+        BackgroundSources(0)=(Image=Material'2K4Menus.BKRenders.ScanLines',Color=(R=113,G=159,B=205,A=32),Style=ISTY_Stretched,bSubImage=true,X1=0,Y1=0,X2=8,Y2=128)
         LeftPadding=0.04
         TopPadding=0.04
         RightPadding=0.04
@@ -346,6 +339,6 @@ defaultproperties
     PlayersLabel="players"
     AuthorLabel="Author"
 
-    ImageColor=(R=28,G=43,B=91,A=255)
+    ImageSources(0)=(Color=(R=28,G=43,B=91,A=255),Style=ISTY_Stretched)
     OnPreDrawInit=AlignComponents
 }

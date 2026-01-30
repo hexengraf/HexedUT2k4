@@ -4,6 +4,7 @@ class HxGUIFramedMultiComponent extends GUIMultiComponent
 var Material FrameMaterial;
 var Color FrameColor;
 var float FrameThickness;
+var bool bHideFrame;
 
 var array<GUIComponent> AlignedComponents;
 
@@ -31,7 +32,7 @@ function bool InternalOnPreDraw(Canvas C)
 
 function InternalOnRendered(Canvas C)
 {
-    if (bVisible && FrameThickness > 0.0 && FrameColor.A > 0.0)
+    if (bVisible && !bHideFrame)
     {
         DrawFrame(C);
     }
@@ -126,6 +127,7 @@ defaultproperties
     FrameMaterial=Material'engine.WhiteSquareTexture'
     FrameColor=(R=113,G=159,B=205,A=255)
     FrameThickness=0.001
+    bHideFrame=false
     OnPreDraw=InternalOnPreDraw
     OnRendered=InternalOnRendered
 }

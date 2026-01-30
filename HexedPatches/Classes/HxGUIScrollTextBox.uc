@@ -1,4 +1,5 @@
-class HxGUIScrollTextBox extends GUIScrollTextBox;
+class HxGUIScrollTextBox extends GUIScrollTextBox
+    DependsOn(HxGUIFramedImage);
 
 struct HxColorReplacement
 {
@@ -18,19 +19,15 @@ var float RightPadding;
 var float BottomPadding;
 var float ScrollbarWidth;
 var float FrameThickness;
-var Material BackgroundImage;
-var eImgStyle BackgroundStyle;
-var Color BackgroundColor;
-var bool bBackgroundVisible;
-var int BackgroundX1;
-var int BackgroundX2;
-var int BackgroundY1;
-var int BackgroundY2;
+var bool bHideFrame;
 
+var array<HxGUIFramedImage.HxGUIImageSource> BackgroundSources;
 var array<HxColorReplacement> ColorReplacements;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
+    local int i;
+
     Super.InitComponent(MyController, MyOwner);
     ScrollText = HxGUIScrollText(MyScrollText);
     ScrollText.VertAlign = VertAlign;
@@ -41,13 +38,13 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     ScrollText.RightPadding = RightPadding;
     ScrollText.BottomPadding = BottomPadding;
     MyScrollBar.WinWidth = ScrollbarWidth;
-    i_Background.SetImage(BackgroundImage);
-    i_Background.SetImageStyle(BackgroundStyle);
-    i_Background.SetImageColor(BackgroundColor);
-    i_Background.SetImageSize(BackgroundX1, BackgroundX2, BackgroundY1, BackgroundY2);
     i_Background.FrameThickness = FrameThickness;
-    i_Background.SetVisibility(bBackgroundVisible);
+    i_Background.bHideFrame = bHideFrame;
     HxGUIVertScrollBar(MyScrollBar).FrameThickness = FrameThickness;
+    for (i = 0; i < BackgroundSources.Length; ++i)
+    {
+        i_Background.AddImage(BackgroundSources[i]);
+    }
 }
 
 function string ReplaceColorCodes(string Text)
@@ -140,12 +137,5 @@ defaultproperties
     BottomPadding=0
     ScrollbarWidth=0.03
     FrameThickness=0.001
-    BackgroundImage=Material'engine.WhiteSquareTexture'
-    BackgroundStyle=ISTY_Scaled
-    BackgroundColor=(R=28,G=43,B=91,A=255)
-    bBackgroundVisible=true
-    BackgroundX1=-1
-    BackgroundX2=-1
-    BackgroundY1=-1
-    BackgroundY2=-1
+    bHideFrame=false
 }
