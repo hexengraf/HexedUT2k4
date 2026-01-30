@@ -89,5 +89,5 @@ defaultproperties
     End Object
     l_Search=SearchLabel
 
-    ImageSources(0)=(Color=(R=28,G=43,B=91,A=255),Style=ISTY_Stretched)
+    ImageSources(0)=(Color=(R=28,G=47,B=96,A=255),Style=ISTY_Stretched)
 }

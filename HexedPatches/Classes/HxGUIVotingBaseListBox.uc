@@ -194,7 +194,7 @@ defaultproperties
         WinWidth=1
         WinHeight=0.98
         RenderWeight=0.1
-        ImageSources(0)=(Color=(R=38,G=59,B=126,A=255),Style=ISTY_Scaled)
+        ImageSources(0)=(Color=(R=28,G=64,B=130,A=255),Style=ISTY_Stretched)
         bScaleToParent=true
         bBoundToParent=true
     End Object
