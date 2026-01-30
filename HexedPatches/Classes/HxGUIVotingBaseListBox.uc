@@ -188,17 +188,17 @@ defaultproperties
     End Object
     Header=MyNewHeader
 
-    Begin Object Class=HxGUIFramedImage Name=Background
+    Begin Object Class=HxGUIFramedImage Name=BackgroundImage
         WinLeft=0
-        WinTop=0.02
+        WinTop=0
         WinWidth=1
-        WinHeight=0.98
+        WinHeight=1
         RenderWeight=0.1
         ImageSources(0)=(Color=(R=28,G=64,B=130,A=255),Style=ISTY_Stretched)
         bScaleToParent=true
         bBoundToParent=true
     End Object
-    fi_Background=Background
+    fi_Background=BackgroundImage
 
     Begin Object Class=HxGUIVertScrollBar Name=NewTheScrollbar
         bScaleToParent=true
