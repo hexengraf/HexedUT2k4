@@ -16,11 +16,11 @@ defaultproperties
     Images(3)=Material'engine.WhiteSquareTexture'
     Images(4)=Material'engine.WhiteSquareTexture'
 
-    ImgColors(0)=(R=28,G=47,B=96,A=164)
-    ImgColors(1)=(R=28,G=47,B=96,A=220)
-    ImgColors(2)=(R=28,G=47,B=96,A=220)
-    ImgColors(3)=(R=28,G=47,B=96,A=255)
-    ImgColors(4)=(R=28,G=47,B=96,A=0)
+    ImgColors(0)=(R=22,G=38,B=77,A=185)
+    ImgColors(1)=(R=22,G=38,B=77,A=220)
+    ImgColors(2)=(R=22,G=38,B=77,A=220)
+    ImgColors(3)=(R=22,G=38,B=77,A=255)
+    ImgColors(4)=(R=22,G=38,B=77,A=0)
 
     ImgWidths(0)=-1
     ImgWidths(1)=-1
