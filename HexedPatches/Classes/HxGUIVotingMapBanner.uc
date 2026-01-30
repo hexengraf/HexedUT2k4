@@ -3,7 +3,7 @@ class HxGUIVotingMapBanner extends HxGUIFramedImage;
 const MEDIUM_FONT_SPACING = 1.44;
 const SMALL_FONT_SPACING = 1.2;
 
-var automated HxGUIFramedLabel fl_Header;
+var automated GUILabel l_Header;
 var automated HxGUIFramedImage fi_Preview;
 var automated GUILabel l_NoPreview;
 var automated HxGUIScrollTextBox lb_Information;
@@ -26,12 +26,12 @@ delegate SubmitVote();
 function ResetBanner(string Caption)
 {
     DisplayedMap = "";
-    fl_Header.SetVisibility(false);
+    l_Header.SetVisibility(false);
     fi_Preview.SetVisibility(false);
     l_NoPreview.SetVisibility(false);
     lb_Description.SetVisibility(false);
     l_NoInformation.SetVisibility(true);
-    fl_Header.SetCaption("");
+    l_Header.Caption = "";
     l_NoInformation.Caption = Caption;
     lb_Information.SetContent("");
     lb_Description.SetContent("");
@@ -63,10 +63,10 @@ function SetMap(string MapName)
         {
             fi_Preview.SetImage(None);
         }
-        fl_Header.SetCaption(Record.FriendlyName);
+        l_Header.Caption = Record.FriendlyName;
         SetMapInformation(Record);
         lb_Description.SetContent(GetMapDescription(Record));
-        fl_Header.SetVisibility(true);
+        l_Header.SetVisibility(true);
         fi_Preview.SetVisibility(true);
         l_NoPreview.SetVisibility(fi_Preview.Image == None);
         l_NoInformation.SetVisibility(false);
@@ -148,9 +148,9 @@ function AlignNoInformationLabel()
 
 function float AlignHeader(Canvas C)
 {
-    fl_Header.WinHeight = fl_Header.RelativeHeight(
-        fl_Header.GetFontHeight(C) * MEDIUM_FONT_SPACING);
-    return fl_Header.WinHeight;
+    GetFontSize(l_Header, C,,, l_Header.WinHeight);
+    l_Header.WinHeight = l_Header.RelativeHeight(l_Header.WinHeight * MEDIUM_FONT_SPACING);
+    return l_Header.WinHeight;
 }
 
 function float AlignFooter(Canvas C)
@@ -184,7 +184,7 @@ function AlignPreview(Canvas C, float FilledHeight)
         fi_Preview.WinWidth = (3 / 2) * fi_Preview.WinHeight * (TotalHeight / TotalWidth);
     }
     fi_Preview.WinLeft = (1.0 - fi_Preview.WinWidth) / 2;
-    fi_Preview.WinTop = fl_Header.WinTop + fl_Header.WinHeight - FramedImage.WinTop;
+    fi_Preview.WinTop = l_Header.WinTop + l_Header.WinHeight - FramedImage.WinTop;
     l_NoPreview.WinLeft = fi_Preview.WinLeft;
     l_NoPreview.WinTop = fi_Preview.WinTop;
     l_NoPreview.WinWidth = fi_Preview.WinWidth;
@@ -216,16 +216,17 @@ function bool OnClickSubmitVote(GUIComponent Sender)
 
 defaultproperties
 {
-    Begin Object class=HxGUIFramedLabel Name=HeaderLabel
+    Begin Object class=GUILabel Name=HeaderLabel
         WinLeft=0
         WinTop=0
         WinWidth=1
+        TextColor=(R=255,G=210,B=0,A=255)
+        TextAlign=TXTA_Center
         bTransparent=true
-        FrameColor=(R=0,G=0,B=0,A=0)
         bScaleToParent=true
         bBoundToParent=true
     End Object
-    fl_Header=HeaderLabel
+    l_Header=HeaderLabel
 
     Begin Object Class=HxGUIFramedImage Name=PreviewImage
         RenderWeight=0.5

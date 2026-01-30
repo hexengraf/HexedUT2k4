@@ -1,6 +1,6 @@
 class HxGUIVotingSearchBar extends HxGUIFramedImage;
 
-var automated HxGUIFramedLabel fl_Search;
+var automated GUILabel l_Search;
 var automated array<GUIEditBox> ed_Columns;
 
 var GUIMultiColumnList List;
@@ -32,7 +32,7 @@ function bool InternalOnPreDraw(Canvas C)
     if (List != None && ed_Columns.Length <= List.ColumnWidths.Length)
     {
         Width = ActualWidth();
-        FilledWidth = fl_Search.WinWidth;
+        FilledWidth = l_Search.WinWidth;
         for (i = 0; i < ed_Columns.Length; ++i)
         {
             ed_Columns[i].WinTop = 0;
@@ -51,17 +51,14 @@ function bool InternalOnPreDraw(Canvas C)
 
 function ResizeSearchLabel(Canvas C)
 {
-    local float XL;
-    local float YL;
-
-    fl_Search.Style.TextSize(
-        C, fl_Search.MenuState, fl_Search.Caption, XL, YL, fl_Search.FontScale);
-    fl_Search.WinWidth = fl_Search.RelativeWidth(XL * 1.2);
+    GetFontSize(l_Search, C, l_Search.Caption, l_Search.WinWidth);
+    l_Search.WinWidth = l_Search.RelativeWidth(l_Search.WinWidth * 1.2);
 }
 
 function UpdateHeight(Canvas C)
 {
-    WinHeight = RelativeHeight(fl_Search.GetFontHeight(C) * 1.5);
+    GetFontSize(l_Search, C,,, WinHeight);
+    WinHeight = RelativeHeight(WinHeight * 1.5);
 }
 
 function Clear()
@@ -76,19 +73,21 @@ function Clear()
 
 defaultproperties
 {
-    Begin Object class=HxGUIFramedLabel Name=SearchLabel
+    Begin Object class=GUILabel Name=SearchLabel
         Caption="Search:"
         WinLeft=0
         WinTop=0
         WinHeight=1
         WinWidth=1
-        StyleName="HxSmallLabel"
-        bTransparent=true
+        TextFont="HxSmallerFont"
+        TextAlign=TXTA_Center
+        TextColor=(R=255,G=255,B=255,A=255)
         FontScale=FNS_Small
+        bNeverFocus=true
         bBoundToParent=true
         bScaleToParent=true
     End Object
-    fl_Search=SearchLabel
+    l_Search=SearchLabel
 
     ImageColor=(R=28,G=43,B=91,A=255)
 }
