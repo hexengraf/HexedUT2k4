@@ -211,7 +211,7 @@ function bool AlignComponents(Canvas C)
     ed_Input.WinTop = fb_InputType.WinTop;
     ed_Input.WinWidth = 1.0 - ed_Input.WinLeft;
     ed_Input.WinHeight = fb_InputType.WinHeight;
-    lb_Chat.WinHeight = fb_InputType.WinTop + lb_Chat.RelativeHeight(FrameThickness * C.ClipY);
+    lb_Chat.WinHeight = fb_InputType.WinTop + Round(C.ClipY * FrameThickness) / ActualHeight();
     return false;
 }
 
