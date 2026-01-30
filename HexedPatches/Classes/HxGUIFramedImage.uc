@@ -1,4 +1,4 @@
-class HxGUIFramedImage extends HxGUIFramedComponent;
+class HxGUIFramedImage extends HxGUIFramedMultiComponent;
 
 var Material Image;
 var Color ImageColor;
@@ -16,7 +16,7 @@ var GUIImage FramedImage;
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
     Super.InitComponent(MyController, MyOwner);
-    FramedImage = GUIImage(MyComponent);
+    FramedImage = GUIImage(CreateComponent("XInterface.GUIImage", true));
     FramedImage.Image = Image;
     FramedImage.ImageColor = ImageColor;
     FramedImage.ImageStyle = ImageStyle;
@@ -68,7 +68,6 @@ function SetImageSize(int X1, int X2, int Y1, int Y2)
 
 defaultproperties
 {
-    DefaultComponentClass="XInterface.GUIImage"
     Image=Material'engine.WhiteSquareTexture'
     ImageColor=(R=255,G=255,B=255,A=255)
     ImageStyle=ISTY_Stretched

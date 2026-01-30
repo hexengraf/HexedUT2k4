@@ -1,31 +1,15 @@
-class HxGUIFramedComponent extends GUIMultiComponent
+class HxGUIFramedMultiComponent extends GUIMultiComponent
     abstract;
 
 var Material FrameMaterial;
 var Color FrameColor;
 var float FrameThickness;
 
-var string DefaultComponentClass;
-var GUIComponent MyComponent;
+var array<GUIComponent> AlignedComponents;
 
 delegate bool OnPreDrawInit(Canvas C)
 {
     return false;
-}
-
-function InitComponent(GUIController MyController, GUIComponent MyOwner)
-{
-    Super.InitComponent(MyController, MyOwner);
-
-    if (DefaultComponentClass != "")
-    {
-        MyComponent = AddComponent(DefaultComponentClass);
-    }
-    if (MyComponent != None)
-    {
-        MyComponent.bBoundToParent = true;
-        MyComponent.bScaleToParent = true;
-    }
 }
 
 function ResolutionChanged(int ResX, int ResY)
@@ -38,7 +22,7 @@ function bool InternalOnPreDraw(Canvas C)
 {
     if (bInit)
     {
-        AlignToBorders(C);
+        AlignToFrame(C);
         bInit = OnPreDrawInit(C);
         return true;
     }
@@ -53,17 +37,36 @@ function InternalOnRendered(Canvas C)
     }
 }
 
-function AlignToBorders(Canvas C)
+function GUIComponent CreateComponent(string ComponentClass, optional bool bAlignToFrame)
+{
+    local GUIComponent NewComp;
+
+    NewComp = AddComponent(ComponentClass);
+    if (NewComp != None && bAlignToFrame)
+    {
+        NewComp.bBoundToParent = true;
+        NewComp.bScaleToParent = true;
+        AlignedComponents[AlignedComponents.Length] = NewComp;
+    }
+    return NewComp;
+}
+
+function AlignToFrame(Canvas C)
 {
     local float Thickness;
+    local float Width;
+    local float Height;
+    local int i;
 
-    if (MyComponent != None)
+    Width = ActualWidth();
+    Height = ActualHeight();
+    for (i = 0; i < AlignedComponents.Length; ++i)
     {
         Thickness = Round(C.ClipY * FrameThickness);
-        MyComponent.WinLeft = Thickness / ActualWidth();
-        MyComponent.WinTop = Thickness / ActualHeight();
-        MyComponent.WinWidth = 1.0 - (2 * MyComponent.WinLeft);
-        MyComponent.WinHeight = 1.0 - (2 * MyComponent.WinTop);
+        AlignedComponents[i].WinLeft = Thickness / ActualWidth();
+        AlignedComponents[i].WinTop = Thickness / ActualHeight();
+        AlignedComponents[i].WinWidth = 1.0 - (2 * AlignedComponents[i].WinLeft);
+        AlignedComponents[i].WinHeight = 1.0 - (2 * AlignedComponents[i].WinTop);
     }
 }
 
@@ -87,14 +90,6 @@ function DrawFrame(Canvas C)
     C.DrawTileStretched(FrameMaterial, Thickness, Height);
     C.SetPos(C.CurX - Width + Thickness, C.CurY + Height);
     C.DrawTileStretched(FrameMaterial, Width, Thickness);
-}
-
-function float GetFontHeight(Canvas C)
-{
-    local float Height;
-
-    GetFontSize(MyComponent, C,,, Height);
-    return Height;
 }
 
 static function bool GetFontSize(GUIComponent Comp,

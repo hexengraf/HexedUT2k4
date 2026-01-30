@@ -1,4 +1,4 @@
-class HxGUIFramedButton extends HxGUIFramedComponent;
+class HxGUIFramedButton extends HxGUIFramedMultiComponent;
 
 var localized string Caption;
 
@@ -7,8 +7,7 @@ var GUIButton FramedButton;
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
     Super.InitComponent(MyController, MyOwner);
-    bNeverFocus = true;
-    SetHint("");
+    CreateComponent("XInterface.GUIButton", true);
 }
 
 function InternalOnCreateComponent(GUIComponent NewComp, GUIComponent Sender)
@@ -33,9 +32,16 @@ function SetCaption(string NewCaption)
     FramedButton.Caption = Caption;
 }
 
+function float GetFontHeight(Canvas C)
+{
+    local float Height;
+
+    GetFontSize(FramedButton, C,,, Height);
+    return Height;
+}
+
 defaultproperties
 {
     StyleName="HxFlatButton"
-    DefaultComponentClass="XInterface.GUIButton"
     OnCreateComponent=InternalOnCreateComponent
 }
