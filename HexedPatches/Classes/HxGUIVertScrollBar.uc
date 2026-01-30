@@ -1,29 +1,33 @@
 class HxGUIVertScrollBar extends GUIVertScrollBar;
 
 var float ForceRelativeWidth;
-var float FrameThickness;
+var float TopOffset;
+var float RightOffset;
+var float BottomOffset;
 
 function bool InternalOnPreDraw(Canvas C)
 {
     local float MyWidth;
     local float OwnerWidth;
-    local float FrameOffset;
+    local float TopPadding;
+    local float RightPadding;
 
-    FrameOffset = Round(FrameThickness * C.ClipY);
+    TopPadding = Round(TopOffset * C.ClipY);
+    RightPadding = Round(RightOffset * C.ClipY);
     if (ForceRelativeWidth > 0)
     {
         OwnerWidth = MenuOwner.ActualWidth();
         MyWidth = ForceRelativeWidth * OwnerWidth;
         WinWidth = RelativeWidth(MyWidth);
-        WinLeft = RelativeLeft(MenuOwner.ActualLeft() + OwnerWidth - MyWidth - FrameOffset);
+        WinLeft = RelativeLeft(MenuOwner.ActualLeft() + OwnerWidth - MyWidth - RightPadding);
     }
     else
     {
         MyWidth = ActualWidth();
-        WinLeft = RelativeLeft(ActualLeft() - FrameOffset);
+        WinLeft = RelativeLeft(ActualLeft() - RightPadding);
     }
-    WinTop = MyList.ActualTop() - MyWidth + FrameOffset;
-    WinHeight = MyList.ActualHeight() + 2 * MyWidth - (2 * FrameOffset);
+    WinTop = MyList.ActualTop() - MyWidth + TopPadding;
+    WinHeight = MyList.ActualHeight() + 2 * MyWidth - TopPadding - Round(BottomOffset * C.ClipY);
     MyDecreaseButton.SetVisibility(false);
     MyIncreaseButton.SetVisibility(false);
     return Super.GripPreDraw(Self);
@@ -43,28 +47,30 @@ function ZoneClick(float Delta)
 
 defaultproperties
 {
-    Begin Object Class=GUIVertScrollZone Name=ScrollZone
+    Begin Object Class=GUIVertScrollZone Name=NewScrollZone
         StyleName="HxScrollZone"
         OnScrollZoneClick=ZoneClick
     End Object
 
-    Begin Object Class=GUIVertScrollButton Name=UpBut
+    Begin Object Class=GUIVertScrollButton Name=NewUpBut
     End Object
 
-    Begin Object Class=GUIVertScrollButton Name=DownBut
+    Begin Object Class=GUIVertScrollButton Name=NewDownBut
         bIncreaseButton=true
     End Object
 
-    Begin Object Class=GUIVertGripButton Name=Grip
+    Begin Object Class=GUIVertGripButton Name=NewGrip
         StyleName="HxScrollGrip"
         OnMousePressed=GripPressed
     End Object
 
     ForceRelativeWidth=0
-    FrameThickness=0
-    MyScrollZone=ScrollZone
-    MyDecreaseButton=UpBut
-    MyIncreaseButton=DownBut
-    MyGripButton=Grip
+    TopOffset=0
+    RightOffset=0
+    BottomOffset=0
+    MyScrollZone=NewScrollZone
+    MyDecreaseButton=NewUpBut
+    MyIncreaseButton=NewDownBut
+    MyGripButton=NewGrip
     OnPreDraw=InternalOnPreDraw
 }

@@ -40,7 +40,9 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     MyScrollBar.WinWidth = ScrollbarWidth;
     i_Background.FrameThickness = FrameThickness;
     i_Background.bHideFrame = bHideFrame;
-    HxGUIVertScrollBar(MyScrollBar).FrameThickness = FrameThickness;
+    HxGUIVertScrollBar(MyScrollBar).TopOffset = FrameThickness;
+    HxGUIVertScrollBar(MyScrollBar).RightOffset = FrameThickness;
+    HxGUIVertScrollBar(MyScrollBar).BottomOffset = FrameThickness;
     for (i = 0; i < BackgroundSources.Length; ++i)
     {
         i_Background.AddImage(BackgroundSources[i]);
@@ -135,7 +137,7 @@ defaultproperties
     TopPadding=0
     RightPadding=0
     BottomPadding=0
-    ScrollbarWidth=0.03
+    ScrollbarWidth=0.0275
     FrameThickness=0.001
     bHideFrame=false
 }

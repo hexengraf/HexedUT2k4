@@ -19,7 +19,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     MyVotingBaseList.OnChange = OnChangeList;
     MyVotingBaseList.OnDblClick = OnDbkClickList;
     HxGUIVertScrollBar(MyScrollBar).ForceRelativeWidth = ScrollbarWidth;
-    HxGUIVertScrollBar(MyScrollBar).FrameThickness = FrameThickness;
+    HxGUIVertScrollBar(MyScrollBar).RightOffset = FrameThickness;
     fi_Background.FrameThickness = FrameThickness;
 }
 
@@ -101,6 +101,7 @@ function bool InternalOnPreDraw(Canvas C)
         {
             SearchBar.UpdateHeight(C);
             SearchBar.WinTop = SearchBar.RelativeHeight(ActualHeight() - SearchBar.ActualHeight());
+            HxGUIVertScrollBar(MyScrollBar).BottomOffset = SearchBar.ActualHeight() / C.ClipY;
         }
         bInit = false;
         return true;
@@ -205,7 +206,7 @@ defaultproperties
     End Object
     MyScrollBar=NewTheScrollbar
 
-    ScrollbarWidth=0.02
+    ScrollbarWidth=0.017
     FrameThickness=0.001
     StyleName="HxSmallList"
     SelectedStyleName="HxSmallListSelection"
