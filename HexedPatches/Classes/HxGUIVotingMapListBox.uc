@@ -34,6 +34,11 @@ function OnChangeNameSearch(GUIComponent Sender)
     HxGUIVotingMapList(MyVotingBaseList).SearchName(GUIEditBox(Sender).GetText(), bCaseSensitive);
 }
 
+function OnChangeTierSearch(GUIComponent Sender)
+{
+    HxGUIVotingMapList(MyVotingBaseList).SearchTier(GUIEditBox(Sender).GetText());
+}
+
 function OnChangePlayersSearch(GUIComponent Sender)
 {
     HxGUIVotingMapList(MyVotingBaseList).SearchPlayers(GUIEditBox(Sender).GetText());
@@ -72,11 +77,22 @@ defaultproperties
         OnChange=OnChangeNameSearch
     End Object
 
+    Begin Object class=GUIEditBox Name=TierSearch
+        Hint="Search by tier. * matches anything. > or < or = followed by a tier matches with comparison."
+        StyleName="HxEditBox"
+        FontScale=FNS_Small
+        TabOrder=1
+        bBoundToParent=true
+        bScaleToParent=true
+        ContextMenu=CaseSensitiveContextMenu
+        OnChange=OnChangeTierSearch
+    End Object
+
     Begin Object class=GUIEditBox Name=PlayersSearch
         Hint="Search by player count. One number shows maps that support it. Two numbers separated by - shows min-max player counts. * matches anything. > or < or = followed by a number matches with comparison."
         StyleName="HxEditBox"
         FontScale=FNS_Small
-        TabOrder=1
+        TabOrder=2
         bBoundToParent=true
         bScaleToParent=true
         OnChange=OnChangePlayersSearch
@@ -86,7 +102,7 @@ defaultproperties
         Hint="Search by played count. * matches anything. > or < or = followed by a number matches with comparison."
         StyleName="HxEditBox"
         FontScale=FNS_Small
-        TabOrder=2
+        TabOrder=3
         bBoundToParent=true
         bScaleToParent=true
         OnChange=OnChangePlayedSearch
@@ -96,7 +112,7 @@ defaultproperties
         Hint="Search by recent. * matches anything. > or < or = followed by a number matches with comparison."
         StyleName="HxEditBox"
         FontScale=FNS_Small
-        TabOrder=3
+        TabOrder=4
         bBoundToParent=true
         bScaleToParent=true
         OnChange=OnChangeRecentSearch
@@ -105,16 +121,17 @@ defaultproperties
     Begin Object Class=HxGUIVotingSearchBar Name=HxSearchBar
         WinLeft=0
         WinWidth=1
-        ed_Columns=(NameSearch,PlayersSearch,PlayedSearch,RecentSearch)
+        ed_Columns=(NameSearch,TierSearch,PlayersSearch,PlayedSearch,RecentSearch)
         bBoundToParent=true
         bScaleToParent=true
     End Object
     SearchBar=HxSearchBar
 
-    HeaderColumnPerc(0)=0.62
-    HeaderColumnPerc(1)=0.14
-    HeaderColumnPerc(2)=0.13
-    HeaderColumnPerc(3)=0.11
+    HeaderColumnPerc(0)=0.52
+    HeaderColumnPerc(1)=0.10
+    HeaderColumnPerc(2)=0.14
+    HeaderColumnPerc(3)=0.13
+    HeaderColumnPerc(4)=0.11
     DefaultListClass="HexedPatches.HxGUIVotingMapList"
     CaseSensitiveLabels(0)="Enable Case-Sensitive Search"
     CaseSensitiveLabels(1)="Disable Case-Sensitive Search"

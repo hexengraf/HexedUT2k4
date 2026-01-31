@@ -1,6 +1,6 @@
 class HxGUIVotingVoteList extends HxGUIVotingBaseList;
 
-function OnPopulateList()
+function PopulateList()
 {
     local int Map;
 

@@ -17,7 +17,7 @@ var protected float MyItemHeight;
 var protected int MyItemsPerPage;
 var private string LastMapSelected;
 
-function OnPopulateList();
+function PopulateList();
 function DrawRow(Canvas C, GUIStyles DrawStyle, int Row, float Y, float H);
 function string GetNormalizedString(int Row, int Column);
 function int GetMapIndex();
@@ -58,7 +58,7 @@ function SetVRI(VotingReplicationInfo V)
     VRI = V;
     if (VRI != None)
     {
-        OnPopulateList();
+        PopulateList();
     }
 }
 
@@ -70,7 +70,7 @@ function bool Refresh()
         {
             LastMapSelected = GetMapName();
         }
-        OnPopulateList();
+        PopulateList();
         return SetIndexByMapName(LastMapSelected);
     }
     return false;

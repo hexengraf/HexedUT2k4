@@ -1,6 +1,7 @@
 class HxMapVoteFilter extends Object
-    Config(HxMapVoteFilters)
-    PerObjectConfig;
+    config(HxMapVoteFilters)
+    PerObjectConfig
+    DependsOn(HxTiers);
 
 enum EHxMapSource
 {
@@ -42,6 +43,7 @@ struct HxRangeConstraint
 struct HxSearchBar
 {
     var HxPseudoRegex Name;
+    var HxValueConstraint Tier;
     var HxRangeConstraint Players;
     var HxValueConstraint Played;
     var HxValueConstraint Recent;
@@ -53,17 +55,18 @@ var EHxMapSource MapSource;
 var array<string> Prefixes;
 var HxSearchBar SearchBar;
 
-function bool Match(VotingHandler.MapVoteMapList Entry)
+function bool Match(VotingHandler.MapVoteMapList Entry, HxTiers.EHxTier Tier)
 {
     return SourceMatch(Entry.MapName)
         && PrefixMatch(Entry.MapName)
         && RegexMatch(Entry.MapName, SearchBar.Name)
+        && ValueMatch(Tier, SearchBar.Tier)
         && ValueMatch(Entry.PlayCount, SearchBar.Played)
         && ValueMatch(Entry.Sequence, SearchBar.Recent)
-        && PropertiesMatch(Entry.MapName);
+        && CacheRecordMatch(Entry.MapName);
 }
 
-function bool PropertiesMatch(string MapName)
+function bool CacheRecordMatch(string MapName)
 {
     local CacheManager.MapRecord Record;
 
@@ -99,24 +102,29 @@ function bool PrefixMatch(string MapName)
     return false;
 }
 
-function SearchName(string RawString, optional bool bCaseSensitive)
+function SearchName(string SearchTerm, optional bool bCaseSensitive)
 {
-    SearchBar.Name = ParseRegex(RawString, bCaseSensitive);
+    SearchBar.Name = ParseRegex(SearchTerm, bCaseSensitive);
 }
 
-function SearchPlayers(string RawString)
+function SearchTier(string SearchTerm)
 {
-    SearchBar.Players = ParseRangeConstraint(RawString);
+    SearchBar.Tier = ParseTierConstraint(SearchTerm);
 }
 
-function SearchPlayed(string RawString)
+function SearchPlayers(string SearchTerm)
 {
-    SearchBar.Played = ParseValueConstraint(RawString);
+    SearchBar.Players = ParseRangeConstraint(SearchTerm);
 }
 
-function SearchRecent(string RawString)
+function SearchPlayed(string SearchTerm)
 {
-    SearchBar.Recent = ParseValueConstraint(RawString);
+    SearchBar.Played = ParseValueConstraint(SearchTerm);
+}
+
+function SearchRecent(string SearchTerm)
+{
+    SearchBar.Recent = ParseValueConstraint(SearchTerm);
 }
 
 function SetPrefix(string Prefix)
@@ -130,7 +138,7 @@ function SetMapSource(int Source)
     MapSource = EHxMapSource(Source);
 }
 
-static function HxPseudoRegex ParseRegex(string RawString, optional bool bCaseSensitive)
+static function HxPseudoRegex ParseRegex(string SearchTerm, optional bool bCaseSensitive)
 {
     local HxPseudoRegex Regex;
     local int Length;
@@ -138,15 +146,15 @@ static function HxPseudoRegex ParseRegex(string RawString, optional bool bCaseSe
 
     Regex.bCaseSensitive = bCaseSensitive;
 
-    if (RawString == "")
+    if (SearchTerm == "")
     {
         return Regex;
     }
     if (!bCaseSensitive)
     {
-        RawString = Caps(RawString);
+        SearchTerm = Caps(SearchTerm);
     }
-    Split(RawString, "*", Regex.Parts);
+    Split(SearchTerm, "*", Regex.Parts);
     if (StrCmp(Regex.Parts[0], "^", 1) == 0)
     {
         if (Len(Regex.Parts[0]) > 1)
@@ -184,25 +192,25 @@ static function HxPseudoRegex ParseRegex(string RawString, optional bool bCaseSe
     return Regex;
 }
 
-static function HxRangeConstraint ParseRangeConstraint(string RawString)
+static function HxRangeConstraint ParseRangeConstraint(string SearchTerm)
 {
     local HxRangeConstraint Constraint;
     local string Min;
     local string Max;
 
-    ReplaceText(RawString, " ", "");
-    if (RawString == "")
+    ReplaceText(SearchTerm, " ", "");
+    if (SearchTerm == "")
     {
         return Constraint;
     }
-    if (Divide(RawString, "-", Min, Max))
+    if (Divide(SearchTerm, "-", Min, Max))
     {
         Constraint.Min = ParseValueConstraint(Min);
         Constraint.Max = ParseValueConstraint(Max);
     }
     else
     {
-        Constraint.Min = ParseValueConstraint(RawString);
+        Constraint.Min = ParseValueConstraint(SearchTerm);
         if (Constraint.Min.Operation == HX_OPERATION_EqualTo_Implicit)
         {
             Constraint.Max.Operation = HX_OPERATION_GreaterThan;
@@ -218,40 +226,53 @@ static function HxRangeConstraint ParseRangeConstraint(string RawString)
     return Constraint;
 }
 
-static function HxValueConstraint ParseValueConstraint(string RawString)
+static function HxValueConstraint ParseValueConstraint(string SearchTerm)
 {
     local HxValueConstraint Constraint;
-    local string Operation;
 
-    if (InStr(RawString, "*") > -1 || RawString == "")
+    Constraint.Operation = ParseOperation(SearchTerm);
+    if (SearchTerm != "")
     {
-        return Constraint;
-    }
-    Operation = Left(RawString, 1);
-    if (Operation == "<")
-    {
-        RawString = Right(RawString, Len(RawString) - 1);
-        Constraint.Operation = HX_OPERATION_LessThan;
-    }
-    else if (Operation == ">")
-    {
-        RawString = Right(RawString, Len(RawString) - 1);
-        Constraint.Operation = HX_OPERATION_GreaterThan;
-    }
-    else if (Operation == "=")
-    {
-        RawString = Right(RawString, Len(RawString) - 1);
-        Constraint.Operation = HX_OPERATION_EqualTo;
-    }
-    else
-    {
-        Constraint.Operation = HX_OPERATION_EqualTo_Implicit;
-    }
-    if (RawString != "")
-    {
-        Constraint.Value = int(RawString);
+        Constraint.Value = int(SearchTerm);
     }
     return Constraint;
+}
+
+static function HxValueConstraint ParseTierConstraint(string SearchTerm)
+{
+    local HxValueConstraint Constraint;
+
+    Constraint.Operation = ParseOperation(SearchTerm);
+    Constraint.Value = class'HxTiers'.static.NameToTier(SearchTerm);
+    return Constraint;
+}
+
+static function EHxOperation ParseOperation(out string SearchTerm)
+{
+    local string Operation;
+
+    ReplaceText(SearchTerm, " ", "");
+    if (SearchTerm == "" || InStr(SearchTerm, "*") > -1)
+    {
+        return HX_OPERATION_DontCare;
+    }
+    Operation = Left(SearchTerm, 1);
+    if (Operation == "<")
+    {
+        SearchTerm = Right(SearchTerm, Len(SearchTerm) - 1);
+        return HX_OPERATION_LessThan;
+    }
+    if (Operation == ">")
+    {
+        SearchTerm = Right(SearchTerm, Len(SearchTerm) - 1);
+        return HX_OPERATION_GreaterThan;
+    }
+    if (Operation == "=")
+    {
+        SearchTerm = Right(SearchTerm, Len(SearchTerm) - 1);
+        return HX_OPERATION_EqualTo;
+    }
+    return HX_OPERATION_EqualTo_Implicit;
 }
 
 static function bool RegexMatch(string Text, HxPseudoRegex Regex)
