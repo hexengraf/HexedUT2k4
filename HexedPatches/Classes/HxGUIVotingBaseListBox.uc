@@ -56,9 +56,14 @@ function bool OnDbkClickList(GUIComponent Sender)
     return true;
 }
 
-function PopulateList(VotingReplicationInfo MVRI)
+function SetVRI(VotingReplicationInfo V)
 {
-    MyVotingBaseList.PopulateList(MVRI);
+    MyVotingBaseList.SetVRI(V);
+}
+
+function bool Refresh()
+{
+    return MyVotingBaseList.Refresh();
 }
 
 function int GetMapIndex()

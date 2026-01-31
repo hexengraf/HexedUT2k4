@@ -1,8 +1,7 @@
 class HxGUIVotingMapList extends HxGUIVotingBaseList;
 
-var array<int> MapIndices;
-var HxMapVoteFilter ActiveFilter;
-var string LastMapSelected;
+var private array<int> MapIndices;
+var private HxMapVoteFilter ActiveFilter;
 
 function OnPopulateList()
 {
@@ -18,20 +17,6 @@ function OnPopulateList()
         }
     }
     SortList();
-}
-
-function bool Refresh()
-{
-    if (VRI != None)
-    {
-        if (Index > -1)
-        {
-            LastMapSelected = GetMapName();
-        }
-        OnPopulateList();
-        return SetIndexByMapName(LastMapSelected);
-    }
-    return false;
 }
 
 function int GetMapIndex()

@@ -4,7 +4,6 @@ var automated HxGUIVotingVoteListBox lb_VoteList;
 var automated GUIImage i_VoteListBorder;
 var automated moComboBox co_MapSource;
 var automated HxGUIVotingMapListBox lb_MapList;
-var automated GUIImage i_MapListBorder;
 var automated GUILabel l_RetrievingMapList;
 var automated HxGUIVotingMapBanner MapBanner;
 var automated HxGUIVotingChatBox ChatBox;
@@ -35,6 +34,8 @@ function InternalOnOpen()
         MVRI = VotingReplicationInfo(PlayerOwner().VoteReplicationInfo);
         SetTimer(0.02, true);
     }
+    lb_VoteList.Refresh();
+    lb_MapList.Refresh();
 }
 
 event ResolutionChanged(int NewX, int NewY)
@@ -69,15 +70,17 @@ function ShowInitialState()
     MVRI = None;
     SelectedGameType = -1;
     SelectedMap = -1;
+    lb_VoteList.SetVRI(None);
     lb_VoteList.Clear();
-    lb_VoteList.DisableMe();
+    lb_MapList.SetVRI(None);
+    lb_MapList.Clear();
     co_GameType.ResetComponent();
+    MapBanner.SetMap("");
+    lb_VoteList.DisableMe();
     co_GameType.DisableMe();
     co_MapSource.DisableMe();
-    lb_MapList.Clear();
     lb_MapList.DisableMe();
     l_RetrievingMapList.SetVisibility(false);
-    MapBanner.SetMap("");
 }
 
 function ShowLoadingState()
@@ -97,8 +100,8 @@ function ShowReadyState()
     lb_MapList.EnableMe();
     l_RetrievingMapList.SetVisibility(false);
     PopulateGameTypeList();
-    lb_MapList.PopulateList(MVRI);
-    lb_VoteList.PopulateList(MVRI);
+    lb_MapList.SetVRI(MVRI);
+    lb_VoteList.SetVRI(MVRI);
 }
 
 function ShowDisabledMessage()

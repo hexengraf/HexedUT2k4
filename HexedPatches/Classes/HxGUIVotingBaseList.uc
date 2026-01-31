@@ -8,20 +8,21 @@ var float LeftPadding;
 var float TopPadding;
 var float FrameThickness;
 
-var VotingReplicationInfo VRI;
-var int PreviousSortColumn;
-
-var bool bReInit;
-var HxGUIVertScrollBar HxScrollbar;
-var HxGUIVotingSearchBar SearchBar;
-var float MyItemHeight;
-var int MyItemsPerPage;
+var protected VotingReplicationInfo VRI;
+var protected int PreviousSortColumn;
+var protected bool bReInit;
+var protected HxGUIVertScrollBar HxScrollbar;
+var protected HxGUIVotingSearchBar SearchBar;
+var protected float MyItemHeight;
+var protected int MyItemsPerPage;
+var private string LastMapSelected;
 
 function OnPopulateList();
 function DrawRow(Canvas C, GUIStyles DrawStyle, int Row, float Y, float H);
 function string GetNormalizedString(int Row, int Column);
 function int GetMapIndex();
 function string GetMapName();
+function bool SetIndexByMapName(string MapName);
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
@@ -52,10 +53,27 @@ function float GetSpacedItemHeight(Canvas C)
     return MyItemHeight;
 }
 
-function PopulateList(VotingReplicationInfo MVRI)
+function SetVRI(VotingReplicationInfo V)
 {
-    VRI = MVRI;
-    OnPopulateList();
+    VRI = V;
+    if (VRI != None)
+    {
+        OnPopulateList();
+    }
+}
+
+function bool Refresh()
+{
+    if (VRI != None)
+    {
+        if (Index > -1)
+        {
+            LastMapSelected = GetMapName();
+        }
+        OnPopulateList();
+        return SetIndexByMapName(LastMapSelected);
+    }
+    return false;
 }
 
 function string GetSortString(int Row)
