@@ -220,14 +220,6 @@ function OnCloseQuestionPage(optional bool bCanceled)
     Controller.CloseMenu(bCanceled);
 }
 
-function FixEditBoxStyle(GUIComponent NewComp, GUIComponent Sender)
-{
-    if (GUIEditBox(NewComp) != None)
-    {
-        NewComp.StyleName = "HxEditBox";
-    }
-}
-
 function AdjustWindowSize(coerce float X, coerce float Y)
 {
     local float Coefficient;

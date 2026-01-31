@@ -1,9 +1,7 @@
 class HxGUIVotingSearchBar extends HxGUIFramedImage;
 
 var automated GUILabel l_Search;
-var automated array<GUIEditBox> ed_Columns;
-
-var GUIMultiColumnList List;
+var automated array<HxGUIFramedEditBox> ed_Columns;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
@@ -17,36 +15,28 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     }
 }
 
+function ResolutionChanged(int ResX, int ResY)
+{
+    bInit = true;
+    Super.ResolutionChanged(ResX, ResY);
+}
+
 function bool InternalOnPreDraw(Canvas C)
 {
-    local float Width;
-    local float FilledWidth;
-    local int i;
-
+    bInit = bInit || GUIMultiColumnListBox(MenuOwner).Header.MenuState == MSAT_Pressed;
     if (bInit)
     {
-        List = GUIMultiColumnListBox(MenuOwner).List;
         UpdateHeight(C);
         ResizeSearchLabel(C);
     }
-    if (List != None && ed_Columns.Length <= List.ColumnWidths.Length)
-    {
-        Width = ActualWidth();
-        FilledWidth = l_Search.WinWidth;
-        for (i = 0; i < ed_Columns.Length; ++i)
-        {
-            ed_Columns[i].WinTop = 0;
-            ed_Columns[i].WinHeight = 1;
-            ed_Columns[i].WinWidth = List.ColumnWidths[i] / Width;
-            if (i == 0)
-            {
-                ed_Columns[i].WinWidth -= FilledWidth;
-            }
-            FilledWidth = FMin(1, FilledWidth + ed_Columns[i].WinWidth);
-            ed_Columns[i].WinLeft = FilledWidth - ed_Columns[i].WinWidth;
-        }
-    }
+    ResizeEditBoxes(C);
     return Super.InternalOnPreDraw(C);
+}
+
+function UpdateHeight(Canvas C)
+{
+    GetFontSize(l_Search, C,,, WinHeight);
+    WinHeight = RelativeHeight(WinHeight * 1.5);
 }
 
 function ResizeSearchLabel(Canvas C)
@@ -55,10 +45,34 @@ function ResizeSearchLabel(Canvas C)
     l_Search.WinWidth = l_Search.RelativeWidth(l_Search.WinWidth * 1.2);
 }
 
-function UpdateHeight(Canvas C)
+function ResizeEditBoxes(Canvas C)
 {
-    GetFontSize(l_Search, C,,, WinHeight);
-    WinHeight = RelativeHeight(WinHeight * 1.5);
+    local GUIMultiColumnList List;
+    local float Thickness;
+    local float Width;
+    local int i;
+
+    List = GUIMultiColumnListBox(MenuOwner).List;
+    if (List != None && ed_Columns.Length <= List.ColumnWidths.Length)
+    {
+        Width = ActualWidth();
+        Thickness = Round(C.ClipY * FrameThickness) / Width;
+        ed_Columns[0].WinLeft = l_Search.WinWidth - Thickness;
+        ed_Columns[0].WinTop = 0;
+        ed_Columns[0].WinWidth = (List.ColumnWidths[0] / Width) - ed_Columns[0].WinLeft + Thickness;
+        ed_Columns[0].WinHeight = 1;
+        ed_Columns[0].bInit = bInit;
+        for (i = 1; i < ed_Columns.Length; ++i)
+        {
+            ed_Columns[i].WinLeft =
+                ed_Columns[i - 1].WinLeft + ed_Columns[i - 1].WinWidth - Thickness;
+            ed_Columns[i].WinTop = 0;
+            ed_Columns[i].WinWidth = List.ColumnWidths[i] / Width + Thickness;
+            ed_Columns[i].WinHeight = 1;
+            ed_Columns[i].bInit = bInit;
+        }
+        ed_Columns[i - 1].WinWidth = 1.0 - ed_Columns[i - 1].WinLeft;
+    }
 }
 
 function Clear()

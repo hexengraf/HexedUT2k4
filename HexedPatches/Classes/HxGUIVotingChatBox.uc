@@ -10,7 +10,7 @@ const INPUT_TYPE_COUNT = 3;
 
 var automated GUIScrollTextBox lb_Chat;
 var automated HxGUIFramedButton fb_InputType;
-var automated GUIEditBox ed_Input;
+var automated HxGUIFramedEditBox ed_Input;
 
 var Color MessageColor;
 var Color MessageFallbackColor;
@@ -159,7 +159,7 @@ function bool OnKeyEventInput(out byte Key, out byte State, float Delta)
             break;
     }
     bIgnoreChange = false;
-    return bConsumed || ed_Input.InternalOnKeyEvent(Key, State, Delta);
+    return bConsumed;
 }
 
 function OnChangeInput(GUIComponent Sender)
@@ -201,17 +201,19 @@ function bool AlignComponents(Canvas C)
 {
     local float XL;
     local float YL;
+    local float Thickness;
 
+    Thickness = Round(C.ClipY * FrameThickness) / ActualHeight();
     fb_InputType.Style.TextSize(
         C, fb_InputType.MenuState, InputTypes[1], XL, YL, fb_InputType.FontScale);
     fb_InputType.WinHeight = fb_InputType.RelativeHeight(YL * 1.5);
     fb_InputType.WinWidth = fb_InputType.RelativeWidth(XL * 1.2);
     fb_InputType.WinTop = 1.0 - fb_InputType.WinHeight;
-    ed_Input.WinLeft = fb_InputType.WinWidth;
+    ed_Input.WinLeft = fb_InputType.WinWidth - Thickness;
     ed_Input.WinTop = fb_InputType.WinTop;
     ed_Input.WinWidth = 1.0 - ed_Input.WinLeft;
     ed_Input.WinHeight = fb_InputType.WinHeight;
-    lb_Chat.WinHeight = fb_InputType.WinTop + Round(C.ClipY * FrameThickness) / ActualHeight();
+    lb_Chat.WinHeight = fb_InputType.WinTop + Thickness;
     return false;
 }
 
@@ -265,7 +267,7 @@ defaultproperties
     End Object
     fb_InputType=InputTypeButton
 
-    Begin Object class=GUIEditBox Name=ChatInputBox
+    Begin Object class=HxGUIFramedEditBox Name=ChatInputBox
         Hint="Switch channel by typing /s, /t or /c followed by a space."
         StyleName="HxEditBox"
         FontScale=FNS_Small

@@ -6,10 +6,11 @@ var private bool bCaseSensitive;
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
     Super.InitComponent(MyController, MyOwner);
-    SearchBar.ed_Columns[0].ToolTip.ExpirationSeconds = 5;
-    SearchBar.ed_Columns[1].ToolTip.ExpirationSeconds = 10;
-    SearchBar.ed_Columns[2].ToolTip.ExpirationSeconds = 6;
-    SearchBar.ed_Columns[3].ToolTip.ExpirationSeconds = 6;
+    SearchBar.ed_Columns[0].EditBox.ToolTip.ExpirationSeconds = 5;
+    SearchBar.ed_Columns[1].EditBox.ToolTip.ExpirationSeconds = 5;
+    SearchBar.ed_Columns[2].EditBox.ToolTip.ExpirationSeconds = 10;
+    SearchBar.ed_Columns[3].EditBox.ToolTip.ExpirationSeconds = 6;
+    SearchBar.ed_Columns[4].EditBox.ToolTip.ExpirationSeconds = 6;
     SearchBar.ed_Columns[0].ContextMenu.AddItem(CaseSensitiveLabels[0]);
     SearchBar.ed_Columns[0].ContextMenu.OnSelect = OnSelectCaseSensitive;
 }
@@ -66,10 +67,8 @@ defaultproperties
     Begin Object Class=GUIContextMenu Name=CaseSensitiveContextMenu
     End Object
 
-    Begin Object class=GUIEditBox Name=NameSearch
+    Begin Object class=HxGUIFramedEditBox Name=NameSearch
         Hint="Search by map name. * matches anything. ^ and $ matches begin and end of name."
-        StyleName="HxEditBox"
-        FontScale=FNS_Small
         TabOrder=0
         bBoundToParent=true
         bScaleToParent=true
@@ -77,10 +76,8 @@ defaultproperties
         OnChange=OnChangeNameSearch
     End Object
 
-    Begin Object class=GUIEditBox Name=TierSearch
+    Begin Object class=HxGUIFramedEditBox Name=TierSearch
         Hint="Search by tier. * matches anything. > or < or = followed by a tier matches with comparison."
-        StyleName="HxEditBox"
-        FontScale=FNS_Small
         TabOrder=1
         bBoundToParent=true
         bScaleToParent=true
@@ -88,30 +85,24 @@ defaultproperties
         OnChange=OnChangeTierSearch
     End Object
 
-    Begin Object class=GUIEditBox Name=PlayersSearch
+    Begin Object class=HxGUIFramedEditBox Name=PlayersSearch
         Hint="Search by player count. One number shows maps that support it. Two numbers separated by - shows min-max player counts. * matches anything. > or < or = followed by a number matches with comparison."
-        StyleName="HxEditBox"
-        FontScale=FNS_Small
         TabOrder=2
         bBoundToParent=true
         bScaleToParent=true
         OnChange=OnChangePlayersSearch
     End Object
 
-    Begin Object class=GUIEditBox Name=PlayedSearch
+    Begin Object class=HxGUIFramedEditBox Name=PlayedSearch
         Hint="Search by played count. * matches anything. > or < or = followed by a number matches with comparison."
-        StyleName="HxEditBox"
-        FontScale=FNS_Small
         TabOrder=3
         bBoundToParent=true
         bScaleToParent=true
         OnChange=OnChangePlayedSearch
     End Object
 
-    Begin Object class=GUIEditBox Name=RecentSearch
+    Begin Object class=HxGUIFramedEditBox Name=RecentSearch
         Hint="Search by recent. * matches anything. > or < or = followed by a number matches with comparison."
-        StyleName="HxEditBox"
-        FontScale=FNS_Small
         TabOrder=4
         bBoundToParent=true
         bScaleToParent=true
