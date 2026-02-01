@@ -7,10 +7,9 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
     Super.InitComponent(MyController, MyOwner);
     SearchBar.ed_Columns[0].EditBox.ToolTip.ExpirationSeconds = 5;
-    SearchBar.ed_Columns[1].EditBox.ToolTip.ExpirationSeconds = 5;
-    SearchBar.ed_Columns[2].EditBox.ToolTip.ExpirationSeconds = 10;
+    SearchBar.ed_Columns[1].EditBox.ToolTip.ExpirationSeconds = 10;
+    SearchBar.ed_Columns[2].EditBox.ToolTip.ExpirationSeconds = 6;
     SearchBar.ed_Columns[3].EditBox.ToolTip.ExpirationSeconds = 6;
-    SearchBar.ed_Columns[4].EditBox.ToolTip.ExpirationSeconds = 6;
     SearchBar.ed_Columns[0].ContextMenu.AddItem(CaseSensitiveLabels[0]);
     SearchBar.ed_Columns[0].ContextMenu.OnSelect = OnSelectCaseSensitive;
 }
@@ -33,11 +32,6 @@ function SetMapSource(int Source)
 function OnChangeNameSearch(GUIComponent Sender)
 {
     HxGUIVotingMapList(MyVotingBaseList).SearchName(GUIEditBox(Sender).GetText(), bCaseSensitive);
-}
-
-function OnChangeTierSearch(GUIComponent Sender)
-{
-    HxGUIVotingMapList(MyVotingBaseList).SearchTier(GUIEditBox(Sender).GetText());
 }
 
 function OnChangePlayersSearch(GUIComponent Sender)
@@ -76,15 +70,6 @@ defaultproperties
         OnChange=OnChangeNameSearch
     End Object
 
-    Begin Object class=HxGUIFramedEditBox Name=TierSearch
-        Hint="Search by tier. * matches anything. > or < or = followed by a tier matches with comparison."
-        TabOrder=1
-        bBoundToParent=true
-        bScaleToParent=true
-        ContextMenu=CaseSensitiveContextMenu
-        OnChange=OnChangeTierSearch
-    End Object
-
     Begin Object class=HxGUIFramedEditBox Name=PlayersSearch
         Hint="Search by player count. One number shows maps that support it. Two numbers separated by - shows min-max player counts. * matches anything. > or < or = followed by a number matches with comparison."
         TabOrder=2
@@ -112,14 +97,15 @@ defaultproperties
     Begin Object Class=HxGUIVotingSearchBar Name=HxSearchBar
         WinLeft=0
         WinWidth=1
-        ed_Columns=(NameSearch,TierSearch,PlayersSearch,PlayedSearch,RecentSearch)
+        FirstColumn=1
+        ed_Columns=(NameSearch,PlayersSearch,PlayedSearch,RecentSearch)
         bBoundToParent=true
         bScaleToParent=true
     End Object
     SearchBar=HxSearchBar
 
-    HeaderColumnPerc(0)=0.55
-    HeaderColumnPerc(1)=0.10
+    HeaderColumnPerc(0)=0.10
+    HeaderColumnPerc(1)=0.55
     HeaderColumnPerc(2)=0.12
     HeaderColumnPerc(3)=0.12
     HeaderColumnPerc(4)=0.11

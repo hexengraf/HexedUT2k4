@@ -1,7 +1,7 @@
 class HxMapVoteFilter extends Object
     config(HxMapVoteFilters)
     PerObjectConfig
-    DependsOn(HxTiers);
+    DependsOn(HxFavorites);
 
 enum EHxMapSource
 {
@@ -43,7 +43,6 @@ struct HxRangeConstraint
 struct HxSearchBar
 {
     var HxPseudoRegex Name;
-    var HxValueConstraint Tier;
     var HxRangeConstraint Players;
     var HxValueConstraint Played;
     var HxValueConstraint Recent;
@@ -55,12 +54,11 @@ var EHxMapSource MapSource;
 var array<string> Prefixes;
 var HxSearchBar SearchBar;
 
-function bool Match(VotingHandler.MapVoteMapList Entry, HxTiers.EHxTier Tier)
+function bool Match(VotingHandler.MapVoteMapList Entry, HxFavorites.EHxMark Mark)
 {
     return SourceMatch(Entry.MapName)
         && PrefixMatch(Entry.MapName)
         && RegexMatch(Entry.MapName, SearchBar.Name)
-        && ValueMatch(Tier, SearchBar.Tier)
         && ValueMatch(Entry.PlayCount, SearchBar.Played)
         && ValueMatch(Entry.Sequence, SearchBar.Recent)
         && CacheRecordMatch(Entry.MapName);
@@ -105,11 +103,6 @@ function bool PrefixMatch(string MapName)
 function SearchName(string SearchTerm, optional bool bCaseSensitive)
 {
     SearchBar.Name = ParseRegex(SearchTerm, bCaseSensitive);
-}
-
-function SearchTier(string SearchTerm)
-{
-    SearchBar.Tier = ParseTierConstraint(SearchTerm);
 }
 
 function SearchPlayers(string SearchTerm)
@@ -238,12 +231,12 @@ static function HxValueConstraint ParseValueConstraint(string SearchTerm)
     return Constraint;
 }
 
-static function HxValueConstraint ParseTierConstraint(string SearchTerm)
+static function HxValueConstraint ParseMarkConstraint(string SearchTerm)
 {
     local HxValueConstraint Constraint;
 
     Constraint.Operation = ParseOperation(SearchTerm);
-    Constraint.Value = class'HxTiers'.static.NameToTier(SearchTerm);
+    Constraint.Value = class'HxFavorites'.static.NameToMark(SearchTerm);
     return Constraint;
 }
 

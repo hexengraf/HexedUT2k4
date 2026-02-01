@@ -1,23 +1,23 @@
 class HxGUIVotingMapList extends HxGUIVotingBaseList
-    DependsOn(HxTiers);
+    DependsOn(HxFavorites);
 
 var private array<int> MapIndices;
-var private array<string> MapTiers;
+var private array<string> MapMarks;
 var private HxMapVoteFilter ActiveFilter;
 
 function PopulateList()
 {
-    local HxTiers.EHxTier Tier;
+    local HxFavorites.EHxMark Mark;
     local int i;
 
     Clear();
     for (i = 0; i < VRI.MapList.Length; ++i)
     {
-        Tier = class'HxTiers'.static.GetTier(VRI.MapList[i].MapName);
-        if (ActiveFilter.Match(VRI.MapList[i], Tier))
+        Mark = class'HxFavorites'.static.GetMapMark(VRI.MapList[i].MapName);
+        if (ActiveFilter.Match(VRI.MapList[i], Mark))
         {
             MapIndices[MapIndices.Length] = i;
-            MapTiers[MapTiers.Length] = class'HxTiers'.static.TierToName(Tier);
+            MapMarks[MapMarks.Length] = class'HxFavorites'.static.MarkToName(Mark);
             AddedItem();
         }
     }
@@ -85,12 +85,6 @@ function SearchName(string SearchTerm, optional bool bCaseSensitive)
     Refresh();
 }
 
-function SearchTier(string SearchTerm)
-{
-    ActiveFilter.SearchTier(SearchTerm);
-    Refresh();
-}
-
 function SearchPlayers(string SearchTerm)
 {
     ActiveFilter.SearchPlayers(SearchTerm);
@@ -113,7 +107,7 @@ function SearchRecent(string SearchTerm)
 function Clear()
 {
     MapIndices.Remove(0, MapIndices.Length);
-    MapTiers.Remove(0, MapTiers.Length);
+    MapMarks.Remove(0, MapMarks.Length);
     Super.Clear();
 }
 
@@ -131,15 +125,16 @@ function bool InternalOnPreDraw(Canvas C)
 
     if (bReInit)
     {
-        Header = GUIMultiColumnListBox(MenuOwner).Header;
         OwnerWidth =  MenuOwner.ActualWidth();
+        Header = GUIMultiColumnListBox(MenuOwner).Header;
         CellSpacing = ColumnSpacing * C.ClipX;
-        InitColumnPerc[0] = 1;
-        for (i = 1; i < InitColumnPerc.Length; ++i)
+        InitColumnPerc[0] = SearchBar.l_Search.ActualWidth() / OwnerWidth;
+        InitColumnPerc[1] = 1.0 - InitColumnPerc[0];
+        for (i = 2; i < InitColumnPerc.Length; ++i)
         {
             class'HxGUIController'.static.GetFontSize(Header, C, ColumnHeadings[i], Width);
             InitColumnPerc[i] = FMax(0.1, (Width + (2 * CellSpacing)) / OwnerWidth);
-            InitColumnPerc[0] -= InitColumnPerc[i];
+            InitColumnPerc[1] -= InitColumnPerc[i];
         }
     }
     return Super.InternalOnPreDraw(C);
@@ -165,9 +160,9 @@ function DrawRow(Canvas C, GUIStyles DrawStyle, int Row, float Y, float H)
         S = MenuState;
     }
     GetCellLeftWidth(0, X, W);
-    DrawStyle.DrawText(C, S, X, Y, W, H, TXTA_Left, Entry.MapName, FontScale);
+    DrawStyle.DrawText(C, S, X, Y, W, H, TXTA_Center, MapMarks[SortData[Row].SortItem], FontScale);
     GetCellLeftWidth(1, X, W);
-    DrawStyle.DrawText(C, S, X, Y, W, H, TXTA_Left, MapTiers[SortData[Row].SortItem], FontScale);
+    DrawStyle.DrawText(C, S, X, Y, W, H, TXTA_Left, Entry.MapName, FontScale);
     GetCellLeftWidth(2, X, W);
     DrawStyle.DrawText(C, S, X, Y, W, H, TXTA_Left, GetMapSizeString(Record), FontScale);
     GetCellLeftWidth(3, X, W);
@@ -185,11 +180,7 @@ function string GetNormalizedString(int Row, int Column)
     switch (Column)
     {
         case 1:
-            if (MapTiers[Row] == "")
-            {
-                return "Z";
-            }
-            return MapTiers[Row];
+            return left(Caps(Entry.MapName), 20);
         case 2:
             Record = class'CacheManager'.static.GetMapRecord(Entry.MapName);
             if (Record.PlayerCountMax == 0) {
@@ -206,7 +197,7 @@ function string GetNormalizedString(int Row, int Column)
         default:
             break;
     }
-    return left(Caps(Entry.MapName), 20);
+    return string(int(class'HxFavorites'.static.NameToMark(MapMarks[Row])));
 }
 
 function string GetMapSizeString(CacheManager.MapRecord Record)
@@ -221,44 +212,72 @@ function string GetMapSizeString(CacheManager.MapRecord Record)
     return Record.PlayerCountMin@"-"@Record.PlayerCountMax;
 }
 
-function OnSelectTier(GUIContextMenu Sender, int Option)
+function OnSelectMark(GUIContextMenu Sender, int Option)
 {
-    local HxTiers.EHxTier Tier;
+    local HxFavorites.EHxMark Mark;
 
-    if (Index > -1)
+    if (Option == 3)
     {
-        Tier = EHxTier(6 - Option);
-        class'HxTiers'.static.SetTier(GetMapName(), Tier);
-        MapTiers[SortData[Index].SortItem] = class'HxTiers'.static.TierToName(Tier);
+        ClearAllMarks();
+    }
+    else if (Index > -1)
+    {
+        switch (Option)
+        {
+            case 0:
+                Mark = HX_MARK_Positive;
+                break;
+            case 1:
+                Mark = HX_MARK_Negative;
+                break;
+            default:
+                Mark = HX_MARK_Unmarked;
+                break;
+        }
+        class'HxFavorites'.static.MarkMap(GetMapName(), Mark);
+        MapMarks[SortData[Index].SortItem] = class'HxFavorites'.static.MarkToName(Mark);
+    }
+    if (SortColumn == 0)
+    {
         Refresh();
+    }
+}
+
+function ClearAllMarks()
+{
+    local int i;
+
+    if (class'HxFavorites'.static.ClearMapMarks())
+    {
+        for (i = 0; i < MapMarks.Length; ++i)
+        {
+            MapMarks[i] = class'HxFavorites'.static.MarkToName(HX_MARK_Unmarked);
+        }
     }
 }
 
 defaultproperties
 {
-    Begin Object Class=GUIContextMenu Name=GradingContextMenu
-        ContextItems(0)="Add to A tier"
-        ContextItems(1)="Add to B tier"
-        ContextItems(2)="Add to C tier"
-        ContextItems(3)="Add to D tier"
-        ContextItems(4)="Add to E tier"
-        ContextItems(5)="Add to F tier"
-        ContextItems(6)="Remove tier"
-        OnSelect=OnSelectTier
+    Begin Object Class=GUIContextMenu Name=MarkContextMenu
+        ContextItems(0)="Mark map with +"
+        ContextItems(1)="Mark map with -"
+        ContextItems(2)="Unmark map"
+        ContextItems(3)="Unmark all maps"
+        OnSelect=OnSelectMark
     End Object
-    ContextMenu=GradingContextMenu
+    ContextMenu=MarkContextMenu
 
-    ColumnHeadings(0)="Map Name"
-    ColumnHeadings(1)="Tier"
+    ColumnHeadings(0)="Mark"
+    ColumnHeadings(1)="Map Name"
     ColumnHeadings(2)="Players"
     ColumnHeadings(3)="Played"
     ColumnHeadings(4)="Recent"
-    ColumnHeadingHints(0)="Click to sort by map name."
-    ColumnHeadingHints(1)="Click to sort by tier."
+    ColumnHeadingHints(0)="Click to sort by mark."
+    ColumnHeadingHints(1)="Click to sort by map name."
     ColumnHeadingHints(2)="Click to sort by number of recommended players."
     ColumnHeadingHints(3)="Click to sort by number of times the map has been played."
     ColumnHeadingHints(4)="Click to sort by how recently this map has been played."
 
-    SortColumn=0
-    PreviousSortColumn=0
+    SortColumn=1
+    PreviousSortColumn=1
 }

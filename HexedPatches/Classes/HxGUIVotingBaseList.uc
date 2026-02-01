@@ -8,9 +8,9 @@ var float LeftPadding;
 var float TopPadding;
 var float FrameThickness;
 
+var bool bReInit;
 var protected VotingReplicationInfo VRI;
 var protected int PreviousSortColumn;
-var protected bool bReInit;
 var protected HxGUIVertScrollBar HxScrollbar;
 var protected HxGUIVotingSearchBar SearchBar;
 var protected float MyItemHeight;
