@@ -198,6 +198,11 @@ function DrawItem(Canvas C, int i, float X, float Y, float W, float H, bool bSel
     }
 }
 
+static function string NormalizeNumber(int Value)
+{
+    return right("000000" $ Value, 6);
+}
+
 defaultproperties
 {
     bAutoSpacing=true

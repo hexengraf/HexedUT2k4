@@ -82,10 +82,10 @@ function DrawRow(Canvas C, GUIStyles DrawStyle, int Row, float Y, float H)
     Entry = VRI.MapVoteCount[SortData[Row].SortItem];
     GetCellLeftWidth(0, X, W);
     DrawStyle.DrawText(
-        C, MenuState, X, Y, W, H, TXTA_Left, VRI.GameConfig[Entry.GameConfigIndex].GameName, FontScale);
+        C, MenuState, X, Y, W, H, TXTA_Left, VRI.MapList[Entry.MapIndex].MapName, FontScale);
     GetCellLeftWidth(1, X, W);
     DrawStyle.DrawText(
-        C, MenuState, X, Y, W, H, TXTA_Left, VRI.MapList[Entry.MapIndex].MapName, FontScale);
+        C, MenuState, X, Y, W, H, TXTA_Left, VRI.GameConfig[Entry.GameConfigIndex].GameName, FontScale);
     GetCellLeftWidth(2, X, W);
     DrawStyle.DrawText(C, MenuState, X, Y, W, H, TXTA_Left, string(Entry.VoteCount), FontScale);
 }
@@ -97,20 +97,20 @@ function string GetNormalizedString(int Row, int Column)
         case 1:
             return left(Caps(VRI.GameConfig[VRI.MapVoteCount[Row].GameConfigIndex].GameName), 15);
         case 2:
-            return left(Caps(VRI.MapList[VRI.MapVoteCount[Row].MapIndex].MapName), 20);
+            return NormalizeNumber(VRI.MapVoteCount[Row].VoteCount);
         default:
             break;
     }
-    return left(Caps(VRI.GameConfig[VRI.MapVoteCount[Row].GameConfigIndex].GameName), 15);
+    return left(Caps(VRI.MapList[VRI.MapVoteCount[Row].MapIndex].MapName), 20);
 }
 
 defaultproperties
 {
-    ColumnHeadings(0)="Game Type"
-    ColumnHeadings(1)="Map Name"
+    ColumnHeadings(0)="Map Name"
+    ColumnHeadings(1)="Game Type"
     ColumnHeadings(2)="Votes"
-    ColumnHeadingHints(0)="Click to sort by game type."
-    ColumnHeadingHints(1)="Click to sort by map name."
+    ColumnHeadingHints(0)="Click to sort by map name."
+    ColumnHeadingHints(1)="Click to sort by game type."
     ColumnHeadingHints(2)="Click to sort by number of votes."
 
     SortColumn=2

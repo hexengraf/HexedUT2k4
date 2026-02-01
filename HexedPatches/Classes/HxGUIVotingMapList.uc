@@ -234,11 +234,6 @@ function OnSelectTier(GUIContextMenu Sender, int Option)
     }
 }
 
-static function string NormalizeNumber(int Value)
-{
-    return right("000000" $ Value, 6);
-}
-
 defaultproperties
 {
     Begin Object Class=GUIContextMenu Name=GradingContextMenu
