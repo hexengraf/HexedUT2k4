@@ -205,9 +205,11 @@ function OnChangeSelectedMap(GUIComponent Sender)
         {
             case lb_VoteList:
                 SelectedGameType = lb_VoteList.GetGameTypeIndex();
+                lb_MapList.SilentSetIndex(-1);
                 break;
             case lb_MapList:
                 SelectedGameType = int(co_GameType.GetExtra());
+                lb_VoteList.SilentSetIndex(-1);
                 break;
         }
         SelectedMap = NewSelectedMap;

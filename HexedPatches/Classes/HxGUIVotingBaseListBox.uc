@@ -35,16 +35,6 @@ event ResolutionChanged(int NewX, int NewY)
     Super.ResolutionChanged(NewX, NewY);
 }
 
-event MenuStateChange(eMenuState NewState)
-{
-    Super.MenuStateChange(NewState);
-
-    if (NewState == MSAT_Focused)
-    {
-        NotifySelection(Self);
-    }
-}
-
 function OnChangeList(GUIComponent Sender)
 {
     NotifySelection(Self);
@@ -87,6 +77,11 @@ function SelectRandom()
 function bool IsEmpty()
 {
     return MyVotingBaseList.ItemCount == 0;
+}
+
+function int SilentSetIndex(int NewIndex)
+{
+    return MyVotingBaseList.SilentSetIndex(NewIndex);
 }
 
 function Clear()
