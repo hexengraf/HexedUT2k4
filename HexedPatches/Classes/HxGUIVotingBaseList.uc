@@ -91,6 +91,19 @@ event OnSortChanged()
     PreviousSortColumn = SortColumn;
 }
 
+event InitializeColumns(Canvas C)
+{
+    local float Width;
+    local int i;
+
+    Width = MenuOwner.ActualWidth();
+    for (i = 0; i < InitColumnPerc.Length; ++i)
+    {
+        ColumnWidths[i] = InitColumnPerc[i] * Width;
+    }
+    bInit = false;
+}
+
 function bool InternalOnKeyEvent(out byte Key, out byte State, float Delta)
 {
     if (EInputAction(State) == IST_Hold)
@@ -138,15 +151,15 @@ function bool InternalOnPreDraw(Canvas C)
         {
             WinWidth = OwnerWidth - MyScrollBar.ActualWidth();
         }
-        if (bReInit)
-        {
-            InitializeColumns(C);
-            bReInit = false;
-        }
-        else if (ExpandLastColumn)
-        {
-            ColumnWidths[ColumnWidths.Length - 1] += OwnerWidth - CurrentWidth;
-        }
+    }
+    if (bReInit)
+    {
+        InitializeColumns(C);
+        bReInit = false;
+    }
+    else if (ExpandLastColumn)
+    {
+        ColumnWidths[ColumnWidths.Length - 1] += OwnerWidth - CurrentWidth;
     }
     return true;
 }
@@ -189,8 +202,8 @@ defaultproperties
 {
     bAutoSpacing=true
     LineSpacing=0.003
-    ColumnSpacing=0.001
-    LeftPadding=0.005
+    ColumnSpacing=0.003
+    LeftPadding=0.002
     FrameThickness=0.001
     bDropSource=false
     bDropTarget=false

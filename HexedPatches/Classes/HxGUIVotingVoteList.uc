@@ -55,6 +55,24 @@ function string GetMapName()
     return "";
 }
 
+function bool InternalOnPreDraw(Canvas C)
+{
+    local GUIMultiColumnListHeader Header;
+    local float Width;
+    local float NewPerc;
+
+    if (bReInit)
+    {
+        Header = GUIMultiColumnListBox(MenuOwner).Header;
+        CellSpacing = ColumnSpacing * C.ClipX;
+        class'HxGUIController'.static.GetFontSize(Header, C, ColumnHeadings[2], Width);
+        NewPerc = FMax(0.1, (Width + (2 * CellSpacing)) / MenuOwner.ActualWidth());
+        InitColumnPerc[0] += InitColumnPerc[2] - NewPerc;
+        InitColumnPerc[2] = NewPerc;
+    }
+    return Super.InternalOnPreDraw(C);
+}
+
 function DrawRow(Canvas C, GUIStyles DrawStyle, int Row, float Y, float H)
 {
     local VotingHandler.MapVoteScore Entry;

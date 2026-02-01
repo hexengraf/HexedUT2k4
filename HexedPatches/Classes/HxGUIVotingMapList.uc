@@ -122,6 +122,29 @@ function VotingHandler.MapVoteMapList GetVRIEntry(int Row)
     return VRI.MapList[MapIndices[Row]];
 }
 
+function bool InternalOnPreDraw(Canvas C)
+{
+    local GUIMultiColumnListHeader Header;
+    local float OwnerWidth;
+    local float Width;
+    local int i;
+
+    if (bReInit)
+    {
+        Header = GUIMultiColumnListBox(MenuOwner).Header;
+        OwnerWidth =  MenuOwner.ActualWidth();
+        CellSpacing = ColumnSpacing * C.ClipX;
+        InitColumnPerc[0] = 1;
+        for (i = 1; i < InitColumnPerc.Length; ++i)
+        {
+            class'HxGUIController'.static.GetFontSize(Header, C, ColumnHeadings[i], Width);
+            InitColumnPerc[i] = FMax(0.1, (Width + (2 * CellSpacing)) / OwnerWidth);
+            InitColumnPerc[0] -= InitColumnPerc[i];
+        }
+    }
+    return Super.InternalOnPreDraw(C);
+}
+
 function DrawRow(Canvas C, GUIStyles DrawStyle, int Row, float Y, float H)
 {
     local VotingHandler.MapVoteMapList Entry;
