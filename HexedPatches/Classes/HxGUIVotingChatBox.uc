@@ -1,32 +1,38 @@
 class HxGUIVotingChatBox extends HxGUIFramedImage;
 
-enum EHxChatInputType
+enum EHxChatChannel
 {
-    HX_CHAT_INPUT_Say,
-    HX_CHAT_INPUT_TeamSay,
-    HX_CHAT_INPUT_Console,
+    HX_CHAT_CHANNEL_Say,
+    HX_CHAT_CHANNEL_TeamSay,
+    HX_CHAT_CHANNEL_Console,
 };
-const INPUT_TYPE_COUNT = 3;
+const CHAT_CHANNEL_COUNT = 3;
+
+struct HxChatInputHistory
+{
+    var array<string> Messages;
+    var int Index;
+};
 
 var automated GUIScrollTextBox lb_Chat;
-var automated HxGUIFramedButton fb_InputType;
+var automated HxGUIFramedButton fb_Channel;
 var automated HxGUIFramedEditBox ed_Input;
 
 var Color MessageColor;
 var Color MessageFallbackColor;
 var int MaxChatHistory;
 var int MaxInputHistory;
-var localized string InputTypes[INPUT_TYPE_COUNT];
+var localized string ChatChannels[CHAT_CHANNEL_COUNT];
 
-var private string InputTypeCommands[INPUT_TYPE_COUNT];
-var private EHxChatInputType SelectedInput;
-var private array<string> InputHistory;
-var private int RecallIndex;
+var private EHxChatChannel ActiveChannel;
+var private HxChatInputHistory CIH[CHAT_CHANNEL_COUNT];
+var private string ChannelCommands[CHAT_CHANNEL_COUNT];
 var private bool bIgnoreChange;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
     local ExtendedConsole Console;
+    local int i;
 
     Super.InitComponent(MyController, MyOwner);
     Console = ExtendedConsole(Controller.ViewportOwner.Console);
@@ -36,9 +42,12 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     }
     lb_Chat.MyScrollText.SetContent("");
     lb_Chat.MyScrollText.FontScale = FNS_Small;
-    InputHistory[InputHistory.Length] = "";
-    RecallIndex = 0;
-    SetInputType(HX_CHAT_INPUT_Say);
+    for (i = 0; i < CHAT_CHANNEL_COUNT; ++i)
+    {
+        CIH[i].Messages.Insert(0, 1);
+        CIH[i].Index = 0;
+    }
+    SetInputType(HX_CHAT_CHANNEL_Say);
 }
 
 function bool OnSendChat(string Text)
@@ -48,15 +57,15 @@ function bool OnSendChat(string Text)
     if (Text != "")
     {
         PC = PlayerOwner();
-        switch (SelectedInput)
+        switch (ActiveChannel)
         {
-            case HX_CHAT_INPUT_Say:
+            case HX_CHAT_CHANNEL_Say:
                 PC.Say(Text);
                 return UpdateInputHistory(Text, IsMessageSent(PC));
-            case HX_CHAT_INPUT_TeamSay:
+            case HX_CHAT_CHANNEL_TeamSay:
                 PC.TeamSay(Text);
                 return UpdateInputHistory(Text, IsMessageSent(PC));
-            case HX_CHAT_INPUT_Console:
+            case HX_CHAT_CHANNEL_Console:
                 PC.ConsoleCommand(Text);
                 return UpdateInputHistory(Text, true);
             default:
@@ -68,15 +77,18 @@ function bool OnSendChat(string Text)
 
 function bool UpdateInputHistory(string Text, bool bSent)
 {
+    local int Index;
+
     if (bSent)
     {
-        InputHistory[InputHistory.Length - 1] = Text;
-        if (InputHistory.Length == MaxInputHistory)
+        Index = CIH[ActiveChannel].Messages.Length - 1;
+        CIH[ActiveChannel].Messages[Index] = Text;
+        if (Index == MaxInputHistory - 1)
         {
-            InputHistory.Remove(0, 1);
+            CIH[ActiveChannel].Messages.Remove(0, 1);
         }
-        RecallIndex = InputHistory.Length;
-        InputHistory[RecallIndex] = "";
+        CIH[ActiveChannel].Index = Index + 1;
+        CIH[ActiveChannel].Messages[Index + 1] = "";
     }
     return bSent;
 }
@@ -122,11 +134,8 @@ function LevelChanged()
 function bool OnKeyEventInput(out byte Key, out byte State, float Delta)
 {
     local Interactions.EInputAction Action;
-    local bool bConsumed;
 
     Action = EInputAction(State);
-    bIgnoreChange = true;
-    bConsumed = false;
     switch (EInputKey(Key))
     {
         case IK_Enter:
@@ -134,36 +143,37 @@ function bool OnKeyEventInput(out byte Key, out byte State, float Delta)
             {
                 if (OnSendChat(ed_Input.GetText()))
                 {
-                    ed_Input.SetText("");
+                    SetInputSilent("");
                 }
-                bConsumed = true;
+                return true;
             }
             break;
         case IK_Up:
             if (Action == IST_Press || Action == IST_Hold)
             {
-                RecallIndex = Max(0, RecallIndex - 1);
-                ed_Input.SetText(InputHistory[RecallIndex]);
-                bConsumed = true;
+                CIH[ActiveChannel].Index = Max(0, CIH[ActiveChannel].Index - 1);
+                SetInputSilent(CIH[ActiveChannel].Messages[CIH[ActiveChannel].Index]);
+                return true;
             }
             break;
         case IK_Down:
             if (Action == IST_Press || Action == IST_Hold)
             {
-                RecallIndex = Min(InputHistory.Length - 1, RecallIndex + 1);
-                ed_Input.SetText(InputHistory[RecallIndex]);
-                bConsumed = true;
+                CIH[ActiveChannel].Index = Min(
+                    CIH[ActiveChannel].Messages.Length - 1, CIH[ActiveChannel].Index + 1);
+                SetInputSilent(CIH[ActiveChannel].Messages[CIH[ActiveChannel].Index]);
+                return true;
             }
             break;
         default:
             break;
     }
-    bIgnoreChange = false;
-    return bConsumed;
+    return false;
 }
 
 function OnChangeInput(GUIComponent Sender)
 {
+    local string Message;
     local string Left;
     local string Right;
     local int Length;
@@ -171,29 +181,28 @@ function OnChangeInput(GUIComponent Sender)
 
     if (!bIgnoreChange)
     {
-        RecallIndex = InputHistory.Length - 1;
-        InputHistory[RecallIndex] = ed_Input.GetText();
-        if (Divide(InputHistory[RecallIndex], " ", Left, Right))
+        Message = ed_Input.GetText();
+        if (Divide(Message, " ", Left, Right))
         {
             Length = Len(Left);
-            for (i = 0; i < INPUT_TYPE_COUNT; ++i)
+            for (i = 0; i < CHAT_CHANNEL_COUNT; ++i)
             {
-                if (StrCmp(InputTypeCommands[i], Left, Length, false) == 0)
+                if (StrCmp(ChannelCommands[i], Left, Length, false) == 0)
                 {
-                    bIgnoreChange = true;
-                    ed_Input.SetText(Right);
-                    bIgnoreChange = false;
-                    SetInputType(EHxChatInputType(i));
+                    Message = Right;
+                    SetInputSilent(Right);
+                    SetInputType(EHxChatChannel(i));
                     break;
                 }
             }
         }
+        CIH[ActiveChannel].Messages[CIH[ActiveChannel].Messages.Length - 1] = Message;
     }
 }
 
 function bool OnClickInput(GUIComponent Sender)
 {
-    SetInputType(EHxChatInputType((SelectedInput + 1) % INPUT_TYPE_COUNT));
+    SetInputType(EHxChatChannel((ActiveChannel + 1) % CHAT_CHANNEL_COUNT));
     return true;
 }
 
@@ -204,23 +213,30 @@ function bool AlignComponents(Canvas C)
     local float Thickness;
 
     Thickness = Round(C.ClipY * FrameThickness) / ActualHeight();
-    fb_InputType.Style.TextSize(
-        C, fb_InputType.MenuState, InputTypes[1], XL, YL, fb_InputType.FontScale);
-    fb_InputType.WinHeight = fb_InputType.RelativeHeight(YL * 1.5);
-    fb_InputType.WinWidth = fb_InputType.RelativeWidth(XL * 1.2);
-    fb_InputType.WinTop = 1.0 - fb_InputType.WinHeight;
-    ed_Input.WinLeft = fb_InputType.WinWidth - Thickness;
-    ed_Input.WinTop = fb_InputType.WinTop;
+    fb_Channel.Style.TextSize(
+        C, fb_Channel.MenuState, ChatChannels[1], XL, YL, fb_Channel.FontScale);
+    fb_Channel.WinHeight = fb_Channel.RelativeHeight(YL * 1.5);
+    fb_Channel.WinWidth = fb_Channel.RelativeWidth(XL * 1.2);
+    fb_Channel.WinTop = 1.0 - fb_Channel.WinHeight;
+    ed_Input.WinLeft = fb_Channel.WinWidth - Thickness;
+    ed_Input.WinTop = fb_Channel.WinTop;
     ed_Input.WinWidth = 1.0 - ed_Input.WinLeft;
-    ed_Input.WinHeight = fb_InputType.WinHeight;
-    lb_Chat.WinHeight = fb_InputType.WinTop + Thickness;
+    ed_Input.WinHeight = fb_Channel.WinHeight;
+    lb_Chat.WinHeight = fb_Channel.WinTop + Thickness;
     return false;
 }
 
-function SetInputType(EHxChatInputType Type)
+function SetInputSilent(string Text)
 {
-    SelectedInput = Type;
-    fb_InputType.SetCaption(InputTypes[SelectedInput]);
+    bIgnoreChange = true;
+    ed_Input.SetText(Text);
+    bIgnoreChange = false;
+}
+
+function SetInputType(EHxChatChannel Channel)
+{
+    ActiveChannel = Channel;
+    fb_Channel.SetCaption(ChatChannels[ActiveChannel]);
 }
 
 static function bool IsMessageSent(PlayerController Controller)
@@ -255,7 +271,7 @@ defaultproperties
     End Object
     lb_Chat=ChatScrollBox
 
-    Begin Object Class=HxGUIFramedButton Name=InputTypeButton
+    Begin Object Class=HxGUIFramedButton Name=ChannelButton
         Hint="Click to cycle between channels."
         WinLeft=0
         FontScale=FNS_Small
@@ -265,7 +281,7 @@ defaultproperties
         bScaleToParent=true
         OnClick=OnClickInput
     End Object
-    fb_InputType=InputTypeButton
+    fb_Channel=ChannelButton
 
     Begin Object class=HxGUIFramedEditBox Name=ChatInputBox
         Hint="Switch channel by typing /s, /t or /c followed by a space."
@@ -285,11 +301,11 @@ defaultproperties
     MaxInputHistory=128
     MessageColor=(R=236,G=236,B=236)
     MessageFallbackColor=(R=255,G=210,B=0,A=255)
-    InputTypes(0)="Say"
-    InputTypes(1)="TeamSay"
-    InputTypes(2)="Console"
-    InputTypeCommands(0)="/say"
-    InputTypeCommands(1)="/teamsay"
-    InputTypeCommands(2)="/console"
+    ChatChannels(0)="Say"
+    ChatChannels(1)="TeamSay"
+    ChatChannels(2)="Console"
+    ChannelCommands(0)="/say"
+    ChannelCommands(1)="/teamsay"
+    ChannelCommands(2)="/console"
     OnPreDrawInit=AlignComponents
 }
