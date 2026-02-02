@@ -1,31 +1,67 @@
-class HxGUIVotingVoteList extends HxGUIVotingBaseList;
+class HxGUIVotingVoteList extends HxGUIVotingBaseList
+    DependsOn(HxFavorites);
+
+var private array<string> MapMarks;
 
 function PopulateList()
 {
-    local int Map;
+    local int i;
 
-    for (Map = 0; Map < VRI.MapVoteCount.Length; ++Map)
+    Clear();
+    for (i = 0; i < VRI.MapVoteCount.Length; ++i)
     {
-        AddedItem();
+        AddMap(VRI.MapVoteCount[i].MapIndex);
     }
+}
+
+function AddMap(int MapIndex)
+{
+    AddedItem();
+    MapMarks[MapMarks.Length] = class'HxFavorites'.static.GetMapMarkName(
+        VRI.MapList[MapIndex].MapName);
+}
+
+function RemoveMap(int Position)
+{
+    RemovedItem(Position);
+    MapMarks.Remove(SortData[Position].SortItem, 1);
 }
 
 function UpdatedVoteCount(int UpdatedIndex, bool bRemoved)
 {
     if (bRemoved)
     {
-        RemovedItem(UpdatedIndex);
+        RemoveMap(UpdatedIndex);
     }
     else if (UpdatedIndex >= ItemCount)
     {
-        AddedItem();
-
+        AddMap(VRI.MapVoteCount[UpdatedIndex].MapIndex);
     }
     else
     {
         UpdatedItem(UpdatedIndex);
     }
     NeedsSorting = true;
+}
+
+function UpdateMapMark(int MapIndex, HxFavorites.EHxMark NewMark)
+{
+    local int i;
+
+    for (i = 0; i < VRI.MapVoteCount.Length; ++i)
+    {
+        if (MapIndex == -1 || VRI.MapVoteCount[i].MapIndex == MapIndex)
+        {
+            MapMarks[SortData[i].SortItem] = class'HxFavorites'.static.MarkToName(NewMark);
+            UpdatedItem(i);
+        }
+    }
+}
+
+function Clear()
+{
+    MapMarks.Remove(0, MapMarks.Length);
+    Super.Clear();
 }
 
 function int GetGameTypeIndex()
@@ -55,6 +91,25 @@ function string GetMapName()
     return "";
 }
 
+function bool SetIndexByMapName(string MapName)
+{
+    local int i;
+
+    if (MapName != "")
+    {
+        for (i = 0; i < VRI.MapVoteCount.Length; ++i)
+        {
+            if (VRI.MapList[VRI.MapVoteCount[i].MapIndex].MapName == MapName)
+            {
+                SetTopItem(i - ItemsPerPage / 2);
+                SetIndex(i);
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 function bool InternalOnPreDraw(Canvas C)
 {
     local GUIMultiColumnListHeader Header;
@@ -65,10 +120,10 @@ function bool InternalOnPreDraw(Canvas C)
     {
         Header = GUIMultiColumnListBox(MenuOwner).Header;
         CellSpacing = ColumnSpacing * C.ClipX;
-        class'HxGUIController'.static.GetFontSize(Header, C, ColumnHeadings[2], Width);
+        class'HxGUIController'.static.GetFontSize(Header, C, ColumnHeadings[3], Width);
         NewPerc = FMax(0.1, (Width + (2 * CellSpacing)) / MenuOwner.ActualWidth());
-        InitColumnPerc[0] += InitColumnPerc[2] - NewPerc;
-        InitColumnPerc[2] = NewPerc;
+        InitColumnPerc[1] += InitColumnPerc[3] - NewPerc;
+        InitColumnPerc[3] = NewPerc;
     }
     return Super.InternalOnPreDraw(C);
 }
@@ -82,11 +137,14 @@ function DrawRow(Canvas C, GUIStyles DrawStyle, int Row, float Y, float H)
     Entry = VRI.MapVoteCount[SortData[Row].SortItem];
     GetCellLeftWidth(0, X, W);
     DrawStyle.DrawText(
-        C, MenuState, X, Y, W, H, TXTA_Left, VRI.MapList[Entry.MapIndex].MapName, FontScale);
+        C, MenuState, X, Y, W, H, TXTA_Center, MapMarks[SortData[Row].SortItem], FontScale);
     GetCellLeftWidth(1, X, W);
     DrawStyle.DrawText(
-        C, MenuState, X, Y, W, H, TXTA_Left, VRI.GameConfig[Entry.GameConfigIndex].GameName, FontScale);
+        C, MenuState, X, Y, W, H, TXTA_Left, VRI.MapList[Entry.MapIndex].MapName, FontScale);
     GetCellLeftWidth(2, X, W);
+    DrawStyle.DrawText(
+        C, MenuState, X, Y, W, H, TXTA_Left, VRI.GameConfig[Entry.GameConfigIndex].GameName, FontScale);
+    GetCellLeftWidth(3, X, W);
     DrawStyle.DrawText(C, MenuState, X, Y, W, H, TXTA_Left, string(Entry.VoteCount), FontScale);
 }
 
@@ -95,25 +153,29 @@ function string GetNormalizedString(int Row, int Column)
     switch (Column)
     {
         case 1:
-            return left(Caps(VRI.GameConfig[VRI.MapVoteCount[Row].GameConfigIndex].GameName), 15);
+            return left(Caps(VRI.MapList[VRI.MapVoteCount[Row].MapIndex].MapName), 32);
         case 2:
+            return left(Caps(VRI.GameConfig[VRI.MapVoteCount[Row].GameConfigIndex].GameName), 32);
+        case 3:
             return NormalizeNumber(VRI.MapVoteCount[Row].VoteCount);
         default:
             break;
     }
-    return left(Caps(VRI.MapList[VRI.MapVoteCount[Row].MapIndex].MapName), 20);
+    return string(int(class'HxFavorites'.static.NameToMark(MapMarks[Row])));
 }
 
 defaultproperties
 {
-    ColumnHeadings(0)="Map Name"
-    ColumnHeadings(1)="Game Type"
-    ColumnHeadings(2)="Votes"
-    ColumnHeadingHints(0)="Click to sort by map name."
-    ColumnHeadingHints(1)="Click to sort by game type."
-    ColumnHeadingHints(2)="Click to sort by number of votes."
+    ColumnHeadings(0)="Mark"
+    ColumnHeadings(1)="Map Name"
+    ColumnHeadings(2)="Game Type"
+    ColumnHeadings(3)="Votes"
+    ColumnHeadingHints(0)="Click to sort by mark."
+    ColumnHeadingHints(1)="Click to sort by map name."
+    ColumnHeadingHints(2)="Click to sort by game type."
+    ColumnHeadingHints(3)="Click to sort by number of votes."
 
-    SortColumn=2
-    PreviousSortColumn=2
+    SortColumn=3
+    PreviousSortColumn=3
     SortDescending=true
 }

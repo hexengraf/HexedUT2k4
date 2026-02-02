@@ -60,6 +60,11 @@ static function EHxMark GetMapMark(string Map)
     return HX_MARK_Unmarked;
 }
 
+static function string GetMapMarkName(string Map)
+{
+    return MarkToName(GetMapMark(Map));
+}
+
 static function bool ClearMapMarks()
 {
     local bool bChanged;

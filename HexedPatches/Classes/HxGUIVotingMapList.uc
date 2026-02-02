@@ -5,6 +5,8 @@ var private array<int> MapIndices;
 var private array<string> MapMarks;
 var private HxMapVoteFilter ActiveFilter;
 
+delegate OnMarkUpdated(int MapIndex, HxFavorites.EHxMark NewMark);
+
 function PopulateList()
 {
     local HxFavorites.EHxMark Mark;
@@ -103,7 +105,6 @@ function SearchRecent(string SearchTerm)
     Refresh();
 }
 
-
 function Clear()
 {
     MapIndices.Remove(0, MapIndices.Length);
@@ -180,7 +181,7 @@ function string GetNormalizedString(int Row, int Column)
     switch (Column)
     {
         case 1:
-            return left(Caps(Entry.MapName), 20);
+            return left(Caps(Entry.MapName), 32);
         case 2:
             Record = class'CacheManager'.static.GetMapRecord(Entry.MapName);
             if (Record.PlayerCountMax == 0) {
@@ -219,6 +220,7 @@ function OnSelectMark(GUIContextMenu Sender, int Option)
     if (Option == 3)
     {
         ClearAllMarks();
+        OnMarkUpdated(-1, HX_MARK_Unmarked);
     }
     else if (Index > -1)
     {
@@ -236,6 +238,8 @@ function OnSelectMark(GUIContextMenu Sender, int Option)
         }
         class'HxFavorites'.static.MarkMap(GetMapName(), Mark);
         MapMarks[SortData[Index].SortItem] = class'HxFavorites'.static.MarkToName(Mark);
+        OnMarkUpdated(GetMapIndex(), Mark);
+        UpdatedItem(Index);
     }
     if (SortColumn == 0)
     {
@@ -249,9 +253,10 @@ function ClearAllMarks()
 
     if (class'HxFavorites'.static.ClearMapMarks())
     {
-        for (i = 0; i < MapMarks.Length; ++i)
+        for (i = 0; i < SortData.Length; ++i)
         {
-            MapMarks[i] = class'HxFavorites'.static.MarkToName(HX_MARK_Unmarked);
+            MapMarks[SortData[i].SortItem] = class'HxFavorites'.static.MarkToName(HX_MARK_Unmarked);
+            UpdatedItem(i);
         }
     }
 }

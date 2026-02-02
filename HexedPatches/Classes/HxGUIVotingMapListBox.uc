@@ -1,11 +1,15 @@
-class HxGUIVotingMapListBox extends HxGUIVotingBaseListBox;
+class HxGUIVotingMapListBox extends HxGUIVotingBaseListBox
+    DependsOn(HxFavorites);
 
 var localized string CaseSensitiveLabels[2];
 var private bool bCaseSensitive;
 
+delegate OnMarkUpdated(int MapIndex, HxFavorites.EHxMark NewMark);
+
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
     Super.InitComponent(MyController, MyOwner);
+    HxGUIVotingMapList(MyVotingBaseList).OnMarkUpdated = InternalOnMarkUpdated;
     SearchBar.ed_Columns[0].EditBox.ToolTip.ExpirationSeconds = 5;
     SearchBar.ed_Columns[1].EditBox.ToolTip.ExpirationSeconds = 10;
     SearchBar.ed_Columns[2].EditBox.ToolTip.ExpirationSeconds = 6;
@@ -54,6 +58,11 @@ function OnSelectCaseSensitive(GUIContextMenu Sender, int Index)
     bCaseSensitive = !bCaseSensitive;
     SearchBar.ed_Columns[0].ContextMenu.ReplaceItem(0, CaseSensitiveLabels[int(bCaseSensitive)]);
     OnChangeNameSearch(SearchBar.ed_Columns[0]);
+}
+
+function InternalOnMarkUpdated(int MapIndex, HxFavorites.EHxMark NewMark)
+{
+    OnMarkUpdated(MapIndex, NewMark);
 }
 
 defaultproperties
