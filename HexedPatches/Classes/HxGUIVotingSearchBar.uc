@@ -61,6 +61,7 @@ function ResizeEditBoxes(Canvas C)
         Thickness = Round(C.ClipY * FrameThickness) / Width;
         for (i = 0; i < ed_Columns.Length; ++i)
         {
+            ed_Columns[i].WinWidth = List.ColumnWidths[FirstColumn + i] / Width + Thickness;
             if (i == 0)
             {
                 ed_Columns[i].WinLeft = FirstLeft(List, Width) - Thickness;
@@ -71,11 +72,9 @@ function ResizeEditBoxes(Canvas C)
                     ed_Columns[i - 1].WinLeft + ed_Columns[i - 1].WinWidth - Thickness;
             }
             ed_Columns[i].WinTop = 0;
-            ed_Columns[i].WinWidth = List.ColumnWidths[FirstColumn + i] / Width + Thickness;
             ed_Columns[i].WinHeight = 1;
             ed_Columns[i].bInit = bInit;
         }
-        ed_Columns[i - 1].WinWidth = 1.0 - ed_Columns[i - 1].WinLeft;
     }
 }
 
@@ -93,7 +92,13 @@ function float FirstLeft(GUIMultiColumnList List, float TotalWidth)
     {
         Left += List.ColumnWidths[i];
     }
-    return Left / TotalWidth;
+    Left = Left / TotalWidth;
+    if (l_Search.WinWidth > Left)
+    {
+        ed_Columns[0].WinWidth -= l_Search.WinWidth - Left;
+        return l_Search.WinWidth;
+    }
+    return Left;
 }
 
 function Clear()

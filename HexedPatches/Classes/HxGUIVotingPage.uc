@@ -22,7 +22,8 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     FilterManager = new(Self) class'HxMapVoteFilterManager';
     ActiveFilter = FilterManager.GetFilter();
     lb_MapList.SetFilter(ActiveFilter);
-    lb_MapList.OnMarkUpdated = lb_VoteList.UpdateMapMark;
+    lb_MapList.OnTagUpdated = lb_VoteList.UpdateMapTag;
+    lb_VoteList.OnTagUpdated = lb_MapList.UpdateMapTag;
     AdjustWindowSize(Controller.ResX, Controller.ResY);
     PopulateLocalLists();
     ShowInitialState();

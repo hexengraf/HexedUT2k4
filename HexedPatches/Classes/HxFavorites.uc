@@ -1,22 +1,27 @@
 class HxFavorites extends Object
     config(User);
 
-enum EHxMark
+#exec texture Import File=Textures\HxStarIcon.tga Name=HxStarIcon Mips=Off Alpha=1
+#exec texture Import File=Textures\HxNoIcon.tga Name=HxNoIcon Mips=Off Alpha=1
+
+enum EHxTag
 {
-    HX_MARK_Positive,
-    HX_MARK_Unmarked,
-    HX_MARK_Negative,
+    HX_TAG_Like,
+    HX_TAG_None,
+    HX_TAG_Hate,
 };
 
-struct HxMapMark
+struct HxMapTag
 {
     var string Map;
-    var EHxMark Mark;
+    var EHxTag Tag;
 };
 
-var config array<HxMapMark> Maps;
+var config Color StarColor;
+var config Color NoColor;
+var config array<HxMapTag> Maps;
 
-static function MarkMap(string Map, EHxMark Mark)
+static function TagMap(string Map, EHxTag Tag)
 {
     local bool bSave;
     local int i;
@@ -28,11 +33,11 @@ static function MarkMap(string Map, EHxMark Mark)
             break;
         }
     }
-    if (Mark != HX_MARK_Unmarked)
+    if (Tag != HX_TAG_None)
     {
         default.Maps.Length = Max(i + 1, default.Maps.Length);
         default.Maps[i].Map = Map;
-        default.Maps[i].Mark = Mark;
+        default.Maps[i].Tag = Tag;
         bSave = true;
     }
     else if (i < default.Maps.Length)
@@ -46,7 +51,7 @@ static function MarkMap(string Map, EHxMark Mark)
     }
 }
 
-static function EHxMark GetMapMark(string Map)
+static function EHxTag GetMapTag(string Map)
 {
     local int i;
 
@@ -54,54 +59,50 @@ static function EHxMark GetMapMark(string Map)
     {
         if (default.Maps[i].Map ~= Map)
         {
-            return default.Maps[i].Mark;
+            return default.Maps[i].Tag;
         }
     }
-    return HX_MARK_Unmarked;
+    return HX_TAG_None;
 }
 
-static function string GetMapMarkName(string Map)
+static function DrawTag(Canvas C, EHxTag Tag, int X, int Y, int Size)
 {
-    return MarkToName(GetMapMark(Map));
-}
+    local Color SavedColor;
+    local int SavedStyle;
+    local float SavedCurX;
+    local float SavedCurY;
 
-static function bool ClearMapMarks()
-{
-    local bool bChanged;
-
-    bChanged = default.Maps.Length > 0;
-    default.Maps.Remove(0, default.Maps.Length);
-    if (bChanged)
+    if (Tag == HX_TAG_None)
     {
-        StaticSaveConfig();
+        return;
     }
-    return bChanged;
-}
-
-static function EHxMark NameToMark(string MarkName)
-{
-    switch (MarkName)
+    SavedColor = C.DrawColor;
+    SavedStyle = C.Style;
+    SavedCurX = C.CurX;
+    SavedCurY = C.CurY;
+    C.SetPos(X, Y);
+    C.Style = 5;
+    switch (Tag)
     {
-        case "+":
-            return HX_MARK_Positive;
-        case "-":
-            return HX_MARK_Negative;
+        case HX_TAG_Like:
+            C.DrawColor = default.StarColor;
+            C.DrawTile(Material'HxStarIcon', Size, Size, 0, 0, 64, 64);
+            break;
+        case HX_TAG_Hate:
+            C.DrawColor = default.NoColor;
+            C.DrawTile(Material'HxNoIcon', Size, Size, 0, 0, 64, 64);
+            break;
     }
-    return HX_MARK_Unmarked;
-}
-
-static function string MarkToName(EHxMark Mark)
-{
-    switch (Mark)
-    {
-        case HX_MARK_Positive:
-            return "+";
-        case HX_MARK_Negative:
-            return "-";
-    }
-    return "";
+    C.DrawColor = SavedColor;
+    C.Style = SavedStyle;
+    C.CurX = SavedCurX;
+    C.CurY = SavedCurY;
 }
 
 defaultproperties
 {
+    // StarColor=(R=255,G=255,B=0,A=255)
+    StarColor=(R=255,G=215,B=0,A=255)
+    // NoColor=(R=255,G=66,B=66,A=255)
+    NoColor=(R=255,G=215,B=0,A=255)
 }

@@ -54,7 +54,7 @@ var EHxMapSource MapSource;
 var array<string> Prefixes;
 var HxSearchBar SearchBar;
 
-function bool Match(VotingHandler.MapVoteMapList Entry, HxFavorites.EHxMark Mark)
+function bool Match(VotingHandler.MapVoteMapList Entry)
 {
     return SourceMatch(Entry.MapName)
         && PrefixMatch(Entry.MapName)
@@ -228,15 +228,6 @@ static function HxValueConstraint ParseValueConstraint(string SearchTerm)
     {
         Constraint.Value = int(SearchTerm);
     }
-    return Constraint;
-}
-
-static function HxValueConstraint ParseMarkConstraint(string SearchTerm)
-{
-    local HxValueConstraint Constraint;
-
-    Constraint.Operation = ParseOperation(SearchTerm);
-    Constraint.Value = class'HxFavorites'.static.NameToMark(SearchTerm);
     return Constraint;
 }
 
