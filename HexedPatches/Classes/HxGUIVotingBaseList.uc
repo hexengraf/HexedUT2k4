@@ -5,8 +5,6 @@ class HxGUIVotingBaseList extends GUIMultiColumnList
 var bool bAutoSpacing;
 var float LineSpacing;
 var float ColumnSpacing;
-var float LeftPadding;
-var float TopPadding;
 var float FrameThickness;
 
 var localized string AddToLabel;
@@ -25,11 +23,12 @@ var protected array<int> MapIndices;
 var protected array<HxFavorites.EHxTag> MapTags;
 
 var private string LastMapSelected;
+var private GUIStyles DefaultStyle;
 
 delegate OnTagUpdated(int MapIndex, HxFavorites.EHxTag NewTag);
 
 function PopulateList();
-function DrawRow(Canvas C, GUIStyles DrawStyle, int Row, float Y, float H);
+function DrawRow(Canvas C, int Row, float X, float Y, float W, float H);
 function string GetNormalizedString(int Row, int Column);
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
@@ -39,6 +38,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     SearchBar = HxGUIVotingBaseListBox(MenuOwner).SearchBar;
     ContextMenu.AddItem(AddToLabel@LikedMapsLabel);
     ContextMenu.AddItem(AddToLabel@HatedMapsLabel);
+    DefaultStyle = Style;
 }
 
 event ResolutionChanged(int NewX, int NewY)
@@ -94,10 +94,20 @@ function string GetSortString(int Row)
 
 function string GetSortStringFor(int Row, int Column)
 {
+    local int MapIndex;
+
+    MapIndex = MapIndices[Row];
     switch (Column)
     {
         case 0:
+            if (VRI.MapList[MapIndex].Sequence == 0) {
+                return "999999";
+            }
+            return NormalizeNumber(VRI.MapList[MapIndex].Sequence);
+        case 1:
             return string(int(MapTags[Row]));
+        case 2:
+            return left(VRI.MapList[MapIndex].MapName, 32);
         default:
             break;
     }
@@ -141,23 +151,23 @@ function int GetMapIndex()
 {
     if(Index > -1)
     {
-        return MapIndices[SortData[Index].SortItem];
+        return GetSortedMapIndex(Index);
     }
     return -1;
+}
+
+function int GetSortedMapIndex(int SortedRow)
+{
+    return MapIndices[SortData[SortedRow].SortItem];
 }
 
 function string GetMapName()
 {
     if(Index > -1)
     {
-        return GetVRIEntry(SortData[Index].SortItem).MapName;
+        return VRI.MapList[MapIndices[SortData[Index].SortItem]].MapName;
     }
     return "";
-}
-
-function VotingHandler.MapVoteMapList GetVRIEntry(int Row)
-{
-    return VRI.MapList[MapIndices[Row]];
 }
 
 function bool SetIndexByMapName(string MapName)
@@ -168,7 +178,7 @@ function bool SetIndexByMapName(string MapName)
     {
         for (i = 0; i < SortData.Length; ++i)
         {
-            if (GetVRIEntry(SortData[i].SortItem).MapName == MapName)
+            if (VRI.MapList[GetSortedMapIndex(i)].MapName == MapName)
             {
                 SetTopItem(i - ItemsPerPage / 2);
                 SetIndex(i);
@@ -246,42 +256,47 @@ function bool InternalOnPreDraw(Canvas C)
     return true;
 }
 
-function GetCellLeftWidth(int Column, out float Left, out float Width)
+function eMenuState GetMenuState(VotingHandler.MapVoteMapList Entry)
 {
-    local float Padding;
-
-    Super.GetCellLeftWidth(Column, left, Width);
-    if (Column == 0)
+    if (!Entry.bEnabled)
     {
-        Padding = LeftPadding * MenuOwner.ActualWidth();
-        Left += Padding;
-        Width -= Padding;
+        return MSAT_Disabled;
     }
+    return MenuState;
 }
 
 function DrawItem(Canvas C, int i, float X, float Y, float W, float H, bool bSelected, bool bPending)
 {
-    local GUIStyles S;
+    local VotingHandler.MapVoteMapList Entry;
+    local eMenuState SavedMenuState;
     local float Offset;
 
     if (VRI == None)
     {
         return;
     }
+    X = ActualLeft();
+    Offset = Round(FrameThickness * C.ClipY);
     if (bSelected)
     {
-        Offset = Round(FrameThickness * C.ClipY);
-        SelectedStyle.Draw(C, MenuState, ActualLeft() + Offset, Y, ActualWidth() - 2 * Offset, H);
-        S = SelectedStyle;
+        Style = SelectedStyle;
+        Style.Draw(C, MenuState, X + Offset, Y, W - 2 * Offset, H);
     }
-    else
-    {
-        S = Style;
-    }
-    GetCellLeftWidth(0, X, W);
-    class'HxFavorites'.static.DrawTag(
-        C, MapTags[SortData[i].SortItem], X + (W / 2) - (H / 2), Y, H * 0.97);
-    DrawRow(C, S, i, Y, H);
+    DrawMapTag(C, MapTags[SortData[i].SortItem], X, Y, H * 0.97, Offset);
+    Entry = VRI.MapList[GetSortedMapIndex(i)];
+    SavedMenuState = MenuState;
+    MenuState = GetMenuState(Entry);
+    GetCellLeftWidth(2, X, W);
+    Style.DrawText(C, MenuState, X, Y, W, H, TXTA_Left, Entry.MapName, FontScale);
+    DrawRow(C, i, X, Y, W, H);
+    MenuState = SavedMenuState;
+    Style = DefaultStyle;
+}
+
+function DrawMapTag(Canvas C, HxFavorites.EHxTag Tag, float X, float Y, float H, float Offset)
+{
+    X += ColumnWidths[0] + (Offset / 2) + ((ColumnWidths[1] - H) / 2);
+    class'HxFavorites'.static.DrawTag(C, Tag, X, Y, H);
 }
 
 function bool OnOpenContextMenu(GUIContextMenu Sender)
@@ -358,11 +373,14 @@ defaultproperties
     ContextMenu=TagContextMenu
 
     ColumnHeadings(0)=""
-    ColumnHeadingHints(0)="Click to sort by liked/hated maps."
+    ColumnHeadings(1)=""
+    ColumnHeadings(2)="Map Name"
+    ColumnHeadingHints(0)="Click to sort by last played."
+    ColumnHeadingHints(1)="Click to sort by liked/hated maps."
+    ColumnHeadingHints(2)="Click to sort by map name."
     bAutoSpacing=true
     LineSpacing=0.003
     ColumnSpacing=0.003
-    LeftPadding=0.002
     FrameThickness=0.001
     bDropSource=false
     bDropTarget=false

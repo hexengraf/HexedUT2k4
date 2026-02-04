@@ -9,7 +9,6 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     SearchBar.ed_Columns[0].EditBox.ToolTip.ExpirationSeconds = 5;
     SearchBar.ed_Columns[1].EditBox.ToolTip.ExpirationSeconds = 10;
     SearchBar.ed_Columns[2].EditBox.ToolTip.ExpirationSeconds = 6;
-    SearchBar.ed_Columns[3].EditBox.ToolTip.ExpirationSeconds = 6;
     SearchBar.ed_Columns[0].ContextMenu.AddItem(CaseSensitiveLabels[0]);
     SearchBar.ed_Columns[0].ContextMenu.OnSelect = OnSelectCaseSensitive;
 }
@@ -86,28 +85,18 @@ defaultproperties
         OnChange=OnChangePlayedSearch
     End Object
 
-    Begin Object class=HxGUIFramedEditBox Name=RecentSearch
-        Hint="Search by recent. * matches anything. > or < or = followed by a number matches with comparison."
-        TabOrder=4
-        bBoundToParent=true
-        bScaleToParent=true
-        OnChange=OnChangeRecentSearch
-    End Object
-
     Begin Object Class=HxGUIVotingSearchBar Name=HxSearchBar
         WinLeft=0
         WinWidth=1
-        FirstColumn=1
-        ed_Columns=(NameSearch,PlayersSearch,PlayedSearch,RecentSearch)
+        FirstColumn=2
+        ed_Columns=(NameSearch,PlayersSearch,PlayedSearch)
         bBoundToParent=true
         bScaleToParent=true
     End Object
     SearchBar=HxSearchBar
 
-    HeaderColumnPerc(1)=0.6
-    HeaderColumnPerc(2)=0.12
     HeaderColumnPerc(3)=0.12
-    HeaderColumnPerc(4)=0.11
+    HeaderColumnPerc(4)=0.12
     DefaultListClass="HexedPatches.HxGUIVotingMapList"
     CaseSensitiveLabels(0)="Enable Case-Sensitive Search"
     CaseSensitiveLabels(1)="Disable Case-Sensitive Search"

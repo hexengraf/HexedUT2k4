@@ -102,7 +102,7 @@ static function DrawTag(Canvas C, EHxTag Tag, int X, int Y, int Size)
 defaultproperties
 {
     // StarColor=(R=255,G=255,B=0,A=255)
-    StarColor=(R=255,G=215,B=0,A=255)
+    StarColor=(R=255,G=210,B=0,A=255)
     // NoColor=(R=255,G=66,B=66,A=255)
-    NoColor=(R=255,G=215,B=0,A=255)
+    NoColor=(R=255,G=210,B=0,A=255)
 }

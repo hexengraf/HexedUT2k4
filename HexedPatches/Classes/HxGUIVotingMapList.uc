@@ -71,44 +71,31 @@ function bool InternalOnPreDraw(Canvas C)
         OwnerWidth =  MenuOwner.ActualWidth();
         Header = GUIMultiColumnListBox(MenuOwner).Header;
         CellSpacing = ColumnSpacing * C.ClipX;
-        InitColumnPerc[1] = 1.0 - InitColumnPerc[0];
-        for (i = 2; i < InitColumnPerc.Length; ++i)
+        InitColumnPerc[2] = 1.0 - InitColumnPerc[0] - InitColumnPerc[1];
+        for (i = 3; i < InitColumnPerc.Length; ++i)
         {
             class'HxGUIController'.static.GetFontSize(Header, C, ColumnHeadings[i], Width);
             InitColumnPerc[i] = FMax(0.1, (Width + (2 * CellSpacing)) / OwnerWidth);
-            InitColumnPerc[1] -= InitColumnPerc[i];
+            InitColumnPerc[2] -= InitColumnPerc[i];
         }
     }
     return Super.InternalOnPreDraw(C);
 }
 
-function DrawRow(Canvas C, GUIStyles DrawStyle, int Row, float Y, float H)
+function DrawRow(Canvas C, int Row, float X, float Y, float W, float H)
 {
     local VotingHandler.MapVoteMapList Entry;
     local CacheManager.MapRecord Record;
-    local eMenuState S;
-    local float X;
-    local float W;
 
-    Entry = GetVRIEntry(SortData[Row].SortItem);
+    Entry = VRI.MapList[GetSortedMapIndex(Row)];
     Record = class'CacheManager'.static.GetMapRecord(Entry.MapName);
 
-    if (!Entry.bEnabled)
-    {
-        S = MSAT_Disabled;
-    }
-    else
-    {
-        S = MenuState;
-    }
-    GetCellLeftWidth(1, X, W);
-    DrawStyle.DrawText(C, S, X, Y, W, H, TXTA_Left, Entry.MapName, FontScale);
-    GetCellLeftWidth(2, X, W);
-    DrawStyle.DrawText(C, S, X, Y, W, H, TXTA_Left, GetMapSizeString(Record), FontScale);
     GetCellLeftWidth(3, X, W);
-    DrawStyle.DrawText(C, S, X, Y, W, H, TXTA_Left, string(Entry.PlayCount), FontScale);
+    Style.DrawText(
+        C, MenuState, X, Y, W, H, TXTA_Left,
+        GetMapSizeString(Record.PlayerCountMin, Record.PlayerCountMax), FontScale);
     GetCellLeftWidth(4, X, W);
-    DrawStyle.DrawText(C, S, X, Y, W, H, TXTA_Left, string(Entry.Sequence), FontScale);
+    Style.DrawText(C, MenuState, X, Y, W, H, TXTA_Left, string(Entry.PlayCount), FontScale);
 }
 
 function string GetNormalizedString(int Row, int Column)
@@ -116,7 +103,7 @@ function string GetNormalizedString(int Row, int Column)
     local VotingHandler.MapVoteMapList Entry;
     local CacheManager.MapRecord Record;
 
-    Entry = GetVRIEntry(Row);
+    Entry = VRI.MapList[MapIndices[Row]];
     switch (Column)
     {
         case 2:
@@ -125,42 +112,31 @@ function string GetNormalizedString(int Row, int Column)
                 return "999999999999";
             }
             return NormalizeNumber(Record.PlayerCountMin)$NormalizeNumber(Record.PlayerCountMax);
-        case 3:
-            return NormalizeNumber(Entry.PlayCount);
-        case 4:
-            if (Entry.Sequence == 0) {
-                return "999999";
-            }
-            return NormalizeNumber(Entry.Sequence);
         default:
             break;
     }
-    return left(Caps(Entry.MapName), 32);
+    return NormalizeNumber(Entry.PlayCount);
 }
 
-function string GetMapSizeString(CacheManager.MapRecord Record)
+static function string GetMapSizeString(int PlayerCountMin, int PlayerCountMax)
 {
-    if (Record.PlayerCountMax == 0) {
+    if (PlayerCountMax == 0) {
         return "?";
     }
-    if (Record.PlayerCountMin == Record.PlayerCountMax)
+    if (PlayerCountMin == PlayerCountMax)
     {
-        return string(Record.PlayerCountMin);
+        return string(PlayerCountMin);
     }
-    return Record.PlayerCountMin@"-"@Record.PlayerCountMax;
+    return PlayerCountMin@"-"@PlayerCountMax;
 }
 
 defaultproperties
 {
-    ColumnHeadings(1)="Map Name"
-    ColumnHeadings(2)="Players"
-    ColumnHeadings(3)="Played"
-    ColumnHeadings(4)="Recent"
-    ColumnHeadingHints(1)="Click to sort by map name."
-    ColumnHeadingHints(2)="Click to sort by number of recommended players."
-    ColumnHeadingHints(3)="Click to sort by number of times the map has been played."
-    ColumnHeadingHints(4)="Click to sort by how recently this map has been played."
+    ColumnHeadings(3)="Players"
+    ColumnHeadings(4)="Played"
+    ColumnHeadingHints(3)="Click to sort by number of recommended players."
+    ColumnHeadingHints(4)="Click to sort by number of times the map has been played."
 
-    SortColumn=1
-    PreviousSortColumn=1
+    SortColumn=2
+    PreviousSortColumn=2
 }

@@ -2,12 +2,16 @@ class HxGUIVotingBaseListBox extends GUIMultiColumnListBox
     abstract
     DependsOn(HxFavorites);
 
+#exec texture Import File=Textures\HxClockIcon.tga Name=HxClockIcon Mips=Off Alpha=1
+
 var automated HxGUIFramedImage fi_Background;
 var automated HxGUIVotingBaseList MyBaseList;
 var automated HxGUIVotingSearchBar SearchBar;
 
 var float ScrollbarWidth;
 var float FrameThickness;
+
+var private Material ColumnIcons[2];
 
 delegate OnTagUpdated(int MapIndex, HxFavorites.EHxTag NewTag);
 delegate NotifySelection(GUIComponent Sender);
@@ -158,7 +162,7 @@ function bool OnHoverHeader(GUIComponent Sender)
         }
         Left += Header.MyList.ColumnWidths[i];
     }
-    if (bOnResizing && i > 0 && i < Header.MyList.ColumnHeadingHints.Length - 1)
+    if (bOnResizing && i > 1 && i < Header.MyList.ColumnHeadingHints.Length - 1)
     {
         Header.MouseCursorIndex = 5;
     }
@@ -177,7 +181,7 @@ function bool OnPreDrawHeader(Canvas C)
 
 function OnRenderedHeder(Canvas C)
 {
-    local float Thickness;
+    local float Offset;
     local float Left;
     local float Top;
     local float Width;
@@ -186,33 +190,48 @@ function OnRenderedHeder(Canvas C)
 
     C.Style = 5;
     C.DrawColor = fi_Background.FrameColor;
-    Thickness = Round(FrameThickness * C.ClipY);
+    Offset = Round(FrameThickness * C.ClipY);
     Left = Header.ActualLeft();
     Top = Header.ActualTop();
     Width = Header.ActualWidth();
-    Height = Header.ActualHeight() - Thickness;
+    Height = Header.ActualHeight() - Offset;
     C.SetPos(Left, Top + Height);
-    C.DrawTileStretched(fi_Background.FrameMaterial, Width, Thickness);
+    C.DrawTileStretched(fi_Background.FrameMaterial, Width, Offset);
     C.SetPos(C.CurX, C.CurY - Height);
-    C.DrawTileStretched(fi_Background.FrameMaterial, Width, Thickness);
-    C.DrawTileStretched(fi_Background.FrameMaterial, Thickness, Height);
+    C.DrawTileStretched(fi_Background.FrameMaterial, Width, Offset);
+    C.DrawTileStretched(fi_Background.FrameMaterial, Offset, Height);
     for (i = 0; i < List.ColumnHeadings.Length - 1; ++i)
     {
         C.SetPos(C.CurX + List.ColumnWidths[i], C.CurY);
-        C.DrawTileStretched(fi_Background.FrameMaterial, Thickness, Height);
+        C.DrawTileStretched(fi_Background.FrameMaterial, Offset, Height);
     }
-    C.SetPos(C.CurX + List.ColumnWidths[i] - Thickness, C.CurY);
-    C.DrawTileStretched(fi_Background.FrameMaterial, Thickness, Height);
-    Height += Thickness;
-    Top += Height * 0.15;
+    C.SetPos(C.CurX + List.ColumnWidths[i] - Offset, C.CurY);
+    C.DrawTileStretched(fi_Background.FrameMaterial, Offset, Height);
+    Height += Offset;
+    Top += Height * 0.13;
     Height = Round(Height * 0.75);
-    Left += (List.ColumnWidths[0] - Height) / 2 + (Thickness / 2);
-    class'HxFavorites'.static.DrawTag(C, HX_TAG_Like, Left, Top, Height);
+    Left += (List.ColumnWidths[0] - Height) / 2  + (Offset / 2);
+    DrawHeaderColumnIcon(C, 0, Left, Top, Height);
+    DrawHeaderColumnIcon(C, 1, Left + List.ColumnWidths[1], Top, Height);
+}
+
+function DrawHeaderColumnIcon(Canvas C, int Column, float Left, float Top, float Height)
+{
+    if (List.SortColumn == Column)
+    {
+        C.DrawColor = Header.Style.FontColors[2];
+    }
+    else
+    {
+        C.DrawColor = Header.Style.FontColors[0];
+    }
+    C.SetPos(Left, Top);
+    C.DrawTile(ColumnIcons[Column], Height, Height, 0, 0, 64, 64);
 }
 
 function bool OnCapturedMouseMoveHeader(float deltaX, float deltaY)
 {
-    if (Header.SizingCol == 0)
+    if (Header.SizingCol == 0 || Header.SizingCol == 1)
     {
         Header.MenuState = Header.LastMenuState;
     }
@@ -253,8 +272,12 @@ defaultproperties
     MyScrollBar=NewTheScrollbar
 
     HeaderColumnPerc(0)=0.05
+    HeaderColumnPerc(1)=0.05
+    HeaderColumnPerc(2)=0.4
     ScrollbarWidth=0.017
     FrameThickness=0.001
+    ColumnIcons(0)=Material'HxClockIcon'
+    ColumnIcons(1)=Material'HxStarIcon'
     StyleName="HxSmallList"
     SelectedStyleName="HxSmallListSelection"
     bVisibleWhenEmpty=true
