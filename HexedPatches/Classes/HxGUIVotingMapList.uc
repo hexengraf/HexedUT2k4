@@ -61,23 +61,9 @@ function SearchRecent(string SearchTerm)
 
 function bool InternalOnPreDraw(Canvas C)
 {
-    local GUIMultiColumnListHeader Header;
-    local float OwnerWidth;
-    local float Width;
-    local int i;
-
     if (bReInit)
     {
-        OwnerWidth =  MenuOwner.ActualWidth();
-        Header = GUIMultiColumnListBox(MenuOwner).Header;
-        CellSpacing = ColumnSpacing * C.ClipX;
-        InitColumnPerc[2] = 1.0 - InitColumnPerc[0] - InitColumnPerc[1];
-        for (i = 3; i < InitColumnPerc.Length; ++i)
-        {
-            class'HxGUIController'.static.GetFontSize(Header, C, ColumnHeadings[i], Width);
-            InitColumnPerc[i] = FMax(0.1, (Width + (2 * CellSpacing)) / OwnerWidth);
-            InitColumnPerc[2] -= InitColumnPerc[i];
-        }
+        ShrinkToFit(C, 2);
     }
     return Super.InternalOnPreDraw(C);
 }
@@ -106,16 +92,18 @@ function string GetNormalizedString(int Row, int Column)
     Entry = VRI.MapList[MapIndices[Row]];
     switch (Column)
     {
-        case 2:
+        case 3:
             Record = class'CacheManager'.static.GetMapRecord(Entry.MapName);
             if (Record.PlayerCountMax == 0) {
                 return "999999999999";
             }
             return NormalizeNumber(Record.PlayerCountMin)$NormalizeNumber(Record.PlayerCountMax);
+        case 4:
+            return NormalizeNumber(Entry.PlayCount);
         default:
             break;
     }
-    return NormalizeNumber(Entry.PlayCount);
+    return "";
 }
 
 static function string GetMapSizeString(int PlayerCountMin, int PlayerCountMax)

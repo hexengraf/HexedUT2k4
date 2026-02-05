@@ -95,8 +95,8 @@ defaultproperties
     End Object
     SearchBar=HxSearchBar
 
-    HeaderColumnPerc(3)=0.12
-    HeaderColumnPerc(4)=0.12
+    HeaderColumnPerc(3)=0.25
+    HeaderColumnPerc(4)=0.25
     DefaultListClass="HexedPatches.HxGUIVotingMapList"
     CaseSensitiveLabels(0)="Enable Case-Sensitive Search"
     CaseSensitiveLabels(1)="Disable Case-Sensitive Search"

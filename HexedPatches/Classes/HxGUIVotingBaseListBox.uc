@@ -271,9 +271,9 @@ defaultproperties
     End Object
     MyScrollBar=NewTheScrollbar
 
-    HeaderColumnPerc(0)=0.05
-    HeaderColumnPerc(1)=0.05
-    HeaderColumnPerc(2)=0.4
+    HeaderColumnPerc(0)=0.045
+    HeaderColumnPerc(1)=0.045
+    HeaderColumnPerc(2)=0.41
     ScrollbarWidth=0.017
     FrameThickness=0.001
     ColumnIcons(0)=Material'HxClockIcon'

@@ -40,18 +40,9 @@ function int GetGameTypeIndex()
 
 function bool InternalOnPreDraw(Canvas C)
 {
-    local GUIMultiColumnListHeader Header;
-    local float Width;
-    local float NewPerc;
-
     if (bReInit)
     {
-        Header = GUIMultiColumnListBox(MenuOwner).Header;
-        CellSpacing = ColumnSpacing * C.ClipX;
-        class'HxGUIController'.static.GetFontSize(Header, C, ColumnHeadings[4], Width);
-        NewPerc = FMax(0.1, (Width + (2 * CellSpacing)) / MenuOwner.ActualWidth());
-        InitColumnPerc[2] += InitColumnPerc[4] - NewPerc;
-        InitColumnPerc[4] = NewPerc;
+        ShrinkToFit(C, 3);
     }
     return Super.InternalOnPreDraw(C);
 }
@@ -74,10 +65,12 @@ function string GetNormalizedString(int Row, int Column)
     {
         case 3:
             return left(Caps(VRI.GameConfig[VRI.MapVoteCount[Row].GameConfigIndex].GameName), 32);
+        case 4:
+            return NormalizeNumber(VRI.MapVoteCount[Row].VoteCount);
         default:
             break;
     }
-    return NormalizeNumber(VRI.MapVoteCount[Row].VoteCount);
+    return "";
 }
 
 defaultproperties

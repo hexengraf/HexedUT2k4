@@ -44,7 +44,7 @@ function UpdateHeight(Canvas C)
 function ResizeSearchLabel(Canvas C)
 {
     GetFontSize(l_Search, C, l_Search.Caption, l_Search.WinWidth);
-    l_Search.WinWidth = FMax(0.1, l_Search.RelativeWidth(l_Search.WinWidth * 1.2));
+    l_Search.WinWidth = FMax(0.09, l_Search.RelativeWidth(l_Search.WinWidth * 1.2));
 }
 
 function ResizeEditBoxes(Canvas C)
@@ -114,7 +114,7 @@ function Clear()
 defaultproperties
 {
     Begin Object class=GUILabel Name=SearchLabel
-        Caption="Search:"
+        Caption="Find:"
         WinLeft=0
         WinTop=0
         WinHeight=1

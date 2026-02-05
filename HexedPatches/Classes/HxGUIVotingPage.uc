@@ -347,8 +347,8 @@ defaultproperties {
     End Object
     ChatBox=VotingChatBox
 
-    WinLeft=0.0025
-    WinWidth=0.995
+    WinLeft=0.02
+    WinWidth=0.96
 
     lb_VoteCountListBox=None
     lb_MapListBox=None

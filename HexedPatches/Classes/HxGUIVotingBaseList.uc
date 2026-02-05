@@ -108,10 +108,12 @@ function string GetSortStringFor(int Row, int Column)
             return string(int(MapTags[Row]));
         case 2:
             return left(VRI.MapList[MapIndex].MapName, 32);
+        case 3:
+            return GetNormalizedString(Row, Column);
         default:
             break;
     }
-    return GetNormalizedString(Row, Column);
+    return "";
 }
 
 event OnSortChanged()
@@ -356,6 +358,33 @@ function UpdateMapTag(int MapIndex, HxFavorites.EHxTag NewTag)
             MapTags[SortData[i].SortItem] = NewTag;
             UpdatedItem(i);
         }
+    }
+}
+
+function ShrinkToFit(Canvas C, int FirstColumn)
+{
+    local GUIMultiColumnListHeader Header;
+    local float OwnerWidth;
+    local float Width;
+    local int i;
+
+    OwnerWidth =  MenuOwner.ActualWidth();
+    CellSpacing = ColumnSpacing * C.ClipX;
+    Header = GUIMultiColumnListBox(MenuOwner).Header;
+    InitColumnPerc[FirstColumn] = 1;
+    for (i = 0; i < FirstColumn; ++i)
+    {
+        InitColumnPerc[FirstColumn] -= InitColumnPerc[i];
+    }
+    for (i = FirstColumn + 1; i < InitColumnPerc.Length; ++i)
+    {
+        class'HxGUIController'.static.GetFontSize(Header, C, ColumnHeadings[i], Width);
+        InitColumnPerc[i] = FMax(0.1, (Width + (4 * CellSpacing)) / OwnerWidth);
+        InitColumnPerc[FirstColumn] -= InitColumnPerc[i];
+    }
+    if (SearchBar != None)
+    {
+        SearchBar.bInit = true;
     }
 }
 
