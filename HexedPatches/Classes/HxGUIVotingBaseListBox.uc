@@ -229,6 +229,11 @@ function DrawHeaderColumnIcon(Canvas C, int Column, float Left, float Top, float
     C.DrawTile(ColumnIcons[Column], Height, Height, 0, 0, 64, 64);
 }
 
+function OnMousePressedHeader(GUIComponent Sender, bool bRepeat)
+{
+    MyBaseList.PreviousSortColumn = MyBaseList.SortColumn;
+}
+
 function bool OnCapturedMouseMoveHeader(float deltaX, float deltaY)
 {
     if (Header.SizingCol == 0 || Header.SizingCol == 1)
@@ -247,6 +252,7 @@ defaultproperties
         StyleName="HxListHeader"
         BarStyleName="HxListHeader"
         ToolTip=HeaderToolTip
+        OnMousePressed=OnMousePressedHeader
         OnCapturedMouseMove=OnCapturedMouseMoveHeader
         OnHover=OnHoverHeader
         OnPreDraw=OnPreDrawHeader

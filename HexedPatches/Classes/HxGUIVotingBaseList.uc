@@ -2,6 +2,11 @@ class HxGUIVotingBaseList extends GUIMultiColumnList
     abstract
     DependsOn(HxFavorites);
 
+const INT_PADDING = "0000000000";
+const INT_PADDING_SIZE = 10;
+const STRING_PADDING = "                                ";
+const STRING_PADDING_SIZE = 32;
+
 var bool bAutoSpacing;
 var float LineSpacing;
 var float ColumnSpacing;
@@ -14,7 +19,6 @@ var localized string HatedMapsLabel;
 
 var protected bool bReInit;
 var protected VotingReplicationInfo VRI;
-var protected int PreviousSortColumn;
 var protected HxGUIVertScrollBar HxScrollbar;
 var protected HxGUIVotingSearchBar SearchBar;
 var protected float MyItemHeight;
@@ -22,14 +26,18 @@ var protected int MyItemsPerPage;
 var protected array<int> MapIndices;
 var protected array<HxFavorites.EHxTag> MapTags;
 
+var int PreviousSortColumn;
+var private array<int> CurrentSortOrder;
+var private array<int> PreviousSortOrder;
 var private string LastMapSelected;
 var private GUIStyles DefaultStyle;
 
 delegate OnTagUpdated(int MapIndex, HxFavorites.EHxTag NewTag);
 
 function PopulateList();
+function RefreshList();
 function DrawRow(Canvas C, int Row, float X, float Y, float W, float H);
-function string GetNormalizedString(int Row, int Column);
+function string GetNormalizedSortString(int Row, int Column);
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
@@ -71,68 +79,25 @@ function SetVRI(VotingReplicationInfo V)
 
 function bool Refresh()
 {
-    if (VRI != None)
+    if (VRI == None)
     {
-        if (Index > -1)
-        {
-            LastMapSelected = GetMapName();
-        }
-        PopulateList();
-        return SetIndexByMapName(LastMapSelected);
+        return false;
     }
-    return false;
-}
-
-function string GetSortString(int Row)
-{
-    if (SortColumn != PreviousSortColumn)
+    if (Index > -1)
     {
-        return GetSortStringFor(Row, SortColumn)$GetSortStringFor(Row, PreviousSortColumn);
+        LastMapSelected = GetMapName();
     }
-    return GetSortStringFor(Row, SortColumn);
-}
-
-function string GetSortStringFor(int Row, int Column)
-{
-    local int MapIndex;
-
-    MapIndex = MapIndices[Row];
-    switch (Column)
+    Clear();
+    PopulateList();
+    if (CurrentSortOrder.Length == 0)
     {
-        case 0:
-            if (VRI.MapList[MapIndex].Sequence == 0) {
-                return "999999";
-            }
-            return NormalizeNumber(VRI.MapList[MapIndex].Sequence);
-        case 1:
-            return string(int(MapTags[Row]));
-        case 2:
-            return left(VRI.MapList[MapIndex].MapName, 32);
-        case 3:
-            return GetNormalizedString(Row, Column);
-        default:
-            break;
+        Sort();
     }
-    return "";
-}
-
-event OnSortChanged()
-{
-    Super.OnSortChanged();
-    PreviousSortColumn = SortColumn;
-}
-
-event InitializeColumns(Canvas C)
-{
-    local float Width;
-    local int i;
-
-    Width = MenuOwner.ActualWidth();
-    for (i = 0; i < InitColumnPerc.Length; ++i)
+    else
     {
-        ColumnWidths[i] = InitColumnPerc[i] * Width;
+        SortList();
     }
-    bInit = false;
+    return SetIndexByMapName(LastMapSelected);
 }
 
 function AddMap(int MapIndex)
@@ -147,6 +112,98 @@ function RemoveMap(int Position)
     MapIndices.Remove(SortData[Position].SortItem, 1);
     MapTags.Remove(SortData[Position].SortItem, 1);
     RemovedItem(Position);
+}
+
+function string GetSortString(int Row)
+{
+    local string SortString;
+    local int MapIndex;
+
+    MapIndex = MapIndices[Row];
+    switch (SortColumn)
+    {
+        case 0:
+            if (VRI.MapList[MapIndex].Sequence == 0) {
+                SortString = "999999";
+            }
+            else
+            {
+                SortString = NormalizeInt(VRI.MapList[MapIndex].Sequence, 6);
+            }
+            break;
+        case 1:
+            SortString = string(int(MapTags[Row]));
+            break;
+        case 2:
+            SortString = NormalizeString(VRI.MapList[MapIndex].MapName);
+            break;
+        default:
+            SortString = GetNormalizedSortString(Row, SortColumn);
+            break;
+    }
+    if (PreviousSortOrder.Length > 0)
+    {
+        if (SortDescending)
+        {
+            SortString $= NormalizeInt(MapIndices.Length - PreviousSortOrder[MapIndex] - 1, 6);
+        }
+        else
+        {
+            SortString $= NormalizeInt(PreviousSortOrder[MapIndex], 6);
+        }
+    }
+    return SortString;
+}
+
+function Sort()
+{
+    SavePreviousSortOrder();
+    Super.Sort();
+    if (IsValid())
+    {
+        Index = InvSortData[Index];
+    }
+    SaveCurrentSortOrder();
+}
+
+event OnSortChanged()
+{
+    SavePreviousSortOrder();
+    Super.OnSortChanged();
+    SaveCurrentSortOrder();
+}
+
+function SaveCurrentSortOrder()
+{
+    local int i;
+
+    CurrentSortOrder.Length = VRI.MapList.Length;
+    for (i = 0; i < SortData.Length; ++i)
+    {
+        CurrentSortOrder[GetSortedMapIndex(i)] = i;
+    }
+}
+
+function SavePreviousSortOrder()
+{
+    if (SortColumn != PreviousSortColumn)
+    {
+        PreviousSortOrder.Length = CurrentSortOrder.Length;
+        PreviousSortOrder = CurrentSortOrder;
+    }
+}
+
+event InitializeColumns(Canvas C)
+{
+    local float Width;
+    local int i;
+
+    Width = MenuOwner.ActualWidth();
+    for (i = 0; i < InitColumnPerc.Length; ++i)
+    {
+        ColumnWidths[i] = InitColumnPerc[i] * Width;
+    }
+    bInit = false;
 }
 
 function int GetMapIndex()
@@ -195,6 +252,13 @@ function Clear()
 {
     MapIndices.Remove(0, MapIndices.Length);
     MapTags.Remove(0, MapTags.Length);
+    if (VRI == None)
+    {
+        LastMapSelected = "";
+        CurrentSortOrder.Remove(0, CurrentSortOrder.Length);
+        PreviousSortOrder.Remove(0, PreviousSortOrder.Length);
+        PreviousSortColumn = -1;
+    }
     Super.Clear();
 }
 
@@ -339,10 +403,10 @@ function OnSelectMapTag(GUIContextMenu Sender, int Option)
         class'HxFavorites'.static.TagMap(GetMapName(), T);
         MapTags[SortData[Index].SortItem] = T;
         OnTagUpdated(GetMapIndex(), T);
-        UpdatedItem(Index);
-        if (SortColumn == 0)
+        UpdatedItem(SortData[Index].SortItem);
+        if (SortColumn == 1)
         {
-            Refresh();
+            Sort();
         }
     }
 }
@@ -388,9 +452,14 @@ function ShrinkToFit(Canvas C, int FirstColumn)
     }
 }
 
-static function string NormalizeNumber(int Value)
+static function string NormalizeString(string S)
 {
-    return right("000000" $ Value, 6);
+    return left(Caps(S)$STRING_PADDING, STRING_PADDING_SIZE);
+}
+
+static function string NormalizeInt(coerce string Value, int Count)
+{
+    return right(INT_PADDING$Value, Min(Count, INT_PADDING_SIZE));
 }
 
 defaultproperties
@@ -416,12 +485,15 @@ defaultproperties
     ExpandLastColumn=true
     StyleName="HxSmallList"
     SelectedStyleName="HxSmallListSelection"
-    GetItemHeight=GetSpacedItemHeight
     bReInit=true
+    OnMousePressed=InternalOnMousePressed
+    GetItemHeight=GetSpacedItemHeight
     OnDrawItem=DrawItem
 
     AddToLabel="Add to"
     RemoveFromLabel="Remove from"
     LikedMapsLabel="liked maps"
     HatedMapsLabel="hated maps"
+
+    PreviousSortColumn=-1
 }

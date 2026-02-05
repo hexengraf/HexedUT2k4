@@ -4,12 +4,10 @@ function PopulateList()
 {
     local int i;
 
-    Clear();
     for (i = 0; i < VRI.MapVoteCount.Length; ++i)
     {
         AddMap(VRI.MapVoteCount[i].MapIndex);
     }
-    Sort();
 }
 
 function UpdatedVoteCount(int UpdatedIndex, bool bRemoved)
@@ -59,14 +57,14 @@ function DrawRow(Canvas C, int Row, float X, float Y, float W, float H)
     Style.DrawText(C, MenuState, X, Y, W, H, TXTA_Left, string(Entry.VoteCount), FontScale);
 }
 
-function string GetNormalizedString(int Row, int Column)
+function string GetNormalizedSortString(int Row, int Column)
 {
     switch (Column)
     {
         case 3:
-            return left(Caps(VRI.GameConfig[VRI.MapVoteCount[Row].GameConfigIndex].GameName), 32);
+            return NormalizeString(VRI.GameConfig[VRI.MapVoteCount[Row].GameConfigIndex].GameName);
         case 4:
-            return NormalizeNumber(VRI.MapVoteCount[Row].VoteCount);
+            return NormalizeInt(VRI.MapVoteCount[Row].VoteCount, 6);
         default:
             break;
     }
@@ -81,6 +79,5 @@ defaultproperties
     ColumnHeadingHints(4)="Click to sort by number of votes."
 
     SortColumn=4
-    PreviousSortColumn=4
     SortDescending=true
 }

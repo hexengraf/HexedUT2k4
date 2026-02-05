@@ -6,7 +6,6 @@ function PopulateList()
 {
     local int i;
 
-    Clear();
     for (i = 0; i < VRI.MapList.Length; ++i)
     {
         if (ActiveFilter.Match(VRI.MapList[i]))
@@ -14,7 +13,6 @@ function PopulateList()
             AddMap(i);
         }
     }
-    Sort();
 }
 
 function SetFilter(HxMapVoteFilter Filter)
@@ -84,7 +82,7 @@ function DrawRow(Canvas C, int Row, float X, float Y, float W, float H)
     Style.DrawText(C, MenuState, X, Y, W, H, TXTA_Left, string(Entry.PlayCount), FontScale);
 }
 
-function string GetNormalizedString(int Row, int Column)
+function string GetNormalizedSortString(int Row, int Column)
 {
     local VotingHandler.MapVoteMapList Entry;
     local CacheManager.MapRecord Record;
@@ -95,11 +93,11 @@ function string GetNormalizedString(int Row, int Column)
         case 3:
             Record = class'CacheManager'.static.GetMapRecord(Entry.MapName);
             if (Record.PlayerCountMax == 0) {
-                return "999999999999";
+                return "999999";
             }
-            return NormalizeNumber(Record.PlayerCountMin)$NormalizeNumber(Record.PlayerCountMax);
+            return NormalizeInt(Record.PlayerCountMin, 3)$NormalizeInt(Record.PlayerCountMax, 3);
         case 4:
-            return NormalizeNumber(Entry.PlayCount);
+            return NormalizeInt(Entry.PlayCount, 7);
         default:
             break;
     }
@@ -126,5 +124,4 @@ defaultproperties
     ColumnHeadingHints(4)="Click to sort by number of times the map has been played."
 
     SortColumn=2
-    PreviousSortColumn=2
 }
