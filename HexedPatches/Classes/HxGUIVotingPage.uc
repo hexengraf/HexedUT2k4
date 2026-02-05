@@ -40,6 +40,48 @@ function InternalOnOpen()
     lb_MapList.Refresh();
 }
 
+function bool InternalOnKeyEvent(out byte Key, out byte State, float Delta)
+{
+    local Interactions.EInputAction Action;
+
+    Action = EInputAction(State);
+    switch (EInputKey(Key))
+    {
+        case IK_MouseWheelUp:
+        case IK_MouseWheelDown:
+            if (lb_VoteList.IsInBounds())
+            {
+                if (!lb_VoteList.bHasFocus)
+                {
+                    lb_VoteList.SetFocus(None);
+                }
+            }
+            else if (lb_MapList.IsInBounds())
+            {
+                if (!lb_MapList.bHasFocus)
+                {
+                    lb_MapList.SetFocus(None);
+                }
+            }
+            else if (MapBanner.lb_Description.IsInBounds())
+            {
+                if (!MapBanner.lb_Description.bHasFocus)
+                {
+                    MapBanner.lb_Description.SetFocus(None);
+                }
+            }
+            else if (ChatBox.lb_Chat.IsInBounds())
+            {
+                if (!ChatBox.lb_Chat.bHasFocus)
+                {
+                    ChatBox.lb_Chat.SetFocus(None);
+                }
+            }
+            break;
+    }
+    return false;
+}
+
 event ResolutionChanged(int NewX, int NewY)
 {
     Super.ResolutionChanged(NewX, NewY);
@@ -349,6 +391,7 @@ defaultproperties {
 
     WinLeft=0.02
     WinWidth=0.96
+    OnKeyEvent=InternalOnKeyEvent
 
     lb_VoteCountListBox=None
     lb_MapListBox=None
