@@ -42,6 +42,7 @@ The following QoL improvements are provided:
 * Master server selector (either 333network or OpenSpy).
 * Enhanced map voting page:
     * On-screen map previews: screenshots, number of players, author and description.
+    * Liked/disliked map classification.
     * New column with the recommended minimum/maximum of players.
     * Search bar for each column of the map list.
     * New button to select a random map.
