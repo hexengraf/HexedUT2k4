@@ -15,7 +15,7 @@ var float FrameThickness;
 var localized string AddToLabel;
 var localized string RemoveFromLabel;
 var localized string LikedMapsLabel;
-var localized string HatedMapsLabel;
+var localized string DislikedMapsLabel;
 
 var protected bool bReInit;
 var protected VotingReplicationInfo VRI;
@@ -45,7 +45,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     HxScrollbar = HxGUIVertScrollBar(MyScrollBar);
     SearchBar = HxGUIVotingBaseListBox(MenuOwner).SearchBar;
     ContextMenu.AddItem(AddToLabel@LikedMapsLabel);
-    ContextMenu.AddItem(AddToLabel@HatedMapsLabel);
+    ContextMenu.AddItem(AddToLabel@DislikedMapsLabel);
     DefaultStyle = Style;
 }
 
@@ -373,15 +373,15 @@ function bool OnOpenContextMenu(GUIContextMenu Sender)
         {
             case HX_TAG_Like:
                 ContextMenu.ReplaceItem(0, RemoveFromLabel@LikedMapsLabel);
-                ContextMenu.ReplaceItem(1, AddToLabel@HatedMapsLabel);
+                ContextMenu.ReplaceItem(1, AddToLabel@DislikedMapsLabel);
                 break;
-            case HX_TAG_Hate:
+            case HX_TAG_Dislike:
                 ContextMenu.ReplaceItem(0, AddToLabel@LikedMapsLabel);
-                ContextMenu.ReplaceItem(1, RemoveFromLabel@HatedMapsLabel);
+                ContextMenu.ReplaceItem(1, RemoveFromLabel@DislikedMapsLabel);
                 break;
             default:
                 ContextMenu.ReplaceItem(0, AddToLabel@LikedMapsLabel);
-                ContextMenu.ReplaceItem(1, AddToLabel@HatedMapsLabel);
+                ContextMenu.ReplaceItem(1, AddToLabel@DislikedMapsLabel);
                 break;
         }
         return true;
@@ -474,7 +474,7 @@ defaultproperties
     ColumnHeadings(1)=""
     ColumnHeadings(2)="Map Name"
     ColumnHeadingHints(0)="Click to sort by last played."
-    ColumnHeadingHints(1)="Click to sort by liked/hated maps."
+    ColumnHeadingHints(1)="Click to sort by liked/disliked maps."
     ColumnHeadingHints(2)="Click to sort by map name."
     bAutoSpacing=true
     LineSpacing=0.003
@@ -493,7 +493,7 @@ defaultproperties
     AddToLabel="Add to"
     RemoveFromLabel="Remove from"
     LikedMapsLabel="liked maps"
-    HatedMapsLabel="hated maps"
+    DislikedMapsLabel="disliked maps"
 
     PreviousSortColumn=-1
 }

@@ -8,7 +8,7 @@ enum EHxTag
 {
     HX_TAG_Like,
     HX_TAG_None,
-    HX_TAG_Hate,
+    HX_TAG_Dislike,
 };
 
 struct HxMapTag
@@ -88,7 +88,7 @@ static function DrawTag(Canvas C, EHxTag Tag, int X, int Y, int Size)
             C.DrawColor = default.StarColor;
             C.DrawTile(Material'HxStarIcon', Size, Size, 0, 0, 64, 64);
             break;
-        case HX_TAG_Hate:
+        case HX_TAG_Dislike:
             C.DrawColor = default.NoColor;
             C.DrawTile(Material'HxNoIcon', Size, Size, 0, 0, 64, 64);
             break;
