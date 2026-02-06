@@ -1,11 +1,16 @@
 class HxGUIVotingPage extends MapVotingPage;
 
+const VERT_SPACING = 0.009;
+const MED_FONT_SPACING = 1.44;
+
 var automated HxGUIVotingVoteListBox lb_VoteList;
 var automated GUIImage i_VoteListBorder;
 var automated moComboBox co_MapSource;
 var automated HxGUIVotingMapListBox lb_MapList;
 var automated GUILabel l_RetrievingMapList;
 var automated HxGUIVotingMapBanner MapBanner;
+var automated HxGUIFramedButton fb_Random;
+var automated HxGUIFramedButton fb_Vote;
 var automated HxGUIVotingChatBox ChatBox;
 
 var localized string LoadingText;
@@ -80,12 +85,6 @@ function bool InternalOnKeyEvent(out byte Key, out byte State, float Delta)
             break;
     }
     return false;
-}
-
-event ResolutionChanged(int NewX, int NewY)
-{
-    Super.ResolutionChanged(NewX, NewY);
-    AdjustWindowSize(NewX, NewY);
 }
 
 event Timer()
@@ -203,7 +202,7 @@ function OnChangeGameType(GUIComponent Sender)
     }
 }
 
-function SubmitVote()
+function bool OnClickSubmitVote(GUIComponent Sender)
 {
     local PlayerController PC;
 
@@ -219,9 +218,10 @@ function SubmitVote()
             PC.ClientMessage(lmsgMapDisabled);
         }
     }
+    return true;
 }
 
-function SelectRandom()
+function bool OnClickSelectRandom(GUIComponent Sender)
 {
     if (lb_VoteList.bHasFocus && !lb_VoteList.IsEmpty())
     {
@@ -231,6 +231,7 @@ function SelectRandom()
     {
         lb_MapList.SelectRandom();
     }
+    return true;
 }
 
 function OnChangeMapSource(GUIComponent Sender)
@@ -266,6 +267,16 @@ function OnCloseQuestionPage(optional bool bCanceled)
     Controller.CloseMenu(bCanceled);
 }
 
+function bool FloatingPreDraw(Canvas C)
+{
+    if (bInit)
+    {
+        AdjustWindowSize(C.ClipX, C.ClipY);
+        AlignRightSideComponents(C);
+    }
+    return Super.FloatingPreDraw(C);
+}
+
 function AdjustWindowSize(coerce float X, coerce float Y)
 {
     local float Coefficient;
@@ -273,6 +284,15 @@ function AdjustWindowSize(coerce float X, coerce float Y)
     Coefficient = (4.0 / 3.0) / (X / Y);
     WinWidth = default.WinWidth * Coefficient;
     WinLeft = default.WinLeft + ((default.WinWidth - WinWidth) / 2);
+}
+
+function AlignRightSideComponents(Canvas C)
+{
+    fb_Random.WinHeight = fb_Random.RelativeHeight(fb_Random.GetFontHeight(C) * MED_FONT_SPACING);
+    fb_Random.WinTop = ChatBox.WinTop - VERT_SPACING - fb_Random.WinHeight;
+    fb_Vote.WinTop = fb_Random.WinTop;
+    fb_Vote.WinHeight = fb_Random.WinHeight;
+    MapBanner.WinHeight = fb_Random.WinTop - VERT_SPACING - MapBanner.WinTop;
 }
 
 event Free()
@@ -299,7 +319,7 @@ defaultproperties {
         bBoundToParent=true
         FontScale=FNS_Small
         NotifySelection=OnChangeSelectedMap
-        NotifyVote=SubmitVote
+        NotifyVote=OnClickSubmitVote
         TabOrder=0
     End Object
     lb_VoteList=VoteListBox
@@ -323,9 +343,9 @@ defaultproperties {
     Begin Object class=moComboBox Name=MapSourceComboBox
         Caption="Source:"
         Hint="Select map sources to show."
-        WinLeft=0.4528
+        WinLeft=0.4483
         WinTop=0.2735
-        WinWidth=0.1657
+        WinWidth=0.1702
         WinHeight=0.0375
         CaptionWidth=0.001
         bReadOnly=true
@@ -345,7 +365,7 @@ defaultproperties {
         bBoundToParent=true
         FontScale=FNS_Small
         NotifySelection=OnChangeSelectedMap
-        NotifyVote=SubmitVote
+        NotifyVote=OnClickSubmitVote
         TabOrder=3
     End Object
     lb_MapList=MapListBox
@@ -373,10 +393,34 @@ defaultproperties {
         WinHeight=0.7
         bBoundToParent=true
         bScaleToParent=true
-        SelectRandom=SelectRandom
-        SubmitVote=SubmitVote
     End Object
     MapBanner=VotingMapBanner
+
+    Begin Object Class=HxGUIFramedButton Name=RandomButton
+        Caption="Select Random"
+        Hint="Select a random map from the map list (or vote list if focused and non-empty)."
+        WinLeft=0.624
+        WinWidth=0.1785
+        bNeverFocus=true
+        bRepeatClick=true
+        bBoundToParent=true
+        bScaleToParent=true
+        OnClick=OnClickSelectRandom
+    End Object
+    fb_Random=RandomButton
+
+    Begin Object Class=HxGUIFramedButton Name=VoteButton
+        Caption="Submit Vote"
+        Hint="Vote for the currently selected map."
+        WinLeft=0.808
+        WinWidth=0.1785
+        bNeverFocus=true
+        bRepeatClick=false
+        bBoundToParent=true
+        bScaleToParent=true
+        OnClick=OnClickSubmitVote
+    End Object
+    fb_Vote=VoteButton
 
     Begin Object Class=HxGUIVotingChatBox Name=VotingChatBox
         WinLeft=0.624

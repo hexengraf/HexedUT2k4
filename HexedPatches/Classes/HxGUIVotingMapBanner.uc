@@ -1,6 +1,6 @@
 class HxGUIVotingMapBanner extends HxGUIFramedImage;
 
-const MEDIUM_FONT_SPACING = 1.44;
+const MED_FONT_SPACING = 1.44;
 const SMALL_FONT_SPACING = 1.2;
 
 var automated GUILabel l_Header;
@@ -9,8 +9,6 @@ var automated GUILabel l_NoPreview;
 var automated HxGUIScrollTextBox lb_Information;
 var automated HxGUIScrollTextBox lb_Description;
 var automated GUILabel l_NoInformation;
-var automated HxGUIFramedButton fb_SelectRandom;
-var automated HxGUIFramedButton fb_SubmitVote;
 
 var float MaxPreviewWidth;
 var localized string NoMapLabel;
@@ -18,10 +16,7 @@ var localized string NoInfoLabel;
 var localized string PlayersLabel;
 var localized string AuthorLabel;
 
-var string DisplayedMap;
-
-delegate SelectRandom();
-delegate SubmitVote();
+var private string DisplayedMap;
 
 function ResetBanner(string Caption)
 {
@@ -133,7 +128,7 @@ function string GetMapDescription(CacheManager.MapRecord Record)
 
 function bool AlignComponents(Canvas C)
 {
-    AlignPreview(C, AlignHeader(C) + AlignFooter(C));
+    AlignPreview(C, AlignHeader(C));
     AlignDescription(C);
     AlignNoInformationLabel();
     return false;
@@ -144,27 +139,14 @@ function AlignNoInformationLabel()
     l_NoInformation.WinLeft = Images[0].WinLeft;
     l_NoInformation.WinTop = Images[0].WinTop;
     l_NoInformation.WinWidth = Images[0].WinWidth;
-    l_NoInformation.WinHeight = Images[0].WinHeight - fb_SelectRandom.WinHeight;
+    l_NoInformation.WinHeight = Images[0].WinHeight;
 }
 
 function float AlignHeader(Canvas C)
 {
     GetFontSize(l_Header, C,,, l_Header.WinHeight);
-    l_Header.WinHeight = l_Header.RelativeHeight(l_Header.WinHeight * MEDIUM_FONT_SPACING);
+    l_Header.WinHeight = l_Header.RelativeHeight(l_Header.WinHeight * MED_FONT_SPACING);
     return l_Header.WinHeight;
-}
-
-function float AlignFooter(Canvas C)
-{
-    fb_SelectRandom.WinWidth += Images[0].WinLeft / 2;
-    fb_SelectRandom.WinHeight = fb_SelectRandom.RelativeHeight(
-        fb_SelectRandom.GetFontHeight(C) * MEDIUM_FONT_SPACING);
-    fb_SelectRandom.WinTop = 1.0 - fb_SelectRandom.WinHeight;
-    fb_SubmitVote.WinLeft -= Images[0].WinLeft / 2;
-    fb_SubmitVote.WinTop = fb_SelectRandom.WinTop;
-    fb_SubmitVote.WinWidth = fb_SelectRandom.WinWidth;
-    fb_SubmitVote.WinHeight = fb_SelectRandom.WinHeight;
-    return fb_SelectRandom.WinHeight;
 }
 
 function AlignPreview(Canvas C, float FilledHeight)
@@ -200,19 +182,7 @@ function AlignDescription(Canvas C)
     lb_Information.WinTop = fi_Preview.WinTop + fi_Preview.WinHeight - Images[0].WinTop;
     lb_Information.WinHeight = lb_Information.RelativeHeight(ItemHeight * 2 * SMALL_FONT_SPACING);
     lb_Description.WinTop = lb_Information.WinTop + lb_Information.WinHeight - Images[0].WinTop;
-    lb_Description.WinHeight = fb_SelectRandom.WinTop - lb_Description.WinTop + Images[0].WinTop;
-}
-
-function bool OnClickSelectRandom(GUIComponent Sender)
-{
-    SelectRandom();
-    return true;
-}
-
-function bool OnClickSubmitVote(GUIComponent Sender)
-{
-    SubmitVote();
-    return true;
+    lb_Description.WinHeight = 1.0 - lb_Description.WinTop;
 }
 
 defaultproperties
@@ -308,32 +278,6 @@ defaultproperties
         bBoundToParent=true
     End Object
     l_NoInformation=NoInformationLabel
-
-    Begin Object Class=HxGUIFramedButton Name=SelectRandomButton
-        Caption="Select Random"
-        Hint="Select a random map from the map list (or vote list if focused and non-empty)."
-        WinLeft=0
-        WinWidth=0.5
-        bNeverFocus=true
-        bRepeatClick=true
-        bBoundToParent=true
-        bScaleToParent=true
-        OnClick=OnClickSelectRandom
-    End Object
-    fb_SelectRandom=SelectRandomButton
-
-    Begin Object Class=HxGUIFramedButton Name=SubmitVoteButton
-        Caption="Submit Vote"
-        Hint="Vote for the currently selected map."
-        WinLeft=0.5
-        WinWidth=0.5
-        bNeverFocus=true
-        bRepeatClick=false
-        bBoundToParent=true
-        bScaleToParent=true
-        OnClick=OnClickSubmitVote
-    End Object
-    fb_SubmitVote=SubmitVoteButton
 
     MaxPreviewWidth=0.94
     NoMapLabel="No Map Selected"

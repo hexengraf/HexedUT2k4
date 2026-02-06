@@ -15,7 +15,7 @@ var private Material ColumnIcons[2];
 
 delegate OnTagUpdated(int MapIndex, HxFavorites.EHxTag NewTag);
 delegate NotifySelection(GUIComponent Sender);
-delegate NotifyVote();
+delegate bool NotifyVote(GUIComponent Sender);
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
@@ -49,7 +49,7 @@ function OnChangeList(GUIComponent Sender)
 
 function bool OnDbkClickList(GUIComponent Sender)
 {
-    NotifyVote();
+    NotifyVote(Self);
     return true;
 }
 
@@ -125,7 +125,7 @@ function bool InternalOnKeyEvent(out byte Key, out byte KeyState, float Delta)
 {
     if (EInputKey(Key) == IK_Enter && HxGUIVotingPage(PageOwner) != None)
     {
-        NotifyVote();
+        NotifyVote(Self);
         return true;
     }
     return false;
