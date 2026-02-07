@@ -1,3 +1,10 @@
+# v2.3.1
+
+Hotfix for the map voting page:
+* Fixed incorrect map being displayed after a player changes their vote.
+* Fixed bug preventing mouse scrolling to work with the game type drop list.
+* Fixed bug preventing mouse scrolling after clicking on a list header.
+
 # v2.3
 
 Another update focused on the map voting page.
