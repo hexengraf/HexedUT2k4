@@ -252,6 +252,7 @@ defaultproperties
         StyleName="HxListHeader"
         BarStyleName="HxListHeader"
         ToolTip=HeaderToolTip
+        bNeverFocus=true
         OnMousePressed=OnMousePressedHeader
         OnCapturedMouseMove=OnCapturedMouseMoveHeader
         OnHover=OnHoverHeader
