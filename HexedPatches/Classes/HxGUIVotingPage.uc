@@ -49,6 +49,10 @@ function bool InternalOnKeyEvent(out byte Key, out byte State, float Delta)
 {
     local Interactions.EInputAction Action;
 
+    if (co_GameType.MyComboBox.List.bHasFocus || co_MapSource.MyComboBox.List.bHasFocus)
+    {
+        return false;
+    }
     Action = EInputAction(State);
     switch (EInputKey(Key))
     {
