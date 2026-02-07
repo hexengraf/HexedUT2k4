@@ -109,8 +109,8 @@ function AddMap(int MapIndex)
 
 function RemoveMap(int Position)
 {
-    MapIndices.Remove(SortData[Position].SortItem, 1);
-    MapTags.Remove(SortData[Position].SortItem, 1);
+    MapIndices.Remove(Position, 1);
+    MapTags.Remove(Position, 1);
     RemovedItem(Position);
 }
 
