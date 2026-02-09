@@ -126,16 +126,16 @@ function ModifyDeathMessageClass()
     }
 }
 
-function SpawnHxAgent(PlayerReplicationInfo PRI)
+function SpawnHxPlayerProxy(PlayerReplicationInfo PRI)
 {
-    local HxAgent Agent;
+    local HxPlayerProxy Proxy;
 
     if (PlayerController(PRI.Owner) != None && MessagingSpectator(PRI.Owner) == None)
     {
-        Agent = HxAgent(SpawnLinkedPRI(PRI, class'HxAgent'));
-        Agent.PC = PlayerController(PRI.Owner);
-        Agent.HexedUT = Self;
-        UpdateAgent(Agent);
+        Proxy = HxPlayerProxy(SpawnLinkedPRI(PRI, class'HxPlayerProxy'));
+        Proxy.PC = PlayerController(PRI.Owner);
+        Proxy.HexedUT = Self;
+        Proxy.Update();
     }
 }
 
@@ -170,7 +170,7 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
     }
     else if (Other.IsA('PlayerReplicationInfo'))
     {
-        SpawnHxAgent(PlayerReplicationInfo(Other));
+        SpawnHxPlayerProxy(PlayerReplicationInfo(Other));
         SpawnHxPawnProxy(PlayerReplicationInfo(Other));
     }
     else if (Other.IsA('Controller'))
@@ -225,35 +225,6 @@ function ListDisableCombos()
     }
 }
 
-function UpdateAgent(HxAgent Agent)
-{
-    Agent.bAllowHitSounds = bAllowHitSounds;
-    Agent.bAllowDamageNumbers = bAllowDamageNumbers;
-    Agent.bColoredDeathMessages = bColoredDeathMessages;
-    Agent.HealthLeechRatio = HealthLeechRatio;
-    Agent.HealthLeechLimit = HealthLeechLimit;
-    Agent.MaxSpeedMultiplier = MaxSpeedMultiplier;
-    Agent.AirControlMultiplier = AirControlMultiplier;
-    Agent.BaseJumpMultiplier = BaseJumpMultiplier;
-    Agent.MultiJumpMultiplier = MultiJumpMultiplier;
-    Agent.BonusMultiJumps = BonusMultiJumps;
-    Agent.DodgeMultiplier = DodgeMultiplier;
-    Agent.DodgeSpeedMultiplier = DodgeSpeedMultiplier;
-    Agent.bDisableWallDodge = bDisableWallDodge;
-    Agent.bDisableDodgeJump = bDisableDodgeJump;
-    Agent.BonusStartingHealth = BonusStartingHealth;
-    Agent.BonusStartingShield = BonusStartingShield;
-    Agent.BonusStartingGrenades = BonusStartingGrenades;
-    Agent.BonusStartingAdrenaline = BonusStartingAdrenaline;
-    Agent.BonusAdrenalineOnSpawn = BonusAdrenalineOnSpawn;
-    Agent.bDisableSpeedCombo = bDisableSpeedCombo;
-    Agent.bDisableBerserkCombo = bDisableBerserkCombo;
-    Agent.bDisableBoosterCombo = bDisableBoosterCombo;
-    Agent.bDisableInvisibleCombo = bDisableInvisibleCombo;
-    Agent.bDisableUDamage = bDisableUDamage;
-    Agent.NetUpdateTime = Level.TimeSeconds - 1;
-}
-
 function UpdatePawnProxy(xPawn Pawn)
 {
     local HxPawnProxy Proxy;
@@ -270,7 +241,7 @@ function UpdatePawnProxy(xPawn Pawn)
 
 function UpdateAfterPropertyChange(string PropertyName, String PropertyValue)
 {
-    local HxAgent Agent;
+    local HxPlayerProxy Proxy;
     local Controller C;
 
     if (PropertyName == "bColoredDeathMessages")
@@ -279,10 +250,10 @@ function UpdateAfterPropertyChange(string PropertyName, String PropertyValue)
     }
     for (C = Level.ControllerList; C != None; C = C.NextController)
     {
-        Agent = class'HxAgent'.static.GetAgent(C);
-        if (Agent != None)
+        Proxy = class'HxPlayerProxy'.static.GetAgent(C);
+        if (Proxy != None)
         {
-            UpdateAgent(Agent);
+            Proxy.Update();
         }
     }
 }

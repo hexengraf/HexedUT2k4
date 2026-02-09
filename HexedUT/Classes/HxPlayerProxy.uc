@@ -1,4 +1,4 @@
-class HxAgent extends HxLinkedReplicationInfo;
+class HxPlayerProxy extends HxLinkedReplicationInfo;
 
 struct DamageInfo
 {
@@ -199,27 +199,56 @@ function RemoteSetProperty(string PropertyName, string PropertyValue)
     }
 }
 
+function Update()
+{
+    bAllowHitSounds = HexedUT.bAllowHitSounds;
+    bAllowDamageNumbers = HexedUT.bAllowDamageNumbers;
+    bColoredDeathMessages = HexedUT.bColoredDeathMessages;
+    HealthLeechRatio = HexedUT.HealthLeechRatio;
+    HealthLeechLimit = HexedUT.HealthLeechLimit;
+    MaxSpeedMultiplier = HexedUT.MaxSpeedMultiplier;
+    AirControlMultiplier = HexedUT.AirControlMultiplier;
+    BaseJumpMultiplier = HexedUT.BaseJumpMultiplier;
+    MultiJumpMultiplier = HexedUT.MultiJumpMultiplier;
+    BonusMultiJumps = HexedUT.BonusMultiJumps;
+    DodgeMultiplier = HexedUT.DodgeMultiplier;
+    DodgeSpeedMultiplier = HexedUT.DodgeSpeedMultiplier;
+    bDisableWallDodge = HexedUT.bDisableWallDodge;
+    bDisableDodgeJump = HexedUT.bDisableDodgeJump;
+    BonusStartingHealth = HexedUT.BonusStartingHealth;
+    BonusStartingShield = HexedUT.BonusStartingShield;
+    BonusStartingGrenades = HexedUT.BonusStartingGrenades;
+    BonusStartingAdrenaline = HexedUT.BonusStartingAdrenaline;
+    BonusAdrenalineOnSpawn = HexedUT.BonusAdrenalineOnSpawn;
+    bDisableSpeedCombo = HexedUT.bDisableSpeedCombo;
+    bDisableBerserkCombo = HexedUT.bDisableBerserkCombo;
+    bDisableBoosterCombo = HexedUT.bDisableBoosterCombo;
+    bDisableInvisibleCombo = HexedUT.bDisableInvisibleCombo;
+    bDisableUDamage = HexedUT.bDisableUDamage;
+    NetUpdateTime = Level.TimeSeconds - 1;
+}
+
 static function RegisterDamage(PlayerController PC,
                                int Damage,
                                Pawn Injured,
                                Pawn Inflictor,
                                class<DamageType> Type)
 {
-    local HxAgent Agent;
+    local HxPlayerProxy Proxy;
 
     if (PC != None && PC.ViewTarget == Inflictor && Injured != Inflictor)
     {
-        Agent = GetAgent(PC);
-        if (Agent != None && IsEnemy(Injured, Inflictor))
+        Proxy = GetAgent(PC);
+        if (Proxy != None && IsEnemy(Injured, Inflictor))
         {
-            Agent.UpdateDamage(Damage, Injured, Inflictor, Type);
+            Proxy.UpdateDamage(Damage, Injured, Inflictor, Type);
         }
     }
 }
 
-static function HxAgent GetAgent(Controller C)
+static function HxPlayerProxy GetAgent(Controller C)
 {
-    return HxAgent(Find(C.PlayerReplicationInfo, class'HxAgent'));
+    return HxPlayerProxy(Find(C.PlayerReplicationInfo, class'HxPlayerProxy'));
 }
 
 static function bool IsEnemy(Pawn Injured, Pawn Inflictor)

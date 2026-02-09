@@ -15,7 +15,7 @@ var array<string> CustomFontNames;
 var array<Font> LoadedFonts;
 var int FontIndex;
 var int DPIndex;
-var HxAgent Agent;
+var HxPlayerProxy Proxy;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
@@ -54,20 +54,20 @@ function bool Initialize()
 {
     local int i;
 
-    if (Agent != None)
+    if (Proxy != None)
     {
         return true;
     }
-    Agent = class'HxAgent'.static.GetAgent(PlayerOwner());
-    if (Agent != None)
+    Proxy = class'HxPlayerProxy'.static.GetAgent(PlayerOwner());
+    if (Proxy != None)
     {
         for (i = 0; i < HitEffectsOptions.Length; ++i)
         {
-            HitEffectsOptions[i].Target = Agent.HitEffects;
+            HitEffectsOptions[i].Target = Proxy.HitEffects;
         }
         HitEffectsOptions[6].Target = Self;
         CustomizeOptions[0].Target = Self;
-        FontIndex = GetFontIndex(string(Agent.HitEffects.DFont));
+        FontIndex = GetFontIndex(string(Proxy.HitEffects.DFont));
         return true;
     }
     return false;
@@ -85,10 +85,10 @@ function Refresh()
     DamageNumbersAfterChange();
     DamageNumbersFontAfterChange();
     RefreshCustomizeSection();
-    HideSection(SECTION_HIT_SOUNDS, !Agent.bAllowHitSounds, HIDE_DUE_DISABLE);
-    HideSection(SECTION_DAMAGE_NUMBERS, !Agent.bAllowDamageNumbers, HIDE_DUE_DISABLE);
+    HideSection(SECTION_HIT_SOUNDS, !Proxy.bAllowHitSounds, HIDE_DUE_DISABLE);
+    HideSection(SECTION_DAMAGE_NUMBERS, !Proxy.bAllowDamageNumbers, HIDE_DUE_DISABLE);
     HideSection(
-        SECTION_CUSTOMIZE, !Agent.bAllowHitSounds && !Agent.bAllowDamageNumbers, HIDE_DUE_DISABLE);
+        SECTION_CUSTOMIZE, !Proxy.bAllowHitSounds && !Proxy.bAllowDamageNumbers, HIDE_DUE_DISABLE);
 }
 
 function HitSoundsAfterChange()
@@ -97,13 +97,13 @@ function HitSoundsAfterChange()
     local bool bHitSoundsEnabled;
     local bool bAnyEffectEnabled;
 
-    bHitSoundsEnabled = Agent.bAllowHitSounds && Agent.HitEffects.bHitSounds;
+    bHitSoundsEnabled = Proxy.bAllowHitSounds && Proxy.HitEffects.bHitSounds;
     bAnyEffectEnabled = bHitSoundsEnabled
-        || (Agent.bAllowDamageNumbers && Agent.HitEffects.bDamageNumbers);
+        || (Proxy.bAllowDamageNumbers && Proxy.HitEffects.bDamageNumbers);
 
     for (i = 1; i < 4; ++i)
     {
-        HitEffectsOptions[i].SetEnable(Agent.HitEffects.bHitSounds);
+        HitEffectsOptions[i].SetEnable(Proxy.HitEffects.bHitSounds);
     }
     CustomizeOptions[0].SetEnable(bAnyEffectEnabled);
     CustomizeOptions[1].SetEnable(DPIndex != 0 && bAnyEffectEnabled);
@@ -124,13 +124,13 @@ function DamageNumbersAfterChange()
     local bool bDamageNumbersEnabled;
     local bool bAnyEffectEnabled;
 
-    bDamageNumbersEnabled = Agent.bAllowDamageNumbers && Agent.HitEffects.bDamageNumbers;
+    bDamageNumbersEnabled = Proxy.bAllowDamageNumbers && Proxy.HitEffects.bDamageNumbers;
     bAnyEffectEnabled = bDamageNumbersEnabled
-        || (Agent.bAllowHitSounds && Agent.HitEffects.bHitSounds);
+        || (Proxy.bAllowHitSounds && Proxy.HitEffects.bHitSounds);
 
     for (i = 5; i < HitEffectsOptions.Length; ++i)
     {
-        HitEffectsOptions[i].SetEnable(Agent.HitEffects.bDamageNumbers);
+        HitEffectsOptions[i].SetEnable(Proxy.HitEffects.bDamageNumbers);
     }
     for (i = 3; i < CustomizeOptions.Length; ++i)
     {
@@ -142,8 +142,8 @@ function DamageNumbersAfterChange()
 
 function DamageNumbersFontAfterChange()
 {
-    Agent.HitEffects.DFont = GetFont(FontIndex);
-    Agent.HitEffects.SaveConfig();
+    Proxy.HitEffects.DFont = GetFont(FontIndex);
+    Proxy.HitEffects.SaveConfig();
 }
 
 function HitSoundsOnChange(GUIComponent C)
@@ -169,7 +169,7 @@ function CustomizeOnChange(GUIComponent C)
     local HxMenuOption Option;
 
     Option = HxMenuOption(C);
-    if (Agent == None || Option == None)
+    if (Proxy == None || Option == None)
     {
         return;
     }
@@ -180,36 +180,36 @@ function CustomizeOnChange(GUIComponent C)
             RefreshCustomizeSection();
             break;
         case CustomizeOptions[1]:
-            Agent.HitEffects.DamagePoints[DPIndex].Value = int(Option.GetComponentValue());
+            Proxy.HitEffects.DamagePoints[DPIndex].Value = int(Option.GetComponentValue());
             break;
         case CustomizeOptions[2]:
-            Agent.HitEffects.DamagePoints[DPIndex].Pitch = float(Option.GetComponentValue());
+            Proxy.HitEffects.DamagePoints[DPIndex].Pitch = float(Option.GetComponentValue());
             break;
         case CustomizeOptions[3]:
-            Agent.HitEffects.DamagePoints[DPIndex].Scale = float(Option.GetComponentValue());
+            Proxy.HitEffects.DamagePoints[DPIndex].Scale = float(Option.GetComponentValue());
             break;
         case CustomizeOptions[4]:
-            Agent.HitEffects.DamagePoints[DPIndex].Color.R = int(Option.GetComponentValue());
+            Proxy.HitEffects.DamagePoints[DPIndex].Color.R = int(Option.GetComponentValue());
             break;
         case CustomizeOptions[5]:
-            Agent.HitEffects.DamagePoints[DPIndex].Color.G = int(Option.GetComponentValue());
+            Proxy.HitEffects.DamagePoints[DPIndex].Color.G = int(Option.GetComponentValue());
             break;
         case CustomizeOptions[6]:
-            Agent.HitEffects.DamagePoints[DPIndex].Color.B = int(Option.GetComponentValue());
+            Proxy.HitEffects.DamagePoints[DPIndex].Color.B = int(Option.GetComponentValue());
             break;
     }
-    Agent.HitEffects.SaveConfig();
+    Proxy.HitEffects.SaveConfig();
 }
 
 function RefreshCustomizeSection()
 {
     CustomizeOptions[1].SetEnable(DPIndex != 0);
-    CustomizeOptions[1].SetComponentValue(Agent.HitEffects.DamagePoints[DPIndex].Value);
-    CustomizeOptions[2].SetComponentValue(Agent.HitEffects.DamagePoints[DPIndex].Pitch);
-    CustomizeOptions[3].SetComponentValue(Agent.HitEffects.DamagePoints[DPIndex].Scale);
-    CustomizeOptions[4].SetComponentValue(Agent.HitEffects.DamagePoints[DPIndex].Color.R);
-    CustomizeOptions[5].SetComponentValue(Agent.HitEffects.DamagePoints[DPIndex].Color.G);
-    CustomizeOptions[6].SetComponentValue(Agent.HitEffects.DamagePoints[DPIndex].Color.B);
+    CustomizeOptions[1].SetComponentValue(Proxy.HitEffects.DamagePoints[DPIndex].Value);
+    CustomizeOptions[2].SetComponentValue(Proxy.HitEffects.DamagePoints[DPIndex].Pitch);
+    CustomizeOptions[3].SetComponentValue(Proxy.HitEffects.DamagePoints[DPIndex].Scale);
+    CustomizeOptions[4].SetComponentValue(Proxy.HitEffects.DamagePoints[DPIndex].Color.R);
+    CustomizeOptions[5].SetComponentValue(Proxy.HitEffects.DamagePoints[DPIndex].Color.G);
+    CustomizeOptions[6].SetComponentValue(Proxy.HitEffects.DamagePoints[DPIndex].Color.B);
 }
 
 function DrawDamageNumberPreview(Canvas C)
@@ -219,7 +219,7 @@ function DrawDamageNumberPreview(Canvas C)
     local float SavedClipX;
     local float SavedClipY;
 
-    if (Agent == None || !Agent.bAllowDamageNumbers || !Agent.HitEffects.bDamageNumbers)
+    if (Proxy == None || !Proxy.bAllowDamageNumbers || !Proxy.HitEffects.bDamageNumbers)
     {
         return;
     }
@@ -231,7 +231,7 @@ function DrawDamageNumberPreview(Canvas C)
     C.OrgY = i_DPPReview.ActualTop();
     C.ClipX = i_DPPReview.ActualWidth();
     C.ClipY = i_DPPReview.ActualHeight();
-    Agent.HitEffects.DrawDamageNumberPreview(C, DPIndex);
+    Proxy.HitEffects.DrawDamageNumberPreview(C, DPIndex);
     C.OrgX = SavedOrgX;
     C.OrgY = SavedOrgY;
     C.ClipX = SavedClipX;
@@ -240,7 +240,7 @@ function DrawDamageNumberPreview(Canvas C)
 
 function bool PlaySoundOnClick(GUIComponent Sender)
 {
-    Agent.HitEffects.PlayHitSound(Agent.HitEffects.DamagePoints[DPIndex].Value);
+    Proxy.HitEffects.PlayHitSound(Proxy.HitEffects.DamagePoints[DPIndex].Value);
     return true;
 }
 

@@ -25,7 +25,7 @@ function int NetDamage(int Original,
             {
                 if (MessagingSpectator(C) == None)
                 {
-                    class'HxAgent'.static.RegisterDamage(
+                    class'HxPlayerProxy'.static.RegisterDamage(
                         PlayerController(C), Damage, Injured, Inflictor, Type);
                 }
             }

@@ -6,7 +6,7 @@ const SECTION_MOVEMENT = 2;
 const SECTION_POWER_UPS = 3;
 
 var automated array<HxMenuOption> Options;
-var HxAgent Agent;
+var HxPlayerProxy Proxy;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
@@ -33,12 +33,12 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 
 function bool Initialize()
 {
-    if (Agent != None)
+    if (Proxy != None)
     {
         return true;
     }
-    Agent = class'HxAgent'.static.GetAgent(PlayerOwner());
-    return Agent != None;
+    Proxy = class'HxPlayerProxy'.static.GetAgent(PlayerOwner());
+    return Proxy != None;
 }
 
 function Refresh()
@@ -47,7 +47,7 @@ function Refresh()
 
     for (i = 0; i < Options.Length; ++i)
     {
-        Options[i].GetValueFrom(Agent);
+        Options[i].GetValueFrom(Proxy);
     }
     HideAllSections(!IsAdmin(), HIDE_DUE_ADMIN);
 }
@@ -57,9 +57,9 @@ function RemoteOnChange(GUIComponent C)
     local HxMenuOption Option;
 
     Option = HxMenuOption(C);
-    if (Agent != None && Option != None && IsAdmin())
+    if (Proxy != None && Option != None && IsAdmin())
     {
-        Agent.RemoteSetProperty(Option.PropertyName, Option.GetComponentValue());
+        Proxy.RemoteSetProperty(Option.PropertyName, Option.GetComponentValue());
     }
 }
 
