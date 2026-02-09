@@ -1,9 +1,8 @@
-class HxAgent extends LinkedReplicationInfo;
+class HxAgent extends HxLinkedReplicationInfo;
 
 struct DamageInfo
 {
     var int Value;
-    var float AccumulatedLeech;
     var float Timestamp;
 };
 
@@ -112,30 +111,6 @@ function UpdateDamage(int Value, Pawn Injured, Pawn Inflictor, class<DamageType>
     Damage.Value += Value;
 }
 
-function UpdateHealthLeech(int Value, Pawn Inflictor)
-{
-    local float HealthLeechValue;
-    local int IntegerValue;
-
-    if (PC.Pawn == Inflictor && HealthLeechLimit != 0)
-    {
-        HealthLeechValue = Value * HealthLeechRatio;
-        IntegerValue = int(HealthLeechValue);
-        Damage.AccumulatedLeech += HealthLeechValue - float(IntegerValue);
-        if (Damage.AccumulatedLeech >= 1.0)
-        {
-            IntegerValue += 1;
-            Damage.AccumulatedLeech -= 1;
-        }
-        Inflictor.GiveHealth(IntegerValue, HealthLeechLimit);
-    }
-}
-
-function ResetHealthLeech()
-{
-    Damage.AccumulatedLeech = 0;
-}
-
 simulated function ClientUpdateHitEffects(int Damage)
 {
     if (Level.NetMode != NM_DedicatedServer && HitEffects != None)
@@ -238,24 +213,13 @@ static function RegisterDamage(PlayerController PC,
         if (Agent != None && IsEnemy(Injured, Inflictor))
         {
             Agent.UpdateDamage(Damage, Injured, Inflictor, Type);
-            Agent.UpdateHealthLeech(Damage, Inflictor);
         }
     }
 }
 
-static simulated function HxAgent GetAgent(Controller C)
+static function HxAgent GetAgent(Controller C)
 {
-    local LinkedReplicationInfo LinkedPRI;
-
-    if (C.PlayerReplicationInfo != None)
-    {
-        LinkedPRI = C.PlayerReplicationInfo.CustomReplicationInfo;
-        while (LinkedPRI != None && HxAgent(LinkedPRI) == None)
-        {
-            LinkedPRI = LinkedPRI.NextReplicationInfo;
-        }
-    }
-    return HxAgent(LinkedPRI);
+    return HxAgent(Find(C.PlayerReplicationInfo, class'HxAgent'));
 }
 
 static function bool IsEnemy(Pawn Injured, Pawn Inflictor)
@@ -268,6 +232,4 @@ static function bool IsEnemy(Pawn Injured, Pawn Inflictor)
 
 defaultproperties
 {
-    NetUpdateFrequency=10
-    bOnlyDirtyReplication=true
 }

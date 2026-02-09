@@ -17,34 +17,25 @@ function int NetDamage(int Original,
         Damage = NextGameRules.NetDamage(
             Original, Damage, Injured, Inflictor, Location, Momentum, Type);
     }
-    if ((HexedUT.bAllowHitSounds || HexedUT.bAllowDamageNumbers)
-        && Damage > 0 && Inflictor != None && Injured != None)
+    if (Damage > 0 && Inflictor != None && Injured != None)
     {
-        for (C = Level.ControllerList; C != None; C = C.NextController)
+        if (HexedUT.bAllowHitSounds || HexedUT.bAllowDamageNumbers)
         {
-            if (MessagingSpectator(C) == None)
+            for (C = Level.ControllerList; C != None; C = C.NextController)
             {
-                class'HxAgent'.static.RegisterDamage(
-                    PlayerController(C), Damage, Injured, Inflictor, Type);
+                if (MessagingSpectator(C) == None)
+                {
+                    class'HxAgent'.static.RegisterDamage(
+                        PlayerController(C), Damage, Injured, Inflictor, Type);
+                }
             }
+        }
+        if (HexedUT.HealthLeechLimit != 0)
+        {
+            class'HxPawnProxy'.static.RegisterDamage(Damage, Injured, Inflictor, Type);
         }
     }
     return Damage;
-}
-
-function ScoreKill(Controller Killer, Controller Killed)
-{
-    local HxAgent Agent;
-
-    if (HexedUT.HealthLeechLimit != 0)
-    {
-        Agent = class'HxAgent'.static.GetAgent(Killed);
-        if (Agent != None)
-        {
-            Agent.ResetHealthLeech();
-        }
-    }
-    Super.ScoreKill(Killer, Killed);
 }
 
 defaultproperties

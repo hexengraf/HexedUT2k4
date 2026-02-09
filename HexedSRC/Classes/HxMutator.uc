@@ -85,7 +85,7 @@ static function LinkedReplicationInfo SpawnLinkedPRI(PlayerReplicationInfo PRI,
 
     if (PRI.CustomReplicationInfo == None)
     {
-        PRI.CustomReplicationInfo = PRI.Owner.Spawn(LinkedPRIClass, PRI.Owner);
+        PRI.CustomReplicationInfo = PRI.Spawn(LinkedPRIClass, PRI);
         PRI.NetUpdateTime = PRI.Level.TimeSeconds - 1;
         return PRI.CustomReplicationInfo;
     }
@@ -94,7 +94,7 @@ static function LinkedReplicationInfo SpawnLinkedPRI(PlayerReplicationInfo PRI,
     {
         LinkedPRI = LinkedPRI.NextReplicationInfo;
     }
-    LinkedPRI.NextReplicationInfo = PRI.Owner.Spawn(LinkedPRIClass, PRI.Owner);
+    LinkedPRI.NextReplicationInfo = PRI.Spawn(LinkedPRIClass, PRI);
     LinkedPRI.NetUpdateTime = PRI.Level.TimeSeconds - 1;
     LinkedPRI.NextReplicationInfo.NetUpdateTime = PRI.Level.TimeSeconds - 1;
     return LinkedPRI.NextReplicationInfo;

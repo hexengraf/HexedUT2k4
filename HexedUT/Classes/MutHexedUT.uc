@@ -65,6 +65,7 @@ function ModifyPlayer(Pawn Other)
 {
     ModifyStartingValues(Other);
     ModifyMovement(xPawn(Other));
+    UpdatePawnProxy(xPawn(Other));
     Super.ModifyPlayer(Other);
 }
 
@@ -138,6 +139,17 @@ function SpawnHxAgent(PlayerReplicationInfo PRI)
     }
 }
 
+function SpawnHxPawnProxy(PlayerReplicationInfo PRI)
+{
+    local HxPawnProxy Proxy;
+
+    if (MessagingSpectator(PRI.Owner) == None)
+    {
+        Proxy = HxPawnProxy(SpawnLinkedPRI(PRI, class'HxPawnProxy'));
+        Proxy.HexedUT = Self;
+    }
+}
+
 function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
 {
     if (Other.IsA('Combo'))
@@ -159,6 +171,7 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
     else if (Other.IsA('PlayerReplicationInfo'))
     {
         SpawnHxAgent(PlayerReplicationInfo(Other));
+        SpawnHxPawnProxy(PlayerReplicationInfo(Other));
     }
     else if (Other.IsA('Controller'))
     {
@@ -239,6 +252,20 @@ function UpdateAgent(HxAgent Agent)
     Agent.bDisableInvisibleCombo = bDisableInvisibleCombo;
     Agent.bDisableUDamage = bDisableUDamage;
     Agent.NetUpdateTime = Level.TimeSeconds - 1;
+}
+
+function UpdatePawnProxy(xPawn Pawn)
+{
+    local HxPawnProxy Proxy;
+
+    if (Pawn != None)
+    {
+        Proxy = class'HxPawnProxy'.static.GetPawnProxy(Pawn);
+        if (Proxy != None)
+        {
+            Proxy.SetPawn(Pawn);
+        }
+    }
 }
 
 function UpdateAfterPropertyChange(string PropertyName, String PropertyValue)
