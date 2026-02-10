@@ -10,8 +10,6 @@ function int NetDamage(int Original,
                        out vector Momentum,
                        class<DamageType> Type)
 {
-    local Controller C;
-
     if (NextGameRules != None)
     {
         Damage = NextGameRules.NetDamage(
@@ -21,21 +19,23 @@ function int NetDamage(int Original,
     {
         if (HexedUT.bAllowHitSounds || HexedUT.bAllowDamageNumbers)
         {
-            for (C = Level.ControllerList; C != None; C = C.NextController)
-            {
-                if (MessagingSpectator(C) == None)
-                {
-                    class'HxPlayerProxy'.static.RegisterDamage(
-                        PlayerController(C), Damage, Injured, Inflictor, Type);
-                }
-            }
+           class'HxClientProxy'.static.RegisterDamage(Damage, Injured, Inflictor, Type);
         }
         if (HexedUT.HealthLeechLimit != 0)
         {
-            class'HxPawnProxy'.static.RegisterDamage(Damage, Injured, Inflictor, Type);
+            class'HxPlayerReplicationInfo'.static.RegisterDamage(Damage, Injured, Inflictor, Type);
         }
     }
     return Damage;
+}
+
+function ScoreKill(Controller Killer, Controller Killed)
+{
+    if (HexedUT.HealthLeechLimit != 0)
+    {
+        class'HxPlayerReplicationInfo'.static.RegisterKill(Killer, Killed);
+    }
+    Super.ScoreKill(Killer, Killed);
 }
 
 defaultproperties

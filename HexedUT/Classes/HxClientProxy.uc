@@ -1,4 +1,4 @@
-class HxPlayerProxy extends HxLinkedReplicationInfo;
+class HxClientProxy extends ReplicationInfo;
 
 struct DamageInfo
 {
@@ -37,6 +37,8 @@ var MutHexedUT HexedUT;
 var PlayerController PC;
 var HxHitEffects HitEffects;
 var DamageInfo Damage;
+
+var private array<HxClientProxy> Proxies;
 
 replication
 {
@@ -88,6 +90,7 @@ simulated event Tick(float DeltaTime)
     super.Tick(DeltaTime);
     if (Level.NetMode != NM_DedicatedServer && InitializeClient())
     {
+        Register(Self);
         if (Level.NetMode == NM_Client)
         {
             Disable('Tick');
@@ -129,7 +132,7 @@ simulated function bool InitializePlayerController()
 {
     if (PC == None)
     {
-        PC = Level.GetLocalPlayerController();
+        PC = PlayerController(Owner);
         ModifyPlayerCombos(xPlayer(PC));
         return PC != None;
     }
@@ -228,27 +231,20 @@ function Update()
     NetUpdateTime = Level.TimeSeconds - 1;
 }
 
-static function RegisterDamage(PlayerController PC,
-                               int Damage,
-                               Pawn Injured,
-                               Pawn Inflictor,
-                               class<DamageType> Type)
+static function RegisterDamage(int Damage, Pawn Injured, Pawn Inflictor, class<DamageType> Type)
 {
-    local HxPlayerProxy Proxy;
+    local PlayerController PC;
+    local int i;
 
-    if (PC != None && PC.ViewTarget == Inflictor && Injured != Inflictor)
+    for (i = 0; i < default.Proxies.Length; ++i)
     {
-        Proxy = GetAgent(PC);
-        if (Proxy != None && IsEnemy(Injured, Inflictor))
+        PC = PlayerController(default.Proxies[i].Owner);
+        if (PC != None && PC.ViewTarget == Inflictor && Injured != Inflictor
+            && IsEnemy(Injured, Inflictor))
         {
-            Proxy.UpdateDamage(Damage, Injured, Inflictor, Type);
+            default.Proxies[i].UpdateDamage(Damage, Injured, Inflictor, Type);
         }
     }
-}
-
-static function HxPlayerProxy GetAgent(Controller C)
-{
-    return HxPlayerProxy(Find(C.PlayerReplicationInfo, class'HxPlayerProxy'));
 }
 
 static function bool IsEnemy(Pawn Injured, Pawn Inflictor)
@@ -259,6 +255,66 @@ static function bool IsEnemy(Pawn Injured, Pawn Inflictor)
     return TeamNum == 255 || TeamNum != Inflictor.GetTeamNum();
 }
 
+static function HxClientProxy New(PlayerController PC)
+{
+    local HxClientProxy Proxy;
+
+    Proxy = PC.Spawn(class'HxClientProxy', PC);
+    default.Proxies[default.Proxies.Length] = Proxy;
+    return Proxy;
+}
+
+static function bool Delete(PlayerController PC)
+{
+    local int i;
+
+    for (i = 0; i < default.Proxies.Length; ++i)
+    {
+        if (default.Proxies[i].Owner == PC)
+        {
+            default.Proxies.Remove(i, 1);
+            return true;
+        }
+    }
+    return false;
+}
+
+static function bool Register(HxClientProxy Proxy)
+{
+    local int i;
+
+    for (i = 0; i < default.Proxies.Length; ++i)
+    {
+        if (default.Proxies[i] == Proxy)
+        {
+            return false;
+        }
+    }
+    default.Proxies[default.Proxies.Length] = Proxy;
+    return true;
+}
+
+static function HxClientProxy GetClientProxy(PlayerController PC)
+{
+    local int i;
+
+    for (i = 0; i < default.Proxies.Length; ++i)
+    {
+        if (default.Proxies[i].Owner == PC)
+        {
+            return default.Proxies[i];
+        }
+    }
+    return None;
+}
+
 defaultproperties
 {
+    RemoteRole=ROLE_SimulatedProxy
+    bHidden=true
+    bAlwaysRelevant=true
+    bStatic=false
+    bSkipActorPropertyReplication=false
+    bOnlyDirtyReplication=true
+    NetUpdateFrequency=10
 }

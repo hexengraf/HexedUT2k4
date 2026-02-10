@@ -65,8 +65,13 @@ function ModifyPlayer(Pawn Other)
 {
     ModifyStartingValues(Other);
     ModifyMovement(xPawn(Other));
-    UpdatePawnProxy(xPawn(Other));
     Super.ModifyPlayer(Other);
+}
+
+function NotifyLogout(Controller Exiting)
+{
+    DestroyHxClientProxy(PlayerController(Exiting));
+    Super.NotifyLogout(Exiting);
 }
 
 function ModifyStartingValues(Pawn Other)
@@ -126,27 +131,35 @@ function ModifyDeathMessageClass()
     }
 }
 
-function SpawnHxPlayerProxy(PlayerReplicationInfo PRI)
+function SpawnHxClientProxy(PlayerController PC)
 {
-    local HxPlayerProxy Proxy;
+    local HxClientProxy Proxy;
 
-    if (PlayerController(PRI.Owner) != None && MessagingSpectator(PRI.Owner) == None)
+    if (PC != None && MessagingSpectator(PC) == None)
     {
-        Proxy = HxPlayerProxy(SpawnLinkedPRI(PRI, class'HxPlayerProxy'));
-        Proxy.PC = PlayerController(PRI.Owner);
+        Proxy = class'HxClientProxy'.static.New(PC);
+        Proxy.PC = PC;
         Proxy.HexedUT = Self;
         Proxy.Update();
     }
 }
 
-function SpawnHxPawnProxy(PlayerReplicationInfo PRI)
+function DestroyHxClientProxy(PlayerController PC)
 {
-    local HxPawnProxy Proxy;
+    if (PC != None && MessagingSpectator(PC) == None)
+    {
+        class'HxClientProxy'.static.Delete(PC);
+    }
+}
+
+function SpawnHxPlayerReplicationInfo(PlayerReplicationInfo PRI)
+{
+    local HxPlayerReplicationInfo Info;
 
     if (MessagingSpectator(PRI.Owner) == None)
     {
-        Proxy = HxPawnProxy(SpawnLinkedPRI(PRI, class'HxPawnProxy'));
-        Proxy.HexedUT = Self;
+        Info = HxPlayerReplicationInfo(SpawnLinkedPRI(PRI, class'HxPlayerReplicationInfo'));
+        Info.HexedUT = Self;
     }
 }
 
@@ -170,11 +183,11 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
     }
     else if (Other.IsA('PlayerReplicationInfo'))
     {
-        SpawnHxPlayerProxy(PlayerReplicationInfo(Other));
-        SpawnHxPawnProxy(PlayerReplicationInfo(Other));
+        SpawnHxPlayerReplicationInfo(PlayerReplicationInfo(Other));
     }
     else if (Other.IsA('Controller'))
     {
+        SpawnHxClientProxy(PlayerController(Other));
         ModifyStartingAdrenaline(Controller(Other));
     }
     return true;
@@ -225,23 +238,9 @@ function ListDisableCombos()
     }
 }
 
-function UpdatePawnProxy(xPawn Pawn)
-{
-    local HxPawnProxy Proxy;
-
-    if (Pawn != None)
-    {
-        Proxy = class'HxPawnProxy'.static.GetPawnProxy(Pawn);
-        if (Proxy != None)
-        {
-            Proxy.SetPawn(Pawn);
-        }
-    }
-}
-
 function UpdateAfterPropertyChange(string PropertyName, String PropertyValue)
 {
-    local HxPlayerProxy Proxy;
+    local HxClientProxy Proxy;
     local Controller C;
 
     if (PropertyName == "bColoredDeathMessages")
@@ -250,7 +249,10 @@ function UpdateAfterPropertyChange(string PropertyName, String PropertyValue)
     }
     for (C = Level.ControllerList; C != None; C = C.NextController)
     {
-        Proxy = class'HxPlayerProxy'.static.GetAgent(C);
+        if (PlayerController(C) != None)
+        {
+            Proxy = class'HxClientProxy'.static.GetClientProxy(PlayerController(C));
+        }
         if (Proxy != None)
         {
             Proxy.Update();

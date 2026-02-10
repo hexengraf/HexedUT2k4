@@ -6,7 +6,7 @@ const SECTION_MOVEMENT = 2;
 const SECTION_POWER_UPS = 3;
 
 var automated array<HxMenuOption> Options;
-var HxPlayerProxy Proxy;
+var HxClientProxy Proxy;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
@@ -37,7 +37,7 @@ function bool Initialize()
     {
         return true;
     }
-    Proxy = class'HxPlayerProxy'.static.GetAgent(PlayerOwner());
+    Proxy = class'HxClientProxy'.static.GetClientProxy(PlayerOwner());
     return Proxy != None;
 }
 

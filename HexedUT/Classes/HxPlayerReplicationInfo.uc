@@ -1,15 +1,8 @@
-class HxPawnProxy extends HxLinkedReplicationInfo;
+class HxPlayerReplicationInfo extends HxLinkedReplicationInfo;
 
 var MutHexedUT HexedUT;
-var xPawn Pawn;
 
 var private float AccumulatedLeech;
-
-function SetPawn(xPawn P)
-{
-    Pawn = P;
-    AccumulatedLeech = 0;
-}
 
 function UpdateHealthLeech(int Value, Pawn Inflictor)
 {
@@ -29,18 +22,24 @@ function UpdateHealthLeech(int Value, Pawn Inflictor)
 
 static function RegisterDamage(int Damage, Pawn Injured, Pawn Inflictor, class<DamageType> Type)
 {
-    local HxPawnProxy Proxy;
+    local HxPlayerReplicationInfo Info;
 
-    Proxy = class'HxPawnProxy'.static.GetPawnProxy(Inflictor);
-    if (Proxy != None)
+    Info = HxPlayerReplicationInfo(Find(Inflictor.PlayerReplicationInfo, default.Class));
+    if (Info != None)
     {
-        Proxy.UpdateHealthLeech(Damage, Inflictor);
+        Info.UpdateHealthLeech(Damage, Inflictor);
     }
 }
 
-static function HxPawnProxy GetPawnProxy(Pawn P)
+static function RegisterKill(Controller Killer, Controller Killed)
 {
-    return HxPawnProxy(Find(P.PlayerReplicationInfo, class'HxPawnProxy'));
+    local HxPlayerReplicationInfo Info;
+
+    Info = HxPlayerReplicationInfo(Find(Killed.PlayerReplicationInfo, default.Class));
+    if (Info != None)
+    {
+        Info.AccumulatedLeech = 0;
+    }
 }
 
 defaultproperties

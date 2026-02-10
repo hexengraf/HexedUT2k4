@@ -15,7 +15,7 @@ var array<string> CustomFontNames;
 var array<Font> LoadedFonts;
 var int FontIndex;
 var int DPIndex;
-var HxPlayerProxy Proxy;
+var HxClientProxy Proxy;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
@@ -58,7 +58,7 @@ function bool Initialize()
     {
         return true;
     }
-    Proxy = class'HxPlayerProxy'.static.GetAgent(PlayerOwner());
+    Proxy = class'HxClientProxy'.static.GetClientProxy(PlayerOwner());
     if (Proxy != None)
     {
         for (i = 0; i < HitEffectsOptions.Length; ++i)
