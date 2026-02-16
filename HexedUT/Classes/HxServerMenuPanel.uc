@@ -1,8 +1,8 @@
 class HxServerMenuPanel extends HxMenuPanel;
 
-const SECTION_INDICATORS= 0;
-const SECTION_STARTING_VALUES = 1;
-const SECTION_MOVEMENT = 2;
+const SECTION_INDICATORS = 0;
+const SECTION_MOVEMENT = 1;
+const SECTION_STARTING_VALUES = 2;
 const SECTION_POWER_UPS = 3;
 
 var automated array<HxMenuOption> Options;
@@ -12,19 +12,19 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
     local int i;
 
-    for (i = 0; i < 5; ++i)
+    for (i = 0; i < 7; ++i)
     {
         Sections[SECTION_INDICATORS].ManageComponent(Options[i]);
     }
-    for (i = 5; i < 14; ++i)
-    {
-        Sections[SECTION_MOVEMENT].ManageComponent(Options[i]);
-    }
-    for (i = 14; i < 19; ++i)
+    for (i = 7; i < 12; ++i)
     {
         Sections[SECTION_STARTING_VALUES].ManageComponent(Options[i]);
     }
-    for (i = 19; i < 24; ++i)
+    for (i = 12; i < 21; ++i)
+    {
+        Sections[SECTION_MOVEMENT].ManageComponent(Options[i]);
+    }
+    for (i = 21; i < 26; ++i)
     {
         Sections[SECTION_POWER_UPS].ManageComponent(Options[i]);
     }
@@ -92,12 +92,12 @@ defaultproperties
         Caption="Starting Values"
     End Object
 
-    begin Object class=AltSectionBackground Name=PowerUpsSection
-        Caption="Power-Ups"
-    End Object
-
     Begin Object class=AltSectionBackground Name=MovementSection
         Caption="Movement"
+    End Object
+
+    begin Object class=AltSectionBackground Name=PowerUpsSection
+        Caption="Power-Ups"
     End Object
 
     Begin Object class=HxMenuCheckBox Name=AllowHitSounds
@@ -105,6 +105,17 @@ defaultproperties
     End Object
 
     Begin Object class=HxMenuCheckBox Name=AllowDamageNumbers
+        OnChange=RemoteOnChange
+    End Object
+
+    Begin Object class=HxMenuCheckBox Name=AllowPlayerHighlight
+        OnChange=RemoteOnChange
+    End Object
+
+    Begin Object class=HxMenuFloatEdit Name=PlayerHighlightFactor
+        MinValue=0.0
+        MaxValue=1.0
+        Step=0.01
         OnChange=RemoteOnChange
     End Object
 
@@ -118,6 +129,41 @@ defaultproperties
     Begin Object class=HxMenuNumericEdit Name=HealthLeechLimit
         MinValue=0
         MaxValue=199
+        Step=10
+        OnChange=RemoteOnChange
+    End Object
+
+    Begin Object class=HxMenuNumericEdit Name=BonusStartingHealth
+        MinValue=-99
+        MaxValue=99
+        Step=10
+        OnChange=RemoteOnChange
+    End Object
+
+    Begin Object class=HxMenuNumericEdit Name=BonusStartingShield
+        MinValue=0
+        MaxValue=150
+        Step=10
+        OnChange=RemoteOnChange
+    End Object
+
+    Begin Object class=HxMenuNumericEdit Name=BonusStartingGrenades
+        MinValue=-4
+        MaxValue=99
+        Step=1
+        OnChange=RemoteOnChange
+    End Object
+
+    Begin Object class=HxMenuNumericEdit Name=BonusStartingAdrenaline
+        MinValue=0
+        MaxValue=100
+        Step=10
+        OnChange=RemoteOnChange
+    End Object
+
+    Begin Object class=HxMenuNumericEdit Name=BonusAdrenalineOnSpawn
+        MinValue=-100
+        MaxValue=100
         Step=10
         OnChange=RemoteOnChange
     End Object
@@ -183,41 +229,6 @@ defaultproperties
         OnChange=RemoteOnChange
     End Object
 
-    Begin Object class=HxMenuNumericEdit Name=BonusStartingHealth
-        MinValue=-99
-        MaxValue=99
-        Step=10
-        OnChange=RemoteOnChange
-    End Object
-
-    Begin Object class=HxMenuNumericEdit Name=BonusStartingShield
-        MinValue=0
-        MaxValue=150
-        Step=10
-        OnChange=RemoteOnChange
-    End Object
-
-    Begin Object class=HxMenuNumericEdit Name=BonusStartingGrenades
-        MinValue=-4
-        MaxValue=99
-        Step=1
-        OnChange=RemoteOnChange
-    End Object
-
-    Begin Object class=HxMenuNumericEdit Name=BonusStartingAdrenaline
-        MinValue=0
-        MaxValue=100
-        Step=10
-        OnChange=RemoteOnChange
-    End Object
-
-    Begin Object class=HxMenuNumericEdit Name=BonusAdrenalineOnSpawn
-        MinValue=-100
-        MaxValue=100
-        Step=10
-        OnChange=RemoteOnChange
-    End Object
-
     Begin Object class=HxMenuCheckBox Name=DisableSpeedCombo
         OnChange=RemoteOnChange
     End Object
@@ -248,26 +259,28 @@ defaultproperties
     Sections(3)=PowerUpsSection
     Options(0)=AllowHitSounds
     Options(1)=AllowDamageNumbers
-    Options(2)=ColoredDeathMessages
-    Options(3)=HealthLeechRatio
-    Options(4)=HealthLeechLimit
-    Options(5)=MaxSpeedMultiplier
-    Options(6)=AirControlMultiplier
-    Options(7)=BaseJumpMultiplier
-    Options(8)=MultiJumpMultiplier
-    Options(9)=BonusMultiJumps
-    Options(10)=DodgeMultiplier
-    Options(11)=DodgeSpeedMultiplier
-    Options(12)=DisableWallDodge
-    Options(13)=DisableDodgeJump
-    Options(14)=BonusStartingHealth
-    Options(15)=BonusStartingShield
-    Options(16)=BonusStartingGrenades
-    Options(17)=BonusStartingAdrenaline
-    Options(18)=BonusAdrenalineOnSpawn
-    Options(19)=DisableSpeedCombo
-    Options(20)=DisableBerserkCombo
-    Options(21)=DisableBoosterCombo
-    Options(22)=DisableInvisibleCombo
-    Options(23)=DisableUDamage
+    Options(2)=AllowPlayerHighlight
+    Options(3)=PlayerHighlightFactor
+    Options(4)=ColoredDeathMessages
+    Options(5)=HealthLeechRatio
+    Options(6)=HealthLeechLimit
+    Options(7)=BonusStartingHealth
+    Options(8)=BonusStartingShield
+    Options(9)=BonusStartingGrenades
+    Options(10)=BonusStartingAdrenaline
+    Options(11)=BonusAdrenalineOnSpawn
+    Options(12)=MaxSpeedMultiplier
+    Options(13)=AirControlMultiplier
+    Options(14)=BaseJumpMultiplier
+    Options(15)=MultiJumpMultiplier
+    Options(16)=BonusMultiJumps
+    Options(17)=DodgeMultiplier
+    Options(18)=DodgeSpeedMultiplier
+    Options(19)=DisableWallDodge
+    Options(20)=DisableDodgeJump
+    Options(21)=DisableSpeedCombo
+    Options(22)=DisableBerserkCombo
+    Options(23)=DisableBoosterCombo
+    Options(24)=DisableInvisibleCombo
+    Options(25)=DisableUDamage
 }

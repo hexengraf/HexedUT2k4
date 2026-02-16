@@ -10,9 +10,16 @@ const DAMAGE_CLUSTERING_INTERVAL = 0.015;
 
 var bool bAllowHitSounds;
 var bool bAllowDamageNumbers;
+var bool bAllowPlayerHighlight;
+var float PlayerHighlightFactor;
 var bool bColoredDeathMessages;
 var float HealthLeechRatio;
 var int HealthLeechLimit;
+var int BonusStartingHealth;
+var int BonusStartingShield;
+var int BonusStartingGrenades;
+var int BonusStartingAdrenaline;
+var int BonusAdrenalineOnSpawn;
 var float MaxSpeedMultiplier;
 var float AirControlMultiplier;
 var float BaseJumpMultiplier;
@@ -22,11 +29,6 @@ var float DodgeMultiplier;
 var float DodgeSpeedMultiplier;
 var bool bDisableWallDodge;
 var bool bDisableDodgeJump;
-var int BonusStartingHealth;
-var int BonusStartingShield;
-var int BonusStartingGrenades;
-var int BonusStartingAdrenaline;
-var int BonusAdrenalineOnSpawn;
 var bool bDisableSpeedCombo;
 var bool bDisableBerserkCombo;
 var bool bDisableBoosterCombo;
@@ -48,9 +50,16 @@ replication
     reliable if (Role == ROLE_Authority)
         bAllowHitSounds,
         bAllowDamageNumbers,
+        bAllowPlayerHighlight,
+        PlayerHighlightFactor,
         bColoredDeathMessages,
         HealthLeechRatio,
         HealthLeechLimit,
+        BonusStartingHealth,
+        BonusStartingShield,
+        BonusStartingGrenades,
+        BonusStartingAdrenaline,
+        BonusAdrenalineOnSpawn,
         MaxSpeedMultiplier,
         AirControlMultiplier,
         BaseJumpMultiplier,
@@ -60,11 +69,6 @@ replication
         DodgeSpeedMultiplier,
         bDisableWallDodge,
         bDisableDodgeJump,
-        BonusStartingHealth,
-        BonusStartingShield,
-        BonusStartingGrenades,
-        BonusStartingAdrenaline,
-        BonusAdrenalineOnSpawn,
         bDisableSpeedCombo,
         bDisableBerserkCombo,
         bDisableBoosterCombo,
@@ -81,6 +85,7 @@ simulated event PreBeginPlay()
     if (Level.NetMode != NM_DedicatedServer)
     {
         class'HxServerMenuPanel'.static.AddToMenu();
+        class'HxPlayerHighlightMenuPanel'.static.AddToMenu();
         class'HxHitEffectsMenuPanel'.static.AddToMenu();
     }
 }
@@ -206,9 +211,16 @@ function Update()
 {
     bAllowHitSounds = HexedUT.bAllowHitSounds;
     bAllowDamageNumbers = HexedUT.bAllowDamageNumbers;
+    bAllowPlayerHighlight = HexedUT.bAllowPlayerHighlight;
+    PlayerHighlightFactor = HexedUT.PlayerHighlightFactor;
     bColoredDeathMessages = HexedUT.bColoredDeathMessages;
     HealthLeechRatio = HexedUT.HealthLeechRatio;
     HealthLeechLimit = HexedUT.HealthLeechLimit;
+    BonusStartingHealth = HexedUT.BonusStartingHealth;
+    BonusStartingShield = HexedUT.BonusStartingShield;
+    BonusStartingGrenades = HexedUT.BonusStartingGrenades;
+    BonusStartingAdrenaline = HexedUT.BonusStartingAdrenaline;
+    BonusAdrenalineOnSpawn = HexedUT.BonusAdrenalineOnSpawn;
     MaxSpeedMultiplier = HexedUT.MaxSpeedMultiplier;
     AirControlMultiplier = HexedUT.AirControlMultiplier;
     BaseJumpMultiplier = HexedUT.BaseJumpMultiplier;
@@ -218,11 +230,6 @@ function Update()
     DodgeSpeedMultiplier = HexedUT.DodgeSpeedMultiplier;
     bDisableWallDodge = HexedUT.bDisableWallDodge;
     bDisableDodgeJump = HexedUT.bDisableDodgeJump;
-    BonusStartingHealth = HexedUT.BonusStartingHealth;
-    BonusStartingShield = HexedUT.BonusStartingShield;
-    BonusStartingGrenades = HexedUT.BonusStartingGrenades;
-    BonusStartingAdrenaline = HexedUT.BonusStartingAdrenaline;
-    BonusAdrenalineOnSpawn = HexedUT.BonusAdrenalineOnSpawn;
     bDisableSpeedCombo = HexedUT.bDisableSpeedCombo;
     bDisableBerserkCombo = HexedUT.bDisableBerserkCombo;
     bDisableBoosterCombo = HexedUT.bDisableBoosterCombo;
