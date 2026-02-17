@@ -172,7 +172,7 @@ simulated function Color GetHighlightColor(string ColorName)
 {
     local Color C;
 
-    C = FindColor(ColorName);
+    FindColor(ColorName, C);
     C.R = C.R * HighlightFactor;
     C.G = C.G * HighlightFactor;
     C.B = C.B * HighlightFactor;
@@ -257,20 +257,52 @@ simulated function PawnBaseDied()
     }
 }
 
-static function bool ChangeColorName(int Index, string Name)
+static function int AllocateColor(optional out string Name)
 {
-    local int i;
+    local int Index;
 
-    if (Name == NO_HIGHLIGHT || name == RANDOM_HIGHLIGHT || Index >= default.Colors.Length)
+    Name = RandomColorName();
+    while (FindColor(Name) != -1)
+    {
+        Name = RandomColorName();
+    }
+    Index = default.Colors.Length;
+    default.Colors.Length = Index + 1;
+    default.Colors[Index].Name = Name;
+    return Index;
+}
+
+static function bool DeleteColor(int Index)
+{
+    local string Name;
+
+    if (Index < 0 || Index >= default.Colors.Length)
     {
         return false;
     }
-    for (i = 0; i < default.Colors.Length; ++i)
+    Name = default.Colors[Index].Name;
+    if (default.YourTeam == Name)
     {
-        if (default.Colors[i].Name == Name)
-        {
-            return false;
-        }
+        default.YourTeam = NO_HIGHLIGHT;
+    }
+    if (default.EnemyTeam == Name)
+    {
+        default.EnemyTeam = NO_HIGHLIGHT;
+    }
+    if (default.SoloPlayer == Name)
+    {
+        default.SoloPlayer = NO_HIGHLIGHT;
+    }
+    default.Colors.Remove(Index, 1);
+    return true;
+}
+
+static function bool ChangeColorName(int Index, string Name)
+{
+    if (Name == NO_HIGHLIGHT || name == RANDOM_HIGHLIGHT
+        || Index >= default.Colors.Length || FindColor(Name) != -1)
+    {
+        return false;
     }
     if (default.YourTeam == default.Colors[Index].Name)
     {
@@ -280,34 +312,43 @@ static function bool ChangeColorName(int Index, string Name)
     {
         default.EnemyTeam = Name;
     }
+    if (default.SoloPlayer == default.Colors[Index].Name)
+    {
+        default.SoloPlayer = Name;
+    }
     default.Colors[Index].Name = Name;
     return true;
 }
 
-static function Color FindColor(string ColorName)
+static function int FindColor(string Name, optional out Color Color)
 {
-    local Color C;
     local int i;
 
-    if (ColorName == NO_HIGHLIGHT || ColorName == RANDOM_HIGHLIGHT)
+    if (Name == NO_HIGHLIGHT || Name == RANDOM_HIGHLIGHT)
     {
-        return C;
+        return -1;
     }
     for (i = 0; i < default.Colors.Length; ++i)
     {
-        if (default.Colors[i].Name == ColorName)
+        if (default.Colors[i].Name == Name)
         {
-            C = default.Colors[i].Color;
-            break;
+            Color = default.Colors[i].Color;
+            return i;
         }
     }
-    return C;
+    return -1;
+}
+
+static function string RandomColorName()
+{
+    return "Color#"$Rand(999999);
 }
 
 defaultproperties
 {
     EnemyTeam=""
     YourTeam=""
+    SoloPlayer=""
     bDisableOnDeadBodies=false
     bForceNormalSkins=false
     Colors(0)=(Name="Red",Color=(R=255,G=0,B=0,A=255))
