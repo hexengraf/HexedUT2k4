@@ -1,10 +1,16 @@
 class HxPlayerHighlight extends Actor
     config(User);
 
-struct HxHighlightColor
+struct HxColor
 {
     var string Name;
     var Color Color;
+};
+
+struct HxCacheEntry
+{
+    var string Player;
+    var string Highlight;
 };
 
 const NO_HIGHLIGHT = "";
@@ -15,7 +21,8 @@ var config string EnemyTeam;
 var config string SoloPlayer;
 var config bool bDisableOnDeadBodies;
 var config bool bForceNormalSkins;
-var config array<HxHighlightColor> Colors;
+var config array<HxColor> Colors;
+var config array<HxCacheEntry> Cache;
 var float HighlightFactor;
 
 var private PlayerController PC;
@@ -27,8 +34,9 @@ var private Color HighlightColor;
 var private bool bInitialized;
 var private bool bSkinUpdated;
 var private bool bEnabled;
-var private bool bRandomColor;
 var private byte LocalPlayerTeam;
+var private array<string> RandomPool;
+var private array<HxCacheEntry> OldCache;
 
 replication
 {
@@ -45,8 +53,8 @@ simulated event PreBeginPlay()
         HighlightEffect = ConstantColor(AllocateMaterial(class'ConstantColor'));
         HighlightShader = Shader(AllocateMaterial(class'Shader'));
         HighlightShader.Specular = HighlightEffect;
-        bEnabled = false;
         bSkinUpdated = false;
+        bEnabled = false;
         LocalPlayerTeam = 255;
         bInitialized = Initialize(xPawn(Base));
     }
@@ -101,12 +109,28 @@ simulated function bool Initialize(xPawn Pawn)
     {
         PC = Level.GetLocalPlayerController();
     }
-    if (Pawn != None && PC != None && Level.GRI != None && PC.PlayerReplicationInfo != None)
+    if (Pawn != None && PC != None && Level.GRI != None
+        && PC.PlayerReplicationInfo != None && Pawn.PlayerReplicationInfo != None)
     {
         LocalPlayerTeam = GetLocalPlayerTeam();
         if (!Level.GRI.bTeamGame)
         {
-            Highlight = SoloPlayer;
+            if (default.RandomPool.Length == 0)
+            {
+                InitializeRandomPool();
+            }
+            if (SoloPlayer == RANDOM_HIGHLIGHT)
+            {
+                if (Pawn.PlayerReplicationInfo.PlayerName == "")
+                {
+                    return false;
+                }
+                Highlight = GetRandomColor(Pawn.PlayerReplicationInfo.PlayerName);
+            }
+            else
+            {
+                Highlight = SoloPlayer;
+            }
             bSkinUpdated = true;
         }
         else if (Pawn.GetTeamNum() != LocalPlayerTeam)
@@ -117,7 +141,6 @@ simulated function bool Initialize(xPawn Pawn)
         {
             Highlight = YourTeam;
         }
-        bRandomColor = Highlight == RANDOM_HIGHLIGHT;
         bEnabled = Highlight != NO_HIGHLIGHT;
         HighlightColor = GetHighlightColor(Highlight);
         return true;
@@ -136,7 +159,6 @@ simulated function Reinitialize()
     bDisableOnDeadBodies = default.bDisableOnDeadBodies;
     bForceNormalSkins = default.bForceNormalSkins;
     bInitialized = false;
-    bRandomColor = false;
     Pawn = xPawn(Base);
     if (Pawn != None)
     {
@@ -168,46 +190,25 @@ simulated function UpdateHighlightOverlay(xPawn Pawn)
     }
 }
 
-simulated function Color GetHighlightColor(string ColorName)
+simulated function Color GetHighlightColor(string Name)
 {
-    local Color C;
+    local Color Color;
 
-    FindColor(ColorName, C);
-    C.R = C.R * HighlightFactor;
-    C.G = C.G * HighlightFactor;
-    C.B = C.B * HighlightFactor;
-    return C;
+    FindColor(Name, Color);
+    Color.R = Color.R * HighlightFactor;
+    Color.G = Color.G * HighlightFactor;
+    Color.B = Color.B * HighlightFactor;
+    return Color;
 }
 
 simulated function ForceNormalSkin(xPawn Pawn)
 {
     local Material Skin;
-    local string Name;
-    local string Suffix;
     local int i;
 
     for (i = 0; i < Pawn.Skins.Length; ++i)
     {
-        Name = string(Pawn.Skins[i]);
-        Suffix = Right(Name, 3);
-        if (Suffix ~= "_0B" || Suffix ~= "_1B")
-        {
-            Name = Left(Name, Len(Name) - 3);
-            if (StrCmp(Name, "Bright", 6, false) == 0)
-            {
-                Name = Right(Name, Len(Name) - 6);
-            }
-            Skin = Material(DynamicLoadObject(Name, class'Material', true));
-        }
-        else
-        {
-            Suffix = Right(Suffix, 2);
-            if (Suffix == "_0" || Suffix == "_1")
-            {
-                Name = Left(Name, Len(Name) - 2);
-                Skin = Material(DynamicLoadObject(Name, class'Material', true));
-            }
-        }
+        Skin = GetNormalSkin(Pawn.Skins[i]);
         if (Skin != None)
         {
             OriginalSkins.Length = i + 1;
@@ -226,6 +227,50 @@ simulated function int GetLocalPlayerTeam()
         return 0;
     }
     return PC.GetTeamNum();
+}
+
+simulated function string GetRandomColor(string Player)
+{
+    local int i;
+
+    for (i = 0; i < default.Cache.Length; ++i)
+    {
+        if (default.Cache[i].Player == Player)
+        {
+            return default.Cache[i].Highlight;
+        }
+    }
+    for (i = 0; i < default.OldCache.Length; ++i)
+    {
+        if (default.OldCache[i].Player == Player)
+        {
+            default.Cache[default.Cache.Length] = default.OldCache[i];
+            RemoveFromRandomPool(default.OldCache[i].Highlight);
+            StaticSaveConfig();
+            return default.OldCache[i].Highlight;
+        }
+    }
+    i = default.Cache.Length;
+    default.Cache.Length = i + 1;
+    default.Cache[i].Player = Player;
+    default.Cache[i].Highlight = GetFromRandomPool();
+    StaticSaveConfig();
+    return default.Cache[i].Highlight;
+}
+
+simulated function string GetFromRandomPool()
+{
+    local int Index;
+    local string Name;
+
+    Index = Rand(default.RandomPool.Length);
+    Name = default.RandomPool[Index];
+    default.RandomPool.Remove(Index, 1);
+    if (default.RandomPool.Length == 0)
+    {
+        PopulateRandomPool();
+    }
+    return Name;
 }
 
 simulated function bool IsActive(xPawn Pawn)
@@ -257,6 +302,34 @@ simulated function PawnBaseDied()
     }
 }
 
+static function Material GetNormalSkin(coerce string Name)
+{
+    local Material Skin;
+    local string Suffix;
+
+    Suffix = Right(Name, 3);
+    if (Suffix ~= "_0B" || Suffix ~= "_1B")
+    {
+        Name = Left(Name, Len(Name) - 3);
+        if (StrCmp(Name, "Bright", 6, false) == 0)
+        {
+            Name = Right(Name, Len(Name) - 6);
+        }
+        Skin = Material(DynamicLoadObject(Name, class'Material', true));
+    }
+    else
+    {
+        Suffix = Right(Suffix, 2);
+        if (Suffix == "_0" || Suffix == "_1")
+        {
+            Name = Left(Name, Len(Name) - 2);
+            Skin = Material(DynamicLoadObject(Name, class'Material', true));
+        }
+    }
+    return Skin;
+}
+
+
 static function int AllocateColor(optional out string Name)
 {
     local int Index;
@@ -274,32 +347,34 @@ static function int AllocateColor(optional out string Name)
 
 static function bool DeleteColor(int Index)
 {
-    local string Name;
-
     if (Index < 0 || Index >= default.Colors.Length)
     {
         return false;
     }
-    Name = default.Colors[Index].Name;
-    if (default.YourTeam == Name)
+    if (default.YourTeam == default.Colors[Index].Name)
     {
         default.YourTeam = NO_HIGHLIGHT;
     }
-    if (default.EnemyTeam == Name)
+    if (default.EnemyTeam == default.Colors[Index].Name)
     {
         default.EnemyTeam = NO_HIGHLIGHT;
     }
-    if (default.SoloPlayer == Name)
+    if (default.SoloPlayer == default.Colors[Index].Name)
     {
         default.SoloPlayer = NO_HIGHLIGHT;
     }
+    ValidateCache(default.Cache);
+    ValidateCache(default.OldCache);
+    RemoveFromRandomPool(default.Colors[Index].Name);
     default.Colors.Remove(Index, 1);
     return true;
 }
 
 static function bool ChangeColorName(int Index, string Name)
 {
-    if (Name == NO_HIGHLIGHT || name == RANDOM_HIGHLIGHT
+    local int i;
+
+    if (Name == NO_HIGHLIGHT || Name == RANDOM_HIGHLIGHT
         || Index >= default.Colors.Length || FindColor(Name) != -1)
     {
         return false;
@@ -315,6 +390,27 @@ static function bool ChangeColorName(int Index, string Name)
     if (default.SoloPlayer == default.Colors[Index].Name)
     {
         default.SoloPlayer = Name;
+    }
+    for (i = 0; i < default.OldCache.Length; ++i)
+    {
+        if (default.OldCache[i].Highlight == default.Colors[Index].Name)
+        {
+            default.OldCache[i].Highlight = Name;
+        }
+    }
+    for (i = 0; i < default.Cache.Length; ++i)
+    {
+        if (default.Cache[i].Highlight == default.Colors[Index].Name)
+        {
+            default.Cache[i].Highlight = Name;
+        }
+    }
+    for (i = 0; i < default.RandomPool.Length; ++i)
+    {
+        if (default.RandomPool[i] == default.Colors[Index].Name)
+        {
+            default.RandomPool[i] = Name;
+        }
     }
     default.Colors[Index].Name = Name;
     return true;
@@ -344,6 +440,68 @@ static function string RandomColorName()
     return "Color#"$Rand(999999);
 }
 
+static function InitializeRandomPool()
+{
+    ValidateCache(default.Cache);
+    default.OldCache = default.Cache;
+    default.Cache.Remove(0, default.Cache.Length);
+    PopulateRandomPool();
+}
+
+static function ValidateCache(out array<HxCacheEntry> Cache)
+{
+    local int i;
+    local int j;
+
+    i = 0;
+    while (i < Cache.Length)
+    {
+        for (j = 0; j < default.Colors.Length; ++j)
+        {
+            if (Cache[i].Highlight == default.Colors[j].Name)
+            {
+                break;
+            }
+        }
+        if (j < default.Colors.Length)
+        {
+            ++i;
+        }
+        else
+        {
+            Cache.Remove(i, 1);
+        }
+    }
+}
+
+static function PopulateRandomPool()
+{
+    local int i;
+
+    for (i = 0; i < default.Colors.Length; ++i)
+    {
+        default.RandomPool[i] = default.Colors[i].Name;
+    }
+}
+
+static function RemoveFromRandomPool(string Name)
+{
+    local int i;
+
+    for (i = 0; i < default.RandomPool.Length; ++i)
+    {
+        if (default.RandomPool[i] == Name)
+        {
+            default.RandomPool.Remove(i, 1);
+            break;
+        }
+    }
+    if (default.RandomPool.Length == 0)
+    {
+        PopulateRandomPool();
+    }
+}
+
 defaultproperties
 {
     EnemyTeam=""
@@ -358,7 +516,8 @@ defaultproperties
     Colors(4)=(Name="Teal",Color=(R=0,G=255,B=255,A=255))
     Colors(5)=(Name="Yellow",Color=(R=255,G=255,B=0,A=255))
     Colors(6)=(Name="Orange",Color=(R=255,G=128,B=0,A=255))
-    Colors(7)=(Name="White",Color=(R=255,G=255,B=255,A=255))
+    Colors(7)=(Name="Purple",Color=(R=96,G=0,B=255,A=255))
+    Colors(8)=(Name="White",Color=(R=255,G=255,B=255,A=255))
     HighlightFactor=-1
 
     RemoteRole=ROLE_SimulatedProxy

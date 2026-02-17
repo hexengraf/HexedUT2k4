@@ -176,8 +176,8 @@ function PopulateComboBoxes()
         moComboBox(Options[i]).bIgnoreChange = true;
         moComboBox(Options[i]).ResetComponent();
         moComboBox(Options[i]).AddItem("Default",,NO_HIGHLIGHT);
-        moComboBox(Options[i]).AddItem("Random",,RANDOM_HIGHLIGHT);
     }
+    moComboBox(Options[2]).AddItem("Random",,RANDOM_HIGHLIGHT);
     for (i = 0; i < class'HxPlayerHighlight'.default.Colors.Length; ++i)
     {
         for (j = 0; j < 3; ++j)
@@ -253,6 +253,7 @@ function bool OnClickDeleteColor(GUIComponent Sender)
         class'HxPlayerHighlight'.static.StaticSaveConfig();
         PopulateComboBoxes();
         UpdateCustomizeColorSection(co_EditColor.GetComponentValue());
+        UpdateOutstandingHighlights(PlayerOwner());
     }
     return true;
 }

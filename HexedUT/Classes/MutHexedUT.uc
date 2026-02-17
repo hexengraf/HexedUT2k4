@@ -316,7 +316,7 @@ defaultproperties
     bAllowHitSounds=true
     bAllowDamageNumbers=true
     bAllowPlayerHighlight=true
-    PlayerHighlightFactor=0.30
+    PlayerHighlightFactor=0.35
     bColoredDeathMessages=true
     HealthLeechLimit=0
     HealthLeechRatio=0
