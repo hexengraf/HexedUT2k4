@@ -58,7 +58,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 
     for (i = 0; i < 3; ++i)
     {
-        moComboBox(Options[11]).AddItem(SkinLabels[i]);
+        GUIComboBox(Options[11]).AddItem(SkinLabels[i]);
     }
 }
 
@@ -203,7 +203,7 @@ function CustomizeColorOnChange(GUIComponent Sender)
 
 function PreviewSkinOnChange(GUIComponent Sender)
 {
-    PreviewSkinVariation = moComboBox(Sender).GetIndex() - 1;
+    PreviewSkinVariation = GUIComboBox(Sender).GetIndex() - 1;
     UpdatePreviewModelSkins();
 }
 
@@ -217,7 +217,7 @@ function PopulateColorComboBoxes()
     {
         moComboBox(Options[i]).bIgnoreChange = true;
         moComboBox(Options[i]).ResetComponent();
-        moComboBox(Options[i]).AddItem("Default",,NO_HIGHLIGHT);
+        moComboBox(Options[i]).AddItem("Disabled",,NO_HIGHLIGHT);
     }
     moComboBox(Options[2]).AddItem("Random",,RANDOM_HIGHLIGHT);
     for (i = 0; i < class'HxSkinHighlight'.default.Colors.Length; ++i)
@@ -524,6 +524,7 @@ defaultproperties
 
     Begin Object class=moComboBox Name=YourTeamComboBox
         Caption="Your team"
+        Hint="Highlight color for your team."
         INIOption="HxSkinHighlight YourTeam"
         LabelJustification=TXTA_Left
         ComponentJustification=TXTA_Right
@@ -538,6 +539,7 @@ defaultproperties
 
     Begin Object class=moComboBox Name=EnemyTeamComboBox
         Caption="Enemy team"
+        Hint="Highlight color for the enemy team."
         INIOption="HxSkinHighlight EnemyTeam"
         LabelJustification=TXTA_Left
         ComponentJustification=TXTA_Right
@@ -553,6 +555,7 @@ defaultproperties
 
     Begin Object class=moComboBox Name=SoloPlayerComboBox
         Caption="Solo player"
+        Hint="Highlight color for players on game modes with no team. Random assigns a random color for each player."
         INIOption="HxSkinHighlight SoloPlayer"
         LabelJustification=TXTA_Left
         ComponentJustification=TXTA_Right
@@ -568,6 +571,7 @@ defaultproperties
 
     Begin Object class=moCheckBox Name=DisableOnDeadBodiesCheckBox
         Caption="Disable highlight on dead bodies"
+        Hint="Disable any active highlights on dead bodies."
         INIOption="HxSkinHighlight bDisableOnDeadBodies"
         LabelJustification=TXTA_Left
         ComponentJustification=TXTA_Right
@@ -581,7 +585,8 @@ defaultproperties
     End Object
 
     Begin Object class=moCheckBox Name=ForceNormalSkinsCheckBox
-        Caption="Force normal (uncolored) skins"
+        Caption="Force normal skins"
+        Hint="When highlight is enabled, force normal (uncolored) variation of the underlying skin."
         INIOption="HxSkinHighlight bForceNormalSkins"
         LabelJustification=TXTA_Left
         ComponentJustification=TXTA_Right
@@ -596,6 +601,7 @@ defaultproperties
 
     Begin Object class=moComboBox Name=EditColorComboBox
         Caption="Color"
+        Hint="Color to customize."
         LabelJustification=TXTA_Left
         ComponentJustification=TXTA_Right
         ComponentWidth=0.7
@@ -609,6 +615,7 @@ defaultproperties
 
     Begin Object class=moEditBox Name=ColorNameEditBox
         Caption="Name"
+        Hint="Edit color name"
         INIOption="@INTERNAL"
         LabelJustification=TXTA_Left
         ComponentJustification=TXTA_Right
@@ -671,15 +678,11 @@ defaultproperties
     Begin Object class=GUILabel Name=ButtonAnchorLabel
     End Object
 
-    Begin Object class=moComboBox Name=PreviewSkinComboBox
-        Caption="Variation"
+    Begin Object class=GUIComboBox Name=PreviewSkinComboBox
+        Hint="Select skin variation to be used on the preview."
         StandardHeight=0.03
         bStandardized=true
-        LabelJustification=TXTA_Left
-        ComponentJustification=TXTA_Right
-        ComponentWidth=0.7
         bReadOnly=true
-        bAutoSizeCaption=true
         bBoundToParent=true
         bScaleToParent=true
         OnChange=PreviewSkinOnChange
@@ -688,7 +691,6 @@ defaultproperties
     Begin Object class=GUIButton Name=PreviewBackgroundImage
         StyleName="NoBackground"
         bStandardized=false
-        MouseCursorIndex=5
         bTabStop=false
         bNeverFocus=true
         bDropTarget=true
@@ -700,6 +702,7 @@ defaultproperties
 
     Begin Object class=GUIButton Name=ChangeModelButton
         Caption="Change Preview Character"
+        Hint="Select a different preview character."
         StandardHeight=0.035
         bStandardized=true
         bNeverFocus=true
@@ -711,6 +714,7 @@ defaultproperties
 
     Begin Object Class=GUIButton Name=NewColorButton
         Caption="New Color"
+        Hint="Add new color to the list of colors."
         StandardHeight=0.035
         bStandardized=true
         bNeverFocus=true
@@ -722,6 +726,7 @@ defaultproperties
 
     Begin Object Class=GUIButton Name=DeleteColorButton
         Caption="Delete Color"
+        Hint="Delete current color from the list of colors."
         StandardHeight=0.035
         bStandardized=true
         bNeverFocus=true
@@ -753,9 +758,9 @@ defaultproperties
     Options(11)=PreviewSkinComboBox
     Options(12)=PreviewBackgroundImage
     Options(13)=ChangeModelButton
-    SkinLabels(0)="Normal Skin"
-    SkinLabels(1)="Red Team Skin"
-    SkinLabels(2)="Blue Team Skin"
+    SkinLabels(0)="View Normal Skin"
+    SkinLabels(1)="View Red Team Skin"
+    SkinLabels(2)="View Blue Team Skin"
     PreviewSkinVariation=-1
     PreviewOffset=(X=450,Z=-5)
     b_NewColor=NewColorButton
