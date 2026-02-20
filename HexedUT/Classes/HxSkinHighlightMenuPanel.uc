@@ -12,6 +12,7 @@ var automated GUIButton b_NewColor;
 var automated GUIButton b_DeleteColor;
 
 var localized string SkinLabels[3];
+var localized string TeamLabels[2];
 
 var private moComboBox co_EditColor;
 var private moEditBox ed_ColorName;
@@ -33,23 +34,23 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     local int i;
 
     super.InitComponent(MyController, MyOwner);
-    for (i = 0; i < 5; ++i)
+    for (i = 0; i < 6; ++i)
     {
         Sections[SECTION_HIGHLIGHTS].ManageComponent(Options[i]);
     }
-    for (i = 5; i < 11; ++i)
+    for (i = 6; i < 12; ++i)
     {
         Sections[SECTION_CUSTOMIZE_COLORS].ManageComponent(Options[i]);
     }
-    for (i = 11; i < 14; ++i)
+    for (i = 12; i < 15; ++i)
     {
         Sections[SECTION_COLOR_PREVIEW].ManageComponent(Options[i]);
     }
-    co_EditColor = moComboBox(Options[5]);
-    ed_ColorName = moEditBox(Options[6]);
-    sl_ColorRed = moSlider(Options[7]);
-    sl_ColorGreen = moSlider(Options[8]);
-    sl_ColorBlue = moSlider(Options[9]);
+    co_EditColor = moComboBox(Options[6]);
+    ed_ColorName = moEditBox(Options[7]);
+    sl_ColorRed = moSlider(Options[8]);
+    sl_ColorGreen = moSlider(Options[9]);
+    sl_ColorBlue = moSlider(Options[10]);
     ed_ColorName.MyEditBox.bAlwaysNotify = false;
     PreviewEffect = New(Self) class'ConstantColor';
     PreviewShader = New(Self) class'Shader';
@@ -58,7 +59,11 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 
     for (i = 0; i < 3; ++i)
     {
-        GUIComboBox(Options[11]).AddItem(SkinLabels[i]);
+        GUIComboBox(Options[12]).AddItem(SkinLabels[i]);
+    }
+    for (i = 0; i < 2; ++i)
+    {
+        moComboBox(Options[5]).AddItem(TeamLabels[i],,string(i));
     }
 }
 
@@ -96,11 +101,11 @@ function bool InternalOnPreDraw(Canvas C)
 {
     if (bInit)
     {
-        b_NewColor.WinLeft = Options[10].WinLeft;
-        b_NewColor.WinTop = Options[10].WinTop;
-        b_NewColor.WinWidth = Options[10].WinWidth / 2;
+        b_NewColor.WinLeft = Options[11].WinLeft;
+        b_NewColor.WinTop = Options[11].WinTop;
+        b_NewColor.WinWidth = Options[11].WinWidth / 2;
         b_DeleteColor.WinLeft = b_NewColor.WinLeft + b_NewColor.WinWidth;
-        b_DeleteColor.WinTop = Options[10].WinTop;
+        b_DeleteColor.WinTop = Options[11].WinTop;
         b_DeleteColor.WinWidth = b_NewColor.WinWidth;
     }
     return false;
@@ -160,6 +165,9 @@ function InternalOnChange(GUIComponent Sender)
         case Options[4]:
             class'HxSkinHighlight'.default.bForceNormalSkins = moCheckBox(Sender).IsChecked();
             break;
+        case Options[5]:
+            class'HxSkinHighlight'.default.SpectatorTeam = int(moComboBox(Sender).GetExtra());
+            break;
     }
     UpdateOutstandingHighlights(PlayerOwner());
     class'HxSkinHighlight'.static.StaticSaveConfig();
@@ -204,7 +212,10 @@ function CustomizeColorOnChange(GUIComponent Sender)
 function PreviewSkinOnChange(GUIComponent Sender)
 {
     PreviewSkinVariation = GUIComboBox(Sender).GetIndex() - 1;
-    UpdatePreviewModelSkins();
+    if (PreviewModel != None)
+    {
+        UpdatePreviewModelSkins();
+    }
 }
 
 function PopulateColorComboBoxes()
@@ -300,10 +311,10 @@ function bool PreviewOnDraw(canvas C)
         C.DrawActorClipped(
             PreviewModel,
             false,
-            Options[12].ActualLeft(),
-            Options[12].ActualTop(),
-            Options[12].ActualWidth(),
-            Options[12].ActualHeight(),
+            Options[13].ActualLeft(),
+            Options[13].ActualTop(),
+            Options[13].ActualWidth(),
+            Options[13].ActualHeight(),
             true,
             30);
     }
@@ -329,12 +340,12 @@ function bool PreviewSectionOnPreDraw(canvas C)
         TopPad += Section.BorderOffsets[1];
         BottomPad += Section.BorderOffsets[3];
     }
-    Options[11].WinHeight = Options[11].RelativeHeight(C.CLipY * Options[11].StandardHeight);
-    Options[13].WinHeight = Options[13].RelativeHeight(C.CLipY * Options[13].StandardHeight);
-    Options[12].WinHeight = Options[12].RelativeHeight(
-        AH - TopPad - BottomPad) - Options[11].WinHeight - Options[13].WinHeight - 0.004;
-    Options[12].WinTop = Options[11].RelativeTop() + Options[11].WinHeight + 0.002;
+    Options[12].WinHeight = Options[12].RelativeHeight(C.CLipY * Options[12].StandardHeight);
+    Options[14].WinHeight = Options[14].RelativeHeight(C.CLipY * Options[14].StandardHeight);
+    Options[13].WinHeight = Options[13].RelativeHeight(
+        AH - TopPad - BottomPad) - Options[12].WinHeight - Options[14].WinHeight - 0.004;
     Options[13].WinTop = Options[12].RelativeTop() + Options[12].WinHeight + 0.002;
+    Options[14].WinTop = Options[13].RelativeTop() + Options[13].WinHeight + 0.002;
     return false;
 }
 
@@ -599,6 +610,21 @@ defaultproperties
         OnChange=InternalOnChange
     End Object
 
+    Begin Object class=moComboBox Name=SpectatorTeamComboBox
+        Caption="Spectate as"
+        Hint="Select which team's perspective to spectate as."
+        INIOption="HxSkinHighlight SpectatorTeam"
+        LabelJustification=TXTA_Left
+        ComponentJustification=TXTA_Right
+        ComponentWidth=0.7
+        bReadOnly=true
+        bAutoSizeCaption=true
+        bBoundToParent=true
+        bScaleToParent=true
+        OnLoadINI=InternalOnLoadINI
+        OnChange=InternalOnChange
+    End Object
+
     Begin Object class=moComboBox Name=EditColorComboBox
         Caption="Color"
         Hint="Color to customize."
@@ -749,18 +775,21 @@ defaultproperties
     Options(2)=SoloPlayerComboBox
     Options(3)=DisableOnDeadBodiesCheckBox
     Options(4)=ForceNormalSkinsCheckBox
-    Options(5)=EditColorComboBox
-    Options(6)=ColorNameEditBox
-    Options(7)=ColorRedSlider
-    Options(8)=ColorGreenSlider
-    Options(9)=ColorBlueSlider
-    Options(10)=ButtonAnchorLabel
-    Options(11)=PreviewSkinComboBox
-    Options(12)=PreviewBackgroundImage
-    Options(13)=ChangeModelButton
+    Options(5)=SpectatorTeamComboBox
+    Options(6)=EditColorComboBox
+    Options(7)=ColorNameEditBox
+    Options(8)=ColorRedSlider
+    Options(9)=ColorGreenSlider
+    Options(10)=ColorBlueSlider
+    Options(11)=ButtonAnchorLabel
+    Options(12)=PreviewSkinComboBox
+    Options(13)=PreviewBackgroundImage
+    Options(14)=ChangeModelButton
     SkinLabels(0)="View Normal Skin"
     SkinLabels(1)="View Red Team Skin"
     SkinLabels(2)="View Blue Team Skin"
+    TeamLabels(0)="Red Team"
+    TeamLabels(1)="Blue Team"
     PreviewSkinVariation=-1
     PreviewOffset=(X=450,Z=-5)
     b_NewColor=NewColorButton

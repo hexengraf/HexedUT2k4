@@ -21,6 +21,7 @@ var config string EnemyTeam;
 var config string SoloPlayer;
 var config bool bDisableOnDeadBodies;
 var config bool bForceNormalSkins;
+var config int SpectatorTeam;
 var config array<HxColor> Colors;
 var config array<HxCacheEntry> Cache;
 var float HighlightFactor;
@@ -168,6 +169,7 @@ simulated function Reinitialize()
     SoloPlayer = default.SoloPlayer;
     bDisableOnDeadBodies = default.bDisableOnDeadBodies;
     bForceNormalSkins = default.bForceNormalSkins;
+    SpectatorTeam = default.SpectatorTeam;
     bInitialized = false;
     DisableHighlight();
 }
@@ -216,7 +218,8 @@ simulated function int GetLocalPlayerTeam()
 {
     if (PC.PlayerReplicationInfo.bOnlySpectator)
     {
-        return 0;
+        SpectatorTeam = Clamp(SpectatorTeam, 0, 1);
+        return SpectatorTeam;
     }
     return PC.GetTeamNum();
 }
@@ -501,6 +504,7 @@ defaultproperties
     SoloPlayer=""
     bDisableOnDeadBodies=false
     bForceNormalSkins=true
+    SpectatorTeam=0
     Colors(0)=(Name="Red",Color=(R=255,G=0,B=0,A=255))
     Colors(1)=(Name="Blue",Color=(R=0,G=0,B=255,A=255))
     Colors(2)=(Name="Green",Color=(R=0,G=255,B=0,A=255))
