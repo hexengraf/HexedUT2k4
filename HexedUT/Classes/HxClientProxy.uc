@@ -10,8 +10,8 @@ const DAMAGE_CLUSTERING_INTERVAL = 0.015;
 
 var bool bAllowHitSounds;
 var bool bAllowDamageNumbers;
-var bool bAllowPlayerHighlight;
-var float PlayerHighlightFactor;
+var bool bAllowSkinHighlight;
+var float SkinHighlightFactor;
 var bool bColoredDeathMessages;
 var float HealthLeechRatio;
 var int HealthLeechLimit;
@@ -50,8 +50,8 @@ replication
     reliable if (Role == ROLE_Authority)
         bAllowHitSounds,
         bAllowDamageNumbers,
-        bAllowPlayerHighlight,
-        PlayerHighlightFactor,
+        bAllowSkinHighlight,
+        SkinHighlightFactor,
         bColoredDeathMessages,
         HealthLeechRatio,
         HealthLeechLimit,
@@ -85,7 +85,7 @@ simulated event PreBeginPlay()
     if (Level.NetMode != NM_DedicatedServer)
     {
         class'HxServerMenuPanel'.static.AddToMenu();
-        class'HxPlayerHighlightMenuPanel'.static.AddToMenu();
+        class'HxSkinHighlightMenuPanel'.static.AddToMenu();
         class'HxHitEffectsMenuPanel'.static.AddToMenu();
     }
 }
@@ -211,8 +211,8 @@ function Update()
 {
     bAllowHitSounds = HexedUT.bAllowHitSounds;
     bAllowDamageNumbers = HexedUT.bAllowDamageNumbers;
-    bAllowPlayerHighlight = HexedUT.bAllowPlayerHighlight;
-    PlayerHighlightFactor = HexedUT.PlayerHighlightFactor;
+    bAllowSkinHighlight = HexedUT.bAllowSkinHighlight;
+    SkinHighlightFactor = HexedUT.SkinHighlightFactor;
     bColoredDeathMessages = HexedUT.bColoredDeathMessages;
     HealthLeechRatio = HexedUT.HealthLeechRatio;
     HealthLeechLimit = HexedUT.HealthLeechLimit;

@@ -26,7 +26,7 @@ miscfiles:=README.md LICENSE
 
 -include $(.versionfiles)
 
-.projectversion:=v3a
+.projectversion:=v3b
 .packages:=$(foreach p,$(packages),$p$($p.version))
 .intpackages:=$(foreach p,$(requiresint),$p$($p.version))
 .compressedpackages:=$(foreach p,$(requirescompressed),$p$($p.version))

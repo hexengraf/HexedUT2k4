@@ -1,4 +1,4 @@
-class HxPlayerHighlight extends Actor
+class HxSkinHighlight extends Actor
     config(User);
 
 struct HxColor
@@ -84,12 +84,12 @@ simulated event Tick(float DeltaTime)
         }
         else if (Pawn != None)
         {
-            if (bForceNormalSkins && !bSkinUpdated)
-            {
-                ForceNormalSkin(Pawn);
-            }
             if (bEnabled && Pawn.bAlreadySetup && !Pawn.bInvis && !Pawn.bOldInvis && !Pawn.bDeRes)
             {
+                if (bForceNormalSkins && !bSkinUpdated)
+                {
+                    ForceNormalSkin(Pawn);
+                }
                 UpdateHighlightOverlay(Pawn);
             }
         }
@@ -100,6 +100,7 @@ simulated event Tick(float DeltaTime)
 simulated function bool Initialize(xPawn Pawn)
 {
     local string Highlight;
+    local int i;
 
     if (HighlightFactor == -1)
     {
@@ -143,30 +144,7 @@ simulated function bool Initialize(xPawn Pawn)
         }
         bEnabled = Highlight != NO_HIGHLIGHT;
         HighlightColor = GetHighlightColor(Highlight);
-        return true;
-    }
-    return false;
-}
-
-simulated function Reinitialize()
-{
-    local xPawn Pawn;
-    local int i;
-
-    YourTeam = default.YourTeam;
-    EnemyTeam = default.EnemyTeam;
-    SoloPlayer = default.SoloPlayer;
-    bDisableOnDeadBodies = default.bDisableOnDeadBodies;
-    bForceNormalSkins = default.bForceNormalSkins;
-    bInitialized = false;
-    Pawn = xPawn(Base);
-    if (Pawn != None)
-    {
-        if (IsActive(Pawn))
-        {
-            Pawn.SetOverlayMaterial(None, 1, true);
-        }
-        if (!bForceNormalSkins && OriginalSkins.Length > 0)
+        if ((!bForceNormalSkins || !bEnabled) && OriginalSkins.Length > 0)
         {
             for (i = 0; i < OriginalSkins.Length; ++i)
             {
@@ -175,9 +153,23 @@ simulated function Reinitialize()
                     Pawn.Skins[i] = OriginalSkins[i];
                 }
             }
+            OriginalSkins.Remove(0, OriginalSkins.Length);
             bSkinUpdated = false;
         }
+        return true;
     }
+    return false;
+}
+
+simulated function Reinitialize()
+{
+    YourTeam = default.YourTeam;
+    EnemyTeam = default.EnemyTeam;
+    SoloPlayer = default.SoloPlayer;
+    bDisableOnDeadBodies = default.bDisableOnDeadBodies;
+    bForceNormalSkins = default.bForceNormalSkins;
+    bInitialized = false;
+    DisableHighlight();
 }
 
 simulated function UpdateHighlightOverlay(xPawn Pawn)
@@ -273,9 +265,16 @@ simulated function string GetFromRandomPool()
     return Name;
 }
 
-simulated function bool IsActive(xPawn Pawn)
+simulated function DisableHighlight()
 {
-    return Pawn.OverlayMaterial == HighlightShader;
+    local xPawn Pawn;
+
+    Pawn = xPawn(Base);
+    if (Pawn != None && Pawn.OverlayMaterial == HighlightShader)
+    {
+        Pawn.SetOverlayMaterial(None, 1, true);
+    }
+    bEnabled = false;
 }
 
 simulated function Material AllocateMaterial(class<Material> MaterialClass)
@@ -289,16 +288,9 @@ simulated function Material AllocateMaterial(class<Material> MaterialClass)
 
 simulated function PawnBaseDied()
 {
-    local xPawn Pawn;
-
-    if (Level.NetMode != NM_DedicatedServer)
+    if (Level.NetMode != NM_DedicatedServer && bDisableOnDeadBodies)
     {
-        Pawn = xPawn(Base);
-        if (bDisableOnDeadBodies && Pawn != None && IsActive(Pawn))
-        {
-            Pawn.SetOverlayMaterial(None, 1, true);
-            bEnabled = false;
-        }
+        DisableHighlight();
     }
 }
 
@@ -508,7 +500,7 @@ defaultproperties
     YourTeam=""
     SoloPlayer=""
     bDisableOnDeadBodies=false
-    bForceNormalSkins=false
+    bForceNormalSkins=true
     Colors(0)=(Name="Red",Color=(R=255,G=0,B=0,A=255))
     Colors(1)=(Name="Blue",Color=(R=0,G=0,B=255,A=255))
     Colors(2)=(Name="Green",Color=(R=0,G=255,B=0,A=255))
@@ -516,7 +508,7 @@ defaultproperties
     Colors(4)=(Name="Teal",Color=(R=0,G=255,B=255,A=255))
     Colors(5)=(Name="Yellow",Color=(R=255,G=255,B=0,A=255))
     Colors(6)=(Name="Orange",Color=(R=255,G=128,B=0,A=255))
-    Colors(7)=(Name="Purple",Color=(R=96,G=0,B=255,A=255))
+    Colors(7)=(Name="Purple",Color=(R=64,G=0,B=255,A=255))
     Colors(8)=(Name="White",Color=(R=255,G=255,B=255,A=255))
     HighlightFactor=-1
 

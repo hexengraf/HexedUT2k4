@@ -108,11 +108,11 @@ defaultproperties
         OnChange=RemoteOnChange
     End Object
 
-    Begin Object class=HxMenuCheckBox Name=AllowPlayerHighlight
+    Begin Object class=HxMenuCheckBox Name=AllowSkinHighlight
         OnChange=RemoteOnChange
     End Object
 
-    Begin Object class=HxMenuFloatEdit Name=PlayerHighlightFactor
+    Begin Object class=HxMenuFloatEdit Name=SkinHighlightFactor
         MinValue=0.0
         MaxValue=1.0
         Step=0.01
@@ -259,8 +259,8 @@ defaultproperties
     Sections(3)=PowerUpsSection
     Options(0)=AllowHitSounds
     Options(1)=AllowDamageNumbers
-    Options(2)=AllowPlayerHighlight
-    Options(3)=PlayerHighlightFactor
+    Options(2)=AllowSkinHighlight
+    Options(3)=SkinHighlightFactor
     Options(4)=ColoredDeathMessages
     Options(5)=HealthLeechRatio
     Options(6)=HealthLeechLimit

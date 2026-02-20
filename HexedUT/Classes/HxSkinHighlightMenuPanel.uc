@@ -1,4 +1,4 @@
-class HxPlayerHighlightMenuPanel extends HxMenuPanel;
+class HxSkinHighlightMenuPanel extends HxMenuPanel;
 
 const SECTION_HIGHLIGHTS = 0;
 const SECTION_CUSTOMIZE_COLORS = 1;
@@ -83,7 +83,7 @@ event Opened(GUIComponent Sender)
 
 function Refresh()
 {
-    HideSection(SECTION_HIGHLIGHTS, !Proxy.bAllowPlayerHighlight, HIDE_DUE_DISABLE);
+    HideSection(SECTION_HIGHLIGHTS, !Proxy.bAllowSkinHighlight, HIDE_DUE_DISABLE);
 }
 
 function ResolutionChanged(int ResX, int ResY)
@@ -124,7 +124,7 @@ function CustomizeColorOnLoadINI(GUIComponent Sender, string s)
     }
     else
     {
-        class'HxPlayerHighlight'.static.FindColor(co_EditColor.GetComponentValue(), C);
+        class'HxSkinHighlight'.static.FindColor(co_EditColor.GetComponentValue(), C);
         switch (Sender)
         {
             case sl_ColorRed:
@@ -146,23 +146,23 @@ function InternalOnChange(GUIComponent Sender)
     switch (Sender)
     {
         case Options[0]:
-            class'HxPlayerHighlight'.default.YourTeam = moComboBox(Sender).GetExtra();
+            class'HxSkinHighlight'.default.YourTeam = moComboBox(Sender).GetExtra();
             break;
         case Options[1]:
-            class'HxPlayerHighlight'.default.EnemyTeam = moComboBox(Sender).GetExtra();
+            class'HxSkinHighlight'.default.EnemyTeam = moComboBox(Sender).GetExtra();
             break;
         case Options[2]:
-            class'HxPlayerHighlight'.default.SoloPlayer = moComboBox(Sender).GetExtra();
+            class'HxSkinHighlight'.default.SoloPlayer = moComboBox(Sender).GetExtra();
             break;
         case Options[3]:
-            class'HxPlayerHighlight'.default.bDisableOnDeadBodies = moCheckBox(Sender).IsChecked();
+            class'HxSkinHighlight'.default.bDisableOnDeadBodies = moCheckBox(Sender).IsChecked();
             break;
         case Options[4]:
-            class'HxPlayerHighlight'.default.bForceNormalSkins = moCheckBox(Sender).IsChecked();
+            class'HxSkinHighlight'.default.bForceNormalSkins = moCheckBox(Sender).IsChecked();
             break;
     }
     UpdateOutstandingHighlights(PlayerOwner());
-    class'HxPlayerHighlight'.static.StaticSaveConfig();
+    class'HxSkinHighlight'.static.StaticSaveConfig();
 }
 
 function CustomizeColorOnChange(GUIComponent Sender)
@@ -176,24 +176,24 @@ function CustomizeColorOnChange(GUIComponent Sender)
     }
     else if (Sender == ed_ColorName)
     {
-        if (class'HxPlayerHighlight'.static.ChangeColorName(Index, ed_ColorName.GetComponentValue()))
+        if (class'HxSkinHighlight'.static.ChangeColorName(Index, ed_ColorName.GetComponentValue()))
         {
             PopulateColorComboBoxes();
             UpdateOutstandingHighlights(PlayerOwner());
         }
     }
-    else if (Index < class'HxPlayerHighlight'.default.Colors.Length)
+    else if (Index < class'HxSkinHighlight'.default.Colors.Length)
     {
         switch (Sender)
         {
             case sl_ColorRed:
-                class'HxPlayerHighlight'.default.Colors[Index].Color.R = sl_ColorRed.GetValue();
+                class'HxSkinHighlight'.default.Colors[Index].Color.R = sl_ColorRed.GetValue();
                 break;
             case sl_ColorGreen:
-                class'HxPlayerHighlight'.default.Colors[Index].Color.G = sl_ColorGreen.GetValue();
+                class'HxSkinHighlight'.default.Colors[Index].Color.G = sl_ColorGreen.GetValue();
                 break;
             case sl_ColorBlue:
-                class'HxPlayerHighlight'.default.Colors[Index].Color.B = sl_ColorBlue.GetValue();
+                class'HxSkinHighlight'.default.Colors[Index].Color.B = sl_ColorBlue.GetValue();
                 break;
         }
         UpdateOutstandingHighlights(PlayerOwner());
@@ -220,13 +220,13 @@ function PopulateColorComboBoxes()
         moComboBox(Options[i]).AddItem("Default",,NO_HIGHLIGHT);
     }
     moComboBox(Options[2]).AddItem("Random",,RANDOM_HIGHLIGHT);
-    for (i = 0; i < class'HxPlayerHighlight'.default.Colors.Length; ++i)
+    for (i = 0; i < class'HxSkinHighlight'.default.Colors.Length; ++i)
     {
         for (j = 0; j < 3; ++j)
         {
             moComboBox(Options[j]).AddItem(
-                class'HxPlayerHighlight'.default.Colors[i].Name,,
-                class'HxPlayerHighlight'.default.Colors[i].Name);
+                class'HxSkinHighlight'.default.Colors[i].Name,,
+                class'HxSkinHighlight'.default.Colors[i].Name);
 
         }
     }
@@ -238,11 +238,11 @@ function PopulateColorComboBoxes()
     Index = co_EditColor.GetIndex();
     co_EditColor.bIgnoreChange = true;
     co_EditColor.ResetComponent();
-    for (i = 0; i < class'HxPlayerHighlight'.default.Colors.Length; ++i)
+    for (i = 0; i < class'HxSkinHighlight'.default.Colors.Length; ++i)
     {
         co_EditColor.AddItem(
-            class'HxPlayerHighlight'.default.Colors[i].Name,,
-            class'HxPlayerHighlight'.default.Colors[i].Name);
+            class'HxSkinHighlight'.default.Colors[i].Name,,
+            class'HxSkinHighlight'.default.Colors[i].Name);
     }
     if (Index > -1)
     {
@@ -253,13 +253,13 @@ function PopulateColorComboBoxes()
 
 function UpdateOutstandingHighlights(PlayerController PC)
 {
-    local HxPlayerHighlight PlayerHighlight;
+    local HxSkinHighlight SkinHighlight;
 
     if (PC != None)
     {
-        ForEach PC.DynamicActors(class'HxPlayerHighlight', PlayerHighlight)
+        ForEach PC.DynamicActors(class'HxSkinHighlight', SkinHighlight)
         {
-            PlayerHighlight.Reinitialize();
+            SkinHighlight.Reinitialize();
         }
     }
 }
@@ -269,7 +269,7 @@ function UpdateCustomizeColorSection(string ColorName)
     local Color C;
 
     ed_ColorName.SetComponentValue(ColorName, true);
-    class'HxPlayerHighlight'.static.FindColor(ColorName, C);
+    class'HxSkinHighlight'.static.FindColor(ColorName, C);
     sl_ColorRed.SetComponentValue(C.R, true);
     sl_ColorGreen.SetComponentValue(C.G, true);
     sl_ColorBlue.SetComponentValue(C.B, true);
@@ -425,10 +425,10 @@ function UpdatePreviewModelSkins()
 
 function UpdatePreviewColor()
 {
-    class'HxPlayerHighlight'.static.FindColor(co_EditColor.GetComponentValue(), PreviewEffect.Color);
-    PreviewEffect.Color.R = PreviewEffect.Color.R * Proxy.PlayerHighlightFactor;
-    PreviewEffect.Color.G = PreviewEffect.Color.G * Proxy.PlayerHighlightFactor;
-    PreviewEffect.Color.B = PreviewEffect.Color.B * Proxy.PlayerHighlightFactor;
+    class'HxSkinHighlight'.static.FindColor(co_EditColor.GetComponentValue(), PreviewEffect.Color);
+    PreviewEffect.Color.R = PreviewEffect.Color.R * Proxy.SkinHighlightFactor;
+    PreviewEffect.Color.G = PreviewEffect.Color.G * Proxy.SkinHighlightFactor;
+    PreviewEffect.Color.B = PreviewEffect.Color.B * Proxy.SkinHighlightFactor;
 }
 
 function bool OnClickNewColor(GUIComponent Sender)
@@ -436,8 +436,8 @@ function bool OnClickNewColor(GUIComponent Sender)
     local string ColorName;
     local int Index;
 
-    Index = class'HxPlayerHighlight'.static.AllocateColor(ColorName);
-    class'HxPlayerHighlight'.static.StaticSaveConfig();
+    Index = class'HxSkinHighlight'.static.AllocateColor(ColorName);
+    class'HxSkinHighlight'.static.StaticSaveConfig();
     PopulateColorComboBoxes();
     co_EditColor.SilentSetIndex(Index);
     UpdateCustomizeColorSection(ColorName);
@@ -446,9 +446,9 @@ function bool OnClickNewColor(GUIComponent Sender)
 
 function bool OnClickDeleteColor(GUIComponent Sender)
 {
-    if (class'HxPlayerHighlight'.static.DeleteColor(co_EditColor.GetIndex()))
+    if (class'HxSkinHighlight'.static.DeleteColor(co_EditColor.GetIndex()))
     {
-        class'HxPlayerHighlight'.static.StaticSaveConfig();
+        class'HxSkinHighlight'.static.StaticSaveConfig();
         PopulateColorComboBoxes();
         UpdateCustomizeColorSection(co_EditColor.GetComponentValue());
         UpdateOutstandingHighlights(PlayerOwner());
@@ -524,7 +524,7 @@ defaultproperties
 
     Begin Object class=moComboBox Name=YourTeamComboBox
         Caption="Your team"
-        INIOption="HxPlayerHighlight YourTeam"
+        INIOption="HxSkinHighlight YourTeam"
         LabelJustification=TXTA_Left
         ComponentJustification=TXTA_Right
         ComponentWidth=0.7
@@ -538,7 +538,7 @@ defaultproperties
 
     Begin Object class=moComboBox Name=EnemyTeamComboBox
         Caption="Enemy team"
-        INIOption="HxPlayerHighlight EnemyTeam"
+        INIOption="HxSkinHighlight EnemyTeam"
         LabelJustification=TXTA_Left
         ComponentJustification=TXTA_Right
         ComponentWidth=0.7
@@ -553,7 +553,7 @@ defaultproperties
 
     Begin Object class=moComboBox Name=SoloPlayerComboBox
         Caption="Solo player"
-        INIOption="HxPlayerHighlight SoloPlayer"
+        INIOption="HxSkinHighlight SoloPlayer"
         LabelJustification=TXTA_Left
         ComponentJustification=TXTA_Right
         ComponentWidth=0.7
@@ -568,7 +568,7 @@ defaultproperties
 
     Begin Object class=moCheckBox Name=DisableOnDeadBodiesCheckBox
         Caption="Disable highlight on dead bodies"
-        INIOption="HxPlayerHighlight bDisableOnDeadBodies"
+        INIOption="HxSkinHighlight bDisableOnDeadBodies"
         LabelJustification=TXTA_Left
         ComponentJustification=TXTA_Right
         ComponentWidth=-1
@@ -582,7 +582,7 @@ defaultproperties
 
     Begin Object class=moCheckBox Name=ForceNormalSkinsCheckBox
         Caption="Force normal (uncolored) skins"
-        INIOption="HxPlayerHighlight bForceNormalSkins"
+        INIOption="HxSkinHighlight bForceNormalSkins"
         LabelJustification=TXTA_Left
         ComponentJustification=TXTA_Right
         ComponentWidth=-1
@@ -731,8 +731,8 @@ defaultproperties
         OnClick=OnClickDeleteColor
     End Object
 
-    PanelCaption="Player Highlight"
-    PanelHint="Player highlight options"
+    PanelCaption="Skin Highlight"
+    PanelHint="Skin highlight options"
     bInsertFront=true
     bDoubleColumn=true
     Sections(0)=HighlightsSection
