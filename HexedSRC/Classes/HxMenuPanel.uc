@@ -119,10 +119,10 @@ function InitSection(int i)
     }
     Sections[i].WinLeft = 0.00001;
     Sections[i].WinWidth = 0.99998;
-    Sections[i].LeftPadding = 0.00994999899998;
-    Sections[i].RightPadding = 0.00994999899998;
+    Sections[i].LeftPadding = 0.00995;
+    Sections[i].RightPadding = 0.00995;
     Sections[i].TopPadding = 0.04;
-    Sections[i].ColPadding = 0.04;
+    // Sections[i].ColPadding = 0.04;
     if (bDoubleColumn)
     {
         if (i % 2 == 1)

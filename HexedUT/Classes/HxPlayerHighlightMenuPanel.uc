@@ -2,11 +2,16 @@ class HxPlayerHighlightMenuPanel extends HxMenuPanel;
 
 const SECTION_HIGHLIGHTS = 0;
 const SECTION_CUSTOMIZE_COLORS = 1;
+const SECTION_COLOR_PREVIEW = 3;
 
 const NO_HIGHLIGHT = "";
 const RANDOM_HIGHLIGHT = "*";
 
 var automated array<GUIComponent> Options;
+var automated GUIButton b_NewColor;
+var automated GUIButton b_DeleteColor;
+
+var localized string SkinLabels[3];
 
 var private moComboBox co_EditColor;
 var private moEditBox ed_ColorName;
@@ -14,6 +19,14 @@ var private moSlider sl_ColorRed;
 var private moSlider sl_ColorGreen;
 var private moSlider sl_ColorBlue;
 var private HxClientProxy Proxy;
+var private xUtil.PlayerRecord PreviewRec;
+var private int PreviewSkinVariation;
+var private SpinnyWeap PreviewModel;
+var private ConstantColor PreviewEffect;
+var private Shader PreviewShader;
+var private Rotator PreviewRotation;
+var private vector PreviewOffset;
+var private float PreviewSpin;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
@@ -28,13 +41,25 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     {
         Sections[SECTION_CUSTOMIZE_COLORS].ManageComponent(Options[i]);
     }
+    for (i = 11; i < 14; ++i)
+    {
+        Sections[SECTION_COLOR_PREVIEW].ManageComponent(Options[i]);
+    }
     co_EditColor = moComboBox(Options[5]);
     ed_ColorName = moEditBox(Options[6]);
     sl_ColorRed = moSlider(Options[7]);
     sl_ColorGreen = moSlider(Options[8]);
     sl_ColorBlue = moSlider(Options[9]);
     ed_ColorName.MyEditBox.bAlwaysNotify = false;
-    PopulateComboBoxes();
+    PreviewEffect = New(Self) class'ConstantColor';
+    PreviewShader = New(Self) class'Shader';
+    PreviewShader.Specular = PreviewEffect;
+    PopulateColorComboBoxes();
+
+    for (i = 0; i < 3; ++i)
+    {
+        moComboBox(Options[11]).AddItem(SkinLabels[i]);
+    }
 }
 
 function bool Initialize()
@@ -45,6 +70,15 @@ function bool Initialize()
     }
     Proxy = class'HxClientProxy'.static.GetClientProxy(PlayerOwner());
     return Proxy != None;
+}
+
+event Opened(GUIComponent Sender)
+{
+    if (PreviewModel != None)
+    {
+        UpdatePreviewModelRotation(PlayerOwner());
+    }
+    Super.Opened(Sender);
 }
 
 function Refresh()
@@ -62,12 +96,12 @@ function bool InternalOnPreDraw(Canvas C)
 {
     if (bInit)
     {
-        Options[11].WinLeft = Options[10].WinLeft;
-        Options[11].WinTop = Options[10].WinTop;
-        Options[11].WinWidth = Options[10].WinWidth / 2;
-        Options[12].WinLeft = Options[11].WinLeft + Options[11].WinWidth;
-        Options[12].WinTop = Options[10].WinTop;
-        Options[12].WinWidth = Options[11].WinWidth;
+        b_NewColor.WinLeft = Options[10].WinLeft;
+        b_NewColor.WinTop = Options[10].WinTop;
+        b_NewColor.WinWidth = Options[10].WinWidth / 2;
+        b_DeleteColor.WinLeft = b_NewColor.WinLeft + b_NewColor.WinWidth;
+        b_DeleteColor.WinTop = Options[10].WinTop;
+        b_DeleteColor.WinWidth = b_NewColor.WinWidth;
     }
     return false;
 }
@@ -104,6 +138,7 @@ function CustomizeColorOnLoadINI(GUIComponent Sender, string s)
                 break;
         }
     }
+    UpdatePreviewColor();
 }
 
 function InternalOnChange(GUIComponent Sender)
@@ -143,7 +178,7 @@ function CustomizeColorOnChange(GUIComponent Sender)
     {
         if (class'HxPlayerHighlight'.static.ChangeColorName(Index, ed_ColorName.GetComponentValue()))
         {
-            PopulateComboBoxes();
+            PopulateColorComboBoxes();
             UpdateOutstandingHighlights(PlayerOwner());
         }
     }
@@ -163,9 +198,16 @@ function CustomizeColorOnChange(GUIComponent Sender)
         }
         UpdateOutstandingHighlights(PlayerOwner());
     }
+    UpdatePreviewColor();
 }
 
-function PopulateComboBoxes()
+function PreviewSkinOnChange(GUIComponent Sender)
+{
+    PreviewSkinVariation = moComboBox(Sender).GetIndex() - 1;
+    UpdatePreviewModelSkins();
+}
+
+function PopulateColorComboBoxes()
 {
     local int Index;
     local int i;
@@ -233,6 +275,162 @@ function UpdateCustomizeColorSection(string ColorName)
     sl_ColorBlue.SetComponentValue(C.B, true);
 }
 
+function bool PreviewOnDraw(canvas C)
+{
+    local rotator CameraRotation;
+    local vector CameraPosition;
+    local vector X;
+    local vector Y;
+    local vector Z;
+
+    if (PreviewModel == None)
+    {
+        SpawnPreviewModel(PlayerOwner());
+    }
+    else
+    {
+        if (PreviewModel.OverlayMaterial == None)
+        {
+            PreviewModel.SetOverlayMaterial(PreviewShader, 300, false);
+        }
+        C.GetCameraLocation(CameraPosition, CameraRotation);
+        GetAxes(CameraRotation, X, Y, Z);
+        PreviewModel.SetLocation(
+            CameraPosition + (PreviewOffset.X * X) + (PreviewOffset.Y * Y) + (PreviewOffset.Z * Z));
+        C.DrawActorClipped(
+            PreviewModel,
+            false,
+            Options[12].ActualLeft(),
+            Options[12].ActualTop(),
+            Options[12].ActualWidth(),
+            Options[12].ActualHeight(),
+            true,
+            30);
+    }
+    return true;
+}
+
+function bool PreviewSectionOnPreDraw(canvas C)
+{
+    local AltSectionBackground Section;
+    local float AH;
+    local float TopPad;
+    local float BottomPad;
+
+    Section = Sections[SECTION_COLOR_PREVIEW];
+    Section.InternalPreDraw(C);
+    AH = Section.ActualHeight();
+
+    TopPad = (Section.TopPadding * AH) + Section.ImageOffset[1];
+    BottomPad = (Section.BottomPadding * AH) + Section.ImageOffset[3];
+
+    if (Section.Style != None)
+    {
+        TopPad += Section.BorderOffsets[1];
+        BottomPad += Section.BorderOffsets[3];
+    }
+    Options[11].WinHeight = Options[11].RelativeHeight(C.CLipY * Options[11].StandardHeight);
+    Options[13].WinHeight = Options[13].RelativeHeight(C.CLipY * Options[13].StandardHeight);
+    Options[12].WinHeight = Options[12].RelativeHeight(
+        AH - TopPad - BottomPad) - Options[11].WinHeight - Options[13].WinHeight - 0.004;
+    Options[12].WinTop = Options[11].RelativeTop() + Options[11].WinHeight + 0.002;
+    Options[13].WinTop = Options[12].RelativeTop() + Options[12].WinHeight + 0.002;
+    return false;
+}
+
+function bool PreviewOnCapturedMouseMove(float DeltaX, float DeltaY)
+{
+    local Rotator Delta;
+    local Vector X;
+    local Vector Y;
+    local Vector Z;
+
+    PreviewSpin -= 256 * DeltaX;
+    Delta.Yaw = PreviewSpin;
+    GetAxes(PreviewRotation, X, Y, Z);
+    X = vector(Delta) >> PreviewRotation;
+    Delta.Yaw += 16384;
+    Y = vector(Delta) >> PreviewRotation;
+    PreviewModel.SetRotation(OrthoRotation(X, Y, Z));
+    return true;
+}
+
+function SpawnPreviewModel(PlayerController PC)
+{
+    if (PC == None || PC.PlayerReplicationInfo == None)
+    {
+        return;
+    }
+    if (PC.PlayerReplicationInfo.CharacterName != "")
+    {
+        PreviewRec = class'xUtil'.static.FindPlayerRecord(PC.PlayerReplicationInfo.CharacterName);
+    }
+    else
+    {
+        PreviewRec = class'xUtil'.static.FindPlayerRecord(class'xPawn'.default.PlacedCharacterName);
+    }
+    PreviewModel = PC.spawn(class'XInterface.SpinnyWeap');
+    PreviewModel.SetDrawType(DT_Mesh);
+    PreviewModel.SetDrawScale(1.0);
+    PreviewModel.bHidden = true;
+    PreviewModel.bPlayCrouches = false;
+    PreviewModel.bPlayRandomAnims = false;
+    PreviewModel.SpinRate = 0;
+    PreviewModel.AmbientGlow = 40;
+    UpdatePreviewModelRotation(PC);
+    UpdatePreviewModelSkins();
+}
+
+function UpdatePreviewModelRotation(PlayerController PC)
+{
+    PreviewRotation = PC.Rotation;
+    PreviewRotation.Pitch += 32768;
+    PreviewRotation.Roll += 32768;
+    PreviewModel.SetRotation(PreviewRotation);
+    PreviewSpin = 0;
+}
+
+function UpdatePreviewModelSkins()
+{
+    local string BodySkinName;
+    local string FaceSkinName;
+    local Mesh ModelMesh;
+
+    ModelMesh = Mesh(DynamicLoadObject(PreviewRec.MeshName, class'Mesh'));
+    BodySkinName = PreviewRec.BodySkinName;
+    FaceSkinName = PreviewRec.FaceSkinName;
+    if (PreviewSkinVariation > -1)
+    {
+        if (class'DMMutator'.default.bBrightSkins && Left(BodySkinName, 12) ~= "PlayerSkins.")
+        {
+            BodySkinName = "Bright"$BodySkinName$"_"$PreviewSkinVariation$"B";
+        }
+        else
+        {
+            BodySkinName $= "_"$PreviewSkinVariation;
+        }
+        if (PreviewRec.TeamFace)
+        {
+            FaceSkinName $= "_"$PreviewSkinVariation;
+        }
+    }
+    PreviewModel.Skins[0] = Material(DynamicLoadObject(BodySkinName, class'Material', true));
+    PreviewModel.Skins[1] = Material(DynamicLoadObject(FaceSkinName, class'Material', true));
+    if(ModelMesh != None && PreviewModel.Skins[0] != None && PreviewModel.Skins[1] != None)
+    {
+        PreviewModel.LinkMesh(ModelMesh);
+        PreviewModel.LoopAnim('Idle_Rest', 1.0 / PreviewModel.Level.TimeDilation);
+    }
+}
+
+function UpdatePreviewColor()
+{
+    class'HxPlayerHighlight'.static.FindColor(co_EditColor.GetComponentValue(), PreviewEffect.Color);
+    PreviewEffect.Color.R = PreviewEffect.Color.R * Proxy.PlayerHighlightFactor;
+    PreviewEffect.Color.G = PreviewEffect.Color.G * Proxy.PlayerHighlightFactor;
+    PreviewEffect.Color.B = PreviewEffect.Color.B * Proxy.PlayerHighlightFactor;
+}
+
 function bool OnClickNewColor(GUIComponent Sender)
 {
     local string ColorName;
@@ -240,7 +438,7 @@ function bool OnClickNewColor(GUIComponent Sender)
 
     Index = class'HxPlayerHighlight'.static.AllocateColor(ColorName);
     class'HxPlayerHighlight'.static.StaticSaveConfig();
-    PopulateComboBoxes();
+    PopulateColorComboBoxes();
     co_EditColor.SilentSetIndex(Index);
     UpdateCustomizeColorSection(ColorName);
     return true;
@@ -251,11 +449,47 @@ function bool OnClickDeleteColor(GUIComponent Sender)
     if (class'HxPlayerHighlight'.static.DeleteColor(co_EditColor.GetIndex()))
     {
         class'HxPlayerHighlight'.static.StaticSaveConfig();
-        PopulateComboBoxes();
+        PopulateColorComboBoxes();
         UpdateCustomizeColorSection(co_EditColor.GetComponentValue());
         UpdateOutstandingHighlights(PlayerOwner());
     }
     return true;
+}
+
+function bool OnClickChangeModel(GUIComponent Sender)
+{
+    if (Controller.OpenMenu("GUI2K4.UT2K4ModelSelect", PreviewRec.DefaultName, ""))
+    {
+        Controller.ActivePage.OnClose = OnCloseChangeModel;
+    }
+    return true;
+}
+
+function OnCloseChangeModel(optional bool bCancelled)
+{
+    local string CharName;
+
+    if (!bCancelled)
+    {
+        CharName = Controller.ActivePage.GetDataString();
+        if (CharName != "")
+        {
+            PreviewRec = class'xUtil'.static.FindPlayerRecord(CharName);
+            UpdatePreviewModelSkins();
+        }
+    }
+}
+
+function Free()
+{
+    if (PreviewModel != None)
+    {
+        PreviewModel.Destroy();
+        PreviewModel = None;
+    }
+    PreviewEffect = None;
+    PreviewShader = None;
+    Super.Free();
 }
 
 static function bool AddToMenu()
@@ -281,6 +515,11 @@ defaultproperties
 
     Begin Object class=AltSectionBackground Name=CustomizeColorsSection
         Caption="Customize Colors"
+    End Object
+
+    Begin Object class=AltSectionBackground Name=ColorPreviewSection
+        Caption="Color Preview"
+        OnPreDraw=PreviewSectionOnPreDraw
     End Object
 
     Begin Object class=moComboBox Name=YourTeamComboBox
@@ -432,8 +671,47 @@ defaultproperties
     Begin Object class=GUILabel Name=ButtonAnchorLabel
     End Object
 
+    Begin Object class=moComboBox Name=PreviewSkinComboBox
+        Caption="Variation"
+        StandardHeight=0.03
+        bStandardized=true
+        LabelJustification=TXTA_Left
+        ComponentJustification=TXTA_Right
+        ComponentWidth=0.7
+        bReadOnly=true
+        bAutoSizeCaption=true
+        bBoundToParent=true
+        bScaleToParent=true
+        OnChange=PreviewSkinOnChange
+    End Object
+
+    Begin Object class=GUIButton Name=PreviewBackgroundImage
+        StyleName="NoBackground"
+        bStandardized=false
+        MouseCursorIndex=5
+        bTabStop=false
+        bNeverFocus=true
+        bDropTarget=true
+        bScaleToParent=true
+        bBoundToParent=true
+        OnDraw=PreviewOnDraw
+        OnCapturedMouseMove=PreviewOnCapturedMouseMove
+    End Object
+
+    Begin Object class=GUIButton Name=ChangeModelButton
+        Caption="Change Preview Character"
+        StandardHeight=0.035
+        bStandardized=true
+        bNeverFocus=true
+        bRepeatClick=false
+        bBoundToParent=true
+        bScaleToParent=true
+        OnClick=OnClickChangeModel
+    End Object
+
     Begin Object Class=GUIButton Name=NewColorButton
         Caption="New Color"
+        StandardHeight=0.035
         bStandardized=true
         bNeverFocus=true
         bRepeatClick=false
@@ -444,6 +722,7 @@ defaultproperties
 
     Begin Object Class=GUIButton Name=DeleteColorButton
         Caption="Delete Color"
+        StandardHeight=0.035
         bStandardized=true
         bNeverFocus=true
         bRepeatClick=false
@@ -458,6 +737,8 @@ defaultproperties
     bDoubleColumn=true
     Sections(0)=HighlightsSection
     Sections(1)=CustomizeColorsSection
+    Sections(2)=None
+    Sections(3)=ColorPreviewSection
     Options(0)=YourTeamComboBox
     Options(1)=EnemyTeamComboBox
     Options(2)=SoloPlayerComboBox
@@ -469,7 +750,15 @@ defaultproperties
     Options(8)=ColorGreenSlider
     Options(9)=ColorBlueSlider
     Options(10)=ButtonAnchorLabel
-    Options(11)=NewColorButton
-    Options(12)=DeleteColorButton
+    Options(11)=PreviewSkinComboBox
+    Options(12)=PreviewBackgroundImage
+    Options(13)=ChangeModelButton
+    SkinLabels(0)="Normal Skin"
+    SkinLabels(1)="Red Team Skin"
+    SkinLabels(2)="Blue Team Skin"
+    PreviewSkinVariation=-1
+    PreviewOffset=(X=450,Z=-5)
+    b_NewColor=NewColorButton
+    b_DeleteColor=DeleteColorButton
     OnPreDraw=InternalOnPreDraw
 }

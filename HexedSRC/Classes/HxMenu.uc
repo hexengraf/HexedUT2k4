@@ -20,6 +20,7 @@ function InitComponent(GUIController MyController, GUIComponent MyComponent)
     t_WindowTitle.DockedTabs = TabControl;
     t_WindowTitle.DockAlign = PGA_Top;
     i_FrameBG.ImageColor.A = 225;
+    AdjustWindowSize(Controller.ResX, Controller.ResY);
     PopulateTabControl();
 }
 
@@ -27,6 +28,24 @@ event Opened(GUIComponent Sender)
 {
     PopulateTabControl();
     Super.Opened(Sender);
+}
+
+function bool FloatingPreDraw(Canvas C)
+{
+    if (bInit)
+    {
+        AdjustWindowSize(C.ClipX, C.ClipY);
+    }
+    return Super.FloatingPreDraw(C);
+}
+
+function AdjustWindowSize(coerce float X, coerce float Y)
+{
+    local float Coefficient;
+
+    Coefficient = (4.0 / 3.0) / (X / Y);
+    WinWidth = default.WinWidth * Coefficient;
+    WinLeft = default.WinLeft + ((default.WinWidth - WinWidth) / 2);
 }
 
 event bool NotifyLevelChange()
@@ -100,9 +119,9 @@ defaultproperties
     bRequire640x480=true
     bAllowedAsLast=true
     bScaleToParent=true
-    WinWidth=0.70
-    WinHeight=0.80
-    WinLeft=0.15
+    WinWidth=0.90
+    WinHeight=0.85
+    WinLeft=0.05
     WinTop=0.05
     bResizeWidthAllowed=false
     bResizeHeightAllowed=false
