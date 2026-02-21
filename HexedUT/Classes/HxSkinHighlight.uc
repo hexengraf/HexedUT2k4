@@ -31,7 +31,6 @@ var private array<Material> Materials;
 var private array<Material> OriginalSkins;
 var private ConstantColor HighlightEffect;
 var private Shader HighlightShader;
-var private Color HighlightColor;
 var private bool bInitialized;
 var private bool bSkinUpdated;
 var private bool bEnabled;
@@ -144,7 +143,7 @@ simulated function bool Initialize(xPawn Pawn)
             Highlight = YourTeam;
         }
         bEnabled = Highlight != NO_HIGHLIGHT;
-        HighlightColor = GetHighlightColor(Highlight);
+        HighlightEffect.Color = GetHighlightColor(Highlight);
         if ((!bForceNormalSkins || !bEnabled) && OriginalSkins.Length > 0)
         {
             for (i = 0; i < OriginalSkins.Length; ++i)
@@ -178,8 +177,6 @@ simulated function UpdateHighlightOverlay(xPawn Pawn)
 {
     if (Pawn.OverlayMaterial == None)
     {
-        HighlightEffect.Color = HighlightColor;
-        HighlightShader.Specular = HighlightEffect;
         Pawn.SetOverlayMaterial(HighlightShader, 300, false);
     }
 }
