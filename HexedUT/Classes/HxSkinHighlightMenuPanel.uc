@@ -1,7 +1,7 @@
 class HxSkinHighlightMenuPanel extends HxMenuPanel;
 
 const SECTION_HIGHLIGHTS = 0;
-const SECTION_CUSTOMIZE_COLORS = 1;
+const SECTION_COLOR_EDITOR = 1;
 const SECTION_COLOR_PREVIEW = 3;
 
 const NO_HIGHLIGHT = "";
@@ -9,13 +9,19 @@ const RANDOM_HIGHLIGHT = "*";
 
 var automated array<GUIComponent> Options;
 var automated GUIButton b_NewColor;
+var automated GUIButton b_RenameColor;
 var automated GUIButton b_DeleteColor;
 
+var localized string NameLabel;
+var localized string NewColorPageCaption;
+var localized string RenameColorPageCaption;
+var localized string ConfirmColorDeletionLabel;
+var localized string InvalidNamePrefix;
+var localized string InvalidNameSuffix;
 var localized string SkinLabels[3];
 var localized string TeamLabels[2];
 
 var private moComboBox co_EditColor;
-var private moEditBox ed_ColorName;
 var private moSlider sl_ColorRed;
 var private moSlider sl_ColorGreen;
 var private moSlider sl_ColorBlue;
@@ -39,21 +45,19 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     {
         Sections[SECTION_HIGHLIGHTS].ManageComponent(Options[i]);
     }
-    for (i = 6; i < 13; ++i)
+    for (i = 6; i < 12; ++i)
     {
-        Sections[SECTION_CUSTOMIZE_COLORS].ManageComponent(Options[i]);
+        Sections[SECTION_COLOR_EDITOR].ManageComponent(Options[i]);
     }
-    for (i = 13; i < 16; ++i)
+    for (i = 12; i < 15; ++i)
     {
         Sections[SECTION_COLOR_PREVIEW].ManageComponent(Options[i]);
     }
     co_EditColor = moComboBox(Options[6]);
-    ed_ColorName = moEditBox(Options[7]);
-    sl_ColorRed = moSlider(Options[8]);
-    sl_ColorGreen = moSlider(Options[9]);
-    sl_ColorBlue = moSlider(Options[10]);
-    ch_AllowOnRandom = moCheckBox(Options[11]);
-    ed_ColorName.MyEditBox.bAlwaysNotify = false;
+    sl_ColorRed = moSlider(Options[7]);
+    sl_ColorGreen = moSlider(Options[8]);
+    sl_ColorBlue = moSlider(Options[9]);
+    ch_AllowOnRandom = moCheckBox(Options[10]);
     PreviewEffect = New(Self) class'ConstantColor';
     PreviewShader = New(Self) class'Shader';
     PreviewShader.Specular = PreviewEffect;
@@ -61,7 +65,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 
     for (i = 0; i < 3; ++i)
     {
-        GUIComboBox(Options[13]).AddItem(SkinLabels[i]);
+        GUIComboBox(Options[12]).AddItem(SkinLabels[i]);
     }
     for (i = 0; i < 2; ++i)
     {
@@ -93,23 +97,17 @@ function Refresh()
     HideSection(SECTION_HIGHLIGHTS, !Proxy.bAllowSkinHighlight, HIDE_DUE_DISABLE);
 }
 
-function ResolutionChanged(int ResX, int ResY)
-{
-    bInit = true;
-    Super.ResolutionChanged(ResX, ResY);
-}
-
 function bool InternalOnPreDraw(Canvas C)
 {
-    if (bInit)
-    {
-        b_NewColor.WinLeft = Options[12].WinLeft;
-        b_NewColor.WinTop = Options[12].WinTop;
-        b_NewColor.WinWidth = Options[12].WinWidth / 2;
-        b_DeleteColor.WinLeft = b_NewColor.WinLeft + b_NewColor.WinWidth;
-        b_DeleteColor.WinTop = Options[12].WinTop;
-        b_DeleteColor.WinWidth = b_NewColor.WinWidth;
-    }
+    b_NewColor.WinLeft = Options[11].WinLeft;
+    b_NewColor.WinTop = Options[11].WinTop;
+    b_NewColor.WinWidth = Options[11].WinWidth / 3;
+    b_RenameColor.WinLeft = b_NewColor.WinLeft + b_NewColor.WinWidth;
+    b_RenameColor.WinTop = Options[11].WinTop;
+    b_RenameColor.WinWidth = b_NewColor.WinWidth;
+    b_DeleteColor.WinLeft = b_RenameColor.WinLeft + b_RenameColor.WinWidth;
+    b_DeleteColor.WinTop = Options[11].WinTop;
+    b_DeleteColor.WinWidth = b_NewColor.WinWidth;
     return false;
 }
 
@@ -125,11 +123,7 @@ function CustomizeColorOnLoadINI(GUIComponent Sender, string s)
 {
     local HxSkinHighlight.HxColorEntry ColorEntry;
 
-    if (Sender == ed_ColorName)
-    {
-        ed_ColorName.SetComponentValue(co_EditColor.GetComponentValue(), true);
-    }
-    else if (Sender == ch_AllowOnRandom)
+    if (Sender == ch_AllowOnRandom)
     {
         class'HxSkinHighlight'.static.FindColorEntry(co_EditColor.GetComponentValue(), ColorEntry);
         ch_AllowOnRandom.Checked(ColorEntry.bRandom);
@@ -176,8 +170,7 @@ function InternalOnChange(GUIComponent Sender)
             class'HxSkinHighlight'.default.SpectatorTeam = int(moComboBox(Sender).GetExtra());
             break;
     }
-    UpdateOutstandingHighlights(PlayerOwner());
-    class'HxSkinHighlight'.static.StaticSaveConfig();
+    SaveHighlightChanges(PlayerOwner());
 }
 
 function CustomizeColorOnChange(GUIComponent Sender)
@@ -189,19 +182,11 @@ function CustomizeColorOnChange(GUIComponent Sender)
     {
         UpdateCustomizeColorSection(co_EditColor.GetComponentValue());
     }
-    else if (Sender == ed_ColorName)
-    {
-        if (class'HxSkinHighlight'.static.ChangeColorName(Index, ed_ColorName.GetComponentValue()))
-        {
-            PopulateColorComboBoxes();
-            UpdateOutstandingHighlights(PlayerOwner());
-        }
-    }
     else if (Sender == ch_AllowOnRandom)
     {
         if (class'HxSkinHighlight'.static.SetColorRandom(Index, ch_AllowOnRandom.IsChecked()))
         {
-            UpdateOutstandingHighlights(PlayerOwner());
+            SaveHighlightChanges(PlayerOwner());
         }
     }
     else if (Index < class'HxSkinHighlight'.default.Colors.Length)
@@ -218,7 +203,7 @@ function CustomizeColorOnChange(GUIComponent Sender)
                 class'HxSkinHighlight'.default.Colors[Index].Color.B = sl_ColorBlue.GetValue();
                 break;
         }
-        UpdateOutstandingHighlights(PlayerOwner());
+        SaveHighlightChanges(PlayerOwner());
     }
     UpdatePreviewColor();
 }
@@ -276,7 +261,7 @@ function PopulateColorComboBoxes()
     co_EditColor.bIgnoreChange = false;
 }
 
-function UpdateOutstandingHighlights(PlayerController PC)
+function SaveHighlightChanges(PlayerController PC)
 {
     local HxSkinHighlight SkinHighlight;
 
@@ -287,13 +272,13 @@ function UpdateOutstandingHighlights(PlayerController PC)
             SkinHighlight.Reinitialize();
         }
     }
+    class'HxSkinHighlight'.static.StaticSaveConfig();
 }
 
 function UpdateCustomizeColorSection(string ColorName)
 {
     local HxSkinHighlight.HxColorEntry ColorEntry;
 
-    ed_ColorName.SetComponentValue(ColorName, true);
     class'HxSkinHighlight'.static.FindColorEntry(ColorName, ColorEntry);
     sl_ColorRed.SetComponentValue(ColorEntry.Color.R, true);
     sl_ColorGreen.SetComponentValue(ColorEntry.Color.G, true);
@@ -326,10 +311,10 @@ function bool PreviewOnDraw(canvas C)
         C.DrawActorClipped(
             PreviewModel,
             false,
-            Options[14].ActualLeft(),
-            Options[14].ActualTop(),
-            Options[14].ActualWidth(),
-            Options[14].ActualHeight(),
+            Options[13].ActualLeft(),
+            Options[13].ActualTop(),
+            Options[13].ActualWidth(),
+            Options[13].ActualHeight(),
             true,
             30);
     }
@@ -355,12 +340,12 @@ function bool PreviewSectionOnPreDraw(canvas C)
         TopPad += Section.BorderOffsets[1];
         BottomPad += Section.BorderOffsets[3];
     }
-    Options[13].WinHeight = Options[13].RelativeHeight(C.CLipY * Options[13].StandardHeight);
-    Options[15].WinHeight = Options[15].RelativeHeight(C.CLipY * Options[15].StandardHeight);
-    Options[14].WinHeight = Options[14].RelativeHeight(
-        AH - TopPad - BottomPad) - Options[13].WinHeight - Options[15].WinHeight - 0.004;
+    Options[12].WinHeight = Options[12].RelativeHeight(C.CLipY * Options[12].StandardHeight);
+    Options[14].WinHeight = Options[14].RelativeHeight(C.CLipY * Options[14].StandardHeight);
+    Options[13].WinHeight = Options[13].RelativeHeight(
+        AH - TopPad - BottomPad) - Options[12].WinHeight - Options[14].WinHeight - 0.004;
+    Options[13].WinTop = Options[12].RelativeTop() + Options[12].WinHeight + 0.002;
     Options[14].WinTop = Options[13].RelativeTop() + Options[13].WinHeight + 0.002;
-    Options[15].WinTop = Options[14].RelativeTop() + Options[14].WinHeight + 0.002;
     return false;
 }
 
@@ -459,27 +444,87 @@ function UpdatePreviewColor()
 
 function bool OnClickNewColor(GUIComponent Sender)
 {
+    if (Controller.OpenMenu(Controller.RequestDataMenu, NewColorPageCaption, NameLabel))
+    {
+        Controller.ActivePage.SetDataString(class'HxSkinHighlight'.static.RandomColorName());
+        Controller.ActivePage.OnClose = OnCloseNewColor;
+    }
+    return true;
+}
+
+function OnCloseNewColor(optional bool bCancelled)
+{
     local string ColorName;
     local int Index;
 
-    Index = class'HxSkinHighlight'.static.AllocateColor(ColorName);
-    class'HxSkinHighlight'.static.StaticSaveConfig();
-    PopulateColorComboBoxes();
-    co_EditColor.SilentSetIndex(Index);
-    UpdateCustomizeColorSection(ColorName);
+    if (!bCancelled)
+    {
+        ColorName = Controller.ActivePage.GetDataString();
+        Index = class'HxSkinHighlight'.static.AllocateColor(ColorName);
+        if (Index != -1)
+        {
+            class'HxSkinHighlight'.static.StaticSaveConfig();
+            PopulateColorComboBoxes();
+            co_EditColor.SilentSetIndex(Index);
+            UpdateCustomizeColorSection(ColorName);
+        }
+        else
+        {
+            ShowInvalidNameDialog(ColorName);
+        }
+    }
+}
+
+function bool OnClickRenameColor(GUIComponent Sender)
+{
+    if (Controller.OpenMenu(Controller.RequestDataMenu, RenameColorPageCaption, NameLabel))
+    {
+        Controller.ActivePage.SetDataString(co_EditColor.GetText());
+        Controller.ActivePage.OnClose = OnCloseRenameColor;
+    }
     return true;
+}
+
+function OnCloseRenameColor(optional bool bCancelled)
+{
+    local string ColorName;
+
+    if (!bCancelled)
+    {
+        ColorName = Controller.ActivePage.GetDataString();
+        if (ColorName != co_EditColor.GetText())
+        {
+            if (class'HxSkinHighlight'.static.ChangeColorName(co_EditColor.GetIndex(), ColorName))
+            {
+                PopulateColorComboBoxes();
+                SaveHighlightChanges(PlayerOwner());
+            }
+            else
+            {
+                ShowInvalidNameDialog(ColorName);
+            }
+        }
+    }
 }
 
 function bool OnClickDeleteColor(GUIComponent Sender)
 {
-    if (class'HxSkinHighlight'.static.DeleteColor(co_EditColor.GetIndex()))
+    Controller.OpenMenu("GUI2K4.GUI2K4QuestionPage");
+    GUIQuestionPage(Controller.TopPage()).SetupQuestion(
+        ConfirmColorDeletionLabel, QBTN_YesNo, QBTN_Yes);
+    GUIQuestionPage(Controller.TopPage()).OnButtonClick = OnCloseDeleteColor;
+    return true;
+}
+
+function OnCloseDeleteColor(byte bButton)
+{
+    if (bButton == QBTN_Yes && class'HxSkinHighlight'.static.DeleteColor(co_EditColor.GetIndex()))
     {
         class'HxSkinHighlight'.static.StaticSaveConfig();
         PopulateColorComboBoxes();
         UpdateCustomizeColorSection(co_EditColor.GetComponentValue());
-        UpdateOutstandingHighlights(PlayerOwner());
+        SaveHighlightChanges(PlayerOwner());
     }
-    return true;
 }
 
 function bool OnClickChangeModel(GUIComponent Sender)
@@ -504,6 +549,13 @@ function OnCloseChangeModel(optional bool bCancelled)
             UpdatePreviewModelSkins();
         }
     }
+}
+
+function ShowInvalidNameDialog(string Name)
+{
+    Controller.OpenMenu("GUI2K4.GUI2K4QuestionPage");
+    GUIQuestionPage(Controller.TopPage()).SetupQuestion(
+        InvalidNamePrefix@"\""$Name$"\""@InvalidNameSuffix, QBTN_Ok, QBTN_Ok);
 }
 
 function Free()
@@ -539,8 +591,8 @@ defaultproperties
         Caption="Highlights"
     End Object
 
-    Begin Object class=AltSectionBackground Name=CustomizeColorsSection
-        Caption="Customize Colors"
+    Begin Object class=AltSectionBackground Name=ColorEditorSection
+        Caption="Color Editor"
     End Object
 
     Begin Object class=AltSectionBackground Name=ColorPreviewSection
@@ -654,20 +706,6 @@ defaultproperties
         OnChange=CustomizeColorOnChange
     End Object
 
-    Begin Object class=moEditBox Name=ColorNameEditBox
-        Caption="Name"
-        Hint="Edit color name"
-        INIOption="@INTERNAL"
-        LabelJustification=TXTA_Left
-        ComponentJustification=TXTA_Right
-        ComponentWidth=0.7
-        bAutoSizeCaption=true
-        bBoundToParent=true
-        bScaleToParent=true
-        OnLoadINI=CustomizeColorOnLoadINI
-        OnChange=CustomizeColorOnChange
-    End Object
-
     Begin Object class=moSlider Name=ColorRedSlider
         Caption="Red"
         INIOption="@INTERNAL"
@@ -717,7 +755,7 @@ defaultproperties
     End Object
 
     Begin Object class=moCheckBox Name=AllowOnRandomCheckBox
-        Caption="Allow it on random highlight"
+        Caption="Allow color on random highlight"
         Hint="Allow this color to be used on random highlight."
         INIOption="@INTERNAL"
         LabelJustification=TXTA_Left
@@ -769,7 +807,7 @@ defaultproperties
     End Object
 
     Begin Object Class=GUIButton Name=NewColorButton
-        Caption="New Color"
+        Caption="New"
         Hint="Add new color to the list of colors."
         StandardHeight=0.035
         bStandardized=true
@@ -780,8 +818,20 @@ defaultproperties
         OnClick=OnClickNewColor
     End Object
 
+    Begin Object Class=GUIButton Name=RenameColorButton
+        Caption="Rename"
+        Hint="Rename current color."
+        StandardHeight=0.035
+        bStandardized=true
+        bNeverFocus=true
+        bRepeatClick=false
+        bBoundToParent=true
+        bScaleToParent=true
+        OnClick=OnClickRenameColor
+    End Object
+
     Begin Object Class=GUIButton Name=DeleteColorButton
-        Caption="Delete Color"
+        Caption="Delete"
         Hint="Delete current color from the list of colors."
         StandardHeight=0.035
         bStandardized=true
@@ -797,7 +847,7 @@ defaultproperties
     bInsertFront=true
     bDoubleColumn=true
     Sections(0)=HighlightsSection
-    Sections(1)=CustomizeColorsSection
+    Sections(1)=ColorEditorSection
     Sections(2)=None
     Sections(3)=ColorPreviewSection
     Options(0)=YourTeamComboBox
@@ -807,15 +857,20 @@ defaultproperties
     Options(4)=ForceNormalSkinsCheckBox
     Options(5)=SpectatorTeamComboBox
     Options(6)=EditColorComboBox
-    Options(7)=ColorNameEditBox
-    Options(8)=ColorRedSlider
-    Options(9)=ColorGreenSlider
-    Options(10)=ColorBlueSlider
-    Options(11)=AllowOnRandomCheckBox
-    Options(12)=ButtonAnchorLabel
-    Options(13)=PreviewSkinComboBox
-    Options(14)=PreviewBackgroundImage
-    Options(15)=ChangeModelButton
+    Options(7)=ColorRedSlider
+    Options(8)=ColorGreenSlider
+    Options(9)=ColorBlueSlider
+    Options(10)=AllowOnRandomCheckBox
+    Options(11)=ButtonAnchorLabel
+    Options(12)=PreviewSkinComboBox
+    Options(13)=PreviewBackgroundImage
+    Options(14)=ChangeModelButton
+    NameLabel="Name:"
+    NewColorPageCaption="New Color"
+    RenameColorPageCaption="Rename Color"
+    ConfirmColorDeletionLabel="Are you sure you want to delete this color?"
+    InvalidNamePrefix="The name"
+    InvalidNameSuffix="is invalid or already in use."
     SkinLabels(0)="View Normal Skin"
     SkinLabels(1)="View Red Team Skin"
     SkinLabels(2)="View Blue Team Skin"
@@ -824,6 +879,7 @@ defaultproperties
     PreviewSkinVariation=-1
     PreviewOffset=(X=450,Z=-5)
     b_NewColor=NewColorButton
+    b_RenameColor=RenameColorButton
     b_DeleteColor=DeleteColorButton
     OnPreDraw=InternalOnPreDraw
 }

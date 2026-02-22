@@ -322,19 +322,23 @@ static function Material GetNormalSkin(coerce string Name)
     return Skin;
 }
 
+static function bool IsValidColorName(string Name)
+{
+    return Name != NO_HIGHLIGHT && Name != RANDOM_HIGHLIGHT && FindColor(Name) == -1;
+}
 
-static function int AllocateColor(optional out string Name)
+static function int AllocateColor(string Name, optional bool bRandom)
 {
     local int Index;
 
-    Name = RandomColorName();
-    while (FindColor(Name) != -1)
+    if (!IsValidColorName(Name))
     {
-        Name = RandomColorName();
+        return -1;
     }
     Index = default.Colors.Length;
     default.Colors.Length = Index + 1;
     default.Colors[Index].Name = Name;
+    default.Colors[Index].bRandom = bRandom;
     return Index;
 }
 
