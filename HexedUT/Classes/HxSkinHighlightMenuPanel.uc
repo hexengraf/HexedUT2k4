@@ -475,9 +475,9 @@ function UpdatePreviewModelSkins()
 function UpdatePreviewColor()
 {
     class'HxSkinHighlight'.static.FindColor(co_EditColor.GetComponentValue(), PreviewEffect.Color);
-    PreviewEffect.Color.R = PreviewEffect.Color.R * Proxy.SkinHighlightFactor;
-    PreviewEffect.Color.G = PreviewEffect.Color.G * Proxy.SkinHighlightFactor;
-    PreviewEffect.Color.B = PreviewEffect.Color.B * Proxy.SkinHighlightFactor;
+    PreviewEffect.Color.R = PreviewEffect.Color.R * Proxy.SkinHighlightIntensity;
+    PreviewEffect.Color.G = PreviewEffect.Color.G * Proxy.SkinHighlightIntensity;
+    PreviewEffect.Color.B = PreviewEffect.Color.B * Proxy.SkinHighlightIntensity;
 }
 
 function bool OnClickNewColor(GUIComponent Sender)

@@ -3,7 +3,7 @@ class MutHexedUT extends HxMutator;
 var config bool bAllowHitSounds;
 var config bool bAllowDamageNumbers;
 var config bool bAllowSkinHighlight;
-var config float SkinHighlightFactor;
+var config float SkinHighlightIntensity;
 var config bool bColoredDeathMessages;
 var config float HealthLeechRatio;
 var config int HealthLeechLimit;
@@ -141,7 +141,7 @@ function SpawnSkinHighlight(xPawn Pawn)
     if (bAllowSkinHighlight && Pawn != None)
     {
         SkinHighlight = Pawn.Spawn(class'HxSkinHighlight', Pawn);
-        SkinHighlight.HighlightFactor = SkinHighlightFactor;
+        SkinHighlight.HighlightIntensity = SkinHighlightIntensity;
         Pawn.AttachToBone(SkinHighlight, 'spine');
     }
 }
@@ -285,7 +285,7 @@ defaultproperties
     PropertyInfoEntries(0)=(Name="bAllowHitSounds",Caption="Allow hit sound effects",Hint="Allow clients to enable/disable hit sound effects.",PIType="Check")
     PropertyInfoEntries(1)=(Name="bAllowDamageNumbers",Caption="Allow damage number effects",Hint="Allow clients to enable/disable damage number effects.",PIType="Check")
     PropertyInfoEntries(2)=(Name="bAllowSkinHighlight",Caption="Allow skin highlight",Hint="Allow clients to enable/disable skin highlights.",PIType="Check")
-    PropertyInfoEntries(3)=(Name="SkinHighlightFactor",Caption="Skin highlight factor",Hint="Factor to multiply RGB values (between 0.0 and 1.0). Use it to limit highlight intensity.",PIType="Text",PIExtras="8;0.0:1.0")
+    PropertyInfoEntries(3)=(Name="SkinHighlightIntensity",Caption="Skin highlight intensity",Hint="Factor to multiply RGB values (between 0.0 and 1.0).",PIType="Text",PIExtras="8;0.0:1.0")
     PropertyInfoEntries(4)=(Name="bColoredDeathMessages",Caption="Colored death messages",Hint="Use team colors in death messages (blue = killer and red = victim if no teams).",PIType="Check")
     PropertyInfoEntries(5)=(Name="HealthLeechRatio",Caption="Health leech ratio",Hint="Ratio to leech health from damage dealt (between 0.0 and 5.0).",PIType="Text",PIExtras="8;0.0:5.0")
     PropertyInfoEntries(6)=(Name="HealthLeechLimit",Caption="Health leech limit",Hint="Limit up to how much health can be filled with leech (between 0 and 199).",PIType="Text",PIExtras="8;0:199")
@@ -316,7 +316,7 @@ defaultproperties
     bAllowHitSounds=true
     bAllowDamageNumbers=true
     bAllowSkinHighlight=true
-    SkinHighlightFactor=0.35
+    SkinHighlightIntensity=0.35
     bColoredDeathMessages=true
     HealthLeechLimit=0
     HealthLeechRatio=0

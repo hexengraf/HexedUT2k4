@@ -31,7 +31,7 @@ var config bool bForceNormalSkins;
 var config int SpectatorTeam;
 var config array<HxColorEntry> Colors;
 var config array<HxCacheEntry> Cache;
-var float HighlightFactor;
+var float HighlightIntensity;
 
 var private PlayerController PC;
 var private array<Material> OriginalSkins;
@@ -53,7 +53,7 @@ var private array<HxCacheEntry> OldCache;
 replication
 {
     reliable if (Role == ROLE_Authority)
-        HighlightFactor;
+        HighlightIntensity;
 }
 
 simulated event PreBeginPlay()
@@ -109,7 +109,7 @@ simulated event Tick(float DeltaTime)
 
 simulated function bool Initialize(xPawn Pawn)
 {
-    if (HighlightFactor == -1)
+    if (HighlightIntensity == -1)
     {
         return false;
     }
@@ -158,9 +158,9 @@ simulated function InitializeHighlight(xPawn Pawn)
     if (bEnabled)
     {
         FindColor(Name, MainColor);
-        MainColor.R = MainColor.R * HighlightFactor;
-        MainColor.G = MainColor.G * HighlightFactor;
-        MainColor.B = MainColor.B * HighlightFactor;
+        MainColor.R = MainColor.R * HighlightIntensity;
+        MainColor.G = MainColor.G * HighlightIntensity;
+        MainColor.B = MainColor.B * HighlightIntensity;
     }
 }
 
@@ -291,9 +291,9 @@ simulated function Color GetHitColor(string Name)
     local Color Color;
 
     FindColor(Name, Color);
-    Color.R = Min(Color.R * HighlightFactor * HIT_COLOR_MULTIPLIER, 255);
-    Color.G = Min(Color.G * HighlightFactor * HIT_COLOR_MULTIPLIER, 255);
-    Color.B = Min(Color.B * HighlightFactor * HIT_COLOR_MULTIPLIER, 255);
+    Color.R = Min(Color.R * HighlightIntensity * HIT_COLOR_MULTIPLIER, 255);
+    Color.G = Min(Color.G * HighlightIntensity * HIT_COLOR_MULTIPLIER, 255);
+    Color.B = Min(Color.B * HighlightIntensity * HIT_COLOR_MULTIPLIER, 255);
     return Color;
 }
 
@@ -654,7 +654,7 @@ defaultproperties
     Colors(4)=(Name="Teal",Color=(R=0,G=255,B=255,A=255),bRandom=true)
     Colors(5)=(Name="Yellow",Color=(R=255,G=255,B=0,A=255),bRandom=true)
     Colors(7)=(Name="Purple",Color=(R=64,G=0,B=255,A=255),bRandom=false)
-    HighlightFactor=-1
+    HighlightIntensity=-1
 
     RemoteRole=ROLE_SimulatedProxy
     bHardAttach=true

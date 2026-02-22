@@ -11,7 +11,7 @@ const DAMAGE_CLUSTERING_INTERVAL = 0.015;
 var bool bAllowHitSounds;
 var bool bAllowDamageNumbers;
 var bool bAllowSkinHighlight;
-var float SkinHighlightFactor;
+var float SkinHighlightIntensity;
 var bool bColoredDeathMessages;
 var float HealthLeechRatio;
 var int HealthLeechLimit;
@@ -51,7 +51,7 @@ replication
         bAllowHitSounds,
         bAllowDamageNumbers,
         bAllowSkinHighlight,
-        SkinHighlightFactor,
+        SkinHighlightIntensity,
         bColoredDeathMessages,
         HealthLeechRatio,
         HealthLeechLimit,
@@ -212,7 +212,7 @@ function Update()
     bAllowHitSounds = HexedUT.bAllowHitSounds;
     bAllowDamageNumbers = HexedUT.bAllowDamageNumbers;
     bAllowSkinHighlight = HexedUT.bAllowSkinHighlight;
-    SkinHighlightFactor = HexedUT.SkinHighlightFactor;
+    SkinHighlightIntensity = HexedUT.SkinHighlightIntensity;
     bColoredDeathMessages = HexedUT.bColoredDeathMessages;
     HealthLeechRatio = HexedUT.HealthLeechRatio;
     HealthLeechLimit = HexedUT.HealthLeechLimit;
