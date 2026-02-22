@@ -7,10 +7,24 @@ const SECTION_COLOR_PREVIEW = 3;
 const NO_HIGHLIGHT = "";
 const RANDOM_HIGHLIGHT = "*";
 
-var automated array<GUIComponent> Options;
+var automated moComboBox co_YourTeam;
+var automated moComboBox co_EnemyTeam;
+var automated moComboBox co_SoloPlayer;
+var automated moCheckBox ch_DisableOnDeadBodies;
+var automated moCheckBox ch_ForceNormalSkins;
+var automated moComboBox co_SpectateAs;
+var automated moComboBox co_EditColor;
+var automated moSlider sl_ColorRed;
+var automated moSlider sl_ColorGreen;
+var automated moSlider sl_ColorBlue;
+var automated moCheckBox ch_AllowOnRandom;
+var automated GUILabel l_ButtonAnchor;
 var automated GUIButton b_NewColor;
 var automated GUIButton b_RenameColor;
 var automated GUIButton b_DeleteColor;
+var automated GUIComboBox co_PreviewSkin;
+var automated GUIButton b_PreviewBox;
+var automated GUIButton b_ChangeModel;
 
 var localized string NameLabel;
 var localized string NewColorPageCaption;
@@ -21,11 +35,6 @@ var localized string InvalidNameSuffix;
 var localized string SkinLabels[3];
 var localized string TeamLabels[2];
 
-var private moComboBox co_EditColor;
-var private moSlider sl_ColorRed;
-var private moSlider sl_ColorGreen;
-var private moSlider sl_ColorBlue;
-var private moCheckBox ch_AllowOnRandom;
 var private HxClientProxy Proxy;
 var private xUtil.PlayerRecord PreviewRec;
 var private int PreviewSkinVariation;
@@ -41,23 +50,21 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     local int i;
 
     super.InitComponent(MyController, MyOwner);
-    for (i = 0; i < 6; ++i)
-    {
-        Sections[SECTION_HIGHLIGHTS].ManageComponent(Options[i]);
-    }
-    for (i = 6; i < 12; ++i)
-    {
-        Sections[SECTION_COLOR_EDITOR].ManageComponent(Options[i]);
-    }
-    for (i = 12; i < 15; ++i)
-    {
-        Sections[SECTION_COLOR_PREVIEW].ManageComponent(Options[i]);
-    }
-    co_EditColor = moComboBox(Options[6]);
-    sl_ColorRed = moSlider(Options[7]);
-    sl_ColorGreen = moSlider(Options[8]);
-    sl_ColorBlue = moSlider(Options[9]);
-    ch_AllowOnRandom = moCheckBox(Options[10]);
+    Sections[SECTION_HIGHLIGHTS].ManageComponent(co_YourTeam);
+    Sections[SECTION_HIGHLIGHTS].ManageComponent(co_EnemyTeam);
+    Sections[SECTION_HIGHLIGHTS].ManageComponent(co_SoloPlayer);
+    Sections[SECTION_HIGHLIGHTS].ManageComponent(ch_DisableOnDeadBodies);
+    Sections[SECTION_HIGHLIGHTS].ManageComponent(ch_ForceNormalSkins);
+    Sections[SECTION_HIGHLIGHTS].ManageComponent(co_SpectateAs);
+    Sections[SECTION_COLOR_EDITOR].ManageComponent(co_EditColor);
+    Sections[SECTION_COLOR_EDITOR].ManageComponent(sl_ColorRed);
+    Sections[SECTION_COLOR_EDITOR].ManageComponent(sl_ColorGreen);
+    Sections[SECTION_COLOR_EDITOR].ManageComponent(sl_ColorBlue);
+    Sections[SECTION_COLOR_EDITOR].ManageComponent(ch_AllowOnRandom);
+    Sections[SECTION_COLOR_EDITOR].ManageComponent(l_ButtonAnchor);
+    Sections[SECTION_COLOR_PREVIEW].ManageComponent(co_PreviewSkin);
+    Sections[SECTION_COLOR_PREVIEW].ManageComponent(b_PreviewBox);
+    Sections[SECTION_COLOR_PREVIEW].ManageComponent(b_ChangeModel);
     PreviewEffect = New(Self) class'ConstantColor';
     PreviewShader = New(Self) class'Shader';
     PreviewShader.Specular = PreviewEffect;
@@ -65,11 +72,11 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 
     for (i = 0; i < 3; ++i)
     {
-        GUIComboBox(Options[12]).AddItem(SkinLabels[i]);
+        co_PreviewSkin.AddItem(SkinLabels[i]);
     }
     for (i = 0; i < 2; ++i)
     {
-        moComboBox(Options[5]).AddItem(TeamLabels[i],,string(i));
+        co_SpectateAs.AddItem(TeamLabels[i],,string(i));
     }
 }
 
@@ -99,14 +106,14 @@ function Refresh()
 
 function bool InternalOnPreDraw(Canvas C)
 {
-    b_NewColor.WinLeft = Options[11].WinLeft;
-    b_NewColor.WinTop = Options[11].WinTop;
-    b_NewColor.WinWidth = Options[11].WinWidth / 3;
+    b_NewColor.WinLeft = l_ButtonAnchor.WinLeft;
+    b_NewColor.WinTop = l_ButtonAnchor.WinTop;
+    b_NewColor.WinWidth = l_ButtonAnchor.WinWidth / 3;
     b_RenameColor.WinLeft = b_NewColor.WinLeft + b_NewColor.WinWidth;
-    b_RenameColor.WinTop = Options[11].WinTop;
+    b_RenameColor.WinTop = l_ButtonAnchor.WinTop;
     b_RenameColor.WinWidth = b_NewColor.WinWidth;
     b_DeleteColor.WinLeft = b_RenameColor.WinLeft + b_RenameColor.WinWidth;
-    b_DeleteColor.WinTop = Options[11].WinTop;
+    b_DeleteColor.WinTop = l_ButtonAnchor.WinTop;
     b_DeleteColor.WinWidth = b_NewColor.WinWidth;
     return false;
 }
@@ -151,22 +158,22 @@ function InternalOnChange(GUIComponent Sender)
 {
     switch (Sender)
     {
-        case Options[0]:
+        case co_YourTeam:
             class'HxSkinHighlight'.default.YourTeam = moComboBox(Sender).GetExtra();
             break;
-        case Options[1]:
+        case co_EnemyTeam:
             class'HxSkinHighlight'.default.EnemyTeam = moComboBox(Sender).GetExtra();
             break;
-        case Options[2]:
+        case co_SoloPlayer:
             class'HxSkinHighlight'.default.SoloPlayer = moComboBox(Sender).GetExtra();
             break;
-        case Options[3]:
+        case ch_DisableOnDeadBodies:
             class'HxSkinHighlight'.default.bDisableOnDeadBodies = moCheckBox(Sender).IsChecked();
             break;
-        case Options[4]:
+        case ch_ForceNormalSkins:
             class'HxSkinHighlight'.default.bForceNormalSkins = moCheckBox(Sender).IsChecked();
             break;
-        case Options[5]:
+        case co_SpectateAs:
             class'HxSkinHighlight'.default.SpectatorTeam = int(moComboBox(Sender).GetExtra());
             break;
     }
@@ -219,40 +226,41 @@ function PreviewSkinOnChange(GUIComponent Sender)
 
 function PopulateColorComboBoxes()
 {
+    local array<moComboBox> ComboBoxes;
     local int Index;
     local int i;
     local int j;
 
-    for (i = 0; i < 3; ++i)
+    ComboBoxes.Length = 4;
+    ComboBoxes[0] = co_YourTeam;
+    ComboBoxes[1] = co_EnemyTeam;
+    ComboBoxes[2] = co_SoloPlayer;
+    ComboBoxes[3] = co_EditColor;
+
+    for (i = 0; i < ComboBoxes.Length - 1; ++i)
     {
-        moComboBox(Options[i]).bIgnoreChange = true;
-        moComboBox(Options[i]).ResetComponent();
-        moComboBox(Options[i]).AddItem("Disabled",,NO_HIGHLIGHT);
+        ComboBoxes[i].bIgnoreChange = true;
+        ComboBoxes[i].ResetComponent();
+        ComboBoxes[i].AddItem("Disabled",,NO_HIGHLIGHT);
     }
-    moComboBox(Options[2]).AddItem("Random",,RANDOM_HIGHLIGHT);
+    Index = co_EditColor.GetIndex();
+    co_EditColor.bIgnoreChange = true;
+    co_EditColor.ResetComponent();
+    co_SoloPlayer.AddItem("Random",,RANDOM_HIGHLIGHT);
     for (i = 0; i < class'HxSkinHighlight'.default.Colors.Length; ++i)
     {
-        for (j = 0; j < 3; ++j)
+        for (j = 0; j < ComboBoxes.Length; ++j)
         {
-            moComboBox(Options[j]).AddItem(
+            ComboBoxes[j].AddItem(
                 class'HxSkinHighlight'.default.Colors[i].Name,,
                 class'HxSkinHighlight'.default.Colors[i].Name);
 
         }
     }
-    for (i = 0; i < 3; ++i)
+    for (i = 0; i < ComboBoxes.Length - 1; ++i)
     {
-        Options[i].LoadINI();
-        moComboBox(Options[i]).bIgnoreChange = false;
-    }
-    Index = co_EditColor.GetIndex();
-    co_EditColor.bIgnoreChange = true;
-    co_EditColor.ResetComponent();
-    for (i = 0; i < class'HxSkinHighlight'.default.Colors.Length; ++i)
-    {
-        co_EditColor.AddItem(
-            class'HxSkinHighlight'.default.Colors[i].Name,,
-            class'HxSkinHighlight'.default.Colors[i].Name);
+        ComboBoxes[i].LoadINI();
+        ComboBoxes[i].bIgnoreChange = false;
     }
     if (Index > -1)
     {
@@ -311,10 +319,10 @@ function bool PreviewOnDraw(canvas C)
         C.DrawActorClipped(
             PreviewModel,
             false,
-            Options[13].ActualLeft(),
-            Options[13].ActualTop(),
-            Options[13].ActualWidth(),
-            Options[13].ActualHeight(),
+            b_PreviewBox.ActualLeft(),
+            b_PreviewBox.ActualTop(),
+            b_PreviewBox.ActualWidth(),
+            b_PreviewBox.ActualHeight(),
             true,
             30);
     }
@@ -340,12 +348,13 @@ function bool PreviewSectionOnPreDraw(canvas C)
         TopPad += Section.BorderOffsets[1];
         BottomPad += Section.BorderOffsets[3];
     }
-    Options[12].WinHeight = Options[12].RelativeHeight(C.CLipY * Options[12].StandardHeight);
-    Options[14].WinHeight = Options[14].RelativeHeight(C.CLipY * Options[14].StandardHeight);
-    Options[13].WinHeight = Options[13].RelativeHeight(
-        AH - TopPad - BottomPad) - Options[12].WinHeight - Options[14].WinHeight - 0.004;
-    Options[13].WinTop = Options[12].RelativeTop() + Options[12].WinHeight + 0.002;
-    Options[14].WinTop = Options[13].RelativeTop() + Options[13].WinHeight + 0.002;
+    co_PreviewSkin.WinHeight = co_PreviewSkin.RelativeHeight(
+        C.CLipY * co_PreviewSkin.StandardHeight);
+    b_ChangeModel.WinHeight = b_ChangeModel.RelativeHeight(C.CLipY * b_ChangeModel.StandardHeight);
+    b_PreviewBox.WinHeight = b_PreviewBox.RelativeHeight(
+        AH - TopPad - BottomPad) - co_PreviewSkin.WinHeight - b_ChangeModel.WinHeight - 0.004;
+    b_PreviewBox.WinTop = co_PreviewSkin.RelativeTop() + co_PreviewSkin.WinHeight + 0.002;
+    b_ChangeModel.WinTop = b_PreviewBox.RelativeTop() + b_PreviewBox.WinHeight + 0.002;
     return false;
 }
 
@@ -570,33 +579,21 @@ function Free()
     Super.Free();
 }
 
-static function bool AddToMenu()
-{
-    local int i;
-
-    if (Super.AddToMenu())
-    {
-        for (i = 0; i < default.Options.Length; ++i)
-        {
-            default.Options[i].TabOrder = i;
-        }
-        return true;
-    }
-    return false;
-}
-
 defaultproperties
 {
     Begin Object class=AltSectionBackground Name=HighlightsSection
         Caption="Highlights"
+        bRemapStack=false
     End Object
 
     Begin Object class=AltSectionBackground Name=ColorEditorSection
         Caption="Color Editor"
+        bRemapStack=false
     End Object
 
     Begin Object class=AltSectionBackground Name=ColorPreviewSection
         Caption="Color Preview"
+        bRemapStack=false
         OnPreDraw=PreviewSectionOnPreDraw
     End Object
 
@@ -613,7 +610,9 @@ defaultproperties
         bScaleToParent=true
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
+        TabOrder=0
     End Object
+    co_YourTeam=YourTeamComboBox
 
     Begin Object class=moComboBox Name=EnemyTeamComboBox
         Caption="Enemy team"
@@ -629,7 +628,9 @@ defaultproperties
         bScaleToParent=true
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
+        TabOrder=1
     End Object
+    co_EnemyTeam=EnemyTeamComboBox
 
     Begin Object class=moComboBox Name=SoloPlayerComboBox
         Caption="Solo player"
@@ -645,7 +646,9 @@ defaultproperties
         bScaleToParent=true
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
+        TabOrder=2
     End Object
+    co_SoloPlayer=SoloPlayerComboBox
 
     Begin Object class=moCheckBox Name=DisableOnDeadBodiesCheckBox
         Caption="Disable highlight on dead bodies"
@@ -660,7 +663,9 @@ defaultproperties
         bScaleToParent=true
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
+        TabOrder=3
     End Object
+    ch_DisableOnDeadBodies=DisableOnDeadBodiesCheckBox
 
     Begin Object class=moCheckBox Name=ForceNormalSkinsCheckBox
         Caption="Force normal skins"
@@ -675,9 +680,11 @@ defaultproperties
         bScaleToParent=true
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
+        TabOrder=4
     End Object
+    ch_ForceNormalSkins=ForceNormalSkinsCheckBox
 
-    Begin Object class=moComboBox Name=SpectatorTeamComboBox
+    Begin Object class=moComboBox Name=SpectateAsComboBox
         Caption="Spectate as"
         Hint="Select which team's perspective to spectate as."
         INIOption="HxSkinHighlight SpectatorTeam"
@@ -690,7 +697,9 @@ defaultproperties
         bScaleToParent=true
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
+        TabOrder=5
     End Object
+    co_SpectateAs=SpectateAsComboBox
 
     Begin Object class=moComboBox Name=EditColorComboBox
         Caption="Color"
@@ -704,7 +713,9 @@ defaultproperties
         bBoundToParent=true
         bScaleToParent=true
         OnChange=CustomizeColorOnChange
+        TabOrder=6
     End Object
+    co_EditColor=EditColorComboBox
 
     Begin Object class=moSlider Name=ColorRedSlider
         Caption="Red"
@@ -720,7 +731,9 @@ defaultproperties
         bScaleToParent=true
         OnLoadINI=CustomizeColorOnLoadINI
         OnChange=CustomizeColorOnChange
+        TabOrder=7
     End Object
+    sl_ColorRed=ColorRedSlider
 
     Begin Object class=moSlider Name=ColorGreenSlider
         Caption="Green"
@@ -736,7 +749,9 @@ defaultproperties
         bScaleToParent=true
         OnLoadINI=CustomizeColorOnLoadINI
         OnChange=CustomizeColorOnChange
+        TabOrder=8
     End Object
+    sl_ColorGreen=ColorGreenSlider
 
     Begin Object class=moSlider Name=ColorBlueSlider
         Caption="Blue"
@@ -752,7 +767,9 @@ defaultproperties
         bScaleToParent=true
         OnLoadINI=CustomizeColorOnLoadINI
         OnChange=CustomizeColorOnChange
+        TabOrder=9
     End Object
+    sl_ColorBlue=ColorBlueSlider
 
     Begin Object class=moCheckBox Name=AllowOnRandomCheckBox
         Caption="Allow color on random highlight"
@@ -767,10 +784,52 @@ defaultproperties
         bScaleToParent=true
         OnLoadINI=CustomizeColorOnLoadINI
         OnChange=CustomizeColorOnChange
+        TabOrder=10
     End Object
+    ch_AllowOnRandom=AllowOnRandomCheckBox
 
     Begin Object class=GUILabel Name=ButtonAnchorLabel
     End Object
+    l_ButtonAnchor=ButtonAnchorLabel
+
+    Begin Object Class=GUIButton Name=NewColorButton
+        Caption="New"
+        Hint="Add new color to the list of colors."
+        StandardHeight=0.035
+        bStandardized=true
+        bRepeatClick=false
+        bBoundToParent=true
+        bScaleToParent=true
+        OnClick=OnClickNewColor
+        TabOrder=11
+    End Object
+    b_NewColor=NewColorButton
+
+    Begin Object Class=GUIButton Name=RenameColorButton
+        Caption="Rename"
+        Hint="Rename current color."
+        StandardHeight=0.035
+        bStandardized=true
+        bRepeatClick=false
+        bBoundToParent=true
+        bScaleToParent=true
+        OnClick=OnClickRenameColor
+        TabOrder=12
+    End Object
+    b_RenameColor=RenameColorButton
+
+    Begin Object Class=GUIButton Name=DeleteColorButton
+        Caption="Delete"
+        Hint="Delete current color from the list of colors."
+        StandardHeight=0.035
+        bStandardized=true
+        bRepeatClick=false
+        bBoundToParent=true
+        bScaleToParent=true
+        OnClick=OnClickDeleteColor
+        TabOrder=13
+    End Object
+    b_DeleteColor=DeleteColorButton
 
     Begin Object class=GUIComboBox Name=PreviewSkinComboBox
         Hint="Select skin variation to be used on the preview."
@@ -780,9 +839,11 @@ defaultproperties
         bBoundToParent=true
         bScaleToParent=true
         OnChange=PreviewSkinOnChange
+        TabOrder=14
     End Object
+    co_PreviewSkin=PreviewSkinComboBox
 
-    Begin Object class=GUIButton Name=PreviewBackgroundImage
+    Begin Object class=GUIButton Name=PreviewBoxButton
         StyleName="NoBackground"
         bStandardized=false
         bTabStop=false
@@ -793,54 +854,20 @@ defaultproperties
         OnDraw=PreviewOnDraw
         OnCapturedMouseMove=PreviewOnCapturedMouseMove
     End Object
+    b_PreviewBox=PreviewBoxButton
 
     Begin Object class=GUIButton Name=ChangeModelButton
         Caption="Change Preview Character"
         Hint="Select a different preview character."
         StandardHeight=0.035
         bStandardized=true
-        bNeverFocus=true
         bRepeatClick=false
         bBoundToParent=true
         bScaleToParent=true
         OnClick=OnClickChangeModel
+        TabOrder=15
     End Object
-
-    Begin Object Class=GUIButton Name=NewColorButton
-        Caption="New"
-        Hint="Add new color to the list of colors."
-        StandardHeight=0.035
-        bStandardized=true
-        bNeverFocus=true
-        bRepeatClick=false
-        bBoundToParent=true
-        bScaleToParent=true
-        OnClick=OnClickNewColor
-    End Object
-
-    Begin Object Class=GUIButton Name=RenameColorButton
-        Caption="Rename"
-        Hint="Rename current color."
-        StandardHeight=0.035
-        bStandardized=true
-        bNeverFocus=true
-        bRepeatClick=false
-        bBoundToParent=true
-        bScaleToParent=true
-        OnClick=OnClickRenameColor
-    End Object
-
-    Begin Object Class=GUIButton Name=DeleteColorButton
-        Caption="Delete"
-        Hint="Delete current color from the list of colors."
-        StandardHeight=0.035
-        bStandardized=true
-        bNeverFocus=true
-        bRepeatClick=false
-        bBoundToParent=true
-        bScaleToParent=true
-        OnClick=OnClickDeleteColor
-    End Object
+    b_ChangeModel=ChangeModelButton
 
     PanelCaption="Skin Highlight"
     PanelHint="Skin highlight options"
@@ -850,21 +877,6 @@ defaultproperties
     Sections(1)=ColorEditorSection
     Sections(2)=None
     Sections(3)=ColorPreviewSection
-    Options(0)=YourTeamComboBox
-    Options(1)=EnemyTeamComboBox
-    Options(2)=SoloPlayerComboBox
-    Options(3)=DisableOnDeadBodiesCheckBox
-    Options(4)=ForceNormalSkinsCheckBox
-    Options(5)=SpectatorTeamComboBox
-    Options(6)=EditColorComboBox
-    Options(7)=ColorRedSlider
-    Options(8)=ColorGreenSlider
-    Options(9)=ColorBlueSlider
-    Options(10)=AllowOnRandomCheckBox
-    Options(11)=ButtonAnchorLabel
-    Options(12)=PreviewSkinComboBox
-    Options(13)=PreviewBackgroundImage
-    Options(14)=ChangeModelButton
     NameLabel="Name:"
     NewColorPageCaption="New Color"
     RenameColorPageCaption="Rename Color"
@@ -878,8 +890,5 @@ defaultproperties
     TeamLabels(1)="Blue Team"
     PreviewSkinVariation=-1
     PreviewOffset=(X=450,Z=-5)
-    b_NewColor=NewColorButton
-    b_RenameColor=RenameColorButton
-    b_DeleteColor=DeleteColorButton
     OnPreDraw=InternalOnPreDraw
 }
