@@ -19,6 +19,7 @@ var private moEditBox ed_ColorName;
 var private moSlider sl_ColorRed;
 var private moSlider sl_ColorGreen;
 var private moSlider sl_ColorBlue;
+var private moCheckBox ch_AllowOnRandom;
 var private HxClientProxy Proxy;
 var private xUtil.PlayerRecord PreviewRec;
 var private int PreviewSkinVariation;
@@ -38,11 +39,11 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     {
         Sections[SECTION_HIGHLIGHTS].ManageComponent(Options[i]);
     }
-    for (i = 6; i < 12; ++i)
+    for (i = 6; i < 13; ++i)
     {
         Sections[SECTION_CUSTOMIZE_COLORS].ManageComponent(Options[i]);
     }
-    for (i = 12; i < 15; ++i)
+    for (i = 13; i < 16; ++i)
     {
         Sections[SECTION_COLOR_PREVIEW].ManageComponent(Options[i]);
     }
@@ -51,6 +52,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     sl_ColorRed = moSlider(Options[8]);
     sl_ColorGreen = moSlider(Options[9]);
     sl_ColorBlue = moSlider(Options[10]);
+    ch_AllowOnRandom = moCheckBox(Options[11]);
     ed_ColorName.MyEditBox.bAlwaysNotify = false;
     PreviewEffect = New(Self) class'ConstantColor';
     PreviewShader = New(Self) class'Shader';
@@ -59,7 +61,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 
     for (i = 0; i < 3; ++i)
     {
-        GUIComboBox(Options[12]).AddItem(SkinLabels[i]);
+        GUIComboBox(Options[13]).AddItem(SkinLabels[i]);
     }
     for (i = 0; i < 2; ++i)
     {
@@ -101,11 +103,11 @@ function bool InternalOnPreDraw(Canvas C)
 {
     if (bInit)
     {
-        b_NewColor.WinLeft = Options[11].WinLeft;
-        b_NewColor.WinTop = Options[11].WinTop;
-        b_NewColor.WinWidth = Options[11].WinWidth / 2;
+        b_NewColor.WinLeft = Options[12].WinLeft;
+        b_NewColor.WinTop = Options[12].WinTop;
+        b_NewColor.WinWidth = Options[12].WinWidth / 2;
         b_DeleteColor.WinLeft = b_NewColor.WinLeft + b_NewColor.WinWidth;
-        b_DeleteColor.WinTop = Options[11].WinTop;
+        b_DeleteColor.WinTop = Options[12].WinTop;
         b_DeleteColor.WinWidth = b_NewColor.WinWidth;
     }
     return false;
@@ -121,25 +123,30 @@ function InternalOnLoadINI(GUIComponent Sender, string s)
 
 function CustomizeColorOnLoadINI(GUIComponent Sender, string s)
 {
-    local Color C;
+    local HxSkinHighlight.HxColorEntry ColorEntry;
 
     if (Sender == ed_ColorName)
     {
         ed_ColorName.SetComponentValue(co_EditColor.GetComponentValue(), true);
     }
+    else if (Sender == ch_AllowOnRandom)
+    {
+        class'HxSkinHighlight'.static.FindColorEntry(co_EditColor.GetComponentValue(), ColorEntry);
+        ch_AllowOnRandom.Checked(ColorEntry.bRandom);
+    }
     else
     {
-        class'HxSkinHighlight'.static.FindColor(co_EditColor.GetComponentValue(), C);
+        class'HxSkinHighlight'.static.FindColorEntry(co_EditColor.GetComponentValue(), ColorEntry);
         switch (Sender)
         {
             case sl_ColorRed:
-                sl_ColorRed.SetComponentValue(C.R, true);
+                sl_ColorRed.SetComponentValue(ColorEntry.Color.R, true);
                 break;
             case sl_ColorGreen:
-                sl_ColorGreen.SetComponentValue(C.G, true);
+                sl_ColorGreen.SetComponentValue(ColorEntry.Color.G, true);
                 break;
             case sl_ColorBlue:
-                sl_ColorBlue.SetComponentValue(C.B, true);
+                sl_ColorBlue.SetComponentValue(ColorEntry.Color.B, true);
                 break;
         }
     }
@@ -187,6 +194,13 @@ function CustomizeColorOnChange(GUIComponent Sender)
         if (class'HxSkinHighlight'.static.ChangeColorName(Index, ed_ColorName.GetComponentValue()))
         {
             PopulateColorComboBoxes();
+            UpdateOutstandingHighlights(PlayerOwner());
+        }
+    }
+    else if (Sender == ch_AllowOnRandom)
+    {
+        if (class'HxSkinHighlight'.static.SetColorRandom(Index, ch_AllowOnRandom.IsChecked()))
+        {
             UpdateOutstandingHighlights(PlayerOwner());
         }
     }
@@ -277,13 +291,14 @@ function UpdateOutstandingHighlights(PlayerController PC)
 
 function UpdateCustomizeColorSection(string ColorName)
 {
-    local Color C;
+    local HxSkinHighlight.HxColorEntry ColorEntry;
 
     ed_ColorName.SetComponentValue(ColorName, true);
-    class'HxSkinHighlight'.static.FindColor(ColorName, C);
-    sl_ColorRed.SetComponentValue(C.R, true);
-    sl_ColorGreen.SetComponentValue(C.G, true);
-    sl_ColorBlue.SetComponentValue(C.B, true);
+    class'HxSkinHighlight'.static.FindColorEntry(ColorName, ColorEntry);
+    sl_ColorRed.SetComponentValue(ColorEntry.Color.R, true);
+    sl_ColorGreen.SetComponentValue(ColorEntry.Color.G, true);
+    sl_ColorBlue.SetComponentValue(ColorEntry.Color.B, true);
+    ch_AllowOnRandom.Checked(ColorEntry.bRandom);
 }
 
 function bool PreviewOnDraw(canvas C)
@@ -311,10 +326,10 @@ function bool PreviewOnDraw(canvas C)
         C.DrawActorClipped(
             PreviewModel,
             false,
-            Options[13].ActualLeft(),
-            Options[13].ActualTop(),
-            Options[13].ActualWidth(),
-            Options[13].ActualHeight(),
+            Options[14].ActualLeft(),
+            Options[14].ActualTop(),
+            Options[14].ActualWidth(),
+            Options[14].ActualHeight(),
             true,
             30);
     }
@@ -340,12 +355,12 @@ function bool PreviewSectionOnPreDraw(canvas C)
         TopPad += Section.BorderOffsets[1];
         BottomPad += Section.BorderOffsets[3];
     }
-    Options[12].WinHeight = Options[12].RelativeHeight(C.CLipY * Options[12].StandardHeight);
-    Options[14].WinHeight = Options[14].RelativeHeight(C.CLipY * Options[14].StandardHeight);
-    Options[13].WinHeight = Options[13].RelativeHeight(
-        AH - TopPad - BottomPad) - Options[12].WinHeight - Options[14].WinHeight - 0.004;
-    Options[13].WinTop = Options[12].RelativeTop() + Options[12].WinHeight + 0.002;
+    Options[13].WinHeight = Options[13].RelativeHeight(C.CLipY * Options[13].StandardHeight);
+    Options[15].WinHeight = Options[15].RelativeHeight(C.CLipY * Options[15].StandardHeight);
+    Options[14].WinHeight = Options[14].RelativeHeight(
+        AH - TopPad - BottomPad) - Options[13].WinHeight - Options[15].WinHeight - 0.004;
     Options[14].WinTop = Options[13].RelativeTop() + Options[13].WinHeight + 0.002;
+    Options[15].WinTop = Options[14].RelativeTop() + Options[14].WinHeight + 0.002;
     return false;
 }
 
@@ -701,6 +716,21 @@ defaultproperties
         OnChange=CustomizeColorOnChange
     End Object
 
+    Begin Object class=moCheckBox Name=AllowOnRandomCheckBox
+        Caption="Allow it on random highlight"
+        Hint="Allow this color to be used on random highlight."
+        INIOption="@INTERNAL"
+        LabelJustification=TXTA_Left
+        ComponentJustification=TXTA_Right
+        ComponentWidth=-1
+        CaptionWidth=0.8
+        bAutoSizeCaption=true
+        bBoundToParent=true
+        bScaleToParent=true
+        OnLoadINI=CustomizeColorOnLoadINI
+        OnChange=CustomizeColorOnChange
+    End Object
+
     Begin Object class=GUILabel Name=ButtonAnchorLabel
     End Object
 
@@ -781,10 +811,11 @@ defaultproperties
     Options(8)=ColorRedSlider
     Options(9)=ColorGreenSlider
     Options(10)=ColorBlueSlider
-    Options(11)=ButtonAnchorLabel
-    Options(12)=PreviewSkinComboBox
-    Options(13)=PreviewBackgroundImage
-    Options(14)=ChangeModelButton
+    Options(11)=AllowOnRandomCheckBox
+    Options(12)=ButtonAnchorLabel
+    Options(13)=PreviewSkinComboBox
+    Options(14)=PreviewBackgroundImage
+    Options(15)=ChangeModelButton
     SkinLabels(0)="View Normal Skin"
     SkinLabels(1)="View Red Team Skin"
     SkinLabels(2)="View Blue Team Skin"

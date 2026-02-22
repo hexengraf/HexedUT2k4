@@ -1,10 +1,11 @@
 class HxSkinHighlight extends Actor
     config(User);
 
-struct HxColor
+struct HxColorEntry
 {
     var string Name;
     var Color Color;
+    var bool bRandom;
 };
 
 struct HxCacheEntry
@@ -22,7 +23,7 @@ var config string SoloPlayer;
 var config bool bDisableOnDeadBodies;
 var config bool bForceNormalSkins;
 var config int SpectatorTeam;
-var config array<HxColor> Colors;
+var config array<HxColorEntry> Colors;
 var config array<HxCacheEntry> Cache;
 var float HighlightFactor;
 
@@ -408,6 +409,45 @@ static function bool ChangeColorName(int Index, string Name)
     return true;
 }
 
+static function bool SetColorRandom(int Index, bool bRandom)
+{
+    local int i;
+
+    if (Index >= default.Colors.Length)
+    {
+        return false;
+    }
+    if (default.Colors[Index].bRandom ^^ bRandom)
+    {
+        for (i = 0; i < default.OldCache.Length; ++i)
+        {
+            if (default.OldCache[i].Highlight == default.Colors[Index].Name)
+            {
+                default.OldCache.Remove(i, 1);
+                --i;
+            }
+        }
+        for (i = 0; i < default.Cache.Length; ++i)
+        {
+            if (default.Cache[i].Highlight == default.Colors[Index].Name)
+            {
+                default.Cache.Remove(i, 1);
+                --i;
+            }
+        }
+        for (i = 0; i < default.RandomPool.Length; ++i)
+        {
+            if (default.RandomPool[i] == default.Colors[Index].Name)
+            {
+                default.RandomPool.Remove(i, 1);
+                break;
+            }
+        }
+    }
+    default.Colors[Index].bRandom = bRandom;
+    return true;
+}
+
 static function int FindColor(string Name, optional out Color Color)
 {
     local int i;
@@ -421,6 +461,25 @@ static function int FindColor(string Name, optional out Color Color)
         if (default.Colors[i].Name == Name)
         {
             Color = default.Colors[i].Color;
+            return i;
+        }
+    }
+    return -1;
+}
+
+static function int FindColorEntry(string Name, optional out HxColorEntry ColorEntry)
+{
+    local int i;
+
+    if (Name == NO_HIGHLIGHT || Name == RANDOM_HIGHLIGHT)
+    {
+        return -1;
+    }
+    for (i = 0; i < default.Colors.Length; ++i)
+    {
+        if (default.Colors[i].Name == Name)
+        {
+            ColorEntry = default.Colors[i];
             return i;
         }
     }
@@ -472,7 +531,10 @@ static function PopulateRandomPool()
 
     for (i = 0; i < default.Colors.Length; ++i)
     {
-        default.RandomPool[i] = default.Colors[i].Name;
+        if (default.Colors[i].bRandom)
+        {
+            default.RandomPool[default.RandomPool.Length] = default.Colors[i].Name;
+        }
     }
 }
 
@@ -502,15 +564,15 @@ defaultproperties
     bDisableOnDeadBodies=false
     bForceNormalSkins=true
     SpectatorTeam=0
-    Colors(0)=(Name="Red",Color=(R=255,G=0,B=0,A=255))
-    Colors(1)=(Name="Blue",Color=(R=0,G=0,B=255,A=255))
-    Colors(2)=(Name="Green",Color=(R=0,G=255,B=0,A=255))
-    Colors(3)=(Name="Pink",Color=(R=255,G=0,B=255,A=255))
-    Colors(4)=(Name="Teal",Color=(R=0,G=255,B=255,A=255))
-    Colors(5)=(Name="Yellow",Color=(R=255,G=255,B=0,A=255))
-    Colors(6)=(Name="Orange",Color=(R=255,G=128,B=0,A=255))
-    Colors(7)=(Name="Purple",Color=(R=64,G=0,B=255,A=255))
-    Colors(8)=(Name="White",Color=(R=255,G=255,B=255,A=255))
+    Colors(0)=(Name="Red",Color=(R=255,G=0,B=0,A=255),bRandom=true)
+    Colors(1)=(Name="Blue",Color=(R=0,G=0,B=255,A=255),bRandom=true)
+    Colors(2)=(Name="Green",Color=(R=0,G=255,B=0,A=255),bRandom=true)
+    Colors(3)=(Name="Pink",Color=(R=255,G=0,B=255,A=255),bRandom=true)
+    Colors(4)=(Name="Teal",Color=(R=0,G=255,B=255,A=255),bRandom=true)
+    Colors(5)=(Name="Yellow",Color=(R=255,G=255,B=0,A=255),bRandom=true)
+    Colors(6)=(Name="Orange",Color=(R=255,G=128,B=0,A=255),bRandom=false)
+    Colors(7)=(Name="Purple",Color=(R=64,G=0,B=255,A=255),bRandom=false)
+    Colors(8)=(Name="White",Color=(R=255,G=255,B=255,A=255),bRandom=false)
     HighlightFactor=-1
 
     RemoteRole=ROLE_SimulatedProxy
