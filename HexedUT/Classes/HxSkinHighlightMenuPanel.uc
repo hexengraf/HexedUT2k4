@@ -10,6 +10,10 @@ const RANDOM_HIGHLIGHT = "*";
 var automated moComboBox co_YourTeam;
 var automated moComboBox co_EnemyTeam;
 var automated moComboBox co_SoloPlayer;
+var automated moComboBox co_ShieldHit;
+var automated moComboBox co_LinkHit;
+var automated moComboBox co_ShockHit;
+var automated moComboBox co_LightningHit;
 var automated moCheckBox ch_DisableOnDeadBodies;
 var automated moCheckBox ch_ForceNormalSkins;
 var automated moComboBox co_SpectateAs;
@@ -53,6 +57,10 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     Sections[SECTION_HIGHLIGHTS].ManageComponent(co_YourTeam);
     Sections[SECTION_HIGHLIGHTS].ManageComponent(co_EnemyTeam);
     Sections[SECTION_HIGHLIGHTS].ManageComponent(co_SoloPlayer);
+    Sections[SECTION_HIGHLIGHTS].ManageComponent(co_ShieldHit);
+    Sections[SECTION_HIGHLIGHTS].ManageComponent(co_LinkHit);
+    Sections[SECTION_HIGHLIGHTS].ManageComponent(co_ShockHit);
+    Sections[SECTION_HIGHLIGHTS].ManageComponent(co_LightningHit);
     Sections[SECTION_HIGHLIGHTS].ManageComponent(ch_DisableOnDeadBodies);
     Sections[SECTION_HIGHLIGHTS].ManageComponent(ch_ForceNormalSkins);
     Sections[SECTION_HIGHLIGHTS].ManageComponent(co_SpectateAs);
@@ -167,6 +175,18 @@ function InternalOnChange(GUIComponent Sender)
         case co_SoloPlayer:
             class'HxSkinHighlight'.default.SoloPlayer = moComboBox(Sender).GetExtra();
             break;
+        case co_ShieldHit:
+            class'HxSkinHighlight'.default.ShieldHit = moComboBox(Sender).GetExtra();
+            break;
+        case co_LinkHit:
+            class'HxSkinHighlight'.default.LinkHit = moComboBox(Sender).GetExtra();
+            break;
+        case co_ShockHit:
+            class'HxSkinHighlight'.default.ShockHit = moComboBox(Sender).GetExtra();
+            break;
+        case co_LightningHit:
+            class'HxSkinHighlight'.default.LightningHit = moComboBox(Sender).GetExtra();
+            break;
         case ch_DisableOnDeadBodies:
             class'HxSkinHighlight'.default.bDisableOnDeadBodies = moCheckBox(Sender).IsChecked();
             break;
@@ -235,17 +255,26 @@ function PopulateColorComboBoxes()
     ComboBoxes[0] = co_YourTeam;
     ComboBoxes[1] = co_EnemyTeam;
     ComboBoxes[2] = co_SoloPlayer;
-    ComboBoxes[3] = co_EditColor;
+    ComboBoxes[3] = co_ShieldHit;
+    ComboBoxes[4] = co_LinkHit;
+    ComboBoxes[5] = co_ShockHit;
+    ComboBoxes[6] = co_LightningHit;
+    ComboBoxes[7] = co_EditColor;
 
-    for (i = 0; i < ComboBoxes.Length - 1; ++i)
+    Index = co_EditColor.GetIndex();
+    for (i = 0; i < ComboBoxes.Length; ++i)
     {
         ComboBoxes[i].bIgnoreChange = true;
         ComboBoxes[i].ResetComponent();
+    }
+    for (i = 0; i < 3; ++i)
+    {
         ComboBoxes[i].AddItem("Disabled",,NO_HIGHLIGHT);
     }
-    Index = co_EditColor.GetIndex();
-    co_EditColor.bIgnoreChange = true;
-    co_EditColor.ResetComponent();
+    for (i = 3; i < ComboBoxes.Length - 1; ++i)
+    {
+        ComboBoxes[i].AddItem("Default",,NO_HIGHLIGHT);
+    }
     co_SoloPlayer.AddItem("Random",,RANDOM_HIGHLIGHT);
     for (i = 0; i < class'HxSkinHighlight'.default.Colors.Length; ++i)
     {
@@ -603,7 +632,7 @@ defaultproperties
         INIOption="HxSkinHighlight YourTeam"
         LabelJustification=TXTA_Left
         ComponentJustification=TXTA_Right
-        ComponentWidth=0.7
+        ComponentWidth=0.65
         bReadOnly=true
         bAutoSizeCaption=true
         bBoundToParent=true
@@ -620,7 +649,7 @@ defaultproperties
         INIOption="HxSkinHighlight EnemyTeam"
         LabelJustification=TXTA_Left
         ComponentJustification=TXTA_Right
-        ComponentWidth=0.7
+        ComponentWidth=0.65
         bAlwaysNotify=false
         bReadOnly=true
         bAutoSizeCaption=true
@@ -638,7 +667,7 @@ defaultproperties
         INIOption="HxSkinHighlight SoloPlayer"
         LabelJustification=TXTA_Left
         ComponentJustification=TXTA_Right
-        ComponentWidth=0.7
+        ComponentWidth=0.65
         bAlwaysNotify=false
         bReadOnly=true
         bAutoSizeCaption=true
@@ -649,6 +678,78 @@ defaultproperties
         TabOrder=2
     End Object
     co_SoloPlayer=SoloPlayerComboBox
+
+    Begin Object class=moComboBox Name=ShieldHitComboBox
+        Caption="Shield hit"
+        Hint="Highlight color to use when a shielded player is hit or has spawn protection."
+        INIOption="HxSkinHighlight ShieldHit"
+        LabelJustification=TXTA_Left
+        ComponentJustification=TXTA_Right
+        ComponentWidth=0.65
+        bAlwaysNotify=false
+        bReadOnly=true
+        bAutoSizeCaption=true
+        bBoundToParent=true
+        bScaleToParent=true
+        OnLoadINI=InternalOnLoadINI
+        OnChange=InternalOnChange
+        TabOrder=3
+    End Object
+    co_ShieldHit=ShieldHitComboBox
+
+    Begin Object class=moComboBox Name=LinkHitComboBox
+        Caption="Link hit"
+        Hint="Highlight color to use when a player is hit with a link gun."
+        INIOption="HxSkinHighlight LinkHit"
+        LabelJustification=TXTA_Left
+        ComponentJustification=TXTA_Right
+        ComponentWidth=0.65
+        bAlwaysNotify=false
+        bReadOnly=true
+        bAutoSizeCaption=true
+        bBoundToParent=true
+        bScaleToParent=true
+        OnLoadINI=InternalOnLoadINI
+        OnChange=InternalOnChange
+        TabOrder=4
+    End Object
+    co_LinkHit=LinkHitComboBox
+
+    Begin Object class=moComboBox Name=ShockHitComboBox
+        Caption="Shock hit"
+        Hint="Highlight color to use when a player is hit with a shock rifle."
+        INIOption="HxSkinHighlight ShockHit"
+        LabelJustification=TXTA_Left
+        ComponentJustification=TXTA_Right
+        ComponentWidth=0.65
+        bAlwaysNotify=false
+        bReadOnly=true
+        bAutoSizeCaption=true
+        bBoundToParent=true
+        bScaleToParent=true
+        OnLoadINI=InternalOnLoadINI
+        OnChange=InternalOnChange
+        TabOrder=5
+    End Object
+    co_ShockHit=ShockHitComboBox
+
+    Begin Object class=moComboBox Name=LightningHitComboBox
+        Caption="Lightning hit"
+        Hint="Highlight color to use when a player is hit with a lightning gun."
+        INIOption="HxSkinHighlight LightningHit"
+        LabelJustification=TXTA_Left
+        ComponentJustification=TXTA_Right
+        ComponentWidth=0.65
+        bAlwaysNotify=false
+        bReadOnly=true
+        bAutoSizeCaption=true
+        bBoundToParent=true
+        bScaleToParent=true
+        OnLoadINI=InternalOnLoadINI
+        OnChange=InternalOnChange
+        TabOrder=6
+    End Object
+    co_LightningHit=LightningHitComboBox
 
     Begin Object class=moCheckBox Name=DisableOnDeadBodiesCheckBox
         Caption="Disable highlight on dead bodies"
@@ -663,7 +764,7 @@ defaultproperties
         bScaleToParent=true
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
-        TabOrder=3
+        TabOrder=7
     End Object
     ch_DisableOnDeadBodies=DisableOnDeadBodiesCheckBox
 
@@ -680,7 +781,7 @@ defaultproperties
         bScaleToParent=true
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
-        TabOrder=4
+        TabOrder=8
     End Object
     ch_ForceNormalSkins=ForceNormalSkinsCheckBox
 
@@ -690,14 +791,14 @@ defaultproperties
         INIOption="HxSkinHighlight SpectatorTeam"
         LabelJustification=TXTA_Left
         ComponentJustification=TXTA_Right
-        ComponentWidth=0.7
+        ComponentWidth=0.65
         bReadOnly=true
         bAutoSizeCaption=true
         bBoundToParent=true
         bScaleToParent=true
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
-        TabOrder=5
+        TabOrder=9
     End Object
     co_SpectateAs=SpectateAsComboBox
 
@@ -706,14 +807,14 @@ defaultproperties
         Hint="Color to customize."
         LabelJustification=TXTA_Left
         ComponentJustification=TXTA_Right
-        ComponentWidth=0.7
+        ComponentWidth=0.8
         bAlwaysNotify=false
         bReadOnly=true
         bAutoSizeCaption=true
         bBoundToParent=true
         bScaleToParent=true
         OnChange=CustomizeColorOnChange
-        TabOrder=6
+        TabOrder=10
     End Object
     co_EditColor=EditColorComboBox
 
@@ -722,7 +823,7 @@ defaultproperties
         INIOption="@INTERNAL"
         LabelJustification=TXTA_Left
         ComponentJustification=TXTA_Right
-        ComponentWidth=0.7
+        ComponentWidth=0.8
         MinValue=0
         MaxValue=255
         bIntSlider=true
@@ -731,7 +832,7 @@ defaultproperties
         bScaleToParent=true
         OnLoadINI=CustomizeColorOnLoadINI
         OnChange=CustomizeColorOnChange
-        TabOrder=7
+        TabOrder=11
     End Object
     sl_ColorRed=ColorRedSlider
 
@@ -740,7 +841,7 @@ defaultproperties
         INIOption="@INTERNAL"
         LabelJustification=TXTA_Left
         ComponentJustification=TXTA_Right
-        ComponentWidth=0.7
+        ComponentWidth=0.8
         MinValue=0
         MaxValue=255
         bIntSlider=true
@@ -749,7 +850,7 @@ defaultproperties
         bScaleToParent=true
         OnLoadINI=CustomizeColorOnLoadINI
         OnChange=CustomizeColorOnChange
-        TabOrder=8
+        TabOrder=12
     End Object
     sl_ColorGreen=ColorGreenSlider
 
@@ -758,7 +859,7 @@ defaultproperties
         INIOption="@INTERNAL"
         LabelJustification=TXTA_Left
         ComponentJustification=TXTA_Right
-        ComponentWidth=0.7
+        ComponentWidth=0.8
         MinValue=0
         MaxValue=255
         bIntSlider=true
@@ -767,7 +868,7 @@ defaultproperties
         bScaleToParent=true
         OnLoadINI=CustomizeColorOnLoadINI
         OnChange=CustomizeColorOnChange
-        TabOrder=9
+        TabOrder=13
     End Object
     sl_ColorBlue=ColorBlueSlider
 
@@ -784,7 +885,7 @@ defaultproperties
         bScaleToParent=true
         OnLoadINI=CustomizeColorOnLoadINI
         OnChange=CustomizeColorOnChange
-        TabOrder=10
+        TabOrder=14
     End Object
     ch_AllowOnRandom=AllowOnRandomCheckBox
 
@@ -801,7 +902,7 @@ defaultproperties
         bBoundToParent=true
         bScaleToParent=true
         OnClick=OnClickNewColor
-        TabOrder=11
+        TabOrder=15
     End Object
     b_NewColor=NewColorButton
 
@@ -814,7 +915,7 @@ defaultproperties
         bBoundToParent=true
         bScaleToParent=true
         OnClick=OnClickRenameColor
-        TabOrder=12
+        TabOrder=16
     End Object
     b_RenameColor=RenameColorButton
 
@@ -827,7 +928,7 @@ defaultproperties
         bBoundToParent=true
         bScaleToParent=true
         OnClick=OnClickDeleteColor
-        TabOrder=13
+        TabOrder=17
     End Object
     b_DeleteColor=DeleteColorButton
 
@@ -839,7 +940,7 @@ defaultproperties
         bBoundToParent=true
         bScaleToParent=true
         OnChange=PreviewSkinOnChange
-        TabOrder=14
+        TabOrder=18
     End Object
     co_PreviewSkin=PreviewSkinComboBox
 
@@ -865,7 +966,7 @@ defaultproperties
         bBoundToParent=true
         bScaleToParent=true
         OnClick=OnClickChangeModel
-        TabOrder=15
+        TabOrder=19
     End Object
     b_ChangeModel=ChangeModelButton
 

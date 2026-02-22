@@ -16,10 +16,16 @@ struct HxCacheEntry
 
 const NO_HIGHLIGHT = "";
 const RANDOM_HIGHLIGHT = "*";
+const HIT_COLOR_MULTIPLIER = 1.75;
+const HIT_COLOR_FADE_PERIOD = 0.5;
 
 var config string YourTeam;
 var config string EnemyTeam;
 var config string SoloPlayer;
+var config string ShieldHit;
+var config string LinkHit;
+var config string ShockHit;
+var config string LightningHit;
 var config bool bDisableOnDeadBodies;
 var config bool bForceNormalSkins;
 var config int SpectatorTeam;
@@ -28,13 +34,18 @@ var config array<HxCacheEntry> Cache;
 var float HighlightFactor;
 
 var private PlayerController PC;
-var private array<Material> Materials;
 var private array<Material> OriginalSkins;
+var private array<Material> Materials;
 var private ConstantColor HighlightEffect;
 var private Shader HighlightShader;
+var private Color MainColor;
+var private Color HitColors[4];
+var private Material HitMaterials[4];
+var private int HitIndex;
 var private bool bInitialized;
-var private bool bSkinUpdated;
 var private bool bEnabled;
+var private bool bSkinUpdated;
+var private bool bOnSpawnProtection;
 var private byte LocalPlayerTeam;
 var private array<string> RandomPool;
 var private array<HxCacheEntry> OldCache;
@@ -54,8 +65,6 @@ simulated event PreBeginPlay()
         HighlightEffect = ConstantColor(AllocateMaterial(class'ConstantColor'));
         HighlightShader = Shader(AllocateMaterial(class'Shader'));
         HighlightShader.Specular = HighlightEffect;
-        bSkinUpdated = false;
-        bEnabled = false;
         LocalPlayerTeam = 255;
         bInitialized = Initialize(xPawn(Base));
     }
@@ -91,7 +100,7 @@ simulated event Tick(float DeltaTime)
                 {
                     ForceNormalSkin(Pawn);
                 }
-                UpdateHighlightOverlay(Pawn);
+                UpdateOverlay(Pawn);
             }
         }
     }
@@ -100,9 +109,6 @@ simulated event Tick(float DeltaTime)
 
 simulated function bool Initialize(xPawn Pawn)
 {
-    local string Highlight;
-    local int i;
-
     if (HighlightFactor == -1)
     {
         return false;
@@ -112,54 +118,99 @@ simulated function bool Initialize(xPawn Pawn)
         PC = Level.GetLocalPlayerController();
     }
     if (Pawn != None && PC != None && Level.GRI != None
-        && PC.PlayerReplicationInfo != None && Pawn.PlayerReplicationInfo != None)
+        && PC.PlayerReplicationInfo != None && Pawn.PlayerReplicationInfo != None
+        && Pawn.PlayerReplicationInfo.PlayerName != "")
     {
         LocalPlayerTeam = GetLocalPlayerTeam();
-        if (!Level.GRI.bTeamGame)
-        {
-            if (default.RandomPool.Length == 0)
-            {
-                InitializeRandomPool();
-            }
-            if (SoloPlayer == RANDOM_HIGHLIGHT)
-            {
-                if (Pawn.PlayerReplicationInfo.PlayerName == "")
-                {
-                    return false;
-                }
-                Highlight = GetRandomColor(Pawn.PlayerReplicationInfo.PlayerName);
-            }
-            else
-            {
-                Highlight = SoloPlayer;
-            }
-            bSkinUpdated = true;
-        }
-        else if (Pawn.GetTeamNum() != LocalPlayerTeam)
-        {
-            Highlight = EnemyTeam;
-        }
-        else
-        {
-            Highlight = YourTeam;
-        }
-        bEnabled = Highlight != NO_HIGHLIGHT;
-        HighlightEffect.Color = GetHighlightColor(Highlight);
-        if ((!bForceNormalSkins || !bEnabled) && OriginalSkins.Length > 0)
-        {
-            for (i = 0; i < OriginalSkins.Length; ++i)
-            {
-                if (OriginalSkins[i] != None)
-                {
-                    Pawn.Skins[i] = OriginalSkins[i];
-                }
-            }
-            OriginalSkins.Remove(0, OriginalSkins.Length);
-            bSkinUpdated = false;
-        }
+        InitializeHighlight(Pawn);
+        InitializeHitEffects(Pawn);
+        InitializeSkins(Pawn);
         return true;
     }
     return false;
+}
+
+simulated function InitializeHighlight(xPawn Pawn)
+{
+    local string Name;
+
+    if (!Level.GRI.bTeamGame)
+    {
+        if (default.RandomPool.Length == 0)
+        {
+            InitializeRandomPool();
+        }
+        if (SoloPlayer == RANDOM_HIGHLIGHT)
+        {
+            Name = GetRandomColor(Pawn.PlayerReplicationInfo.PlayerName);
+        }
+        else
+        {
+            Name = SoloPlayer;
+        }
+        bSkinUpdated = true;
+    }
+    else
+    {
+        Name = Eval(Pawn.GetTeamNum() != LocalPlayerTeam, EnemyTeam, YourTeam);
+    }
+    bEnabled = Name != NO_HIGHLIGHT;
+    if (bEnabled)
+    {
+        FindColor(Name, MainColor);
+        MainColor.R = MainColor.R * HighlightFactor;
+        MainColor.G = MainColor.G * HighlightFactor;
+        MainColor.B = MainColor.B * HighlightFactor;
+    }
+}
+
+simulated function InitializeHitEffects(xPawn Pawn)
+{
+    local int i;
+
+    for (i = 0; i < ArrayCount(HitColors); ++i)
+    {
+        HitMaterials[i] = None;
+    }
+    if (ShieldHit != NO_HIGHLIGHT)
+    {
+        HitColors[0] = GetHitColor(ShieldHit);
+        HitMaterials[0] = Pawn.ShieldHitMat;
+    }
+    if (LinkHit != NO_HIGHLIGHT)
+    {
+        HitColors[1] = GetHitColor(LinkHit);
+        HitMaterials[1] = Shader'XGameShaders.PlayerShaders.LinkHit';
+    }
+    if (ShockHit != NO_HIGHLIGHT)
+    {
+        HitColors[2] = GetHitColor(ShockHit);
+        HitMaterials[2] = Shader'UT2004Weapons.Shaders.ShockHitShader';
+    }
+    if (LightningHit != NO_HIGHLIGHT)
+    {
+        HitColors[3] = GetHitColor(LightningHit);
+        HitMaterials[3] = Shader'XGameShaders.PlayerShaders.LightningHit';
+    }
+    HitIndex = -1;
+}
+
+simulated function InitializeSkins(xPawn Pawn)
+{
+    local int i;
+
+    if ((!bForceNormalSkins || !bEnabled) && OriginalSkins.Length > 0)
+    {
+        for (i = 0; i < OriginalSkins.Length; ++i)
+        {
+            if (OriginalSkins[i] != None)
+            {
+                Pawn.Skins[i] = OriginalSkins[i];
+            }
+        }
+        OriginalSkins.Remove(0, OriginalSkins.Length);
+        bSkinUpdated = false;
+    }
 }
 
 simulated function Reinitialize()
@@ -174,23 +225,36 @@ simulated function Reinitialize()
     DisableHighlight();
 }
 
-simulated function UpdateHighlightOverlay(xPawn Pawn)
+simulated function UpdateOverlay(xPawn Pawn)
 {
-    if (Pawn.OverlayMaterial == None)
+    local float Fade;
+    local int i;
+
+    if (Pawn.OverlayMaterial == None || (bOnSpawnProtection && Pawn.bSpawnDone))
     {
-        Pawn.SetOverlayMaterial(HighlightShader, 300, false);
+        HighlightEffect.Color = MainColor;
+        Pawn.SetOverlayMaterial(HighlightShader, 300, true);
+        bOnSpawnProtection = false;
+        HitIndex = -1;
     }
-}
-
-simulated function Color GetHighlightColor(string Name)
-{
-    local Color Color;
-
-    FindColor(Name, Color);
-    Color.R = Color.R * HighlightFactor;
-    Color.G = Color.G * HighlightFactor;
-    Color.B = Color.B * HighlightFactor;
-    return Color;
+    else
+    {
+        for (i = 0; i < ArrayCount(HitMaterials); ++i)
+        {
+            if (Pawn.OverlayMaterial == HitMaterials[i])
+            {
+                Pawn.OverlayMaterial = HighlightShader;
+                bOnSpawnProtection = !Pawn.bSpawnDone;
+                HitIndex = i;
+                break;
+            }
+        }
+    }
+    if (HitIndex > -1)
+    {
+        Fade = FClamp(Pawn.ClientOverlayCounter / HIT_COLOR_FADE_PERIOD, 0.0, 1.0);
+        HighlightEffect.Color = (HitColors[HitIndex] * Fade) + (MainColor * (1.0 - Fade));
+    }
 }
 
 simulated function ForceNormalSkin(xPawn Pawn)
@@ -220,6 +284,17 @@ simulated function int GetLocalPlayerTeam()
         return SpectatorTeam;
     }
     return PC.GetTeamNum();
+}
+
+simulated function Color GetHitColor(string Name)
+{
+    local Color Color;
+
+    FindColor(Name, Color);
+    Color.R = Min(Color.R * HighlightFactor * HIT_COLOR_MULTIPLIER, 255);
+    Color.G = Min(Color.G * HighlightFactor * HIT_COLOR_MULTIPLIER, 255);
+    Color.B = Min(Color.B * HighlightFactor * HIT_COLOR_MULTIPLIER, 255);
+    return Color;
 }
 
 simulated function string GetRandomColor(string Player)
@@ -565,6 +640,10 @@ defaultproperties
     EnemyTeam=""
     YourTeam=""
     SoloPlayer=""
+    ShieldHit=""
+    LinkHit=""
+    ShockHit=""
+    LightningHit=""
     bDisableOnDeadBodies=false
     bForceNormalSkins=true
     SpectatorTeam=0
@@ -574,9 +653,7 @@ defaultproperties
     Colors(3)=(Name="Pink",Color=(R=255,G=0,B=255,A=255),bRandom=true)
     Colors(4)=(Name="Teal",Color=(R=0,G=255,B=255,A=255),bRandom=true)
     Colors(5)=(Name="Yellow",Color=(R=255,G=255,B=0,A=255),bRandom=true)
-    Colors(6)=(Name="Orange",Color=(R=255,G=128,B=0,A=255),bRandom=false)
     Colors(7)=(Name="Purple",Color=(R=64,G=0,B=255,A=255),bRandom=false)
-    Colors(8)=(Name="White",Color=(R=255,G=255,B=255,A=255),bRandom=false)
     HighlightFactor=-1
 
     RemoteRole=ROLE_SimulatedProxy
