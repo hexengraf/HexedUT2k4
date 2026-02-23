@@ -21,7 +21,6 @@ var private automated array<GUILabel> HideMessages;
 var private bool bPanelAdded;
 
 function bool Initialize();
-function Refresh();
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
@@ -58,14 +57,23 @@ event Timer()
     }
 }
 
-function TargetOnChange(GUIComponent C)
+function DefaultOnLoadINI(GUIComponent Sender, string s)
 {
-    local HxMenuOption Option;
-
-    Option = HxMenuOption(C);
-    if (Option != None)
+    if (GUIMenuOption(Sender) != None && s != "")
     {
-        Option.SetValueOnTarget();
+        GUIMenuOption(Sender).SetComponentValue(s, true);
+    }
+}
+
+function DefaultOnChange(GUIComponent Sender, object Target)
+{
+    local array<string> Parts;
+
+    if (Sender.INIOption != "")
+    {
+        Split(Sender.INIOption, " ", Parts);
+        Target.SetPropertyText(Parts[1], GUIMenuOption(Sender).GetComponentValue());
+        Target.SaveConfig();
     }
 }
 
@@ -122,7 +130,6 @@ function InitSection(int i)
     Sections[i].LeftPadding = 0.00995;
     Sections[i].RightPadding = 0.00995;
     Sections[i].TopPadding = 0.04;
-    // Sections[i].ColPadding = 0.04;
     if (bDoubleColumn)
     {
         if (i % 2 == 1)

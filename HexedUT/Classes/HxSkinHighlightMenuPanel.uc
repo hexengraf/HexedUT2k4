@@ -110,6 +110,7 @@ event Opened(GUIComponent Sender)
 function Refresh()
 {
     HideSection(SECTION_HIGHLIGHTS, !Proxy.bAllowSkinHighlight, HIDE_DUE_DISABLE);
+    Super.Refresh();
 }
 
 function bool InternalOnPreDraw(Canvas C)
@@ -124,14 +125,6 @@ function bool InternalOnPreDraw(Canvas C)
     b_DeleteColor.WinTop = l_ButtonAnchor.WinTop;
     b_DeleteColor.WinWidth = b_NewColor.WinWidth;
     return false;
-}
-
-function InternalOnLoadINI(GUIComponent Sender, string s)
-{
-    if (GUIMenuOption(Sender) != None)
-    {
-        GUIMenuOption(Sender).SetComponentValue(s, true);
-    }
 }
 
 function CustomizeColorOnLoadINI(GUIComponent Sender, string s)
@@ -630,14 +623,9 @@ defaultproperties
         Caption="Your team"
         Hint="Highlight color for your team."
         INIOption="HxSkinHighlight YourTeam"
-        LabelJustification=TXTA_Left
-        ComponentJustification=TXTA_Right
         ComponentWidth=0.65
         bReadOnly=true
-        bAutoSizeCaption=true
-        bBoundToParent=true
-        bScaleToParent=true
-        OnLoadINI=InternalOnLoadINI
+        OnLoadINI=DefaultOnLoadINI
         OnChange=InternalOnChange
         TabOrder=0
     End Object
@@ -647,15 +635,9 @@ defaultproperties
         Caption="Enemy team"
         Hint="Highlight color for the enemy team."
         INIOption="HxSkinHighlight EnemyTeam"
-        LabelJustification=TXTA_Left
-        ComponentJustification=TXTA_Right
         ComponentWidth=0.65
-        bAlwaysNotify=false
         bReadOnly=true
-        bAutoSizeCaption=true
-        bBoundToParent=true
-        bScaleToParent=true
-        OnLoadINI=InternalOnLoadINI
+        OnLoadINI=DefaultOnLoadINI
         OnChange=InternalOnChange
         TabOrder=1
     End Object
@@ -665,15 +647,9 @@ defaultproperties
         Caption="Solo player"
         Hint="Highlight color for players on game modes with no team. Random assigns a random color for each player."
         INIOption="HxSkinHighlight SoloPlayer"
-        LabelJustification=TXTA_Left
-        ComponentJustification=TXTA_Right
         ComponentWidth=0.65
-        bAlwaysNotify=false
         bReadOnly=true
-        bAutoSizeCaption=true
-        bBoundToParent=true
-        bScaleToParent=true
-        OnLoadINI=InternalOnLoadINI
+        OnLoadINI=DefaultOnLoadINI
         OnChange=InternalOnChange
         TabOrder=2
     End Object
@@ -683,15 +659,9 @@ defaultproperties
         Caption="Shield hit"
         Hint="Highlight color to use when a shielded player is hit or has spawn protection."
         INIOption="HxSkinHighlight ShieldHit"
-        LabelJustification=TXTA_Left
-        ComponentJustification=TXTA_Right
         ComponentWidth=0.65
-        bAlwaysNotify=false
         bReadOnly=true
-        bAutoSizeCaption=true
-        bBoundToParent=true
-        bScaleToParent=true
-        OnLoadINI=InternalOnLoadINI
+        OnLoadINI=DefaultOnLoadINI
         OnChange=InternalOnChange
         TabOrder=3
     End Object
@@ -701,15 +671,9 @@ defaultproperties
         Caption="Link hit"
         Hint="Highlight color to use when a player is hit with a link gun."
         INIOption="HxSkinHighlight LinkHit"
-        LabelJustification=TXTA_Left
-        ComponentJustification=TXTA_Right
         ComponentWidth=0.65
-        bAlwaysNotify=false
         bReadOnly=true
-        bAutoSizeCaption=true
-        bBoundToParent=true
-        bScaleToParent=true
-        OnLoadINI=InternalOnLoadINI
+        OnLoadINI=DefaultOnLoadINI
         OnChange=InternalOnChange
         TabOrder=4
     End Object
@@ -719,15 +683,9 @@ defaultproperties
         Caption="Shock hit"
         Hint="Highlight color to use when a player is hit with a shock rifle."
         INIOption="HxSkinHighlight ShockHit"
-        LabelJustification=TXTA_Left
-        ComponentJustification=TXTA_Right
         ComponentWidth=0.65
-        bAlwaysNotify=false
         bReadOnly=true
-        bAutoSizeCaption=true
-        bBoundToParent=true
-        bScaleToParent=true
-        OnLoadINI=InternalOnLoadINI
+        OnLoadINI=DefaultOnLoadINI
         OnChange=InternalOnChange
         TabOrder=5
     End Object
@@ -737,15 +695,9 @@ defaultproperties
         Caption="Lightning hit"
         Hint="Highlight color to use when a player is hit with a lightning gun."
         INIOption="HxSkinHighlight LightningHit"
-        LabelJustification=TXTA_Left
-        ComponentJustification=TXTA_Right
         ComponentWidth=0.65
-        bAlwaysNotify=false
         bReadOnly=true
-        bAutoSizeCaption=true
-        bBoundToParent=true
-        bScaleToParent=true
-        OnLoadINI=InternalOnLoadINI
+        OnLoadINI=DefaultOnLoadINI
         OnChange=InternalOnChange
         TabOrder=6
     End Object
@@ -755,14 +707,8 @@ defaultproperties
         Caption="Disable highlight on dead bodies"
         Hint="Disable any active highlights on dead bodies."
         INIOption="HxSkinHighlight bDisableOnDeadBodies"
-        LabelJustification=TXTA_Left
-        ComponentJustification=TXTA_Right
-        ComponentWidth=-1
         CaptionWidth=0.8
-        bAutoSizeCaption=true
-        bBoundToParent=true
-        bScaleToParent=true
-        OnLoadINI=InternalOnLoadINI
+        OnLoadINI=DefaultOnLoadINI
         OnChange=InternalOnChange
         TabOrder=7
     End Object
@@ -772,14 +718,8 @@ defaultproperties
         Caption="Force normal skins"
         Hint="When highlight is enabled, force normal (uncolored) variation of the underlying skin."
         INIOption="HxSkinHighlight bForceNormalSkins"
-        LabelJustification=TXTA_Left
-        ComponentJustification=TXTA_Right
-        ComponentWidth=-1
         CaptionWidth=0.8
-        bAutoSizeCaption=true
-        bBoundToParent=true
-        bScaleToParent=true
-        OnLoadINI=InternalOnLoadINI
+        OnLoadINI=DefaultOnLoadINI
         OnChange=InternalOnChange
         TabOrder=8
     End Object
@@ -789,14 +729,9 @@ defaultproperties
         Caption="Spectate as"
         Hint="Select which team's perspective to spectate as."
         INIOption="HxSkinHighlight SpectatorTeam"
-        LabelJustification=TXTA_Left
-        ComponentJustification=TXTA_Right
         ComponentWidth=0.65
         bReadOnly=true
-        bAutoSizeCaption=true
-        bBoundToParent=true
-        bScaleToParent=true
-        OnLoadINI=InternalOnLoadINI
+        OnLoadINI=DefaultOnLoadINI
         OnChange=InternalOnChange
         TabOrder=9
     End Object
@@ -805,14 +740,8 @@ defaultproperties
     Begin Object class=moComboBox Name=EditColorComboBox
         Caption="Color"
         Hint="Color to customize."
-        LabelJustification=TXTA_Left
-        ComponentJustification=TXTA_Right
         ComponentWidth=0.8
-        bAlwaysNotify=false
         bReadOnly=true
-        bAutoSizeCaption=true
-        bBoundToParent=true
-        bScaleToParent=true
         OnChange=CustomizeColorOnChange
         TabOrder=10
     End Object
@@ -821,15 +750,10 @@ defaultproperties
     Begin Object class=moSlider Name=ColorRedSlider
         Caption="Red"
         INIOption="@INTERNAL"
-        LabelJustification=TXTA_Left
-        ComponentJustification=TXTA_Right
         ComponentWidth=0.8
         MinValue=0
         MaxValue=255
         bIntSlider=true
-        bAutoSizeCaption=true
-        bBoundToParent=true
-        bScaleToParent=true
         OnLoadINI=CustomizeColorOnLoadINI
         OnChange=CustomizeColorOnChange
         TabOrder=11
@@ -839,15 +763,10 @@ defaultproperties
     Begin Object class=moSlider Name=ColorGreenSlider
         Caption="Green"
         INIOption="@INTERNAL"
-        LabelJustification=TXTA_Left
-        ComponentJustification=TXTA_Right
         ComponentWidth=0.8
         MinValue=0
         MaxValue=255
         bIntSlider=true
-        bAutoSizeCaption=true
-        bBoundToParent=true
-        bScaleToParent=true
         OnLoadINI=CustomizeColorOnLoadINI
         OnChange=CustomizeColorOnChange
         TabOrder=12
@@ -857,15 +776,10 @@ defaultproperties
     Begin Object class=moSlider Name=ColorBlueSlider
         Caption="Blue"
         INIOption="@INTERNAL"
-        LabelJustification=TXTA_Left
-        ComponentJustification=TXTA_Right
         ComponentWidth=0.8
         MinValue=0
         MaxValue=255
         bIntSlider=true
-        bAutoSizeCaption=true
-        bBoundToParent=true
-        bScaleToParent=true
         OnLoadINI=CustomizeColorOnLoadINI
         OnChange=CustomizeColorOnChange
         TabOrder=13
@@ -876,13 +790,7 @@ defaultproperties
         Caption="Allow color on random highlight"
         Hint="Allow this color to be used on random highlight."
         INIOption="@INTERNAL"
-        LabelJustification=TXTA_Left
-        ComponentJustification=TXTA_Right
-        ComponentWidth=-1
         CaptionWidth=0.8
-        bAutoSizeCaption=true
-        bBoundToParent=true
-        bScaleToParent=true
         OnLoadINI=CustomizeColorOnLoadINI
         OnChange=CustomizeColorOnChange
         TabOrder=14
@@ -899,8 +807,6 @@ defaultproperties
         StandardHeight=0.035
         bStandardized=true
         bRepeatClick=false
-        bBoundToParent=true
-        bScaleToParent=true
         OnClick=OnClickNewColor
         TabOrder=15
     End Object
@@ -912,8 +818,6 @@ defaultproperties
         StandardHeight=0.035
         bStandardized=true
         bRepeatClick=false
-        bBoundToParent=true
-        bScaleToParent=true
         OnClick=OnClickRenameColor
         TabOrder=16
     End Object
@@ -925,8 +829,6 @@ defaultproperties
         StandardHeight=0.035
         bStandardized=true
         bRepeatClick=false
-        bBoundToParent=true
-        bScaleToParent=true
         OnClick=OnClickDeleteColor
         TabOrder=17
     End Object
@@ -937,8 +839,6 @@ defaultproperties
         StandardHeight=0.03
         bStandardized=true
         bReadOnly=true
-        bBoundToParent=true
-        bScaleToParent=true
         OnChange=PreviewSkinOnChange
         TabOrder=18
     End Object
@@ -950,8 +850,6 @@ defaultproperties
         bTabStop=false
         bNeverFocus=true
         bDropTarget=true
-        bScaleToParent=true
-        bBoundToParent=true
         OnDraw=PreviewOnDraw
         OnCapturedMouseMove=PreviewOnCapturedMouseMove
     End Object
@@ -963,8 +861,6 @@ defaultproperties
         StandardHeight=0.035
         bStandardized=true
         bRepeatClick=false
-        bBoundToParent=true
-        bScaleToParent=true
         OnClick=OnClickChangeModel
         TabOrder=19
     End Object

@@ -401,10 +401,9 @@ defaultproperties
         Caption="Display"
         WinWidth=0.448633
         WinHeight=0.308985
-        // WinHeight=0.901485
         WinLeft=0.031797
         WinTop=0.03
-        RenderWeight=0.001
+        bRemapStack=false
     End Object
     i_BG1=TemplateDisplaySection
 
@@ -414,7 +413,7 @@ defaultproperties
         WinHeight=0.38190167
         WinLeft=0.031797
         WinTop=0.348985
-        RenderWeight=0.001
+        bRemapStack=false
     End Object
     i_BG2=TemplateHUDSection
 
@@ -424,7 +423,7 @@ defaultproperties
         WinHeight=0.23606834
         WinLeft=0.031797
         WinTop=0.74088667
-        RenderWeight=0.001
+        bRemapStack=false
     End Object
     i_BG3=TemplateNetworkSection
 
@@ -434,12 +433,6 @@ defaultproperties
         INIOption="@Internal"
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
-        bAutoSizeCaption=true
-        bBoundToParent=true
-        bScaleToParent=true
-        CaptionWidth=0.955
-        bSquare=true
-        ComponentJustification=TXTA_Left
         TabOrder=0
     End Object
     ch_SmallCursor=TemplateSmallCursor
@@ -450,12 +443,6 @@ defaultproperties
         INIOption="@Internal"
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
-        bAutoSizeCaption=true
-        bBoundToParent=true
-        bScaleToParent=true
-        CaptionWidth=0.955
-        bSquare=true
-        ComponentJustification=TXTA_Left
         TabOrder=1
     End Object
     ch_FixedMouseSize=TemplateFixedMouseSize
@@ -466,12 +453,6 @@ defaultproperties
         INIOption="@Internal"
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
-        bAutoSizeCaption=true
-        bBoundToParent=true
-        bScaleToParent=true
-        CaptionWidth=0.955
-        bSquare=true
-        ComponentJustification=TXTA_Left
         TabOrder=2
     End Object
     ch_ScaleWithY=TemplateScaleWithY
@@ -480,15 +461,11 @@ defaultproperties
         Caption="Override font scale"
         Hint="Override font scale (between 0 and 6). Use -1 for default scale. Restart required."
         INIOption="@Internal"
-        OnLoadINI=InternalOnLoadINI
-        OnChange=InternalOnChange
         MinValue=-1
         MaxValue=6
-        bBoundToParent=true
-        bScaleToParent=true
         CaptionWidth=0.725
-        bHeightFromComponent=false
-        ComponentJustification=TXTA_Left
+        OnLoadINI=InternalOnLoadINI
+        OnChange=InternalOnChange
         TabOrder=3
     End Object
     nu_OverrideFontSize=TemplateOverrideFontSize
@@ -497,15 +474,11 @@ defaultproperties
         Caption="4:3 FOV"
         Hint="Desired 4:3 FOV value. This value will be internally scaled for the current aspect ratio."
         INIOption="@Internal"
-        OnLoadINI=InternalOnLoadINI
-        OnChange=InternalOnChange
         MinValue=80
         MaxValue=140
-        bBoundToParent=true
-        bScaleToParent=true
         CaptionWidth=0.725
-        bHeightFromComponent=false
-        ComponentJustification=TXTA_Left
+        OnLoadINI=InternalOnLoadINI
+        OnChange=InternalOnChange
         TabOrder=3
     End Object
     nu_FOV43=TemplateFOV43
@@ -514,14 +487,9 @@ defaultproperties
         Caption="Replace HUDs"
         Hint="Replace HUDs to fix widescreen scaling."
         INIOption="@Internal"
+        bSquare=true
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
-        bAutoSizeCaption=true
-        bBoundToParent=true
-        bScaleToParent=true
-        CaptionWidth=0.955
-        bSquare=true
-        ComponentJustification=TXTA_Left
         TabOrder=4
     End Object
     ch_ReplaceHUDs=TemplateReplaceHUDs
@@ -532,12 +500,6 @@ defaultproperties
         INIOption="@Internal"
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
-        bAutoSizeCaption=true
-        bBoundToParent=true
-        bScaleToParent=true
-        CaptionWidth=0.955
-        bSquare=true
-        ComponentJustification=TXTA_Left
         TabOrder=5
     End Object
     ch_ScaleWeapons=TemplateScaleWeapons
@@ -548,12 +510,6 @@ defaultproperties
         INIOption="@Internal"
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
-        bAutoSizeCaption=true
-        bBoundToParent=true
-        bScaleToParent=true
-        CaptionWidth=0.955
-        bSquare=true
-        ComponentJustification=TXTA_Left
         TabOrder=6
     End Object
     ch_SPShowTimer=TemplateSPShowTimer
@@ -564,12 +520,6 @@ defaultproperties
         INIOption="@Internal"
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
-        bAutoSizeCaption=true
-        bBoundToParent=true
-        bScaleToParent=true
-        CaptionWidth=0.955
-        bSquare=true
-        ComponentJustification=TXTA_Left
         TabOrder=7
     End Object
     ch_SPFollowHUDColor=TemplateSPFollowHUDColor
@@ -580,12 +530,6 @@ defaultproperties
         INIOption="@Internal"
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
-        bAutoSizeCaption=true
-        bBoundToParent=true
-        bScaleToParent=true
-        CaptionWidth=0.955
-        bSquare=true
-        ComponentJustification=TXTA_Left
         TabOrder=8
     End Object
     ch_SPPulsingDigits=TemplateSPPulsingDigits
@@ -594,16 +538,12 @@ defaultproperties
         Caption="Timer's X position"
         Hint="Adjust timer's position in the X axis."
         INIOption="@Internal"
-        OnLoadINI=InternalOnLoadINI
-        OnChange=InternalOnChange
         MinValue=0.0
         MaxValue=1.0
         Step=0.01
-        bBoundToParent=true
-        bScaleToParent=true
         CaptionWidth=0.725
-        bHeightFromComponent=false
-        ComponentJustification=TXTA_Left
+        OnLoadINI=InternalOnLoadINI
+        OnChange=InternalOnChange
         TabOrder=9
     End Object
     fl_SPPosX=TemplateSPPosX
@@ -612,16 +552,12 @@ defaultproperties
         Caption="Timer's Y position"
         Hint="Adjust timer's position in the Y axis."
         INIOption="@Internal"
-        OnLoadINI=InternalOnLoadINI
-        OnChange=InternalOnChange
         MinValue=0.0
         MaxValue=1.0
         Step=0.01
-        bBoundToParent=true
-        bScaleToParent=true
         CaptionWidth=0.725
-        bHeightFromComponent=false
-        ComponentJustification=TXTA_Left
+        OnLoadINI=InternalOnLoadINI
+        OnChange=InternalOnChange
         TabOrder=10
     End Object
     fl_SPPosY=TemplateSPPosY
@@ -632,12 +568,6 @@ defaultproperties
         INIOption="@Internal"
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
-        bAutoSizeCaption=true
-        bBoundToParent=true
-        bScaleToParent=true
-        CaptionWidth=0.955
-        bSquare=true
-        ComponentJustification=TXTA_Left
         TabOrder=11
     End Object
     ch_ValidateKeepAliveTime=TemplateValidateKeepAliveTime
@@ -646,16 +576,12 @@ defaultproperties
         Caption="Custom network speed"
         Hint="Custom network speed to use for both internet and LAN games (applied on every level change)."
         INIOption="@Internal"
-        OnLoadINI=InternalOnLoadINI
-        OnChange=InternalOnChange
         MinValue=0
         MaxValue=999999999
         Step=1000000
-        bBoundToParent=true
-        bScaleToParent=true
         CaptionWidth=0.725
-        bHeightFromComponent=false
-        ComponentJustification=TXTA_Left
+        OnLoadINI=InternalOnLoadINI
+        OnChange=InternalOnChange
         TabOrder=12
     End Object
     nu_CustomNetSpeed=TemplateCustomNetSpeed
@@ -664,14 +590,10 @@ defaultproperties
         Caption="Master server"
         Hint="Select your preferred master server. Restart required."
         INIOption="@Internal"
-        OnLoadINI=InternalOnLoadINI
-        OnChange=InternalOnChange
-        bBoundToParent=true
-        bScaleToParent=true
         CaptionWidth=0.55
         bReadOnly=true
-        bHeightFromComponent=false
-        ComponentJustification=TXTA_Left
+        OnLoadINI=InternalOnLoadINI
+        OnChange=InternalOnChange
         TabOrder=13
     End Object
     co_MasterServer=TemplateMasterServer

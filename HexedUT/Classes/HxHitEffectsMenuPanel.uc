@@ -2,18 +2,34 @@ class HxHitEffectsMenuPanel extends HxMenuPanel;
 
 const SECTION_HIT_SOUNDS = 0;
 const SECTION_DAMAGE_NUMBERS = 2;
-const SECTION_CUSTOMIZE = 1;
+const SECTION_DAMAGE_POINT_EDITOR = 1;
 
-var automated array<HxMenuOption> HitEffectsOptions;
-var automated array<HxMenuOption> CustomizeOptions;
-
-var automated GUIImage i_DPPReview;
+var automated moCheckBox ch_HitSounds;
+var automated moComboBox co_SelectedHitSound;
+var automated moSlider sl_HSVolume;
+var automated moComboBox co_HSPitchMode;
+var automated moCheckBox ch_DamageNumbers;
+var automated moComboBox co_DMode;
+var automated moComboBox co_DFont;
+var automated moFloatEdit fl_DNPosX;
+var automated moFloatEdit fl_DNPosY;
+var automated moComboBox co_DamagePoints;
+var automated moNumericEdit nu_DPValue;
+var automated moSlider sl_DPPitch;
 var automated GUIButton b_PlaySound;
+var automated GUIImage i_DPPReview;
+var automated moSlider sl_DPScale;
+var automated moSlider sl_DPRedColor;
+var automated moSlider sl_DPGreenColor;
+var automated moSlider sl_DPBlueColor;
+
+var localized string PitchModeNames[3];
+var localized string DamageModeNames[5];
+var localized string DamagePointNames[5];
 
 var array<string> FontNames;
 var array<string> CustomFontNames;
 var array<Font> LoadedFonts;
-var int FontIndex;
 var int DPIndex;
 var HxClientProxy Proxy;
 
@@ -21,39 +37,50 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
     local int i;
 
-    for (i = 0; i < 4; ++i)
-    {
-        Sections[SECTION_HIT_SOUNDS].ManageComponent(HitEffectsOptions[i]);
-    }
-    for (i = 4; i < HitEffectsOptions.Length; ++i)
-    {
-        Sections[SECTION_DAMAGE_NUMBERS].ManageComponent(HitEffectsOptions[i]);
-    }
-    for (i = 0; i < CustomizeOptions.Length; ++i)
-    {
-        Sections[SECTION_CUSTOMIZE].ManageComponent(CustomizeOptions[i]);
-        if (i == 2)
-        {
-            Sections[SECTION_CUSTOMIZE].ManageComponent(b_PlaySound);
-            Sections[SECTION_CUSTOMIZE].ManageComponent(i_DPPreview);
-        }
-    }
+    Sections[SECTION_HIT_SOUNDS].ManageComponent(ch_HitSounds);
+    Sections[SECTION_HIT_SOUNDS].ManageComponent(co_SelectedHitSound);
+    Sections[SECTION_HIT_SOUNDS].ManageComponent(sl_HSVolume);
+    Sections[SECTION_HIT_SOUNDS].ManageComponent(co_HSPitchMode);
+    Sections[SECTION_DAMAGE_NUMBERS].ManageComponent(ch_DamageNumbers);
+    Sections[SECTION_DAMAGE_NUMBERS].ManageComponent(co_DMode);
+    Sections[SECTION_DAMAGE_NUMBERS].ManageComponent(co_DFont);
+    Sections[SECTION_DAMAGE_NUMBERS].ManageComponent(fl_DNPosX);
+    Sections[SECTION_DAMAGE_NUMBERS].ManageComponent(fl_DNPosY);
+    Sections[SECTION_DAMAGE_POINT_EDITOR].ManageComponent(co_DamagePoints);
+    Sections[SECTION_DAMAGE_POINT_EDITOR].ManageComponent(nu_DPValue);
+    Sections[SECTION_DAMAGE_POINT_EDITOR].ManageComponent(sl_DPPitch);
+    Sections[SECTION_DAMAGE_POINT_EDITOR].ManageComponent(b_PlaySound);
+    Sections[SECTION_DAMAGE_POINT_EDITOR].ManageComponent(i_DPPreview);
+    Sections[SECTION_DAMAGE_POINT_EDITOR].ManageComponent(sl_DPScale);
+    Sections[SECTION_DAMAGE_POINT_EDITOR].ManageComponent(sl_DPRedColor);
+    Sections[SECTION_DAMAGE_POINT_EDITOR].ManageComponent(sl_DPGreenColor);
+    Sections[SECTION_DAMAGE_POINT_EDITOR].ManageComponent(sl_DPBlueColor);
     super.InitComponent(MyController, MyOwner);
     for (i = 0; i < class'HxSounds'.default.HitSounds.Length; ++i)
     {
-        HxMenuComboBox(HitEffectsOptions[1]).AddItem(string(class'HxSounds'.default.HitSounds[i]));
+        co_SelectedHitSound.AddItem(string(class'HxSounds'.default.HitSounds[i]),,string(i));
+    }
+    for (i = 0; i < ArrayCount(PitchModeNames); ++i)
+    {
+        co_HSPitchMode.AddItem(PitchModeNames[i],,string(GetEnum(enum'EHxPitchMode', i)));
+    }
+    for (i = 0; i < ArrayCount(DamageModeNames); ++i)
+    {
+        co_DMode.AddItem(DamageModeNames[i],,string(GetEnum(enum'EHxDMode', i)));
     }
     AddCustomFonts();
     for (i = 0; i < FontNames.Length; ++i)
     {
-        HxMenuComboBox(HitEffectsOptions[6]).AddItem(FontNames[i]);
+        co_DFont.AddItem(FontNames[i],,FontNames[i]);
+    }
+    for (i = 0; i < ArrayCount(DamagePointNames); ++i)
+    {
+        co_DamagePoints.AddItem(DamagePointNames[i],,string(i));
     }
 }
 
 function bool Initialize()
 {
-    local int i;
-
     if (Proxy != None)
     {
         return true;
@@ -61,13 +88,7 @@ function bool Initialize()
     Proxy = class'HxClientProxy'.static.GetClientProxy(PlayerOwner());
     if (Proxy != None)
     {
-        for (i = 0; i < HitEffectsOptions.Length; ++i)
-        {
-            HitEffectsOptions[i].Target = Proxy.HitEffects;
-        }
-        HitEffectsOptions[6].Target = Self;
-        CustomizeOptions[0].Target = Self;
-        FontIndex = GetFontIndex(string(Proxy.HitEffects.DFont));
+        co_DFont.SilentSetIndex(GetFontIndex(string(Proxy.HitEffects.DFont)));
         return true;
     }
     return false;
@@ -75,127 +96,178 @@ function bool Initialize()
 
 function Refresh()
 {
-    local int i;
-
-    for (i = 0; i < HitEffectsOptions.Length; ++i)
-    {
-        HitEffectsOptions[i].GetValueFromTarget();
-    }
     HitSoundsAfterChange();
     DamageNumbersAfterChange();
-    DamageNumbersFontAfterChange();
     RefreshCustomizeSection();
     HideSection(SECTION_HIT_SOUNDS, !Proxy.bAllowHitSounds, HIDE_DUE_DISABLE);
     HideSection(SECTION_DAMAGE_NUMBERS, !Proxy.bAllowDamageNumbers, HIDE_DUE_DISABLE);
     HideSection(
-        SECTION_CUSTOMIZE, !Proxy.bAllowHitSounds && !Proxy.bAllowDamageNumbers, HIDE_DUE_DISABLE);
+        SECTION_DAMAGE_POINT_EDITOR,
+        !Proxy.bAllowHitSounds && !Proxy.bAllowDamageNumbers,
+        HIDE_DUE_DISABLE);
+    Super.Refresh();
 }
 
 function HitSoundsAfterChange()
 {
-    local int i;
     local bool bHitSoundsEnabled;
-    local bool bAnyEffectEnabled;
 
     bHitSoundsEnabled = Proxy.bAllowHitSounds && Proxy.HitEffects.bHitSounds;
-    bAnyEffectEnabled = bHitSoundsEnabled
-        || (Proxy.bAllowDamageNumbers && Proxy.HitEffects.bDamageNumbers);
-
-    for (i = 1; i < 4; ++i)
-    {
-        HitEffectsOptions[i].SetEnable(Proxy.HitEffects.bHitSounds);
-    }
-    CustomizeOptions[0].SetEnable(bAnyEffectEnabled);
-    CustomizeOptions[1].SetEnable(DPIndex != 0 && bAnyEffectEnabled);
-    CustomizeOptions[2].SetEnable(bHitSoundsEnabled);
     if (bHitSoundsEnabled)
     {
+        EnableComponent(co_SelectedHitSound);
+        EnableComponent(sl_HSVolume);
+        EnableComponent(co_HSPitchMode);
         EnableComponent(b_PlaySound);
+        EnableComponent(sl_DPPitch);
     }
     else
     {
+        DisableComponent(co_SelectedHitSound);
+        DisableComponent(sl_HSVolume);
+        DisableComponent(co_HSPitchMode);
         DisableComponent(b_PlaySound);
+        DisableComponent(sl_DPPitch);
     }
+    CustomizeAfterChange(
+        bHitSoundsEnabled || (Proxy.bAllowDamageNumbers && Proxy.HitEffects.bDamageNumbers));
 }
 
 function DamageNumbersAfterChange()
 {
-    local int i;
     local bool bDamageNumbersEnabled;
-    local bool bAnyEffectEnabled;
 
     bDamageNumbersEnabled = Proxy.bAllowDamageNumbers && Proxy.HitEffects.bDamageNumbers;
-    bAnyEffectEnabled = bDamageNumbersEnabled
-        || (Proxy.bAllowHitSounds && Proxy.HitEffects.bHitSounds);
-
-    for (i = 5; i < HitEffectsOptions.Length; ++i)
+    if (bDamageNumbersEnabled)
     {
-        HitEffectsOptions[i].SetEnable(Proxy.HitEffects.bDamageNumbers);
+        EnableComponent(co_DMode);
+        EnableComponent(co_DFont);
+        EnableComponent(fl_DNPosX);
+        EnableComponent(fl_DNPosY);
+        EnableComponent(sl_DPScale);
+        EnableComponent(sl_DPRedColor);
+        EnableComponent(sl_DPGreenColor);
+        EnableComponent(sl_DPBlueColor);
     }
-    for (i = 3; i < CustomizeOptions.Length; ++i)
+    else
     {
-        CustomizeOptions[i].SetEnable(bDamageNumbersEnabled);
+        DisableComponent(co_DMode);
+        DisableComponent(co_DFont);
+        DisableComponent(fl_DNPosX);
+        DisableComponent(fl_DNPosY);
+        DisableComponent(sl_DPScale);
+        DisableComponent(sl_DPRedColor);
+        DisableComponent(sl_DPGreenColor);
+        DisableComponent(sl_DPBlueColor);
     }
-    CustomizeOptions[0].SetEnable(bAnyEffectEnabled);
-    CustomizeOptions[1].SetEnable(DPIndex != 0 && bAnyEffectEnabled);
+    CustomizeAfterChange(
+        bDamageNumbersEnabled || (Proxy.bAllowHitSounds && Proxy.HitEffects.bHitSounds));
 }
 
-function DamageNumbersFontAfterChange()
+function CustomizeAfterChange(bool bAnyEffectEnabled)
 {
-    Proxy.HitEffects.DFont = GetFont(FontIndex);
-    Proxy.HitEffects.SaveConfig();
+    if (bAnyEffectEnabled)
+    {
+        EnableComponent(co_DamagePoints);
+        if (DPIndex != 0)
+        {
+            EnableComponent(nu_DPValue);
+        }
+        else
+        {
+            DisableComponent(nu_DPValue);
+        }
+    }
+    else
+    {
+        DisableComponent(co_DamagePoints);
+        DisableComponent(nu_DPValue);
+    }
 }
 
-function HitSoundsOnChange(GUIComponent C)
+function CustomizeOnLoadINI(GUIComponent Sender, string s)
 {
-    Super.TargetOnChange(C);
-    HitSoundsAfterChange();
-}
-
-function DamageNumbersOnChange(GUIComponent C)
-{
-    Super.TargetOnChange(C);
-    DamageNumbersAfterChange();
-}
-
-function DamageNumbersFontOnChange(GUIComponent C)
-{
-    Super.TargetOnChange(C);
-    DamageNumbersFontAfterChange();
-}
-
-function CustomizeOnChange(GUIComponent C)
-{
-    local HxMenuOption Option;
-
-    Option = HxMenuOption(C);
-    if (Proxy == None || Option == None)
+    if (Proxy == None || Proxy.HitEffects == None)
     {
         return;
     }
-    switch(Option)
+    switch (Sender)
     {
-        case CustomizeOptions[0]:
-            Super.TargetOnChange(C);
+        case nu_DPValue:
+            nu_DPValue.SetComponentValue(Proxy.HitEffects.DamagePoints[DPIndex].Value, true);
+            break;
+        case sl_DPPitch:
+            sl_DPPitch.SetComponentValue(Proxy.HitEffects.DamagePoints[DPIndex].Pitch, true);
+            break;
+        case sl_DPScale:
+            sl_DPScale.SetComponentValue(Proxy.HitEffects.DamagePoints[DPIndex].Scale, true);
+            break;
+        case sl_DPRedColor:
+            sl_DPRedColor.SetComponentValue(Proxy.HitEffects.DamagePoints[DPIndex].Color.R, true);
+            break;
+        case sl_DPGreenColor:
+            sl_DPGreenColor.SetComponentValue(Proxy.HitEffects.DamagePoints[DPIndex].Color.G, true);
+            break;
+        case sl_DPBlueColor:
+            sl_DPBlueColor.SetComponentValue(Proxy.HitEffects.DamagePoints[DPIndex].Color.B, true);
+            break;
+    }
+}
+
+function HitEffectsOnChange(GUIComponent Sender)
+{
+    if (Proxy == None || Proxy.HitEffects == None)
+    {
+        return;
+    }
+    switch (Sender)
+    {
+        case ch_HitSounds:
+            DefaultOnChange(Sender, Proxy.HitEffects);
+            HitSoundsAfterChange();
+            break;
+        case ch_DamageNumbers:
+            DefaultOnChange(Sender, Proxy.HitEffects);
+            DamageNumbersAfterChange();
+            break;
+        case co_DFont:
+            Proxy.HitEffects.DFont = GetFont(co_DFont.GetIndex());
+            break;
+        default:
+            DefaultOnChange(Sender, Proxy.HitEffects);
+            break;
+    }
+}
+
+function CustomizeOnChange(GUIComponent Sender)
+{
+    if (Proxy == None || Proxy.HitEffects == None)
+    {
+        return;
+    }
+    switch(Sender)
+    {
+        case co_DamagePoints:
+            DefaultOnChange(Sender, Self);
             RefreshCustomizeSection();
             break;
-        case CustomizeOptions[1]:
-            Proxy.HitEffects.DamagePoints[DPIndex].Value = int(Option.GetComponentValue());
+        case nu_DPValue:
+            Proxy.HitEffects.DamagePoints[DPIndex].Value = nu_DPValue.GetValue();
             break;
-        case CustomizeOptions[2]:
-            Proxy.HitEffects.DamagePoints[DPIndex].Pitch = float(Option.GetComponentValue());
+        case sl_DPPitch:
+            Proxy.HitEffects.DamagePoints[DPIndex].Pitch = sl_DPPitch.GetValue();
             break;
-        case CustomizeOptions[3]:
-            Proxy.HitEffects.DamagePoints[DPIndex].Scale = float(Option.GetComponentValue());
+        case sl_DPScale:
+            Proxy.HitEffects.DamagePoints[DPIndex].Scale = sl_DPScale.GetValue();
             break;
-        case CustomizeOptions[4]:
-            Proxy.HitEffects.DamagePoints[DPIndex].Color.R = int(Option.GetComponentValue());
+        case sl_DPRedColor:
+            Proxy.HitEffects.DamagePoints[DPIndex].Color.R = sl_DPRedColor.GetValue();
             break;
-        case CustomizeOptions[5]:
-            Proxy.HitEffects.DamagePoints[DPIndex].Color.G = int(Option.GetComponentValue());
+        case sl_DPGreenColor:
+            Proxy.HitEffects.DamagePoints[DPIndex].Color.G = sl_DPGreenColor.GetValue();
             break;
-        case CustomizeOptions[6]:
-            Proxy.HitEffects.DamagePoints[DPIndex].Color.B = int(Option.GetComponentValue());
+        case sl_DPBlueColor:
+            Proxy.HitEffects.DamagePoints[DPIndex].Color.B = sl_DPBlueColor.GetValue();
             break;
     }
     Proxy.HitEffects.SaveConfig();
@@ -203,13 +275,20 @@ function CustomizeOnChange(GUIComponent C)
 
 function RefreshCustomizeSection()
 {
-    CustomizeOptions[1].SetEnable(DPIndex != 0);
-    CustomizeOptions[1].SetComponentValue(Proxy.HitEffects.DamagePoints[DPIndex].Value);
-    CustomizeOptions[2].SetComponentValue(Proxy.HitEffects.DamagePoints[DPIndex].Pitch);
-    CustomizeOptions[3].SetComponentValue(Proxy.HitEffects.DamagePoints[DPIndex].Scale);
-    CustomizeOptions[4].SetComponentValue(Proxy.HitEffects.DamagePoints[DPIndex].Color.R);
-    CustomizeOptions[5].SetComponentValue(Proxy.HitEffects.DamagePoints[DPIndex].Color.G);
-    CustomizeOptions[6].SetComponentValue(Proxy.HitEffects.DamagePoints[DPIndex].Color.B);
+    if (DPIndex != 0)
+    {
+        EnableComponent(nu_DPValue);
+    }
+    else
+    {
+        DisableComponent(nu_DPValue);
+    }
+    nu_DPValue.SetComponentValue(Proxy.HitEffects.DamagePoints[DPIndex].Value);
+    sl_DPPitch.SetComponentValue(Proxy.HitEffects.DamagePoints[DPIndex].Pitch);
+    sl_DPScale.SetComponentValue(Proxy.HitEffects.DamagePoints[DPIndex].Scale);
+    sl_DPRedColor.SetComponentValue(Proxy.HitEffects.DamagePoints[DPIndex].Color.R);
+    sl_DPGreenColor.SetComponentValue(Proxy.HitEffects.DamagePoints[DPIndex].Color.G);
+    sl_DPBlueColor.SetComponentValue(Proxy.HitEffects.DamagePoints[DPIndex].Color.B);
 }
 
 function DrawDamageNumberPreview(Canvas C)
@@ -286,203 +365,245 @@ function int GetFontIndex(string FontName)
         }
     }
     FontNames[FontNames.Length] = FontName;
-    HxMenuComboBox(HitEffectsOptions[6]).AddItem(FontNames[i]);
+    co_DFont.AddItem(FontNames[i]);
     return i;
-}
-
-static function bool AddToMenu()
-{
-    local int i;
-    local int Order;
-
-    if (Super.AddToMenu())
-    {
-        for (i = 0; i < default.HitEffectsOptions.Length; ++i)
-        {
-            default.HitEffectsOptions[i].TabOrder = Order++;
-        }
-        for (i = 0; i < default.CustomizeOptions.Length; ++i)
-        {
-            default.CustomizeOptions[i].TabOrder = Order++;
-            if (i == 2)
-            {
-                default.b_PlaySound.TabOrder = Order++;
-                default.i_DPPreview.TabOrder = Order++;
-            }
-        }
-        return true;
-    }
-    return false;
 }
 
 defaultproperties
 {
     Begin Object class=AltSectionBackground Name=HitSoundsSection
         Caption="Hit Sounds"
+        bRemapStack=false
     End Object
 
     Begin Object class=AltSectionBackground Name=DamageNumbersSection
         Caption="Damage Numbers"
-    End Object
-
-    Begin Object class=AltSectionBackground Name=DamagePointsSection
-        Caption="Customize Damage Points"
         bRemapStack=false
     End Object
 
-    Begin Object class=HxMenuCheckBox Name=HitSounds
+    Begin Object class=AltSectionBackground Name=DamagePointEditorSection
+        Caption="Damage Point Editor"
+        bRemapStack=false
+    End Object
+
+    Begin Object class=moCheckBox Name=HitSoundsCheckBox
         Caption="Enable hit sounds"
-        PropertyName="bHitSounds"
-        OnChange=HitSoundsOnChange
+        INIOption="HxHitEffects bHitSounds"
+        CaptionWidth=0.7
+        OnLoadINI=DefaultOnLoadINI
+        OnChange=HitEffectsOnChange
+        TabOrder=0
     End Object
+    ch_HitSounds=HitSoundsCheckBox
 
-    Begin Object class=HxMenuComboBox Name=SelectedHitSound
+    Begin Object class=moComboBox Name=SelectedHitSoundComboBox
         Caption="Sound"
-        PropertyName="SelectedHitSound"
-        OnChange=TargetOnChange
+        INIOption="HxHitEffects SelectedHitSound"
+        ComponentWidth=0.7
+        bReadOnly=true
+        OnLoadINI=DefaultOnLoadINI
+        OnChange=HitEffectsOnChange
+        TabOrder=1
     End Object
+    co_SelectedHitSound=SelectedHitSoundComboBox
 
-    Begin Object class=HxMenuSlider Name=HSVolume
+    Begin Object class=moSlider Name=HSVolumeSlider
         Caption="Volume"
-        PropertyName="HitSoundVolume"
-        OnChange=TargetOnChange
+        INIOption="HxHitEffects HitSoundVolume"
+        ComponentWidth=0.7
+        MinValue=0.0
+        MaxValue=1.0
+        OnLoadINI=DefaultOnLoadINI
+        OnChange=HitEffectsOnChange
+        TabOrder=2
     End Object
+    sl_HSVolume=HSVolumeSlider
 
-    Begin Object class=HxMenuEnumComboBox Name=HSPitchMode
+    Begin Object class=moComboBox Name=HSPitchModeComboBox
         Caption="Pitch mode"
-        PropertyName="PitchMode"
-        EnumType=enum'EHxPitchMode'
-        DisplayNames=("Disabled","Low to high","High to low")
-        OnChange=TargetOnChange
+        INIOption="HxHitEffects PitchMode"
+        ComponentWidth=0.7
+        bReadOnly=true
+        OnLoadINI=DefaultOnLoadINI
+        OnChange=HitEffectsOnChange
+        TabOrder=3
     End Object
+    co_HSPitchMode=HSPitchModeComboBox
 
-    Begin Object class=HxMenuCheckBox Name=DamageNumbers
+    Begin Object class=moCheckBox Name=DamageNumbersCheckBox
         Caption="Enable damage numbers"
-        PropertyName="bDamageNumbers"
-        OnChange=DamageNumbersOnChange
+        INIOption="HxHitEffects bDamageNumbers"
+        CaptionWidth=0.7
+        OnLoadINI=DefaultOnLoadINI
+        OnChange=HitEffectsOnChange
+        TabOrder=4
     End Object
+    ch_DamageNumbers=DamageNumbersCheckBox
 
-    Begin Object class=HxMenuEnumComboBox Name=DMode
+    Begin Object class=moComboBox Name=DModeComboBox
         Caption="Mode"
-        PropertyName="DMode"
-        EnumType=enum'EHxDMode'
-        DisplayNames=("Static per hit","Static total","Static per hit & total","Float per hit","Float per hit & total")
-        OnChange=TargetOnChange
+        INIOption="HxHitEffects DMode"
+        ComponentWidth=0.7
+        bReadOnly=true
+        OnLoadINI=DefaultOnLoadINI
+        OnChange=HitEffectsOnChange
+        TabOrder=5
     End Object
+    co_DMode=DModeComboBox
 
-    Begin Object class=HxMenuComboBox Name=DFont
+    Begin Object class=moComboBox Name=DFontComboBox
         Caption="Font"
-        PropertyName="FontIndex"
-        OnChange=DamageNumbersFontOnChange
+        INIOption="HxHitEffects FontIndex"
+        ComponentWidth=0.7
+        bReadOnly=true
+        OnLoadINI=DefaultOnLoadINI
+        OnChange=HitEffectsOnChange
+        TabOrder=6
     End Object
+    co_DFont=DFontComboBox
 
-    Begin Object class=HxMenuFloatEdit Name=DNPosX
+    Begin Object class=moFloatEdit Name=DNPosXFloatEdit
         Caption="X position"
-        PropertyName="PosX"
-        OnChange=TargetOnChange
+        INIOption="HxHitEffects PosX"
+        MinValue=0.0
+        MaxValue=1.0
+        Step=0.01
+        ComponentWidth=0.25
+        OnLoadINI=DefaultOnLoadINI
+        OnChange=HitEffectsOnChange
+        TabOrder=7
     End Object
+    fl_DNPosX=DNPosXFloatEdit
 
-    Begin Object class=HxMenuFloatEdit Name=DNPosY
+    Begin Object class=moFloatEdit Name=DNPosYFloatEdit
         Caption="Y position"
-        PropertyName="PosY"
-        OnChange=TargetOnChange
+        INIOption="HxHitEffects PosY"
+        MinValue=0.0
+        MaxValue=1.0
+        Step=0.01
+        ComponentWidth=0.25
+        OnLoadINI=DefaultOnLoadINI
+        OnChange=HitEffectsOnChange
+        TabOrder=8
     End Object
+    fl_DNPosY=DNPosYFloatEdit
 
-    Begin Object class=HxMenuComboBox Name=DPPoint
+    Begin Object class=moComboBox Name=DamagePointsComboBox
         Caption="Point"
-        PropertyName="DPIndex"
-        DisplayNames=("Zero damage","Low damage","Medium damage","High damage","Extreme damage")
+        INIOption="HxHitEffectsMenuPanel DPIndex"
+        ComponentWidth=0.8
+        bReadOnly=true
+        OnLoadINI=DefaultOnLoadINI
         OnChange=CustomizeOnChange
+        TabOrder=9
     End Object
+    co_DamagePoints=DamagePointsComboBox
 
-    Begin Object class=GUIImage Name=DPPreview
+    Begin Object class=GUIImage Name=DPPreviewImage
         Image=Material'2K4Menus.Controls.buttonSquare_b'
         ImageColor=(R=0,G=0,B=0,A=255)
         ImageStyle=ISTY_Stretched
         ImageRenderStyle=MSTY_Alpha
         bStandardized=true
         StandardHeight=0.05
-        TabOrder=12
+        TabOrder=10
         OnRendered=DrawDamageNumberPreview
     End Object
+    i_DPPReview=DPPreviewImage
 
-    Begin Object class=HxMenuNumericEdit Name=DPValue
+    Begin Object class=moNumericEdit Name=DPValueNumericEdit
         Caption="Damage value"
+        INIOption="@INTERNAL"
         MinValue=-300
         MaxValue=300
+        Step=1
+        ComponentWidth=0.25
+        OnLoadINI=CustomizeOnLoadINI
         OnChange=CustomizeOnChange
+        TabOrder=11
     End Object
+    nu_DPValue=DPValueNumericEdit
 
-    Begin Object class=HxMenuSlider Name=DPPitch
+    Begin Object class=moSlider Name=DPPitchSlider
         Caption="Pitch"
+        INIOption="@INTERNAL"
+        ComponentWidth=0.8
+        MinValue=0.0
+        MaxValue=1.0
+        OnLoadINI=CustomizeOnLoadINI
         OnChange=CustomizeOnChange
+        TabOrder=12
     End Object
+    sl_DPPitch=DPPitchSlider
 
     Begin Object class=GUIButton Name=PlaySound
         Caption="Play sound"
         bStandardized=true
         OnClick=PlaySoundOnClick
         OnClickSound=CS_None
+        TabOrder=13
     End Object
+    b_PlaySound=PlaySound
 
-    Begin Object class=HxMenuSlider Name=DPScale
+    Begin Object class=moSlider Name=DPScaleSlider
         Caption="Scale"
+        INIOption="@INTERNAL"
+        ComponentWidth=0.8
+        MinValue=0.0
+        MaxValue=1.0
+        OnLoadINI=CustomizeOnLoadINI
         OnChange=CustomizeOnChange
+        TabOrder=14
     End Object
+    sl_DPScale=DPScaleSlider
 
-    Begin Object class=HxMenuSlider Name=DPRed
+    Begin Object class=moSlider Name=DPRedColorSlider
         Caption="Red"
+        INIOption="@INTERNAL"
+        ComponentWidth=0.8
         MinValue=0
         MaxValue=255
         bIntSlider=true
-        LabelColor=(R=255,G=0,B=0,A=255)
+        OnLoadINI=CustomizeOnLoadINI
         OnChange=CustomizeOnChange
+        TabOrder=15
     End Object
+    sl_DPRedColor=DPRedColorSlider
 
-    Begin Object class=HxMenuSlider Name=DPGreen
+    Begin Object class=moSlider Name=DPGreenColorSlider
         Caption="Green"
+        INIOption="@INTERNAL"
+        ComponentWidth=0.8
         MinValue=0
         MaxValue=255
         bIntSlider=true
-        LabelColor=(R=0,G=255,B=0,A=255)
+        OnLoadINI=CustomizeOnLoadINI
         OnChange=CustomizeOnChange
+        TabOrder=16
     End Object
+    sl_DPGreenColor=DPGreenColorSlider
 
-    Begin Object class=HxMenuSlider Name=DPBlue
+    Begin Object class=moSlider Name=DPBlueColorSlider
         Caption="Blue"
+        INIOption="@INTERNAL"
+        ComponentWidth=0.8
         MinValue=0
         MaxValue=255
         bIntSlider=true
-        LabelColor=(R=0,G=0,B=255,A=255)
+        OnLoadINI=CustomizeOnLoadINI
         OnChange=CustomizeOnChange
+        TabOrder=17
     End Object
+    sl_DPBlueColor=DPBlueColorSlider
 
     PanelCaption="Hit Effects"
     PanelHint="Hit sounds and damage numbers"
     bInsertFront=true
     bDoubleColumn=true
     Sections(0)=HitSoundsSection
-    Sections(1)=DamagePointsSection
+    Sections(1)=DamagePointEditorSection
     Sections(2)=DamageNumbersSection
     Sections(3)=None
-    HitEffectsOptions(0)=HitSounds
-    HitEffectsOptions(1)=SelectedHitSound
-    HitEffectsOptions(2)=HSVolume
-    HitEffectsOptions(3)=HSPitchMode
-    HitEffectsOptions(4)=DamageNumbers
-    HitEffectsOptions(5)=DMode
-    HitEffectsOptions(6)=DFont
-    HitEffectsOptions(7)=DNPosX
-    HitEffectsOptions(8)=DNPosY
-    CustomizeOptions(0)=DPPoint
-    CustomizeOptions(1)=DPValue
-    CustomizeOptions(2)=DPPitch
-    CustomizeOptions(3)=DPScale
-    CustomizeOptions(4)=DPRed
-    CustomizeOptions(5)=DPGreen
-    CustomizeOptions(6)=DPBlue
-    i_DPPReview=DPPreview
-    b_PlaySound=PlaySound
     FontNames(0)="UT2003Fonts.FontEurostile29"
     FontNames(1)="UT2003Fonts.FontEurostile37"
     FontNames(2)="UT2003Fonts.FontNeuzeit29"
@@ -494,4 +615,17 @@ defaultproperties
     CustomFontNames(0)="HexedPatches.Verdana36"
     CustomFontNames(1)="HexedPatches.Verdana40"
     CustomFontNames(2)="HexedPatches.Verdana48"
+    PitchModeNames(0)="Disabled"
+    PitchModeNames(1)="Low to high"
+    PitchModeNames(2)="High to low"
+    DamageModeNames(0)="Static per hit"
+    DamageModeNames(1)="Static total"
+    DamageModeNames(2)="Static per hit & total"
+    DamageModeNames(3)="Float per hit"
+    DamageModeNames(4)="Float per hit & total"
+    DamagePointNames(0)="Zero damage"
+    DamagePointNames(1)="Low damage"
+    DamagePointNames(2)="Medium damage"
+    DamagePointNames(3)="High damage"
+    DamagePointNames(4)="Extreme damage"
 }
