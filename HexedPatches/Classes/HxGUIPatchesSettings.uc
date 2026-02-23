@@ -343,33 +343,18 @@ function UpdateHUDSection()
     {
         ch_ReplaceHUDs.DisableMe();
         ch_ScaleWeapons.DisableMe();
-        ch_SPShowTimer.DisableMe();
-        ch_SPFollowHUDColor.DisableMe();
-        ch_SPPulsingDigits.DisableMe();
-        fl_SPPosX.DisableMe();
-        fl_SPPosY.DisableMe();
     }
     else
     {
         ch_ReplaceHUDs.EnableMe();
-    }
-    if (bReplaceHUDs)
-    {
-        ch_ScaleWeapons.EnableMe();
-        ch_SPShowTimer.EnableMe();
-        ch_SPFollowHUDColor.EnableMe();
-        ch_SPPulsingDigits.EnableMe();
-        fl_SPPosX.EnableMe();
-        fl_SPPosY.EnableMe();
-    }
-    else
-    {
-        ch_ScaleWeapons.DisableMe();
-        ch_SPShowTimer.DisableMe();
-        ch_SPFollowHUDColor.DisableMe();
-        ch_SPPulsingDigits.DisableMe();
-        fl_SPPosX.DisableMe();
-        fl_SPPosY.DisableMe();
+        if (bReplaceHUDs)
+        {
+            ch_ScaleWeapons.EnableMe();
+        }
+        else
+        {
+            ch_ScaleWeapons.DisableMe();
+        }
     }
 }
 

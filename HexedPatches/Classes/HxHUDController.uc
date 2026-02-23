@@ -43,10 +43,25 @@ function bool TryReplaceHUD()
         && ViewportOwner.Actor.myHUD != CurrentHUD
         && ViewportOwner.Actor.myHUD.Class != class'HUD')
     {
+        SetupSpawnProtectionTimer(ViewportOwner.Actor);
         ReplaceHUD(ViewportOwner.Actor);
         return true;
     }
     return false;
+}
+
+function SetupSpawnProtectionTimer(PlayerController PC)
+{
+    local int i;
+
+    for (i = 0; i < PC.myHUD.Overlays.Length; ++i)
+    {
+        if (HxHUDSpawnProtectionTimer(PC.myHUD.Overlays[i]) != None)
+        {
+            return;
+        }
+    }
+    PC.myHUD.AddHudOverlay(PC.myHUD.Spawn(class'HxHUDSpawnProtectionTimer', PC.myHUD));
 }
 
 function ReplaceHUD(PlayerController PC)

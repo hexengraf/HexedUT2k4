@@ -1,25 +1,10 @@
 var float XYRatio;
-var HxHUDSpawnProtectionTimer SPTimer;
 var bool bOldUnrealPatch;
 
 simulated event PreBeginPlay()
 {
-    if (SPTimer == None)
-    {
-        SPTimer = Spawn(class'HxHUDSpawnProtectionTimer', Self);
-    }
     bOldUnrealPatch = int(Level.EngineVersion) > 3369;
     Super.PreBeginPlay();
-}
-
-simulated event Destroyed()
-{
-    if (SPTimer != None)
-    {
-        SPTimer.Destroy();
-        SPTimer = None;
-    }
-    Super.Destroyed();
 }
 
 simulated function CheckCountdown(GameReplicationInfo GRI) {
@@ -93,10 +78,6 @@ simulated function DrawHudPassC(Canvas C)
     {
         PawnOwner.Weapon.NewDrawWeaponInfo(
             C, C.ClipY - (52 * ResScaleY * HUDScale) - (15.2 * ResScaleY));
-    }
-    if (SPTimer != None)
-    {
-        SPTimer.Render(C);
     }
 }
 
