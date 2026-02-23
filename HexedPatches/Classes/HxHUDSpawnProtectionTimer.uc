@@ -51,7 +51,8 @@ state Protected
 
         Counter.Value = Ceil(Duration - (Level.TimeSeconds - Timestamp));
         Pawn = xPawn(HudBase(Owner).PawnOwner);
-        if (Counter.Value <= 0 || Pawn == None || Pawn.OverlayMaterial != Pawn.ShieldHitMat)
+        if (Counter.Value <= 0 || Pawn == None
+            || Pawn.OverlayTimer == 0 || Pawn.OverlayTimer > Duration)
         {
             Counter.Value = 0;
             GoToState('Unprotected');
@@ -78,7 +79,7 @@ state Dead
         if (!PlayerIsDead())
         {
             Timestamp = Level.TimeSeconds;
-            Duration = Ceil(HudBase(Owner).PawnOwner.ClientOverlayCounter);
+            Duration = Ceil(HudBase(Owner).PawnOwner.OverlayTimer);
             UpdatePosition();
             UpdateColor();
             UpdateDigits();

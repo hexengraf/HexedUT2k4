@@ -94,7 +94,10 @@ simulated function DrawHudPassC(Canvas C)
         PawnOwner.Weapon.NewDrawWeaponInfo(
             C, C.ClipY - (52 * ResScaleY * HUDScale) - (15.2 * ResScaleY));
     }
-    SPTimer.Render(C);
+    if (SPTimer != None)
+    {
+        SPTimer.Render(C);
+    }
 }
 
 simulated function DrawChargeBarBorder(Canvas C)
