@@ -2,7 +2,7 @@ class HxFavorites extends Object
     config(User);
 
 #exec texture Import File=Textures\HxStarIcon.tga Name=HxStarIcon Mips=Off Alpha=1
-#exec texture Import File=Textures\HxNoIcon.tga Name=HxNoIcon Mips=Off Alpha=1
+#exec texture Import File=Textures\HxBlockIcon.tga Name=HxBlockIcon Mips=Off Alpha=1
 
 enum EHxTag
 {
@@ -18,7 +18,7 @@ struct HxMapTag
 };
 
 var config Color StarColor;
-var config Color NoColor;
+var config Color BlockColor;
 var config array<HxMapTag> Maps;
 
 static function TagMap(string Map, EHxTag Tag)
@@ -81,7 +81,7 @@ static function DrawTag(Canvas C, EHxTag Tag, int X, int Y, int Size)
     SavedCurX = C.CurX;
     SavedCurY = C.CurY;
     C.SetPos(X, Y);
-    C.Style = 5;
+    C.Style = 5; // STY_Alpha
     switch (Tag)
     {
         case HX_TAG_Like:
@@ -89,8 +89,8 @@ static function DrawTag(Canvas C, EHxTag Tag, int X, int Y, int Size)
             C.DrawTile(Material'HxStarIcon', Size, Size, 0, 0, 64, 64);
             break;
         case HX_TAG_Dislike:
-            C.DrawColor = default.NoColor;
-            C.DrawTile(Material'HxNoIcon', Size, Size, 0, 0, 64, 64);
+            C.DrawColor = default.BlockColor;
+            C.DrawTile(Material'HxBlockIcon', Size, Size, 0, 0, 64, 64);
             break;
     }
     C.DrawColor = SavedColor;
@@ -101,8 +101,6 @@ static function DrawTag(Canvas C, EHxTag Tag, int X, int Y, int Size)
 
 defaultproperties
 {
-    // StarColor=(R=255,G=255,B=0,A=255)
     StarColor=(R=255,G=210,B=0,A=255)
-    // NoColor=(R=255,G=66,B=66,A=255)
-    NoColor=(R=255,G=210,B=0,A=255)
+    BlockColor=(R=255,G=210,B=0,A=255)
 }

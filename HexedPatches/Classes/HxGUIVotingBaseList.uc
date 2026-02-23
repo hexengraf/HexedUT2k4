@@ -31,6 +31,8 @@ var private array<int> CurrentSortOrder;
 var private array<int> PreviousSortOrder;
 var private string LastMapSelected;
 var private GUIStyles DefaultStyle;
+var private Color RecentColor;
+var private Color OldColor;
 
 delegate OnTagUpdated(int MapIndex, HxFavorites.EHxTag NewTag);
 
@@ -348,6 +350,10 @@ function DrawItem(Canvas C, int i, float X, float Y, float W, float H, bool bSel
         Style = SelectedStyle;
         Style.Draw(C, MenuState, X + Offset, Y, W - 2 * Offset, H);
     }
+    if (SortColumn == 0)
+    {
+        DrawLastPlayedIndicator(C, X, Y, H * 0.97, Offset);
+    }
     DrawMapTag(C, MapTags[SortData[i].SortItem], X, Y, H * 0.97, Offset);
     Entry = VRI.MapList[GetSortedMapIndex(i)];
     SavedMenuState = MenuState;
@@ -359,10 +365,40 @@ function DrawItem(Canvas C, int i, float X, float Y, float W, float H, bool bSel
     Style = DefaultStyle;
 }
 
-function DrawMapTag(Canvas C, HxFavorites.EHxTag Tag, float X, float Y, float H, float Offset)
+function DrawLastPlayedIndicator(Canvas C, float X, float Y, float Size, float Offset)
 {
-    X += ColumnWidths[0] + (Offset / 2) + ((ColumnWidths[1] - H) / 2);
-    class'HxFavorites'.static.DrawTag(C, Tag, X, Y, H);
+    local Color SavedColor;
+    local int SavedStyle;
+    local float SavedCurX;
+    local float SavedCurY;
+
+    SavedColor = C.DrawColor;
+    SavedStyle = C.Style;
+    SavedCurX = C.CurX;
+    SavedCurY = C.CurY;
+    X += (Offset / 2) + (ColumnWidths[0] - Size) / 2;
+    C.SetPos(X, Y);
+    C.Style = 5; // STY_Alpha
+    if (SortDescending)
+    {
+        C.DrawColor = OldColor;
+        C.DrawTile(Material'HxTriangleIcon', Size, Size, 0, 64, 64, -64);
+    }
+    else
+    {
+        C.DrawColor = RecentColor;
+        C.DrawTile(Material'HxTriangleIcon', Size, Size, 0, 0, 64, 64);
+    }
+    C.DrawColor = SavedColor;
+    C.Style = SavedStyle;
+    C.CurX = SavedCurX;
+    C.CurY = SavedCurY;
+}
+
+function DrawMapTag(Canvas C, HxFavorites.EHxTag Tag, float X, float Y, float Size, float Offset)
+{
+    X += ColumnWidths[0] + (Offset / 2) + ((ColumnWidths[1] - Size) / 2);
+    class'HxFavorites'.static.DrawTag(C, Tag, X, Y, Size);
 }
 
 function bool OnOpenContextMenu(GUIContextMenu Sender)
@@ -496,4 +532,6 @@ defaultproperties
     DislikedMapsLabel="disliked maps"
 
     PreviousSortColumn=-1
+    RecentColor=(R=196,G=255,B=0,A=255)
+    OldColor=(R=255,G=172,B=0,A=255)
 }
