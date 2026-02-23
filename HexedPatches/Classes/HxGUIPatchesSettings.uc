@@ -15,7 +15,6 @@ var automated moCheckBox ch_SPFollowHUDColor;
 var automated moCheckBox ch_SPPulsingDigits;
 var automated moFloatEdit fl_SPPosX;
 var automated moFloatEdit fl_SPPosY;
-var automated moCheckBox ch_ValidateKeepAliveTime;
 var automated moNumericEdit nu_CustomNetSpeed;
 var automated moComboBox co_MasterServer;
 
@@ -36,7 +35,6 @@ var bool bSPFollowHUDColor;
 var bool bSPPulsingDigits;
 var float SPPosX;
 var float SPPosY;
-var bool bValidateKeepAliveTime;
 var int CustomNetSpeed;
 var HxNETController.EHxMasterServer MasterServer;
 
@@ -61,13 +59,17 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     i_BG2.ManageComponent(fl_SPPosX);
     i_BG2.ManageComponent(fl_SPPosY);
 
-    i_BG3.ManageComponent(ch_ValidateKeepAliveTime);
     i_BG3.ManageComponent(nu_CustomNetSpeed);
     i_BG3.ManageComponent(co_MasterServer);
 
     for (i = 0; i < 2; ++i)
     {
         co_MasterServer.AddItem(Mid(GetEnum(enum'EHxMasterServer', i), 17));
+    }
+    if (GUIController.bOldUnrealPatch)
+    {
+        ch_SmallCursor.DisableMe();
+        co_MasterServer.DisableMe();
     }
 }
 
@@ -131,10 +133,6 @@ function InternalOnLoadINI(GUIComponent Sender, string s)
         case fl_SPPosY:
             SPPosY = class'HxHUDSpawnProtectionTimer'.default.PosY;
             fl_SPPosY.SetComponentValue(SPPosY, true);
-            break;
-        case ch_ValidateKeepAliveTime:
-            bValidateKeepAliveTime = class'HxNETController'.default.bValidateKeepAliveTime;
-            ch_ValidateKeepAliveTime.SetComponentValue(bValidateKeepAliveTime, true);
             break;
         case nu_CustomNetSpeed:
             CustomNetSpeed = class'HxNETController'.default.CustomNetSpeed;
@@ -234,12 +232,6 @@ function SaveSettings()
         bSave = false;
         class'HxHUDSpawnProtectionTimer'.static.StaticSaveConfig();
     }
-    if (NETController.bValidateKeepAliveTime != bValidateKeepAliveTime)
-    {
-        NETController.bValidateKeepAliveTime = bValidateKeepAliveTime;
-        NETController.ValidateKeepAliveTime();
-        bSave = true;
-    }
     if (NETController.CustomNetSpeed != CustomNetSpeed)
     {
         NETController.CustomNetSpeed = CustomNetSpeed;
@@ -276,7 +268,6 @@ function ResetClicked()
     class'HxHUDSpawnProtectionTimer'.static.ResetConfig("bPulsingDigits");
     class'HxHUDSpawnProtectionTimer'.static.ResetConfig("PosX");
     class'HxHUDSpawnProtectionTimer'.static.ResetConfig("PosY");
-    class'HxNETController'.static.ResetConfig("bValidateKeepAliveTime");
     class'HxNETController'.static.ResetConfig("CustomNetSpeed");
     class'HxNETController'.static.ResetConfig("MasterServer");
 
@@ -335,9 +326,6 @@ function InternalOnChange(GUIComponent Sender)
             break;
         case fl_SPPosY:
             SPPosY = fl_SPPosY.GetValue();
-            break;
-        case ch_ValidateKeepAliveTime:
-            bValidateKeepAliveTime = ch_ValidateKeepAliveTime.IsChecked();
             break;
         case nu_CustomNetSpeed:
             CustomNetSpeed = nu_CustomNetSpeed.GetValue();
@@ -561,16 +549,6 @@ defaultproperties
         TabOrder=10
     End Object
     fl_SPPosY=TemplateSPPosY
-
-    Begin Object class=moCheckBox Name=TemplateValidateKeepAliveTime
-        Caption="Validate KeepAliveTime value"
-        Hint="Set KeepAliveTime to its default value (0.2) to prevent values taken from bad advice."
-        INIOption="@Internal"
-        OnLoadINI=InternalOnLoadINI
-        OnChange=InternalOnChange
-        TabOrder=11
-    End Object
-    ch_ValidateKeepAliveTime=TemplateValidateKeepAliveTime
 
     Begin Object class=moNumericEdit Name=TemplateCustomNetSpeed
         Caption="Custom network speed"

@@ -6,12 +6,13 @@ var config bool bSmallCursor;
 
 var HxHUDController HUDController;
 var HxNETController NETController;
+var bool bInitialized;
+var bool bOldUnrealPatch;
 
 event InitializeController()
 {
     Super.InitializeController();
-    SetSmallCursor(bSmallCursor);
-    UpdateSettingsPage();
+    class'HxGUIPatchesSettings'.static.AddToSettings();
     HUDController = HxHUDController(
         Master.AddInteraction("HexedPatches.HxHUDController", ViewportOwner));
     NETController = HxNETController(
@@ -20,15 +21,17 @@ event InitializeController()
 
 function UpdateSettingsPage()
 {
-    class'UT2K4SettingsPage'.default.PanelClass[0] = "HexedPatches.HxGUIDetailSettings";
-    class'UT2K4SettingsPage'.default.PanelClass[2] = "HexedPatches.HxGUIPlayerSettings";
-    class'UT2K4SettingsPage'.default.PanelClass[3] = "HexedPatches.HxGUIGameSettings";
-    class'HxGUIPatchesSettings'.static.AddToSettings();
+    if (!bOldUnrealPatch)
+    {
+        class'UT2K4SettingsPage'.default.PanelClass[0] = "HexedPatches.HxGUIDetailSettings";
+        class'UT2K4SettingsPage'.default.PanelClass[2] = "HexedPatches.HxGUIPlayerSettings";
+        class'UT2K4SettingsPage'.default.PanelClass[3] = "HexedPatches.HxGUIGameSettings";
+    }
 }
 
 function SetSmallCursor(bool bValue)
 {
-    bSmallCursor = bValue;
+    bSmallCursor = !bOldUnrealPatch && bValue;
     if (bSmallCursor)
     {
         MouseCursors[0] = material'HxPointer';
@@ -37,6 +40,18 @@ function SetSmallCursor(bool bValue)
     {
         MouseCursors[0] = default.MouseCursors[0];
     }
+}
+
+event NotifyLevelChange()
+{
+    if (!bInitialized && ViewportOwner.Actor != None)
+    {
+        bInitialized = true;
+        bOldUnrealPatch = int(ViewportOwner.Actor.Level.EngineVersion) > 3369;
+        SetSmallCursor(bSmallCursor);
+        UpdateSettingsPage();
+    }
+    Super.NotifyLevelChange();
 }
 
 function float GetCurrentAspectRatio()

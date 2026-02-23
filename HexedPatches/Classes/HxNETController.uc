@@ -15,19 +15,20 @@ struct HxMasterServerEntry
 
 const KEEP_ALIVE_TIME = "IpDrv.TcpNetDriver KeepAliveTime";
 
-var config bool bValidateKeepAliveTime;
 var config int CustomNetSpeed;
 var config EHxMasterServer MasterServer;
 
 var HxMasterServerEntry MasterServerEntries[2];
-var bool bExecutedOnce;
+var bool bInitialized;
+var bool bOldUnrealPatch;
 
 event NotifyLevelChange()
 {
-    if (!bExecutedOnce)
+
+    if (!bInitialized && ViewportOwner.Actor != None)
     {
-        bExecutedOnce = true;
-        ValidateKeepAliveTime();
+        bInitialized = true;
+        bOldUnrealPatch = int(ViewportOwner.Actor.Level.EngineVersion) > 3369;
         UpdateMasterServer();
     }
     UpdateCustomNetSpeed();
@@ -52,6 +53,10 @@ function UpdateMasterServer()
     local HxMasterServerEntry Entry;
     local int i;
 
+    if (bOldUnrealPatch)
+    {
+        return;
+    }
     Entry = MasterServerEntries[MasterServer];
     if (class'IpDrv.MasterServerLink'.default.MasterServerList.Length == 0
         || class'IpDrv.MasterServerLink'.default.MasterServerList[0].Address != Entry.Addresses[0])
@@ -66,20 +71,8 @@ function UpdateMasterServer()
     }
 }
 
-function ValidateKeepAliveTime()
-{
-    if (bValidateKeepAliveTime
-        && (ViewportOwner.Actor == None
-            || float(ViewportOwner.Actor.ConsoleCommand("get"@KEEP_ALIVE_TIME)) != 0.2))
-    {
-        ConsoleCommand("set"@KEEP_ALIVE_TIME@"0.2");
-        Log(Name@": Updating KeepAliveTime to 0.2");
-    }
-}
-
 defaultproperties
 {
-    bValidateKeepAliveTime=true
     CustomNetSpeed=1000000
     MasterServer=HX_MASTER_SERVER_333networks
     MasterServerEntries(0)=(Addresses=("ut2004master.333networks.com","ut2004master.errorist.eu"),Ports=(28902,28902))

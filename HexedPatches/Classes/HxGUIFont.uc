@@ -18,9 +18,10 @@ const FONT_COUNT = 7;
 var config bool bScaleWithY;
 var config int OverrideFontSize;
 
-var int NormalYRes;
 var int ScreenWidths[FONT_COUNT];
 var int ScreenHeights[FONT_COUNT];
+var int HxNormalYRes;
+var bool bNormalYResFixed;
 
 function Font GetFont(int XRes)
 {
@@ -34,7 +35,11 @@ function Font GetFont(int XRes)
     }
     if (bScaleWithY)
     {
-        return GetFontFromY(XRes);
+        if (HxGUIController(Controller).bOldUnrealPatch)
+        {
+            return GetFontFromY(Super.GetPropertyText("parm_YRes"));
+        }
+        return GetFontFromY(Controller.ResY * (float(XRes) / Controller.ResX));
     }
     return GetFontFromX(XRes);
 }
@@ -53,12 +58,10 @@ function Font GetFontFromX(int XRes)
     return LoadFont(i - 1);
 }
 
-function Font GetFontFromY(int XRes)
+function Font GetFontFromY(coerce int YRes)
 {
     local int i;
-    local int YRes;
 
-    YRes = Controller.ResY * (float(XRes) / Controller.ResX);
     for (i = 0; i < FONT_COUNT; ++i)
     {
         if (YRes < ScreenHeights[i])
@@ -71,9 +74,18 @@ function Font GetFontFromY(int XRes)
 
 function Font GetFontScaled(int XRes)
 {
+    if (HxGUIController(Controller).bOldUnrealPatch)
+    {
+        if (!bNormalYResFixed)
+        {
+            Super.SetPropertyText("NormalYRes", string(HxNormalYRes));
+            bNormalYResFixed = true;
+        }
+        return Super.GetFont(XRes);
+    }
     if (bScaleWithY)
     {
-        XRes *= (float(NormalXRes) / NormalYRes) / (float(Controller.ResX) / Controller.ResY);
+        XRes *= (float(NormalXRes) / HxNormalYRes) / (float(Controller.ResX) / Controller.ResY);
     }
     return Super.GetFont(XRes);
 }

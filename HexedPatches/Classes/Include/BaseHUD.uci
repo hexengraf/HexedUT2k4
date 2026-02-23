@@ -1,5 +1,6 @@
 var float XYRatio;
 var HxHUDSpawnProtectionTimer SPTimer;
+var bool bOldUnrealPatch;
 
 simulated event PreBeginPlay()
 {
@@ -7,6 +8,7 @@ simulated event PreBeginPlay()
     {
         SPTimer = Spawn(class'HxHUDSpawnProtectionTimer', Self);
     }
+    bOldUnrealPatch = int(Level.EngineVersion) > 3369;
     Super.PreBeginPlay();
 }
 
@@ -21,8 +23,11 @@ simulated event Destroyed()
 }
 
 simulated function CheckCountdown(GameReplicationInfo GRI) {
-    XYRatio = ResScaleX / ResScaleY;
-    ResScaleY = ResScaleX;
+    if (!bOldUnrealPatch)
+    {
+        XYRatio = ResScaleX / ResScaleY;
+        ResScaleY = ResScaleX;
+    }
     Super.CheckCountdown(GRI);
 }
 
@@ -33,11 +38,21 @@ function Draw2DLocationDot(Canvas C,
                            float ScaleX,
                            float ScaleY)
 {
+    if (bOldUnrealPatch)
+    {
+        Super.Draw2DLocationDot(C, Loc, OffsetX, OffSetY, ScaleX, ScaleY);
+        return;
+    }
     Super.Draw2DLocationDot(C, Loc, OffsetX, OffSetY * XYRatio, ScaleX, ScaleY * XYRatio);
 }
 
 simulated function DrawChargeBar(Canvas C)
 {
+    if (bOldUnrealPatch)
+    {
+        Super.DrawChargeBar(C);
+        return;
+    }
     DrawChargeBarBorder(C);
     RechargeBar.Scale = PawnOwner.Weapon.ChargeBar();
     if (RechargeBar.Scale > 0)
@@ -49,6 +64,11 @@ simulated function DrawChargeBar(Canvas C)
 
 simulated function DrawVehicleChargeBar(Canvas C)
 {
+    if (bOldUnrealPatch)
+    {
+        Super.DrawVehicleChargeBar(C);
+        return;
+    }
     DrawChargeBarBorder(C);
     DrawSpriteWidget(C, RechargeBar);
     RechargeBar.Scale = Vehicle(PawnOwner).ChargeBar();
@@ -59,6 +79,11 @@ simulated function DrawHudPassC(Canvas C)
 {
     local bool bOriginalShowWeaponInfo;
 
+    if (bOldUnrealPatch)
+    {
+        Super.DrawHudPassC(C);
+        return;
+    }
     bOriginalShowWeaponInfo = bShowWeaponInfo;
     bShowWeaponInfo = false;
     Super.DrawHudPassC(C);
