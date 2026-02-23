@@ -18,25 +18,26 @@ var automated moFloatEdit fl_SPPosY;
 var automated moNumericEdit nu_CustomNetSpeed;
 var automated moComboBox co_MasterServer;
 
-var HxGUIController GUIController;
-var HxHUDController HUDController;
-var HxNETController NETController;
-
 var localized string PanelHint;
-var bool bSmallCursor;
-var bool bFixedMouseSize;
-var bool bScaleWithY;
-var int OverrideFontSize;
-var int FOV43;
-var bool bReplaceHUDs;
-var bool bScaleWeapons;
-var bool bSPShowTimer;
-var bool bSPFollowHUDColor;
-var bool bSPPulsingDigits;
-var float SPPosX;
-var float SPPosY;
-var int CustomNetSpeed;
-var HxNETController.EHxMasterServer MasterServer;
+
+var private HxGUIController GUIController;
+var private HxHUDController HUDController;
+var private HxNETController NETController;
+
+var private bool bSmallCursor;
+var private bool bFixedMouseSize;
+var private bool bScaleWithY;
+var private int OverrideFontSize;
+var private int FOV43;
+var private bool bReplaceHUDs;
+var private bool bScaleWeapons;
+var private bool bSPShowTimer;
+var private bool bSPFollowHUDColor;
+var private bool bSPPulsingDigits;
+var private float SPPosX;
+var private float SPPosY;
+var private int CustomNetSpeed;
+var private HxNETController.EHxMasterServer MasterServer;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
