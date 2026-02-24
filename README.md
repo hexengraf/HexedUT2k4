@@ -2,7 +2,6 @@
 
 This is a collection of packages and mutators providing a variety of features and QoL improvements. The following packages are provided:
 * HexedUT: main hexed mutator, provides hit sounds, damage numbers, colored death messages, changing hidden game parameters, and more (versioned, server/client package).
-* HexedSRC: package with base classes for other hexed-compliant mutators (versioned, server/client package).
 * HexedPatches: provides QoL improvements, such as better scaling for fonts, HUDs, and weapons (non-versioned, client-only package).
 * HexedUTComp: hexed-compliant version of UTComp, stripped down to eye height algorithms and NewNet weapons (versioned, server/client package). Not thoroughly tested, so it might have some bugs (due to the process of stripping it down to NewNet weapons and eye height algorithms).
 
