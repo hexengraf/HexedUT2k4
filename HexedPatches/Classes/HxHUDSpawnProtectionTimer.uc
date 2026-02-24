@@ -132,7 +132,9 @@ simulated function UpdatePosition()
 
 simulated function bool PlayerIsDead()
 {
-    return HudBase(Owner).PawnOwner == None || HudBase(Owner).PawnOwner.Health == 0;
+    return HudBase(Owner) == None
+        || HudBase(Owner).PawnOwner == None
+        || HudBase(Owner).PawnOwner.Health == 0;
 }
 
 simulated static function SetShowTimer(bool bValue)
