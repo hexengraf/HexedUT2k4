@@ -4,8 +4,9 @@ const SECTION_HIGHLIGHTS = 0;
 const SECTION_COLOR_EDITOR = 1;
 const SECTION_COLOR_PREVIEW = 3;
 
-const NO_HIGHLIGHT = "";
-const RANDOM_HIGHLIGHT = "*";
+const NO_HIGHLIGHT = "DISABLED";
+const RANDOM_HIGHLIGHT = "RANDOM";
+const DEFAULT_HIGHLIGHT = "DEFAULT";
 
 var automated moComboBox co_YourTeam;
 var automated moComboBox co_EnemyTeam;
@@ -30,6 +31,8 @@ var automated GUIComboBox co_PreviewSkin;
 var automated GUIButton b_PreviewBox;
 var automated GUIButton b_ChangeModel;
 
+var localized string DisabledLabel;
+var localized string DefaultLabel;
 var localized string NameLabel;
 var localized string NewColorPageCaption;
 var localized string RenameColorPageCaption;
@@ -260,13 +263,13 @@ function PopulateColorComboBoxes()
         ComboBoxes[i].bIgnoreChange = true;
         ComboBoxes[i].ResetComponent();
     }
-    for (i = 0; i < 3; ++i)
+    for (i = 0; i < ComboBoxes.Length - 1; ++i)
     {
-        ComboBoxes[i].AddItem("Disabled",,NO_HIGHLIGHT);
+        ComboBoxes[i].AddItem(DisabledLabel,,NO_HIGHLIGHT);
     }
     for (i = 3; i < ComboBoxes.Length - 1; ++i)
     {
-        ComboBoxes[i].AddItem("Default",,NO_HIGHLIGHT);
+        ComboBoxes[i].AddItem(DefaultLabel,,DEFAULT_HIGHLIGHT);
     }
     co_SoloPlayer.AddItem("Random",,RANDOM_HIGHLIGHT);
     for (i = 0; i < class'HxSkinHighlight'.default.Colors.Length; ++i)
@@ -874,6 +877,8 @@ defaultproperties
     Sections(1)=ColorEditorSection
     Sections(2)=None
     Sections(3)=ColorPreviewSection
+    DisabledLabel="Disabled"
+    DefaultLabel="Default"
     NameLabel="Name:"
     NewColorPageCaption="New Color"
     RenameColorPageCaption="Rename Color"

@@ -14,8 +14,9 @@ struct HxCacheEntry
     var string Highlight;
 };
 
-const NO_HIGHLIGHT = "";
-const RANDOM_HIGHLIGHT = "*";
+const NO_HIGHLIGHT = "DISABLED";
+const RANDOM_HIGHLIGHT = "RANDOM";
+const DEFAULT_HIGHLIGHT = "DEFAULT";
 const HIT_COLOR_MULTIPLIER = 1.75;
 const HIT_COLOR_FADE_PERIOD = 0.5;
 
@@ -41,6 +42,7 @@ var private Shader HighlightShader;
 var private Color MainColor;
 var private Color HitColors[4];
 var private Material HitMaterials[4];
+var private byte bDisableHitEffect[4];
 var private int HitIndex;
 var private bool bInitialized;
 var private bool bEnabled;
@@ -154,7 +156,7 @@ simulated function InitializeHighlight(xPawn Pawn)
     {
         Name = Eval(Pawn.GetTeamNum() != LocalPlayerTeam, EnemyTeam, YourTeam);
     }
-    bEnabled = Name != NO_HIGHLIGHT;
+    bEnabled = !IsReservedColorName(Name);
     if (bEnabled)
     {
         FindColor(Name, MainColor);
@@ -172,25 +174,29 @@ simulated function InitializeHitEffects(xPawn Pawn)
     {
         HitMaterials[i] = None;
     }
-    if (ShieldHit != NO_HIGHLIGHT)
+    if (ShieldHit != DEFAULT_HIGHLIGHT)
     {
         HitColors[0] = GetHitColor(ShieldHit);
         HitMaterials[0] = Pawn.ShieldHitMat;
+        bDisableHitEffect[0] = byte(ShieldHit == NO_HIGHLIGHT);
     }
-    if (LinkHit != NO_HIGHLIGHT)
+    if (LinkHit != DEFAULT_HIGHLIGHT)
     {
         HitColors[1] = GetHitColor(LinkHit);
         HitMaterials[1] = Shader'XGameShaders.PlayerShaders.LinkHit';
+        bDisableHitEffect[1] = byte(LinkHit == NO_HIGHLIGHT);
     }
-    if (ShockHit != NO_HIGHLIGHT)
+    if (ShockHit != DEFAULT_HIGHLIGHT)
     {
         HitColors[2] = GetHitColor(ShockHit);
         HitMaterials[2] = Shader'UT2004Weapons.Shaders.ShockHitShader';
+        bDisableHitEffect[2] = byte(ShockHit == NO_HIGHLIGHT);
     }
-    if (LightningHit != NO_HIGHLIGHT)
+    if (LightningHit != DEFAULT_HIGHLIGHT)
     {
         HitColors[3] = GetHitColor(LightningHit);
         HitMaterials[3] = Shader'XGameShaders.PlayerShaders.LightningHit';
+        bDisableHitEffect[3] = byte(LightningHit == NO_HIGHLIGHT);
     }
     HitIndex = -1;
 }
@@ -252,8 +258,15 @@ simulated function UpdateOverlay(xPawn Pawn)
     }
     if (HitIndex > -1)
     {
-        Fade = FClamp(Pawn.ClientOverlayCounter / HIT_COLOR_FADE_PERIOD, 0.0, 1.0);
-        HighlightEffect.Color = (HitColors[HitIndex] * Fade) + (MainColor * (1.0 - Fade));
+        if (bDisableHitEffect[HitIndex] > 0)
+        {
+            HighlightEffect.Color = MainColor;
+        }
+        else
+        {
+            Fade = FClamp(Pawn.ClientOverlayCounter / HIT_COLOR_FADE_PERIOD, 0.0, 1.0);
+            HighlightEffect.Color = (HitColors[HitIndex] * Fade) + (MainColor * (1.0 - Fade));
+        }
     }
 }
 
@@ -397,9 +410,22 @@ static function Material GetNormalSkin(coerce string Name)
     return Skin;
 }
 
+static function bool IsValidColorIndex(int Index)
+{
+    return Index >= 0 && Index < default.Colors.Length;
+}
+
+static function bool IsReservedColorName(string Name)
+{
+    return Name == ""
+        || Name == NO_HIGHLIGHT
+        || Name == RANDOM_HIGHLIGHT
+        || Name == DEFAULT_HIGHLIGHT;
+}
+
 static function bool IsValidColorName(string Name)
 {
-    return Name != NO_HIGHLIGHT && Name != RANDOM_HIGHLIGHT && FindColor(Name) == -1;
+    return !IsReservedColorName(Name) && FindColor(Name) == -1;
 }
 
 static function int AllocateColor(string Name, optional bool bRandom)
@@ -419,7 +445,7 @@ static function int AllocateColor(string Name, optional bool bRandom)
 
 static function bool DeleteColor(int Index)
 {
-    if (Index < 0 || Index >= default.Colors.Length)
+    if (!IsValidColorIndex(Index))
     {
         return false;
     }
@@ -446,8 +472,7 @@ static function bool ChangeColorName(int Index, string Name)
 {
     local int i;
 
-    if (Name == NO_HIGHLIGHT || Name == RANDOM_HIGHLIGHT
-        || Index >= default.Colors.Length || FindColor(Name) != -1)
+    if (!IsValidColorName(Name) || !IsValidColorIndex(Index))
     {
         return false;
     }
@@ -492,7 +517,7 @@ static function bool SetColorRandom(int Index, bool bRandom)
 {
     local int i;
 
-    if (Index >= default.Colors.Length)
+    if (!IsValidColorIndex(Index))
     {
         return false;
     }
@@ -531,7 +556,7 @@ static function int FindColor(string Name, optional out Color Color)
 {
     local int i;
 
-    if (Name == NO_HIGHLIGHT || Name == RANDOM_HIGHLIGHT)
+    if (IsReservedColorName(Name))
     {
         return -1;
     }
@@ -550,7 +575,7 @@ static function int FindColorEntry(string Name, optional out HxColorEntry ColorE
 {
     local int i;
 
-    if (Name == NO_HIGHLIGHT || Name == RANDOM_HIGHLIGHT)
+    if (IsReservedColorName(Name))
     {
         return -1;
     }
@@ -637,13 +662,13 @@ static function RemoveFromRandomPool(string Name)
 
 defaultproperties
 {
-    EnemyTeam=""
-    YourTeam=""
-    SoloPlayer=""
-    ShieldHit=""
-    LinkHit=""
-    ShockHit=""
-    LightningHit=""
+    EnemyTeam="DISABLED"
+    YourTeam="DISABLED"
+    SoloPlayer="DISABLED"
+    ShieldHit="DEFAULT"
+    LinkHit="DEFAULT"
+    ShockHit="DEFAULT"
+    LightningHit="DEFAULT"
     bDisableOnDeadBodies=false
     bForceNormalSkins=true
     SpectatorTeam=0
@@ -653,7 +678,7 @@ defaultproperties
     Colors(3)=(Name="Pink",Color=(R=255,G=0,B=255,A=255),bRandom=true)
     Colors(4)=(Name="Teal",Color=(R=0,G=255,B=255,A=255),bRandom=true)
     Colors(5)=(Name="Yellow",Color=(R=255,G=255,B=0,A=255),bRandom=true)
-    Colors(7)=(Name="Purple",Color=(R=64,G=0,B=255,A=255),bRandom=false)
+    Colors(6)=(Name="Purple",Color=(R=64,G=0,B=255,A=255),bRandom=false)
     HighlightIntensity=-1
 
     RemoteRole=ROLE_SimulatedProxy
