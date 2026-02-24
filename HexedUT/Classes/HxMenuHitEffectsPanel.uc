@@ -35,8 +35,6 @@ var HxClientProxy Proxy;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
-    local int i;
-
     Sections[SECTION_HIT_SOUNDS].ManageComponent(ch_HitSounds);
     Sections[SECTION_HIT_SOUNDS].ManageComponent(co_SelectedHitSound);
     Sections[SECTION_HIT_SOUNDS].ManageComponent(sl_HSVolume);
@@ -56,27 +54,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     Sections[SECTION_DAMAGE_POINT_EDITOR].ManageComponent(sl_DPGreenColor);
     Sections[SECTION_DAMAGE_POINT_EDITOR].ManageComponent(sl_DPBlueColor);
     super.InitComponent(MyController, MyOwner);
-    for (i = 0; i < class'HxSounds'.default.HitSounds.Length; ++i)
-    {
-        co_SelectedHitSound.AddItem(string(class'HxSounds'.default.HitSounds[i]),,string(i));
-    }
-    for (i = 0; i < ArrayCount(PitchModeNames); ++i)
-    {
-        co_HSPitchMode.AddItem(PitchModeNames[i],,string(GetEnum(enum'EHxPitchMode', i)));
-    }
-    for (i = 0; i < ArrayCount(DamageModeNames); ++i)
-    {
-        co_DMode.AddItem(DamageModeNames[i],,string(GetEnum(enum'EHxDMode', i)));
-    }
-    AddCustomFonts();
-    for (i = 0; i < FontNames.Length; ++i)
-    {
-        co_DFont.AddItem(FontNames[i],,FontNames[i]);
-    }
-    for (i = 0; i < ArrayCount(DamagePointNames); ++i)
-    {
-        co_DamagePoints.AddItem(DamagePointNames[i],,string(i));
-    }
+    PopulateComboBoxes();
 }
 
 function bool Initialize()
@@ -106,6 +84,37 @@ function Refresh()
         !Proxy.bAllowHitSounds && !Proxy.bAllowDamageNumbers,
         HIDE_DUE_DISABLE);
     Super.Refresh();
+}
+
+function PopulateComboBoxes()
+{
+    local array<string> HitSoundNames;
+    local int i;
+
+    if (class'HxHitEffects'.static.GetHitSoundNames(HitSoundNames))
+    {
+        for (i = 0; i < HitSoundNames.Length; ++i)
+        {
+            co_SelectedHitSound.AddItem(HitSoundNames[i],,string(i));
+        }
+    }
+    for (i = 0; i < ArrayCount(PitchModeNames); ++i)
+    {
+        co_HSPitchMode.AddItem(PitchModeNames[i],,string(GetEnum(enum'EHxPitchMode', i)));
+    }
+    for (i = 0; i < ArrayCount(DamageModeNames); ++i)
+    {
+        co_DMode.AddItem(DamageModeNames[i],,string(GetEnum(enum'EHxDMode', i)));
+    }
+    AddCustomFonts();
+    for (i = 0; i < FontNames.Length; ++i)
+    {
+        co_DFont.AddItem(FontNames[i],,FontNames[i]);
+    }
+    for (i = 0; i < ArrayCount(DamagePointNames); ++i)
+    {
+        co_DamagePoints.AddItem(DamagePointNames[i],,string(i));
+    }
 }
 
 function HitSoundsAfterChange()

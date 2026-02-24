@@ -63,7 +63,6 @@ var config bool bHitSounds;
 var config int SelectedHitSound;
 var config float HitSoundVolume;
 var config EHxPitchMode PitchMode;
-
 var config bool bDamageNumbers;
 var config EHxDMode DMode;
 var config Font DFont;
@@ -72,13 +71,13 @@ var config float PosY;
 var config HxDamagePoint DamagePoints[DAMAGE_POINT_COUNT];
 
 var PlayerController PC;
-var array<HxDamageNumber> DamageNumbers;
-var float GlobalScale;
+var private array<Sound> HitSounds;
+var private array<HxDamageNumber> DamageNumbers;
+var private float GlobalScale;
 
 simulated event PreBeginPlay()
 {
     super.PreBeginPlay();
-    InitializeHitSounds();
     InitializeDamageNumbers();
     ValidateConfig();
 }
@@ -93,18 +92,9 @@ simulated function ValidateConfig()
         DamagePoints[i].Pitch = FClamp(DamagePoints[i].Pitch, 0.0, 1.0);
         DamagePoints[i].Scale = FClamp(DamagePoints[i].Scale, 0.0, 1.0);
     }
-    SelectedHitSound = Clamp(SelectedHitSound, 0, class'HxSounds'.default.HitSounds.Length - 1);
+    SelectedHitSound = Clamp(SelectedHitSound, 0, default.HitSounds.Length - 1);
     DamagePoints[0].Value = 0;
     SaveConfig();
-}
-
-simulated function InitializeHitSounds()
-{
-    class'HxSounds'.static.AddHitSound(Sound'HitSound5', true);
-    class'HxSounds'.static.AddHitSound(Sound'HitSound4', true);
-    class'HxSounds'.static.AddHitSound(Sound'HitSound3', true);
-    class'HxSounds'.static.AddHitSound(Sound'HitSound2', true);
-    class'HxSounds'.static.AddHitSound(Sound'HitSound1', true);
 }
 
 simulated function InitializeDamageNumbers()
@@ -251,7 +241,7 @@ simulated function PlayHitSound(int Damage)
     if (PC.ViewTarget != None)
     {
         PC.ViewTarget.PlaySound(
-            class'HxSounds'.default.HitSounds[SelectedHitSound],,HitSoundVolume,,,GetPitch(Damage));
+            default.HitSounds[SelectedHitSound],,HitSoundVolume,,,GetPitch(Damage));
     }
 }
 
@@ -395,14 +385,47 @@ simulated function Color InterpolateColor(int Damage, float MaxValue, Color Firs
     return Result;
 }
 
-static simulated function float FInterpolate(int Value, float MaxValue, float First, float Second)
+static function float FInterpolate(int Value, float MaxValue, float First, float Second)
 {
     return First + FClamp(Value / MaxValue, 0.0, 1.0) * (Second - First);
 }
 
-static simulated function float ToAbsoluteScale(float NormalizedScale)
+static function float ToAbsoluteScale(float NormalizedScale)
 {
     return FONT_SCALE_MIN + NormalizedScale * FONT_SCALE_SPECTRUM;
+}
+
+static function AddHitSound(Sound HitSound, optional bool bPrepend)
+{
+    local int i;
+
+    for (i = 0; i < default.HitSounds.Length; ++i)
+    {
+        if (default.HitSounds[i] == HitSound)
+        {
+            return;
+        }
+    }
+    if (bPrepend)
+    {
+        default.HitSounds.Insert(0, 1);
+        default.HitSounds[0] = HitSound;
+    }
+    else
+    {
+        default.HitSounds[default.HitSounds.Length] = HitSound;
+    }
+}
+
+static function bool GetHitSoundNames(out array<string> Names)
+{
+    local int i;
+
+    for (i = 0; i < default.HitSounds.Length; ++i)
+    {
+        Names[Names.Length] = string(default.HitSounds[i]);
+    }
+    return default.HitSounds.Length > 0;
 }
 
 defaultproperties
@@ -421,4 +444,9 @@ defaultproperties
     DamagePoints(2)=(Value=70,Pitch=0.55,Scale=0.55,Color=(R=255,G=119,B=32))
     DamagePoints(3)=(Value=120,Pitch=0.75,Scale=0.75,Color=(R=255,G=32,B=32))
     DamagePoints(4)=(Value=180,Pitch=1.00,Scale=1.00,Color=(R=143,G=32,B=245))
+    HitSounds(0)=Sound'HitSound1'
+    HitSounds(1)=Sound'HitSound2'
+    HitSounds(2)=Sound'HitSound3'
+    HitSounds(3)=Sound'HitSound4'
+    HitSounds(4)=Sound'HitSound5'
 }
