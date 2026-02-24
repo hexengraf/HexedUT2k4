@@ -1,4 +1,4 @@
-class HxSkinHighlightMenuPanel extends HxMenuPanel;
+class HxMenuSkinHighlightPanel extends HxMenuBasePanel;
 
 const SECTION_HIGHLIGHTS = 0;
 const SECTION_COLOR_EDITOR = 1;

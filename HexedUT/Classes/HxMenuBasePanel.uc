@@ -1,4 +1,4 @@
-class HxMenuPanel extends MidGamePanel
+class HxMenuBasePanel extends MidGamePanel
     abstract;
 
 const HIDE_DUE_INIT = "Initializing...";
