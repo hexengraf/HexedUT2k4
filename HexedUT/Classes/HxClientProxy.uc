@@ -36,10 +36,10 @@ var bool bDisableInvisibleCombo;
 var bool bDisableUDamage;
 
 var MutHexedUT HexedUT;
-var PlayerController PC;
 var HxHitEffects HitEffects;
-var DamageInfo Damage;
 
+var private PlayerController PC;
+var private DamageInfo Damage;
 var private array<HxClientProxy> Proxies;
 
 replication
@@ -148,8 +148,7 @@ simulated function bool InitializeHitEffects()
 {
     if (HitEffects == None && PC != None && PC.myHUD != None)
     {
-        HitEffects = PC.myHUD.Spawn(class'HxHitEffects');
-        HitEffects.PC = PC;
+        HitEffects = PC.myHUD.Spawn(class'HxHitEffects', PC.myHUD);
         PC.myHUD.AddHudOverlay(HitEffects);
     }
     return HitEffects != None;
@@ -157,20 +156,20 @@ simulated function bool InitializeHitEffects()
 
 simulated function ModifyPlayerCombos(xPlayer Other)
 {
-    local int c;
+    local int Combo;
 
     if (Other != None)
     {
-        for (c = 0; c < ArrayCount(Other.ComboNameList); ++c)
+        for (Combo = 0; Combo < ArrayCount(Other.ComboNameList); ++Combo)
         {
-            if (Other.ComboNameList[c] == "")
+            if (Other.ComboNameList[Combo] == "")
             {
                 break;
             }
-            if (ShouldDisableCombo(Other.ComboNameList[c]))
+            if (ShouldDisableCombo(Other.ComboNameList[Combo]))
             {
-                Other.ComboNameList[c] = string(class'HxComboNull');
-                Other.ComboList[c] = class'HxComboNull';
+                Other.ComboNameList[Combo] = string(class'HxComboNull');
+                Other.ComboList[Combo] = class'HxComboNull';
             }
         }
     }
@@ -262,12 +261,15 @@ static function bool IsEnemy(Pawn Injured, Pawn Inflictor)
     return TeamNum == 255 || TeamNum != Inflictor.GetTeamNum();
 }
 
-static function HxClientProxy New(PlayerController PC)
+static function HxClientProxy New(PlayerController PC, MutHexedUT HexedUT)
 {
     local HxClientProxy Proxy;
 
     Proxy = PC.Spawn(class'HxClientProxy', PC);
+    Proxy.PC = PC;
+    Proxy.HexedUT = HexedUT;
     default.Proxies[default.Proxies.Length] = Proxy;
+    Proxy.Update();
     return Proxy;
 }
 

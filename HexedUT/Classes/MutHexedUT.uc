@@ -27,7 +27,7 @@ var config bool bDisableBoosterCombo;
 var config bool bDisableInvisibleCombo;
 var config bool bDisableUDamage;
 
-var array<string> DisabledCombos;
+var private array<string> DisabledCombos;
 
 function Mutate(string Command, PlayerController Sender)
 {
@@ -152,10 +152,7 @@ function SpawnHxClientProxy(PlayerController PC)
 
     if (PC != None && MessagingSpectator(PC) == None)
     {
-        Proxy = class'HxClientProxy'.static.New(PC);
-        Proxy.PC = PC;
-        Proxy.HexedUT = Self;
-        Proxy.Update();
+        Proxy = class'HxClientProxy'.static.New(PC, Self);
     }
 }
 

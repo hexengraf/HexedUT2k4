@@ -70,7 +70,7 @@ var config float PosX;
 var config float PosY;
 var config HxDamagePoint DamagePoints[DAMAGE_POINT_COUNT];
 
-var PlayerController PC;
+var private PlayerController PC;
 var private array<Sound> HitSounds;
 var private array<HxDamageNumber> DamageNumbers;
 var private float GlobalScale;
@@ -78,6 +78,7 @@ var private float GlobalScale;
 simulated event PreBeginPlay()
 {
     super.PreBeginPlay();
+    PC = HUD(Owner).PlayerOwner;
     InitializeDamageNumbers();
     ValidateConfig();
 }
