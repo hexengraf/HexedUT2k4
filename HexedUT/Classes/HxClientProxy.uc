@@ -6,7 +6,7 @@ struct DamageInfo
     var float Timestamp;
 };
 
-const DAMAGE_CLUSTERING_INTERVAL = 0.015;
+const DAMAGE_CLUSTERING_INTERVAL = 0.02;
 
 var bool bAllowHitSounds;
 var bool bAllowDamageNumbers;
