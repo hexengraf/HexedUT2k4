@@ -266,10 +266,10 @@ static function HxClientProxy New(PlayerController PC, MutHexedUT HexedUT)
     local HxClientProxy Proxy;
 
     Proxy = PC.Spawn(class'HxClientProxy', PC);
-    Proxy.PC = PC;
     Proxy.HexedUT = HexedUT;
     default.Proxies[default.Proxies.Length] = Proxy;
     Proxy.Update();
+    Proxy.InitializePlayerController();
     return Proxy;
 }
 
