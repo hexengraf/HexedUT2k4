@@ -110,13 +110,13 @@ function ModifyMovement(xPawn Other)
         Other.AirSpeed *= MaxSpeedMultiplier;
         Other.AirControl *= AirControlMultiplier;
         Other.JumpZ *= BaseJumpMultiplier;
-        Other.MultiJumpBoost *= MultiJumpMultiplier;
-        Other.MaxMultiJump += BonusMultiJumps;
-        Other.MultiJumpRemaining += BonusMultiJumps;
-        Other.DodgeSpeedZ *= DodgeMultiplier;
-        Other.DodgeSpeedFactor *= DodgeSpeedMultiplier;
-        Other.bCanWallDodge = Other.bCanWallDodge ^^ bDisableWallDodge;
-        Other.bCanDodgeDoubleJump = Other.bCanDodgeDoubleJump ^^ bDisableDodgeJump;
+        Other.MultiJumpBoost = Other.default.MultiJumpBoost * MultiJumpMultiplier;
+        Other.MaxMultiJump = Other.default.MaxMultiJump + BonusMultiJumps;
+        Other.MultiJumpRemaining = Other.MaxMultiJump;
+        Other.DodgeSpeedZ = Other.default.DodgeSpeedZ * DodgeMultiplier;
+        Other.DodgeSpeedFactor = Other.default.DodgeSpeedFactor * DodgeSpeedMultiplier;
+        Other.bCanWallDodge = Other.bCanWallDodge && !bDisableWallDodge;
+        Other.bCanDodgeDoubleJump = Other.bCanDodgeDoubleJump && !bDisableDodgeJump;
     }
 }
 
