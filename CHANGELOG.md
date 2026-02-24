@@ -1,3 +1,24 @@
+# v3.0
+
+First release aiming to be compatible wit OldUnreal patches!
+
+HexedPatches changes:
+* Added code to detect OldUnreal patches and disable conflicting changes.
+  * HUD replacements are currently allowed on 3374P9 solely as a temporary fix for weapon FOV.
+* Map voting: added graphical indicator for the sorting order when sorting by last played.
+* Made the spawn protection timer HUD-independent, so it doesn't require HUD replacements anymore.
+
+HexedUT changes:
+* Added skin highlights:
+  * Set skin colors per team;
+  * Use fixed or randomized colors on solo matches;
+  * Replace or disable original hit highlights;
+* Fixed a bug related to movement modifiers in listen servers.
+
+General changes:
+* Merged HexedSRC back into HexedUT. Now there are only 3 packages: HexedPatches, HexedUT and HexedUTComp.
+* Cleaned up a lot of GUI code, abandoning some not-generic-enough abstractions.
+
 # v2.3.1
 
 Hotfix for the map voting page:
