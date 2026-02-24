@@ -116,7 +116,7 @@ function ServerTick(float DeltaTime)
 function UpdateDamage(int Value, Pawn Injured, Pawn Inflictor, class<DamageType> Type)
 {
     Damage.Timestamp = Level.TimeSeconds;
-    Damage.Value += Min(Value, Injured.Health);
+    Damage.Value += Value;
 }
 
 simulated function ClientUpdateHitEffects(int Damage)
