@@ -29,16 +29,15 @@ It is recommended to bind this command to a key (e.g. `set input F5 mutate Hexed
 ### HexedPatches
 
 The following QoL improvements are provided:
-* Modern resolutions available in the settings menu.
-* Higher FOV limit in the settings menu.
-* Player models are no longer cropped in the settings menu (when using a widescreen resolution).
+* Modern resolutions available in the settings menu (3369 only).
+* Higher FOV limit in the settings menu (3369 only).
+* Player models are no longer cropped in the settings menu (when using a widescreen resolution, 3369 only).
 * Better font scaling for higher resolutions (may cause some font cropping/overflow, since some background elements are not properly scaled).
-* Small cursor to compensate absurd scaling when using high resolutions.
-* Correct widescreen scaling for default HUDs.
+* Small cursor to compensate absurd scaling when using high resolutions (3369 only).
+* Correct widescreen scaling for default HUDs (3369 only, weapon FOV allowed in 3374P9).
 * A timer to indicate spawn protection duration.
-* Validate KeepAliveTimer to make sure it has the default value (0.2).
 * Persistent custom network speed (applied on every level change).
-* Master server selector (either 333network or OpenSpy).
+* Master server selector (either 333network or OpenSpy, 3369 only).
 * Enhanced map voting page:
     * On-screen map previews: screenshots, number of players, author and description.
     * Liked/disliked map classification.
@@ -53,6 +52,7 @@ The following QoL improvements are provided:
 The following features are provided:
 * Hit sounds: pings and pongs to know when you hit someone.
 * Damage numbers: pop-up numbers to know how much damage you've dealt.
+* Skin highlights: can't see your enemy? Paint him radioactive green.
 * Colored death messages: easily identify from which team is the killer and the victim.
 * Health leech: part of damage dealt restores health, similar to the Vampire mutator, but with more customization.
 * Movement modifiers: change movement speed, jump acceleration, number of jumps, etc.
