@@ -26,7 +26,7 @@ miscfiles:=README.md LICENSE
 
 -include $(.versionfiles)
 
-.projectversion:=v3.0
+.projectversion:=v4T1
 .packages:=$(foreach p,$(packages),$p$($p.version))
 .intpackages:=$(foreach p,$(requiresint),$p$($p.version))
 .compressedpackages:=$(foreach p,$(requirescompressed),$p$($p.version))
@@ -96,4 +96,4 @@ $(.outdir)/$(project)$(.projectversion)-%: %
 
 $(.versionfiles): $(.outdir)/%.make: %/make.ini
 	@mkdir -p $(@D)
-	@sed -nr "s/.*=[ ]*$*([vV]?[.0-9]*[a-zA-Z]*)$$/$*.version:=\1/gp" $*/make.ini > $@
+	@sed -nr "s/.*=[ ]*$*([vV]?[.0-9]*[a-zA-Z0-9]*)$$/$*.version:=\1/gp" $*/make.ini > $@
