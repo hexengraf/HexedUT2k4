@@ -4,11 +4,11 @@ defaultproperties
 {
     KeyName="HxEditBox"
 
-    FontNames(0)="HxSmallerFont"
-    FontNames(1)="HxSmallerFont"
-    FontNames(2)="HxSmallerFont"
-    FontNames(3)="HxSmallerFont"
-    FontNames(4)="HxSmallerFont"
+    FontNames(0)="UT2SmallFont"
+    FontNames(1)="UT2SmallFont"
+    FontNames(2)="UT2SmallFont"
+    FontNames(3)="UT2SmallFont"
+    FontNames(4)="UT2SmallFont"
 
     Images(0)=Material'engine.WhiteSquareTexture'
     Images(1)=Material'engine.WhiteSquareTexture'

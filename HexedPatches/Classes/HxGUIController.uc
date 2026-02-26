@@ -126,9 +126,6 @@ defaultproperties
     Begin Object Class=HxGUIFontMedium Name=NewGUIMediumMenuFont
     End Object
 
-    Begin Object Class=HxGUIFontSmaller Name=HxGUISmallerFont
-    End Object
-
     bSmallCursor=true
     bFixedMouseSize=true
     FontStack(0)=NewGUIMenuFont
@@ -142,8 +139,7 @@ defaultproperties
     FontStack(8)=NewGUIIRCFont
     FontStack(9)=NewGUIMainMenuFont
     FontStack(10)=NewGUIMediumMenuFont
-    FontStack(11)=HxGUISmallerFont
-    FONT_NUM=12
+    FONT_NUM=11
     DefaultStyleNames(60)="HexedPatches.HxSTYSmallList"
     DefaultStyleNames(61)="HexedPatches.HxSTYSmallListSelection"
     DefaultStyleNames(62)="HexedPatches.HxSTYSmallText"
