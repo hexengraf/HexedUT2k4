@@ -102,6 +102,6 @@ static function LinkedReplicationInfo SpawnLinkedPRI(PlayerReplicationInfo PRI,
 
 defaultproperties
 {
-    MenuClass=class'HxMenu'
+    MenuClass=class'HxGUIMenu'
     MutatorGroup="HexedMutator"
 }

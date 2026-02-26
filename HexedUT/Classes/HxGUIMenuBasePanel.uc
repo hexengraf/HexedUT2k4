@@ -1,4 +1,4 @@
-class HxMenuBasePanel extends MidGamePanel
+class HxGUIMenuBasePanel extends MidGamePanel
     abstract;
 
 const HIDE_DUE_INIT = "Initializing...";
@@ -273,7 +273,7 @@ static function bool AddToMenu()
     if (!default.bPanelAdded)
     {
         default.bPanelAdded = true;
-        class'HxMenu'.static.AddPanel(
+        class'HxGUIMenu'.static.AddPanel(
             default.Class, default.PanelCaption, default.PanelHint, default.bInsertFront);
         return true;
     }

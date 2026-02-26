@@ -1,4 +1,4 @@
-class HxMenu extends FloatingWindow;
+class HxGUIMenu extends FloatingWindow;
 
 struct HxPanelInfo
 {

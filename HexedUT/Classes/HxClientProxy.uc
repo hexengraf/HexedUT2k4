@@ -84,9 +84,9 @@ simulated event PreBeginPlay()
     Super.PreBeginPlay();
     if (Level.NetMode != NM_DedicatedServer)
     {
-        class'HxMenuServerPanel'.static.AddToMenu();
-        class'HxMenuSkinHighlightPanel'.static.AddToMenu();
-        class'HxMenuHitEffectsPanel'.static.AddToMenu();
+        class'HxGUIMenuServerPanel'.static.AddToMenu();
+        class'HxGUIMenuSkinHighlightPanel'.static.AddToMenu();
+        class'HxGUIMenuHitEffectsPanel'.static.AddToMenu();
     }
 }
 

@@ -1,4 +1,4 @@
-class HxMenuHitEffectsPanel extends HxMenuBasePanel;
+class HxGUIMenuHitEffectsPanel extends HxGUIMenuBasePanel;
 
 const SECTION_HIT_SOUNDS = 0;
 const SECTION_DAMAGE_NUMBERS = 2;

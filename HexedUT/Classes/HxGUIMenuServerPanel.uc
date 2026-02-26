@@ -1,4 +1,4 @@
-class HxMenuServerPanel extends HxMenuBasePanel;
+class HxGUIMenuServerPanel extends HxGUIMenuBasePanel;
 
 const SECTION_INDICATORS = 0;
 const SECTION_MOVEMENT = 1;
