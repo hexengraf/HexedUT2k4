@@ -159,13 +159,13 @@ function SpawnClient(PlayerController PC)
     }
 }
 
-function SpawnHxPlayerReplicationInfo(PlayerReplicationInfo PRI)
+function SpawnPlayerInfo(PlayerReplicationInfo PRI)
 {
-    local HxPlayerReplicationInfo Info;
+    local HxUTPlayerInfo Info;
 
     if (MessagingSpectator(PRI.Owner) == None)
     {
-        Info = HxPlayerReplicationInfo(SpawnLinkedPRI(PRI, class'HxPlayerReplicationInfo'));
+        Info = HxUTPlayerInfo(SpawnLinkedPRI(PRI, class'HxUTPlayerInfo'));
         Info.HexedUT = Self;
     }
 }
@@ -190,7 +190,7 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
     }
     else if (Other.IsA('PlayerReplicationInfo'))
     {
-        SpawnHxPlayerReplicationInfo(PlayerReplicationInfo(Other));
+        SpawnPlayerInfo(PlayerReplicationInfo(Other));
     }
     else if (Other.IsA('Controller'))
     {

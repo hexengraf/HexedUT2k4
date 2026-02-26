@@ -23,7 +23,7 @@ function int NetDamage(int Original,
         }
         if (HexedUT.HealthLeechLimit != 0)
         {
-            class'HxPlayerReplicationInfo'.static.RegisterDamage(Damage, Injured, Inflictor, Type);
+            class'HxUTPlayerInfo'.static.RegisterDamage(Damage, Injured, Inflictor, Type);
         }
     }
     return Damage;
@@ -33,7 +33,7 @@ function ScoreKill(Controller Killer, Controller Killed)
 {
     if (HexedUT.HealthLeechLimit != 0)
     {
-        class'HxPlayerReplicationInfo'.static.RegisterKill(Killer, Killed);
+        class'HxUTPlayerInfo'.static.RegisterKill(Killer, Killed);
     }
     Super.ScoreKill(Killer, Killed);
 }
