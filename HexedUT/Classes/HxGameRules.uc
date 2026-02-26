@@ -19,7 +19,7 @@ function int NetDamage(int Original,
     {
         if (HexedUT.bAllowHitSounds || HexedUT.bAllowDamageNumbers)
         {
-           class'HxClientProxy'.static.RegisterDamage(Damage, Injured, Inflictor, Type);
+           class'HxUTClient'.static.RegisterDamage(Damage, Injured, Inflictor, Type);
         }
         if (HexedUT.HealthLeechLimit != 0)
         {

@@ -42,7 +42,7 @@ var localized string InvalidNameSuffix;
 var localized string SkinLabels[3];
 var localized string TeamLabels[2];
 
-var private HxClientProxy Proxy;
+var private HxUTClient Client;
 var private xUtil.PlayerRecord PreviewRec;
 var private int PreviewSkinVariation;
 var private SpinnyWeap PreviewModel;
@@ -93,12 +93,12 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 
 function bool Initialize()
 {
-    if (Proxy != None)
+    if (Client != None)
     {
         return true;
     }
-    Proxy = class'HxClientProxy'.static.GetClientProxy(PlayerOwner());
-    return Proxy != None;
+    Client = class'HxUTClient'.static.GetClient(PlayerOwner());
+    return Client != None;
 }
 
 event Opened(GUIComponent Sender)
@@ -112,7 +112,7 @@ event Opened(GUIComponent Sender)
 
 function Refresh()
 {
-    HideSection(SECTION_HIGHLIGHTS, !Proxy.bAllowSkinHighlight, HIDE_DUE_DISABLE);
+    HideSection(SECTION_HIGHLIGHTS, !Client.bAllowSkinHighlight, HIDE_DUE_DISABLE);
     Super.Refresh();
 }
 
@@ -471,9 +471,9 @@ function UpdatePreviewModelSkins()
 function UpdatePreviewColor()
 {
     class'HxSkinHighlight'.static.FindColor(co_EditColor.GetComponentValue(), PreviewEffect.Color);
-    PreviewEffect.Color.R = PreviewEffect.Color.R * Proxy.SkinHighlightIntensity;
-    PreviewEffect.Color.G = PreviewEffect.Color.G * Proxy.SkinHighlightIntensity;
-    PreviewEffect.Color.B = PreviewEffect.Color.B * Proxy.SkinHighlightIntensity;
+    PreviewEffect.Color.R = PreviewEffect.Color.R * Client.SkinHighlightIntensity;
+    PreviewEffect.Color.G = PreviewEffect.Color.G * Client.SkinHighlightIntensity;
+    PreviewEffect.Color.B = PreviewEffect.Color.B * Client.SkinHighlightIntensity;
 }
 
 function bool OnClickNewColor(GUIComponent Sender)

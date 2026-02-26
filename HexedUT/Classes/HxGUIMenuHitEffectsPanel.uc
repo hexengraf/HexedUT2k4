@@ -31,7 +31,7 @@ var array<string> FontNames;
 var array<string> CustomFontNames;
 var array<Font> LoadedFonts;
 var int DPIndex;
-var HxClientProxy Proxy;
+var HxUTClient Client;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
@@ -59,14 +59,14 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 
 function bool Initialize()
 {
-    if (Proxy != None)
+    if (Client != None)
     {
         return true;
     }
-    Proxy = class'HxClientProxy'.static.GetClientProxy(PlayerOwner());
-    if (Proxy != None)
+    Client = class'HxUTClient'.static.GetClient(PlayerOwner());
+    if (Client != None)
     {
-        co_DFont.SilentSetIndex(GetFontIndex(string(Proxy.HitEffects.DFont)));
+        co_DFont.SilentSetIndex(GetFontIndex(string(Client.HitEffects.DFont)));
         return true;
     }
     return false;
@@ -77,11 +77,11 @@ function Refresh()
     HitSoundsAfterChange();
     DamageNumbersAfterChange();
     RefreshCustomizeSection();
-    HideSection(SECTION_HIT_SOUNDS, !Proxy.bAllowHitSounds, HIDE_DUE_DISABLE);
-    HideSection(SECTION_DAMAGE_NUMBERS, !Proxy.bAllowDamageNumbers, HIDE_DUE_DISABLE);
+    HideSection(SECTION_HIT_SOUNDS, !Client.bAllowHitSounds, HIDE_DUE_DISABLE);
+    HideSection(SECTION_DAMAGE_NUMBERS, !Client.bAllowDamageNumbers, HIDE_DUE_DISABLE);
     HideSection(
         SECTION_DAMAGE_POINT_EDITOR,
-        !Proxy.bAllowHitSounds && !Proxy.bAllowDamageNumbers,
+        !Client.bAllowHitSounds && !Client.bAllowDamageNumbers,
         HIDE_DUE_DISABLE);
     Super.Refresh();
 }
@@ -121,7 +121,7 @@ function HitSoundsAfterChange()
 {
     local bool bHitSoundsEnabled;
 
-    bHitSoundsEnabled = Proxy.bAllowHitSounds && Proxy.HitEffects.bHitSounds;
+    bHitSoundsEnabled = Client.bAllowHitSounds && Client.HitEffects.bHitSounds;
     if (bHitSoundsEnabled)
     {
         EnableComponent(co_SelectedHitSound);
@@ -139,14 +139,14 @@ function HitSoundsAfterChange()
         DisableComponent(sl_DPPitch);
     }
     CustomizeAfterChange(
-        bHitSoundsEnabled || (Proxy.bAllowDamageNumbers && Proxy.HitEffects.bDamageNumbers));
+        bHitSoundsEnabled || (Client.bAllowDamageNumbers && Client.HitEffects.bDamageNumbers));
 }
 
 function DamageNumbersAfterChange()
 {
     local bool bDamageNumbersEnabled;
 
-    bDamageNumbersEnabled = Proxy.bAllowDamageNumbers && Proxy.HitEffects.bDamageNumbers;
+    bDamageNumbersEnabled = Client.bAllowDamageNumbers && Client.HitEffects.bDamageNumbers;
     if (bDamageNumbersEnabled)
     {
         EnableComponent(co_DMode);
@@ -170,7 +170,7 @@ function DamageNumbersAfterChange()
         DisableComponent(sl_DPBlueColor);
     }
     CustomizeAfterChange(
-        bDamageNumbersEnabled || (Proxy.bAllowHitSounds && Proxy.HitEffects.bHitSounds));
+        bDamageNumbersEnabled || (Client.bAllowHitSounds && Client.HitEffects.bHitSounds));
 }
 
 function CustomizeAfterChange(bool bAnyEffectEnabled)
@@ -196,61 +196,61 @@ function CustomizeAfterChange(bool bAnyEffectEnabled)
 
 function CustomizeOnLoadINI(GUIComponent Sender, string s)
 {
-    if (Proxy == None || Proxy.HitEffects == None)
+    if (Client == None || Client.HitEffects == None)
     {
         return;
     }
     switch (Sender)
     {
         case nu_DPValue:
-            nu_DPValue.SetComponentValue(Proxy.HitEffects.DamagePoints[DPIndex].Value, true);
+            nu_DPValue.SetComponentValue(Client.HitEffects.DamagePoints[DPIndex].Value, true);
             break;
         case sl_DPPitch:
-            sl_DPPitch.SetComponentValue(Proxy.HitEffects.DamagePoints[DPIndex].Pitch, true);
+            sl_DPPitch.SetComponentValue(Client.HitEffects.DamagePoints[DPIndex].Pitch, true);
             break;
         case sl_DPScale:
-            sl_DPScale.SetComponentValue(Proxy.HitEffects.DamagePoints[DPIndex].Scale, true);
+            sl_DPScale.SetComponentValue(Client.HitEffects.DamagePoints[DPIndex].Scale, true);
             break;
         case sl_DPRedColor:
-            sl_DPRedColor.SetComponentValue(Proxy.HitEffects.DamagePoints[DPIndex].Color.R, true);
+            sl_DPRedColor.SetComponentValue(Client.HitEffects.DamagePoints[DPIndex].Color.R, true);
             break;
         case sl_DPGreenColor:
-            sl_DPGreenColor.SetComponentValue(Proxy.HitEffects.DamagePoints[DPIndex].Color.G, true);
+            sl_DPGreenColor.SetComponentValue(Client.HitEffects.DamagePoints[DPIndex].Color.G, true);
             break;
         case sl_DPBlueColor:
-            sl_DPBlueColor.SetComponentValue(Proxy.HitEffects.DamagePoints[DPIndex].Color.B, true);
+            sl_DPBlueColor.SetComponentValue(Client.HitEffects.DamagePoints[DPIndex].Color.B, true);
             break;
     }
 }
 
 function HitEffectsOnChange(GUIComponent Sender)
 {
-    if (Proxy == None || Proxy.HitEffects == None)
+    if (Client == None || Client.HitEffects == None)
     {
         return;
     }
     switch (Sender)
     {
         case ch_HitSounds:
-            DefaultOnChange(Sender, Proxy.HitEffects);
+            DefaultOnChange(Sender, Client.HitEffects);
             HitSoundsAfterChange();
             break;
         case ch_DamageNumbers:
-            DefaultOnChange(Sender, Proxy.HitEffects);
+            DefaultOnChange(Sender, Client.HitEffects);
             DamageNumbersAfterChange();
             break;
         case co_DFont:
-            Proxy.HitEffects.DFont = GetFont(co_DFont.GetIndex());
+            Client.HitEffects.DFont = GetFont(co_DFont.GetIndex());
             break;
         default:
-            DefaultOnChange(Sender, Proxy.HitEffects);
+            DefaultOnChange(Sender, Client.HitEffects);
             break;
     }
 }
 
 function CustomizeOnChange(GUIComponent Sender)
 {
-    if (Proxy == None || Proxy.HitEffects == None)
+    if (Client == None || Client.HitEffects == None)
     {
         return;
     }
@@ -261,25 +261,25 @@ function CustomizeOnChange(GUIComponent Sender)
             RefreshCustomizeSection();
             break;
         case nu_DPValue:
-            Proxy.HitEffects.DamagePoints[DPIndex].Value = nu_DPValue.GetValue();
+            Client.HitEffects.DamagePoints[DPIndex].Value = nu_DPValue.GetValue();
             break;
         case sl_DPPitch:
-            Proxy.HitEffects.DamagePoints[DPIndex].Pitch = sl_DPPitch.GetValue();
+            Client.HitEffects.DamagePoints[DPIndex].Pitch = sl_DPPitch.GetValue();
             break;
         case sl_DPScale:
-            Proxy.HitEffects.DamagePoints[DPIndex].Scale = sl_DPScale.GetValue();
+            Client.HitEffects.DamagePoints[DPIndex].Scale = sl_DPScale.GetValue();
             break;
         case sl_DPRedColor:
-            Proxy.HitEffects.DamagePoints[DPIndex].Color.R = sl_DPRedColor.GetValue();
+            Client.HitEffects.DamagePoints[DPIndex].Color.R = sl_DPRedColor.GetValue();
             break;
         case sl_DPGreenColor:
-            Proxy.HitEffects.DamagePoints[DPIndex].Color.G = sl_DPGreenColor.GetValue();
+            Client.HitEffects.DamagePoints[DPIndex].Color.G = sl_DPGreenColor.GetValue();
             break;
         case sl_DPBlueColor:
-            Proxy.HitEffects.DamagePoints[DPIndex].Color.B = sl_DPBlueColor.GetValue();
+            Client.HitEffects.DamagePoints[DPIndex].Color.B = sl_DPBlueColor.GetValue();
             break;
     }
-    Proxy.HitEffects.SaveConfig();
+    Client.HitEffects.SaveConfig();
 }
 
 function RefreshCustomizeSection()
@@ -292,12 +292,12 @@ function RefreshCustomizeSection()
     {
         DisableComponent(nu_DPValue);
     }
-    nu_DPValue.SetComponentValue(Proxy.HitEffects.DamagePoints[DPIndex].Value);
-    sl_DPPitch.SetComponentValue(Proxy.HitEffects.DamagePoints[DPIndex].Pitch);
-    sl_DPScale.SetComponentValue(Proxy.HitEffects.DamagePoints[DPIndex].Scale);
-    sl_DPRedColor.SetComponentValue(Proxy.HitEffects.DamagePoints[DPIndex].Color.R);
-    sl_DPGreenColor.SetComponentValue(Proxy.HitEffects.DamagePoints[DPIndex].Color.G);
-    sl_DPBlueColor.SetComponentValue(Proxy.HitEffects.DamagePoints[DPIndex].Color.B);
+    nu_DPValue.SetComponentValue(Client.HitEffects.DamagePoints[DPIndex].Value);
+    sl_DPPitch.SetComponentValue(Client.HitEffects.DamagePoints[DPIndex].Pitch);
+    sl_DPScale.SetComponentValue(Client.HitEffects.DamagePoints[DPIndex].Scale);
+    sl_DPRedColor.SetComponentValue(Client.HitEffects.DamagePoints[DPIndex].Color.R);
+    sl_DPGreenColor.SetComponentValue(Client.HitEffects.DamagePoints[DPIndex].Color.G);
+    sl_DPBlueColor.SetComponentValue(Client.HitEffects.DamagePoints[DPIndex].Color.B);
 }
 
 function DrawDamageNumberPreview(Canvas C)
@@ -307,7 +307,7 @@ function DrawDamageNumberPreview(Canvas C)
     local float SavedClipX;
     local float SavedClipY;
 
-    if (Proxy == None || !Proxy.bAllowDamageNumbers || !Proxy.HitEffects.bDamageNumbers)
+    if (Client == None || !Client.bAllowDamageNumbers || !Client.HitEffects.bDamageNumbers)
     {
         return;
     }
@@ -319,7 +319,7 @@ function DrawDamageNumberPreview(Canvas C)
     C.OrgY = i_DPPReview.ActualTop();
     C.ClipX = i_DPPReview.ActualWidth();
     C.ClipY = i_DPPReview.ActualHeight();
-    Proxy.HitEffects.DrawDamageNumberPreview(C, DPIndex);
+    Client.HitEffects.DrawDamageNumberPreview(C, DPIndex);
     C.OrgX = SavedOrgX;
     C.OrgY = SavedOrgY;
     C.ClipX = SavedClipX;
@@ -328,7 +328,7 @@ function DrawDamageNumberPreview(Canvas C)
 
 function bool PlaySoundOnClick(GUIComponent Sender)
 {
-    Proxy.HitEffects.PlayHitSound(Proxy.HitEffects.DamagePoints[DPIndex].Value);
+    Client.HitEffects.PlayHitSound(Client.HitEffects.DamagePoints[DPIndex].Value);
     return true;
 }
 

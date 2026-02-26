@@ -1,4 +1,4 @@
-class HxClientProxy extends ReplicationInfo;
+class HxUTClient extends ReplicationInfo;
 
 struct DamageInfo
 {
@@ -40,7 +40,7 @@ var HxHitEffects HitEffects;
 
 var private PlayerController PC;
 var private DamageInfo Damage;
-var private array<HxClientProxy> Proxies;
+var private array<HxUTClient> Clients;
 
 replication
 {
@@ -242,13 +242,13 @@ static function RegisterDamage(int Damage, Pawn Injured, Pawn Inflictor, class<D
     local PlayerController PC;
     local int i;
 
-    for (i = 0; i < default.Proxies.Length; ++i)
+    for (i = 0; i < default.Clients.Length; ++i)
     {
-        PC = PlayerController(default.Proxies[i].Owner);
+        PC = PlayerController(default.Clients[i].Owner);
         if (PC != None && PC.ViewTarget == Inflictor && Injured != Inflictor
             && IsEnemy(Injured, Inflictor))
         {
-            default.Proxies[i].UpdateDamage(Damage, Injured, Inflictor, Type);
+            default.Clients[i].UpdateDamage(Damage, Injured, Inflictor, Type);
         }
     }
 }
@@ -261,57 +261,57 @@ static function bool IsEnemy(Pawn Injured, Pawn Inflictor)
     return TeamNum == 255 || TeamNum != Inflictor.GetTeamNum();
 }
 
-static function HxClientProxy New(PlayerController PC, MutHexedUT HexedUT)
+static function HxUTClient New(PlayerController PC, MutHexedUT HexedUT)
 {
-    local HxClientProxy Proxy;
+    local HxUTClient Client;
 
-    Proxy = PC.Spawn(class'HxClientProxy', PC);
-    Proxy.HexedUT = HexedUT;
-    default.Proxies[default.Proxies.Length] = Proxy;
-    Proxy.Update();
-    Proxy.InitializePlayerController();
-    return Proxy;
+    Client = PC.Spawn(class'HxUTClient', PC);
+    Client.HexedUT = HexedUT;
+    default.Clients[default.Clients.Length] = Client;
+    Client.Update();
+    Client.InitializePlayerController();
+    return Client;
 }
 
 static function bool Delete(PlayerController PC)
 {
     local int i;
 
-    for (i = 0; i < default.Proxies.Length; ++i)
+    for (i = 0; i < default.Clients.Length; ++i)
     {
-        if (default.Proxies[i].Owner == PC)
+        if (default.Clients[i].Owner == PC)
         {
-            default.Proxies.Remove(i, 1);
+            default.Clients.Remove(i, 1);
             return true;
         }
     }
     return false;
 }
 
-static function bool Register(HxClientProxy Proxy)
+static function bool Register(HxUTClient Client)
 {
     local int i;
 
-    for (i = 0; i < default.Proxies.Length; ++i)
+    for (i = 0; i < default.Clients.Length; ++i)
     {
-        if (default.Proxies[i] == Proxy)
+        if (default.Clients[i] == Client)
         {
             return false;
         }
     }
-    default.Proxies[default.Proxies.Length] = Proxy;
+    default.Clients[default.Clients.Length] = Client;
     return true;
 }
 
-static function HxClientProxy GetClientProxy(PlayerController PC)
+static function HxUTClient GetClient(PlayerController PC)
 {
     local int i;
 
-    for (i = 0; i < default.Proxies.Length; ++i)
+    for (i = 0; i < default.Clients.Length; ++i)
     {
-        if (default.Proxies[i].Owner == PC)
+        if (default.Clients[i].Owner == PC)
         {
-            return default.Proxies[i];
+            return default.Clients[i];
         }
     }
     return None;

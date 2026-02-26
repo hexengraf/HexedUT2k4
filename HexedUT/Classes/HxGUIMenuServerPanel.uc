@@ -6,7 +6,7 @@ const SECTION_STARTING_VALUES = 2;
 const SECTION_POWER_UPS = 3;
 
 var automated array<GUIMenuOption> Options;
-var HxClientProxy Proxy;
+var HxUTClient Client;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
@@ -38,12 +38,12 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 
 function bool Initialize()
 {
-    if (Proxy != None)
+    if (Client != None)
     {
         return true;
     }
-    Proxy = class'HxClientProxy'.static.GetClientProxy(PlayerOwner());
-    return Proxy != None;
+    Client = class'HxUTClient'.static.GetClient(PlayerOwner());
+    return Client != None;
 }
 
 function Refresh()
@@ -57,9 +57,9 @@ function InternalOnLoadINI(GUIComponent Sender, string s)
     local GUIMenuOption Option;
 
     Option = GUIMenuOption(Sender);
-    if (Proxy != None && Option != None)
+    if (Client != None && Option != None)
     {
-        Option.SetComponentValue(Proxy.GetPropertyText(Option.INIOption));
+        Option.SetComponentValue(Client.GetPropertyText(Option.INIOption));
     }
 }
 
@@ -68,9 +68,9 @@ function InternalOnChange(GUIComponent C)
     local GUIMenuOption Option;
 
     Option = GUIMenuOption(C);
-    if (Proxy != None && Option != None && IsAdmin())
+    if (Client != None && Option != None && IsAdmin())
     {
-        Proxy.RemoteSetProperty(Option.INIOption, Option.GetComponentValue());
+        Client.RemoteSetProperty(Option.INIOption, Option.GetComponentValue());
     }
 }
 

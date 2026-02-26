@@ -73,7 +73,10 @@ function ModifyPlayer(Pawn Other)
 
 function NotifyLogout(Controller Exiting)
 {
-    DestroyHxClientProxy(PlayerController(Exiting));
+    if (PlayerController(Exiting) != None && MessagingSpectator(Exiting) == None)
+    {
+        class'HxUTClient'.static.Delete(PlayerController(Exiting));
+    }
     Super.NotifyLogout(Exiting);
 }
 
@@ -146,21 +149,13 @@ function SpawnSkinHighlight(xPawn Pawn)
     }
 }
 
-function SpawnHxClientProxy(PlayerController PC)
+function SpawnClient(PlayerController PC)
 {
-    local HxClientProxy Proxy;
+    local HxUTClient Client;
 
     if (PC != None && MessagingSpectator(PC) == None)
     {
-        Proxy = class'HxClientProxy'.static.New(PC, Self);
-    }
-}
-
-function DestroyHxClientProxy(PlayerController PC)
-{
-    if (PC != None && MessagingSpectator(PC) == None)
-    {
-        class'HxClientProxy'.static.Delete(PC);
+        Client = class'HxUTClient'.static.New(PC, Self);
     }
 }
 
@@ -199,7 +194,7 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
     }
     else if (Other.IsA('Controller'))
     {
-        SpawnHxClientProxy(PlayerController(Other));
+        SpawnClient(PlayerController(Other));
         ModifyStartingAdrenaline(Controller(Other));
     }
     return true;
@@ -252,7 +247,7 @@ function ListDisableCombos()
 
 function UpdateAfterPropertyChange(string PropertyName, String PropertyValue)
 {
-    local HxClientProxy Proxy;
+    local HxUTClient Client;
     local Controller C;
 
     if (PropertyName == "bColoredDeathMessages")
@@ -263,11 +258,11 @@ function UpdateAfterPropertyChange(string PropertyName, String PropertyValue)
     {
         if (PlayerController(C) != None)
         {
-            Proxy = class'HxClientProxy'.static.GetClientProxy(PlayerController(C));
+            Client = class'HxUTClient'.static.GetClient(PlayerController(C));
         }
-        if (Proxy != None)
+        if (Client != None)
         {
-            Proxy.Update();
+            Client.Update();
         }
     }
 }
