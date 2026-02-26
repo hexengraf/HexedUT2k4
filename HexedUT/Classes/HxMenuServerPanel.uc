@@ -258,8 +258,8 @@ defaultproperties
     bInsertFront=true
     bDoubleColumn=true
     Sections(0)=GeneralSection
-    Sections(1)=StartingValuesSection
-    Sections(2)=MovementSection
+    Sections(1)=MovementSection
+    Sections(2)=StartingValuesSection
     Sections(3)=PowerUpsSection
     Options(0)=AllowHitSoundsCheckBox
     Options(1)=AllowDamageNumbersCheckBox
