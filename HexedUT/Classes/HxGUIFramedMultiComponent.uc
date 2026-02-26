@@ -99,7 +99,26 @@ static function bool GetFontSize(GUIComponent Comp,
                                  optional out float Width,
                                  optional out float Height)
 {
-    return class'HxGUIController'.static.GetFontSize(Comp, C, Text, Width, Height);
+    local Font OldFont;
+
+    if (Text == "")
+    {
+        Text = "q|W";
+    }
+    if (Comp.Style != None)
+    {
+        Comp.Style.TextSize(C, Comp.MenuState, Text, Width, Height, Comp.FontScale);
+        return true;
+    }
+    if (GUILabel(Comp) != None)
+    {
+        OldFont = C.Font;
+        C.Font = Comp.Controller.GetMenuFont(GUILabel(Comp).TextFont).GetFont(C.SizeX);
+        C.TextSize(Text, Width, Height);
+        C.Font = OldFont;
+        return true;
+    }
+    return false;
 }
 
 defaultproperties

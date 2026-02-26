@@ -28,6 +28,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
     local int i;
 
+    DefaultListClass = string(class'HxGUIScrollText');
     Super.InitComponent(MyController, MyOwner);
     ScrollText = HxGUIScrollText(MyScrollText);
     ScrollText.VertAlign = VertAlign;
@@ -129,7 +130,7 @@ defaultproperties
     bRequiresStyle=true
     StyleName="HxSmallText"
     SelectedStyleName="HxSmallText"
-    DefaultListClass="HexedPatches.HxGUIScrollText"
+    // DefaultListClass="HexedPatches.HxGUIScrollText"
     VertAlign=TXTA_Left
     bAutoSpacing=false
     LineSpacing=0.002

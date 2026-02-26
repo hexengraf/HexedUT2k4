@@ -17,6 +17,7 @@ event InitializeController()
         Master.AddInteraction("HexedPatches.HxHUDController", ViewportOwner));
     NETController = HxNETController(
         Master.AddInteraction("HexedPatches.HxNETController", ViewportOwner));
+    MapVotingMenu = string(class'HxGUIVotingPage');
 }
 
 function UpdateSettingsPage()
@@ -61,34 +62,6 @@ function float GetCurrentAspectRatio()
 
     Divide(GetCurrentRes(), "x", X, Y);
     return float(X) / float(Y);
-}
-
-static function bool GetFontSize(GUIComponent Comp,
-                                 Canvas C,
-                                 optional string Text,
-                                 optional out float Width,
-                                 optional out float Height)
-{
-    local Font OldFont;
-
-    if (Text == "")
-    {
-        Text = "q|W";
-    }
-    if (Comp.Style != None)
-    {
-        Comp.Style.TextSize(C, Comp.MenuState, Text, Width, Height, Comp.FontScale);
-        return true;
-    }
-    if (GUILabel(Comp) != None)
-    {
-        OldFont = C.Font;
-        C.Font = Comp.Controller.GetMenuFont(GUILabel(Comp).TextFont).GetFont(C.SizeX);
-        C.TextSize(Text, Width, Height);
-        C.Font = OldFont;
-        return true;
-    }
-    return false;
 }
 
 defaultproperties
@@ -141,5 +114,4 @@ defaultproperties
     FontStack(10)=NewGUIMediumMenuFont
     FONT_NUM=11
     MainMenuOptions(6)="HexedPatches.HxGUIQuitPage"
-    MapVotingMenu="HexedPatches.HxGUIVotingPage"
 }

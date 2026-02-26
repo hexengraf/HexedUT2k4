@@ -5,6 +5,7 @@ var private bool bCaseSensitive;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
+    DefaultListClass = string(class'HxGUIVotingMapList');
     Super.InitComponent(MyController, MyOwner);
     SearchBar.ed_Columns[0].EditBox.ToolTip.ExpirationSeconds = 5;
     SearchBar.ed_Columns[1].EditBox.ToolTip.ExpirationSeconds = 10;
@@ -97,7 +98,7 @@ defaultproperties
 
     HeaderColumnPerc(3)=0.25
     HeaderColumnPerc(4)=0.25
-    DefaultListClass="HexedPatches.HxGUIVotingMapList"
+    // DefaultListClass="HexedPatches.HxGUIVotingMapList"
     CaseSensitiveLabels(0)="Enable Case-Sensitive Search"
     CaseSensitiveLabels(1)="Disable Case-Sensitive Search"
 }
