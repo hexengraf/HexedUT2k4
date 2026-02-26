@@ -140,15 +140,6 @@ defaultproperties
     FontStack(9)=NewGUIMainMenuFont
     FontStack(10)=NewGUIMediumMenuFont
     FONT_NUM=11
-    DefaultStyleNames(60)="HexedPatches.HxSTYSmallList"
-    DefaultStyleNames(61)="HexedPatches.HxSTYSmallListSelection"
-    DefaultStyleNames(62)="HexedPatches.HxSTYSmallText"
-    DefaultStyleNames(63)="HexedPatches.HxSTYScrollGrip"
-    DefaultStyleNames(64)="HexedPatches.HxSTYScrollZone"
-    DefaultStyleNames(65)="HexedPatches.HxSTYEditBox"
-    DefaultStyleNames(66)="HexedPatches.HxSTYListHeader"
-    DefaultStyleNames(67)="HexedPatches.HxSTYFlatButton"
-    STYLE_NUM=68
     MainMenuOptions(6)="HexedPatches.HxGUIQuitPage"
     MapVotingMenu="HexedPatches.HxGUIVotingPage"
 }

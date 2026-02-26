@@ -23,6 +23,14 @@ var int SelectedMap;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
+    MyController.RegisterStyle(class'HxSTYSmallList');
+    MyController.RegisterStyle(class'HxSTYSmallListSelection');
+    MyController.RegisterStyle(class'HxSTYSmallText');
+    MyController.RegisterStyle(class'HxSTYScrollGrip');
+    MyController.RegisterStyle(class'HxSTYScrollZone');
+    MyController.RegisterStyle(class'HxSTYEditBox');
+    MyController.RegisterStyle(class'HxSTYListHeader');
+    MyController.RegisterStyle(class'HxSTYFlatButton');
     Super.InitComponent(MyController, MyOwner);
     FilterManager = new(Self) class'HxMapVoteFilterManager';
     ActiveFilter = FilterManager.GetFilter();
