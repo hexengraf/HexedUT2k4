@@ -1,4 +1,4 @@
-class HxGameRules extends GameRules;
+class HxUTGameRules extends GameRules;
 
 var MutHexedUT HexedUT;
 

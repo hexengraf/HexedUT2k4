@@ -56,11 +56,11 @@ event PostBeginPlay()
 
 function SpawnGameRules()
 {
-    local HxGameRules G;
+    local HxUTGameRules GameRules;
 
-    G = Spawn(class'HxGameRules');
-    G.HexedUT = self;
-    Level.Game.AddGameModifier(G);
+    GameRules = Spawn(class'HxUTGameRules');
+    GameRules.HexedUT = self;
+    Level.Game.AddGameModifier(GameRules);
 }
 
 function ModifyPlayer(Pawn Other)
