@@ -143,7 +143,8 @@ simulated function bool InitializeClient()
     {
         Register(Self);
         bReplaceMapVotingMenu = GUIController != None
-            && GUIController.MapVotingMenu != string(class'HxGUIVotingPage');
+            && GUIController.MapVotingMenu != string(class'HxGUIVotingPage')
+            && !GUIController.SetPropertyText("CustomMapVotingMenu", string(class'HxGUIVotingPage'));
         return true;
     }
     return false;
