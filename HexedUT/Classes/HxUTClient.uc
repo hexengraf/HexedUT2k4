@@ -39,8 +39,11 @@ var MutHexedUT HexedUT;
 var HxHitEffects HitEffects;
 
 var private PlayerController PC;
+var private GUIController GUIController;
 var private DamageInfo Damage;
 var private array<HxUTClient> Clients;
+var private bool bInitialized;
+var private bool bReplaceMapVotingMenu;
 
 replication
 {
@@ -93,10 +96,17 @@ simulated event PreBeginPlay()
 simulated event Tick(float DeltaTime)
 {
     super.Tick(DeltaTime);
-    if (Level.NetMode != NM_DedicatedServer && InitializeClient())
+    if (Level.NetMode != NM_DedicatedServer)
     {
-        Register(Self);
-        if (Level.NetMode == NM_Client)
+        if (!bInitialized)
+        {
+            bInitialized = InitializeClient();
+        }
+        else if (bReplaceMapVotingMenu)
+        {
+            TryReplaceMapVotingMenu();
+        }
+        else if (Level.NetMode == NM_Client)
         {
             Disable('Tick');
         }
@@ -129,8 +139,14 @@ simulated function ClientUpdateHitEffects(int Damage)
 
 simulated function bool InitializeClient()
 {
-    return InitializePlayerController()
-        && InitializeHitEffects();
+    if (InitializePlayerController() && InitializeGUIController() && InitializeHitEffects())
+    {
+        Register(Self);
+        bReplaceMapVotingMenu = GUIController != None
+            && GUIController.MapVotingMenu != string(class'HxGUIVotingPage');
+        return true;
+    }
+    return false;
 }
 
 simulated function bool InitializePlayerController()
@@ -142,6 +158,16 @@ simulated function bool InitializePlayerController()
         return PC != None;
     }
     return true;
+}
+
+simulated function bool InitializeGUIController()
+{
+    if (PC != None && PC.Player != None)
+    {
+        GUIController = GUIController(PC.Player.GUIController);
+        return true;
+    }
+    return false;
 }
 
 simulated function bool InitializeHitEffects()
@@ -197,6 +223,25 @@ simulated function bool ShouldDisableCombo(coerce string Name)
     return false;
 }
 
+simulated function TryReplaceMapVotingMenu()
+{
+    if (GUIController.ActivePage != None && class'HxGUIVotingPage'.default.bEnabled)
+    {
+        if (GUIController.ActivePage.Class == class'MapVotingPage')
+        {
+            GUIController.ReplaceMenu(string(class'HxGUIVotingPage'));
+        }
+        else if (GUIController.ActivePage.ParentPage != None
+                 && GUIController.ActivePage.ParentPage.Class == class'MapVotingPage')
+        {
+            if (GUIController.CloseMenu(true))
+            {
+                GUIController.ReplaceMenu(string(class'HxGUIVotingPage'));
+            }
+        }
+    }
+}
+
 function RemoteSetProperty(string PropertyName, string PropertyValue)
 {
     if ((Level.NetMode == NM_Standalone || PC.PlayerReplicationInfo.bAdmin)
@@ -235,6 +280,12 @@ function Update()
     bDisableInvisibleCombo = HexedUT.bDisableInvisibleCombo;
     bDisableUDamage = HexedUT.bDisableUDamage;
     NetUpdateTime = Level.TimeSeconds - 1;
+}
+
+simulated event Destroyed()
+{
+    Log(Name@"Destroyed");
+    Super.Destroyed();
 }
 
 static function RegisterDamage(int Damage, Pawn Injured, Pawn Inflictor, class<DamageType> Type)
