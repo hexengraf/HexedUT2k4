@@ -119,9 +119,8 @@ defaultproperties
         WinTop=0
         WinHeight=1
         WinWidth=1
-        TextFont="UT2SmallFont"
+        StyleName="HxEditBox"
         TextAlign=TXTA_Center
-        TextColor=(R=255,G=255,B=255,A=255)
         FontScale=FNS_Small
         bNeverFocus=true
         bBoundToParent=true

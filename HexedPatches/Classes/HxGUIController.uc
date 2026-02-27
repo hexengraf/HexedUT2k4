@@ -99,6 +99,9 @@ defaultproperties
     Begin Object Class=HxGUIFontMedium Name=NewGUIMediumMenuFont
     End Object
 
+    Begin Object Class=HxGUIFontSmaller Name=NewGUIFontSmaller
+    End Object
+
     bSmallCursor=true
     bFixedMouseSize=true
     FontStack(0)=NewGUIMenuFont
@@ -112,6 +115,7 @@ defaultproperties
     FontStack(8)=NewGUIIRCFont
     FontStack(9)=NewGUIMainMenuFont
     FontStack(10)=NewGUIMediumMenuFont
-    FONT_NUM=11
+    FontStack(11)=NewGUIFontSmaller
+    FONT_NUM=12
     MainMenuOptions(6)="HexedPatches.HxGUIQuitPage"
 }
