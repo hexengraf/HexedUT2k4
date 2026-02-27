@@ -282,12 +282,6 @@ function Update()
     NetUpdateTime = Level.TimeSeconds - 1;
 }
 
-simulated event Destroyed()
-{
-    Log(Name@"Destroyed");
-    Super.Destroyed();
-}
-
 static function RegisterDamage(int Damage, Pawn Injured, Pawn Inflictor, class<DamageType> Type)
 {
     local PlayerController PC;

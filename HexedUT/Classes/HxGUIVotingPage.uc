@@ -319,7 +319,6 @@ event Free()
 
 function LevelChanged()
 {
-    Log(Name@"LevelChanged");
     ShowInitialState();
     Super.LevelChanged();
 }
