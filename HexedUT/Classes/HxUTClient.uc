@@ -95,7 +95,6 @@ simulated event PreBeginPlay()
 
 simulated event Tick(float DeltaTime)
 {
-    super.Tick(DeltaTime);
     if (Level.NetMode != NM_DedicatedServer)
     {
         if (!bInitialized)

@@ -106,7 +106,6 @@ simulated event Tick(float DeltaTime)
             }
         }
     }
-    super.Tick(DeltaTime);
 }
 
 simulated function bool Initialize(xPawn Pawn)
