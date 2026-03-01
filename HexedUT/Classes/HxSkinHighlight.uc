@@ -688,6 +688,6 @@ defaultproperties
     bAlwaysRelevant=false
     bSkipActorPropertyReplication=false
     bOnlyDirtyReplication=false
-    NetUpdateFrequency=10
-    NetPriority=2
+    NetUpdateFrequency=100
+    NetPriority=3
 }
