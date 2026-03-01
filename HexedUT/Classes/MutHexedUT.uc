@@ -63,12 +63,40 @@ function SpawnGameRules()
     Level.Game.AddGameModifier(GameRules);
 }
 
-function ModifyPlayer(Pawn Other)
+function ModifyPlayer(Pawn Pawn)
 {
-    ModifyStartingValues(Other);
-    ModifyMovement(xPawn(Other));
-    SpawnSkinHighlight(xPawn(Other));
-    Super.ModifyPlayer(Other);
+    local AssaultRifle AR;
+
+    Pawn.GroundSpeed *= MaxSpeedMultiplier;
+    Pawn.WaterSpeed *= MaxSpeedMultiplier;
+    Pawn.AirSpeed *= MaxSpeedMultiplier;
+    Pawn.AirControl *= AirControlMultiplier;
+    Pawn.JumpZ *= BaseJumpMultiplier;
+    if (Pawn.SpawnTime == Level.TimeSeconds)
+    {
+        if (xPawn(Pawn) != None)
+        {
+            xPawn(Pawn).MultiJumpBoost *= MultiJumpMultiplier;
+            xPawn(Pawn).MaxMultiJump += BonusMultiJumps;
+            xPawn(Pawn).MultiJumpRemaining = xPawn(Pawn).MaxMultiJump;
+            xPawn(Pawn).DodgeSpeedZ *= DodgeMultiplier;
+            xPawn(Pawn).DodgeSpeedFactor *= DodgeSpeedMultiplier;
+            xPawn(Pawn).bCanDodgeDoubleJump = xPawn(Pawn).bCanDodgeDoubleJump && !bDisableDodgeJump;
+        }
+        Pawn.bCanWallDodge = Pawn.bCanWallDodge && !bDisableWallDodge;
+        Pawn.GiveHealth(BonusStartingHealth, Pawn.SuperHealthMax);
+        Pawn.AddShieldStrength(BonusStartingShield);
+        AR = AssaultRifle(Pawn.FindInventoryType(class'AssaultRifle'));
+        if (AR != None)
+        {
+            AR.AmmoClass[1].default.MaxAmmo = Max(
+                AR.AmmoClass[1].default.MaxAmmo,
+                AR.AmmoClass[1].default.InitialAmount + BonusStartingGrenades);
+            AR.AddAmmo(BonusStartingGrenades, 1);
+        }
+        Pawn.Controller.AwardAdrenaline(BonusAdrenalineOnSpawn);
+    }
+    Super.ModifyPlayer(Pawn);
 }
 
 function NotifyLogout(Controller Exiting)
@@ -78,49 +106,6 @@ function NotifyLogout(Controller Exiting)
         class'HxUTClient'.static.Delete(PlayerController(Exiting));
     }
     Super.NotifyLogout(Exiting);
-}
-
-function ModifyStartingValues(Pawn Other)
-{
-    local AssaultRifle AR;
-
-    Other.GiveHealth(BonusStartingHealth, Other.SuperHealthMax);
-    Other.AddShieldStrength(BonusStartingShield);
-    if (Other.SpawnTime == Level.TimeSeconds)
-    {
-        AR = AssaultRifle(Other.FindInventoryType(class'AssaultRifle'));
-        if (AR != None)
-        {
-            AR.AmmoClass[1].default.MaxAmmo = Max(
-                AR.AmmoClass[1].default.MaxAmmo, BonusStartingGrenades);
-            AR.AddAmmo(BonusStartingGrenades, 1);
-        }
-        Other.Controller.AwardAdrenaline(BonusAdrenalineOnSpawn);
-    }
-}
-
-function ModifyStartingAdrenaline(Controller Other)
-{
-    Other.AwardAdrenaline(BonusStartingAdrenaline);
-}
-
-function ModifyMovement(xPawn Other)
-{
-    if (Other != None)
-    {
-        Other.GroundSpeed *= MaxSpeedMultiplier;
-        Other.WaterSpeed *= MaxSpeedMultiplier;
-        Other.AirSpeed *= MaxSpeedMultiplier;
-        Other.AirControl *= AirControlMultiplier;
-        Other.JumpZ *= BaseJumpMultiplier;
-        Other.MultiJumpBoost = Other.default.MultiJumpBoost * MultiJumpMultiplier;
-        Other.MaxMultiJump = Other.default.MaxMultiJump + BonusMultiJumps;
-        Other.MultiJumpRemaining = Other.MaxMultiJump;
-        Other.DodgeSpeedZ = Other.default.DodgeSpeedZ * DodgeMultiplier;
-        Other.DodgeSpeedFactor = Other.default.DodgeSpeedFactor * DodgeSpeedMultiplier;
-        Other.bCanWallDodge = Other.bCanWallDodge && !bDisableWallDodge;
-        Other.bCanDodgeDoubleJump = Other.bCanDodgeDoubleJump && !bDisableDodgeJump;
-    }
 }
 
 function ModifyDeathMessageClass()
@@ -195,7 +180,11 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
     else if (Other.IsA('Controller'))
     {
         SpawnClient(PlayerController(Other));
-        ModifyStartingAdrenaline(Controller(Other));
+        Controller(Other).AwardAdrenaline(BonusStartingAdrenaline);
+    }
+    else if (Other.IsA('xPawn'))
+    {
+        SpawnSkinHighlight(xPawn(Other));
     }
     return true;
 }
