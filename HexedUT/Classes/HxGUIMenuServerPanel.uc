@@ -19,19 +19,19 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     }
     for (i = 0; i < 7; ++i)
     {
-        Sections[SECTION_INDICATORS].ManageComponent(Options[i]);
+        Sections[SECTION_INDICATORS].AddItem(Options[i]);
     }
     for (i = 7; i < 12; ++i)
     {
-        Sections[SECTION_STARTING_VALUES].ManageComponent(Options[i]);
+        Sections[SECTION_STARTING_VALUES].AddItem(Options[i]);
     }
     for (i = 12; i < 21; ++i)
     {
-        Sections[SECTION_MOVEMENT].ManageComponent(Options[i]);
+        Sections[SECTION_MOVEMENT].AddItem(Options[i]);
     }
     for (i = 21; i < 26; ++i)
     {
-        Sections[SECTION_POWER_UPS].ManageComponent(Options[i]);
+        Sections[SECTION_POWER_UPS].AddItem(Options[i]);
     }
     super.InitComponent(MyController, MyOwner);
 }
@@ -95,24 +95,20 @@ static function bool AddToMenu()
 
 defaultproperties
 {
-    Begin Object class=AltSectionBackground Name=GeneralSection
+    Begin Object class=HxGUIFramedSection Name=GeneralSection
         Caption="General"
-        bRemapStack=false
     End Object
 
-    Begin Object class=AltSectionBackground Name=StartingValuesSection
+    Begin Object class=HxGUIFramedSection Name=StartingValuesSection
         Caption="Starting Values"
-        bRemapStack=false
     End Object
 
-    Begin Object class=AltSectionBackground Name=MovementSection
+    Begin Object class=HxGUIFramedSection Name=MovementSection
         Caption="Movement"
-        bRemapStack=false
     End Object
 
-    begin Object class=AltSectionBackground Name=PowerUpsSection
+    begin Object class=HxGUIFramedSection Name=PowerUpsSection
         Caption="Power-Ups"
-        bRemapStack=false
     End Object
 
     Begin Object class=moCheckBox Name=AllowHitSoundsCheckBox

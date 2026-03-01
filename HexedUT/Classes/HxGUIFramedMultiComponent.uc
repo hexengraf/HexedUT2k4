@@ -1,6 +1,9 @@
 class HxGUIFramedMultiComponent extends GUIMultiComponent
     abstract;
 
+const MED_FONT_SPACING = 1.44;
+const SMALL_FONT_SPACING = 1.2;
+
 var Material FrameMaterial;
 var Color FrameColor;
 var float FrameThickness;
@@ -63,7 +66,7 @@ function AlignToFrame(Canvas C)
     Height = ActualHeight();
     for (i = 0; i < AlignedComponents.Length; ++i)
     {
-        Thickness = Round(C.ClipY * FrameThickness);
+        Thickness = ActualFrameThickness(C);
         AlignedComponents[i].WinLeft = Thickness / ActualWidth();
         AlignedComponents[i].WinTop = Thickness / ActualHeight();
         AlignedComponents[i].WinWidth = 1.0 - (2 * AlignedComponents[i].WinLeft);
@@ -77,7 +80,7 @@ function DrawFrame(Canvas C)
     local float Width;
     local float Height;
 
-    Thickness = Round(C.ClipY * FrameThickness);
+    Thickness = ActualFrameThickness(C);
     Width = ActualWidth();
     Height = ActualHeight() - (2 * Thickness);
 
@@ -91,6 +94,11 @@ function DrawFrame(Canvas C)
     C.DrawTileStretched(FrameMaterial, Thickness, Height);
     C.SetPos(C.CurX - Width + Thickness, C.CurY + Height);
     C.DrawTileStretched(FrameMaterial, Width, Thickness);
+}
+
+function float ActualFrameThickness(Canvas C)
+{
+    return Round(C.ClipY * FrameThickness);
 }
 
 static function bool GetFontSize(GUIComponent Comp,

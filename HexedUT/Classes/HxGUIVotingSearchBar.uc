@@ -58,7 +58,7 @@ function ResizeEditBoxes(Canvas C)
     if (List != None && (ed_Columns.Length + FirstColumn) <= List.ColumnWidths.Length)
     {
         Width = ActualWidth();
-        Thickness = Round(C.ClipY * FrameThickness) / Width;
+        Thickness = ActualFrameThickness(C) / Width;
         for (i = 0; i < ed_Columns.Length; ++i)
         {
             ed_Columns[i].WinWidth = List.ColumnWidths[FirstColumn + i] / Width + Thickness;

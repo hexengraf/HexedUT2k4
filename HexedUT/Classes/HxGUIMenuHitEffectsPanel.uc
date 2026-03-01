@@ -35,24 +35,24 @@ var HxUTClient Client;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
-    Sections[SECTION_HIT_SOUNDS].ManageComponent(ch_HitSounds);
-    Sections[SECTION_HIT_SOUNDS].ManageComponent(co_SelectedHitSound);
-    Sections[SECTION_HIT_SOUNDS].ManageComponent(sl_HSVolume);
-    Sections[SECTION_HIT_SOUNDS].ManageComponent(co_HSPitchMode);
-    Sections[SECTION_DAMAGE_NUMBERS].ManageComponent(ch_DamageNumbers);
-    Sections[SECTION_DAMAGE_NUMBERS].ManageComponent(co_DMode);
-    Sections[SECTION_DAMAGE_NUMBERS].ManageComponent(co_DFont);
-    Sections[SECTION_DAMAGE_NUMBERS].ManageComponent(fl_DNPosX);
-    Sections[SECTION_DAMAGE_NUMBERS].ManageComponent(fl_DNPosY);
-    Sections[SECTION_DAMAGE_POINT_EDITOR].ManageComponent(co_DamagePoints);
-    Sections[SECTION_DAMAGE_POINT_EDITOR].ManageComponent(nu_DPValue);
-    Sections[SECTION_DAMAGE_POINT_EDITOR].ManageComponent(sl_DPPitch);
-    Sections[SECTION_DAMAGE_POINT_EDITOR].ManageComponent(b_PlaySound);
-    Sections[SECTION_DAMAGE_POINT_EDITOR].ManageComponent(i_DPPreview);
-    Sections[SECTION_DAMAGE_POINT_EDITOR].ManageComponent(sl_DPScale);
-    Sections[SECTION_DAMAGE_POINT_EDITOR].ManageComponent(sl_DPRedColor);
-    Sections[SECTION_DAMAGE_POINT_EDITOR].ManageComponent(sl_DPGreenColor);
-    Sections[SECTION_DAMAGE_POINT_EDITOR].ManageComponent(sl_DPBlueColor);
+    Sections[SECTION_HIT_SOUNDS].AddItem(ch_HitSounds);
+    Sections[SECTION_HIT_SOUNDS].AddItem(co_SelectedHitSound);
+    Sections[SECTION_HIT_SOUNDS].AddItem(sl_HSVolume);
+    Sections[SECTION_HIT_SOUNDS].AddItem(co_HSPitchMode);
+    Sections[SECTION_DAMAGE_NUMBERS].AddItem(ch_DamageNumbers);
+    Sections[SECTION_DAMAGE_NUMBERS].AddItem(co_DMode);
+    Sections[SECTION_DAMAGE_NUMBERS].AddItem(co_DFont);
+    Sections[SECTION_DAMAGE_NUMBERS].AddItem(fl_DNPosX);
+    Sections[SECTION_DAMAGE_NUMBERS].AddItem(fl_DNPosY);
+    Sections[SECTION_DAMAGE_POINT_EDITOR].AddItem(co_DamagePoints);
+    Sections[SECTION_DAMAGE_POINT_EDITOR].AddItem(nu_DPValue);
+    Sections[SECTION_DAMAGE_POINT_EDITOR].AddItem(sl_DPPitch);
+    Sections[SECTION_DAMAGE_POINT_EDITOR].AddItem(b_PlaySound);
+    Sections[SECTION_DAMAGE_POINT_EDITOR].AddItem(i_DPPreview);
+    Sections[SECTION_DAMAGE_POINT_EDITOR].AddItem(sl_DPScale);
+    Sections[SECTION_DAMAGE_POINT_EDITOR].AddItem(sl_DPRedColor);
+    Sections[SECTION_DAMAGE_POINT_EDITOR].AddItem(sl_DPGreenColor);
+    Sections[SECTION_DAMAGE_POINT_EDITOR].AddItem(sl_DPBlueColor);
     super.InitComponent(MyController, MyOwner);
     PopulateComboBoxes();
 }
@@ -77,10 +77,9 @@ function Refresh()
     HitSoundsAfterChange();
     DamageNumbersAfterChange();
     RefreshCustomizeSection();
-    HideSection(SECTION_HIT_SOUNDS, !Client.bAllowHitSounds, HIDE_DUE_DISABLE);
-    HideSection(SECTION_DAMAGE_NUMBERS, !Client.bAllowDamageNumbers, HIDE_DUE_DISABLE);
-    HideSection(
-        SECTION_DAMAGE_POINT_EDITOR,
+    Sections[SECTION_HIT_SOUNDS].SetHide(!Client.bAllowHitSounds, HIDE_DUE_DISABLE);
+    Sections[SECTION_DAMAGE_NUMBERS].SetHide(!Client.bAllowDamageNumbers, HIDE_DUE_DISABLE);
+    Sections[SECTION_DAMAGE_POINT_EDITOR].SetHide(
         !Client.bAllowHitSounds && !Client.bAllowDamageNumbers,
         HIDE_DUE_DISABLE);
     Super.Refresh();
@@ -380,19 +379,16 @@ function int GetFontIndex(string FontName)
 
 defaultproperties
 {
-    Begin Object class=AltSectionBackground Name=HitSoundsSection
+    Begin Object class=HxGUIFramedSection Name=HitSoundsSection
         Caption="Hit Sounds"
-        bRemapStack=false
     End Object
 
-    Begin Object class=AltSectionBackground Name=DamageNumbersSection
+    Begin Object class=HxGUIFramedSection Name=DamageNumbersSection
         Caption="Damage Numbers"
-        bRemapStack=false
     End Object
 
-    Begin Object class=AltSectionBackground Name=DamagePointEditorSection
+    Begin Object class=HxGUIFramedSection Name=DamagePointEditorSection
         Caption="Damage Point Editor"
-        bRemapStack=false
     End Object
 
     Begin Object class=moCheckBox Name=HitSoundsCheckBox

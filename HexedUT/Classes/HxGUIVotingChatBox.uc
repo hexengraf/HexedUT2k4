@@ -212,7 +212,7 @@ function bool AlignComponents(Canvas C)
     local float YL;
     local float Thickness;
 
-    Thickness = Round(C.ClipY * FrameThickness) / ActualHeight();
+    Thickness = ActualFrameThickness(C) / ActualHeight();
     fb_Channel.Style.TextSize(
         C, fb_Channel.MenuState, ChatChannels[1], XL, YL, fb_Channel.FontScale);
     fb_Channel.WinHeight = fb_Channel.RelativeHeight(YL * 1.5);

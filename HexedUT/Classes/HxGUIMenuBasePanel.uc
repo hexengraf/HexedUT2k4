@@ -5,18 +5,17 @@ const HIDE_DUE_INIT = "Initializing...";
 const HIDE_DUE_DISABLE = "Feature disabled on this server";
 const HIDE_DUE_ADMIN = "Requires administrator privileges";
 
-const BASE_WIN_TOP = 0.005;
-const BASE_WIN_BOTTOM = 0.961;
-const MINIMUM_SECTION_HEIGHT = 0.115;
-const COMPONENT_HEIGHT = 0.0515;
+const BASE_WIN_TOP = 0.01;
+const BASE_WIN_BOTTOM = 0.965;
+const MINIMUM_SECTION_HEIGHT = 0.12;
+const COMPONENT_HEIGHT = 0.05;
 
 var localized string PanelHint;
 var bool bInsertFront;
 var bool bDoubleColumn;
 var bool bFillPanelHeight;
 
-var automated array<AltSectionBackground> Sections;
-var private automated array<AltSectionBackground> HideSections;
+var automated array<HxGUIFramedSection> Sections;
 var private automated array<GUILabel> HideMessages;
 var private bool bPanelAdded;
 
@@ -84,7 +83,6 @@ function InitSections()
     for (i = 0; i < Sections.Length; ++i)
     {
         InitSection(i);
-        InitHideSection(i);
     }
     if (bFillPanelHeight)
     {
@@ -118,18 +116,15 @@ function InitSection(int i)
         }
         else
         {
-            Sections[i].WinTop = Sections[i - 2].WinTop + Sections[i - 2].WinHeight + 0.005;
+            Sections[i].WinTop = Sections[i - 2].WinTop + Sections[i - 2].WinHeight + 0.0074;
         }
     }
     else
     {
-        Sections[i].WinTop = Sections[i - 1].WinTop + Sections[i - 1].WinHeight + 0.005;
+        Sections[i].WinTop = Sections[i - 1].WinTop + Sections[i - 1].WinHeight + 0.0074;
     }
     Sections[i].WinLeft = 0.00001;
     Sections[i].WinWidth = 0.99998;
-    Sections[i].LeftPadding = 0.00995;
-    Sections[i].RightPadding = 0.00995;
-    Sections[i].TopPadding = 0.04;
     if (bDoubleColumn)
     {
         if (i % 2 == 1)
@@ -139,7 +134,8 @@ function InitSection(int i)
             Sections[i].LeftPadding = 0.02;
             Sections[i].RightPadding = 0.02;
         }
-        else if (i + 1 < Sections.Length && (Sections[i].NumColumns == 1 || Sections[i + 1] != None))
+        else if (i + 1 < Sections.Length
+            && (Sections[i].ColumnWidths.Length == 1 || Sections[i + 1] != None))
         {
             Sections[i].WinWidth = 0.49749;
             Sections[i].LeftPadding = 0.02;
@@ -147,62 +143,7 @@ function InitSection(int i)
         }
     }
     Sections[i].WinHeight = MINIMUM_SECTION_HEIGHT + (
-        (Sections[i].AlignStack.Length / Sections[i].NumColumns) * COMPONENT_HEIGHT);
-    Sections[i].bBoundToParent = true;
-    Sections[i].bScaleToParent = true;
-    Sections[i].bFillClient = true;
-}
-
-function InitHideSection(int i)
-{
-    if (Sections[i] == None)
-    {
-        HideSections[HideSections.Length] = None;
-        HideMessages[HideMessages.Length] = None;
-        return;
-    }
-    HideSections[HideSections.Length] = AltSectionBackground(
-        AddComponent(String(class'AltSectionBackground'), true));
-
-    if (HideSections[HideSections.Length - 1] == None)
-    {
-        warn(Name@"could not create hide section");
-        return;
-    }
-    MirrorSection(HideSections[i], Sections[i]);
-    InitHideMessage(i);
-}
-
-function InitHideMessage(int i)
-{
-    HideMessages[HideMessages.Length] = GUILabel(AddComponent(String(class'GUILabel'), true));
-
-    if (HideMessages[HideMessages.Length - 1] == None)
-    {
-        warn(Name@"could not create hide message");
-        return;
-    }
-    HideMessages[i].TextAlign = TXTA_Center;
-    HideMessages[i].TextColor.R = 255;
-    HideMessages[i].TextColor.G = 210;
-    HideMessages[i].TextColor.B = 0;
-    HideMessages[i].TextColor.A = 255;
-    HideSections[i].ManageComponent(HideMessages[i]);
-}
-
-static function MirrorSection(AltSectionBackground Mirror, AltSectionBackground Original)
-{
-    Mirror.Caption = Original.Caption;
-    Mirror.WinWidth = Original.WinWidth;
-    Mirror.WinHeight = Original.WinHeight;
-    Mirror.WinLeft = Original.WinLeft;
-    Mirror.WinTop = Original.WinTop;
-    Mirror.LeftPadding = Original.LeftPadding;
-    Mirror.RightPadding = Original.RightPadding;
-    Mirror.TopPadding = Original.TopPadding;
-    Mirror.bBoundToParent = Original.bBoundToParent;
-    Mirror.bScaleToParent = Original.bScaleToParent;
-    Mirror.bFillClient = Original.bFillClient;
+        (Sections[i].Items.Length / Sections[i].ColumnWidths.Length) * COMPONENT_HEIGHT);
 }
 
 function AutoFillColumnHeight(int StartAt, int Step)
@@ -230,21 +171,9 @@ function AutoFillColumnHeight(int StartAt, int Step)
             if (i > StartAt)
             {
                 Sections[i].WinTop += RemainingHeight;
-                HideSections[i].WinTop += RemainingHeight;
             }
             Sections[i].WinHeight += RemainingHeight;
-            HideSections[i].WinHeight += RemainingHeight;
         }
-    }
-}
-
-function HideSection(int Section, bool bHidden, optional String Reason)
-{
-    if (Sections[Section] != None)
-    {
-        HideMessages[Section].Caption = Reason;
-        HideSections[Section].SetVisibility(bHidden);
-        Sections[Section].SetVisibility(!bHidden);
     }
 }
 
@@ -254,7 +183,10 @@ function HideAllSections(bool bHidden, optional String Reason)
 
     for (i = 0; i < Sections.Length; ++i)
     {
-        HideSection(i, bHidden, Reason);
+        if (Sections[i] != None)
+        {
+            Sections[i].SetHide(bHidden, Reason);
+        }
     }
 }
 
@@ -282,12 +214,8 @@ static function bool AddToMenu()
 
 defaultproperties
 {
+    Sections(0)=None
     bInsertFront=false
     bDoubleColumn=false
     bFillPanelHeight=true
-
-    Begin Object class=GUILabel Name=HideMessage
-        TextAlign=TXTA_Center
-        TextColor=(R=255,G=210,B=0,A=255)
-    End Object
 }

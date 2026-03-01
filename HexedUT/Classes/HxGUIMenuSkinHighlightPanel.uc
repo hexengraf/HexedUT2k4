@@ -57,25 +57,25 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     local int i;
 
     super.InitComponent(MyController, MyOwner);
-    Sections[SECTION_HIGHLIGHTS].ManageComponent(co_YourTeam);
-    Sections[SECTION_HIGHLIGHTS].ManageComponent(co_EnemyTeam);
-    Sections[SECTION_HIGHLIGHTS].ManageComponent(co_SoloPlayer);
-    Sections[SECTION_HIGHLIGHTS].ManageComponent(co_ShieldHit);
-    Sections[SECTION_HIGHLIGHTS].ManageComponent(co_LinkHit);
-    Sections[SECTION_HIGHLIGHTS].ManageComponent(co_ShockHit);
-    Sections[SECTION_HIGHLIGHTS].ManageComponent(co_LightningHit);
-    Sections[SECTION_HIGHLIGHTS].ManageComponent(ch_DisableOnDeadBodies);
-    Sections[SECTION_HIGHLIGHTS].ManageComponent(ch_ForceNormalSkins);
-    Sections[SECTION_HIGHLIGHTS].ManageComponent(co_SpectateAs);
-    Sections[SECTION_COLOR_EDITOR].ManageComponent(co_EditColor);
-    Sections[SECTION_COLOR_EDITOR].ManageComponent(sl_ColorRed);
-    Sections[SECTION_COLOR_EDITOR].ManageComponent(sl_ColorGreen);
-    Sections[SECTION_COLOR_EDITOR].ManageComponent(sl_ColorBlue);
-    Sections[SECTION_COLOR_EDITOR].ManageComponent(ch_AllowOnRandom);
-    Sections[SECTION_COLOR_EDITOR].ManageComponent(l_ButtonAnchor);
-    Sections[SECTION_COLOR_PREVIEW].ManageComponent(co_PreviewSkin);
-    Sections[SECTION_COLOR_PREVIEW].ManageComponent(b_PreviewBox);
-    Sections[SECTION_COLOR_PREVIEW].ManageComponent(b_ChangeModel);
+    Sections[SECTION_HIGHLIGHTS].AddItem(co_YourTeam);
+    Sections[SECTION_HIGHLIGHTS].AddItem(co_EnemyTeam);
+    Sections[SECTION_HIGHLIGHTS].AddItem(co_SoloPlayer);
+    Sections[SECTION_HIGHLIGHTS].AddItem(co_ShieldHit);
+    Sections[SECTION_HIGHLIGHTS].AddItem(co_LinkHit);
+    Sections[SECTION_HIGHLIGHTS].AddItem(co_ShockHit);
+    Sections[SECTION_HIGHLIGHTS].AddItem(co_LightningHit);
+    Sections[SECTION_HIGHLIGHTS].AddItem(ch_DisableOnDeadBodies);
+    Sections[SECTION_HIGHLIGHTS].AddItem(ch_ForceNormalSkins);
+    Sections[SECTION_HIGHLIGHTS].AddItem(co_SpectateAs);
+    Sections[SECTION_COLOR_EDITOR].AddItem(co_EditColor);
+    Sections[SECTION_COLOR_EDITOR].AddItem(sl_ColorRed);
+    Sections[SECTION_COLOR_EDITOR].AddItem(sl_ColorGreen);
+    Sections[SECTION_COLOR_EDITOR].AddItem(sl_ColorBlue);
+    Sections[SECTION_COLOR_EDITOR].AddItem(ch_AllowOnRandom);
+    Sections[SECTION_COLOR_EDITOR].AddItem(l_ButtonAnchor);
+    Sections[SECTION_COLOR_PREVIEW].AddItem(co_PreviewSkin);
+    Sections[SECTION_COLOR_PREVIEW].AddItem(b_PreviewBox);
+    Sections[SECTION_COLOR_PREVIEW].AddItem(b_ChangeModel);
     PreviewEffect = New(Self) class'ConstantColor';
     PreviewShader = New(Self) class'Shader';
     PreviewShader.Specular = PreviewEffect;
@@ -112,7 +112,7 @@ event Opened(GUIComponent Sender)
 
 function Refresh()
 {
-    HideSection(SECTION_HIGHLIGHTS, !Client.bAllowSkinHighlight, HIDE_DUE_DISABLE);
+    Sections[SECTION_HIGHLIGHTS].SetHide(!Client.bAllowSkinHighlight, HIDE_DUE_DISABLE);
     Super.Refresh();
 }
 
@@ -354,35 +354,6 @@ function bool PreviewOnDraw(canvas C)
     return true;
 }
 
-function bool PreviewSectionOnPreDraw(canvas C)
-{
-    local AltSectionBackground Section;
-    local float AH;
-    local float TopPad;
-    local float BottomPad;
-
-    Section = Sections[SECTION_COLOR_PREVIEW];
-    Section.InternalPreDraw(C);
-    AH = Section.ActualHeight();
-
-    TopPad = (Section.TopPadding * AH) + Section.ImageOffset[1];
-    BottomPad = (Section.BottomPadding * AH) + Section.ImageOffset[3];
-
-    if (Section.Style != None)
-    {
-        TopPad += Section.BorderOffsets[1];
-        BottomPad += Section.BorderOffsets[3];
-    }
-    co_PreviewSkin.WinHeight = co_PreviewSkin.RelativeHeight(
-        C.CLipY * co_PreviewSkin.StandardHeight);
-    b_ChangeModel.WinHeight = b_ChangeModel.RelativeHeight(C.CLipY * b_ChangeModel.StandardHeight);
-    b_PreviewBox.WinHeight = b_PreviewBox.RelativeHeight(
-        AH - TopPad - BottomPad) - co_PreviewSkin.WinHeight - b_ChangeModel.WinHeight - 0.004;
-    b_PreviewBox.WinTop = co_PreviewSkin.RelativeTop() + co_PreviewSkin.WinHeight + 0.002;
-    b_ChangeModel.WinTop = b_PreviewBox.RelativeTop() + b_PreviewBox.WinHeight + 0.002;
-    return false;
-}
-
 function bool PreviewOnCapturedMouseMove(float DeltaX, float DeltaY)
 {
     local Rotator Delta;
@@ -606,20 +577,17 @@ function Free()
 
 defaultproperties
 {
-    Begin Object class=AltSectionBackground Name=HighlightsSection
+    Begin Object class=HxGUIFramedSection Name=HighlightsSection
         Caption="Highlights"
-        bRemapStack=false
     End Object
 
-    Begin Object class=AltSectionBackground Name=ColorEditorSection
+    Begin Object class=HxGUIFramedSection Name=ColorEditorSection
         Caption="Color Editor"
-        bRemapStack=false
     End Object
 
-    Begin Object class=AltSectionBackground Name=ColorPreviewSection
+    Begin Object class=HxGUIFramedSection Name=ColorPreviewSection
         Caption="Color Preview"
-        bRemapStack=false
-        OnPreDraw=PreviewSectionOnPreDraw
+        ExpandItem=1
     End Object
 
     Begin Object class=moComboBox Name=YourTeamComboBox
@@ -891,6 +859,6 @@ defaultproperties
     TeamLabels(0)="Red Team"
     TeamLabels(1)="Blue Team"
     PreviewSkinVariation=-1
-    PreviewOffset=(X=450,Z=-5)
+    PreviewOffset=(X=475,Z=-5)
     OnPreDraw=InternalOnPreDraw
 }

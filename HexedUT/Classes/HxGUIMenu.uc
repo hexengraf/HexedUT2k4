@@ -19,7 +19,6 @@ function InitComponent(GUIController MyController, GUIComponent MyComponent)
     t_WindowTitle.FontScale = FNS_Small;
     t_WindowTitle.DockedTabs = TabControl;
     t_WindowTitle.DockAlign = PGA_Top;
-    i_FrameBG.ImageColor.A = 225;
     AdjustWindowSize(Controller.ResX, Controller.ResY);
     PopulateTabControl();
 }
@@ -41,10 +40,7 @@ function bool FloatingPreDraw(Canvas C)
 
 function AdjustWindowSize(coerce float X, coerce float Y)
 {
-    local float Coefficient;
-
-    Coefficient = (4.0 / 3.0) / (X / Y);
-    WinWidth = default.WinWidth * Coefficient;
+    WinWidth = default.WinWidth * ((4.0 / 3.0) / (X / Y));
     WinLeft = default.WinLeft + ((default.WinWidth - WinWidth) / 2);
 }
 
@@ -127,6 +123,6 @@ defaultproperties
     bResizeHeightAllowed=false
     bMoveAllowed=false
     bPersistent=true
-    BackgroundColor=(R=64,G=64,B=64,A=225)
+    BackgroundColor=(R=64,G=64,B=64,A=255)
     PanelCount=0
 }

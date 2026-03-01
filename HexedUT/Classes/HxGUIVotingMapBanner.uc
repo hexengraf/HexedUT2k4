@@ -1,8 +1,5 @@
 class HxGUIVotingMapBanner extends HxGUIFramedImage;
 
-const MED_FONT_SPACING = 1.44;
-const SMALL_FONT_SPACING = 1.2;
-
 var automated GUILabel l_Header;
 var automated HxGUIFramedImage fi_Preview;
 var automated GUILabel l_NoPreview;
