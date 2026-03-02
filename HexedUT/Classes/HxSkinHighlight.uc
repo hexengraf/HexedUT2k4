@@ -19,6 +19,7 @@ const RANDOM_HIGHLIGHT = "RANDOM";
 const DEFAULT_HIGHLIGHT = "DEFAULT";
 const HIT_COLOR_MULTIPLIER = 1.75;
 const HIT_COLOR_FADE_PERIOD = 0.5;
+const HIGHLIGHT_INTERVAL = 12;
 
 var config string YourTeam;
 var config string EnemyTeam;
@@ -96,13 +97,20 @@ simulated event Tick(float DeltaTime)
         }
         else if (Pawn != None)
         {
-            if (bEnabled && Pawn.bAlreadySetup && !Pawn.bInvis && !Pawn.bOldInvis && !Pawn.bDeRes)
+            if (bEnabled && Pawn.bAlreadySetup)
             {
-                if (bForceNormalSkins && !bSkinUpdated)
+                if (!Pawn.bInvis && !Pawn.bOldInvis && !Pawn.bDeRes)
                 {
-                    ForceNormalSkin(Pawn);
+                    if (bForceNormalSkins && !bSkinUpdated)
+                    {
+                        ForceNormalSkin(Pawn);
+                    }
+                    UpdateOverlay(Pawn);
                 }
-                UpdateOverlay(Pawn);
+                else if (Pawn.OverlayMaterial == HighlightShader)
+                {
+                    Pawn.SetOverlayMaterial(None, 0, true);
+                }
             }
         }
     }
@@ -238,7 +246,7 @@ simulated function UpdateOverlay(xPawn Pawn)
     if (Pawn.OverlayMaterial == None || (bOnSpawnProtection && Pawn.bSpawnDone))
     {
         HighlightEffect.Color = MainColor;
-        Pawn.SetOverlayMaterial(HighlightShader, 300, true);
+        Pawn.SetOverlayMaterial(HighlightShader, HIGHLIGHT_INTERVAL, true);
         bOnSpawnProtection = false;
         HitIndex = -1;
     }
@@ -360,7 +368,7 @@ simulated function DisableHighlight()
     Pawn = xPawn(Base);
     if (Pawn != None && Pawn.OverlayMaterial == HighlightShader)
     {
-        Pawn.SetOverlayMaterial(None, 1, true);
+        Pawn.SetOverlayMaterial(None, 0, true);
     }
     bEnabled = false;
 }
