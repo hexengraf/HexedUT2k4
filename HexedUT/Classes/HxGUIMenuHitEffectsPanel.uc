@@ -59,24 +59,18 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 
 function bool Initialize()
 {
-    if (Client != None)
+    if (Client == None)
     {
-        return true;
+        Client = class'HxUTClient'.static.GetClient(PlayerOwner());
     }
-    Client = class'HxUTClient'.static.GetClient(PlayerOwner());
-    if (Client != None)
-    {
-        co_DFont.SilentSetIndex(GetFontIndex(string(Client.HitEffects.DFont)));
-        return true;
-    }
-    return false;
+    return Client != None && Client.HitEffects != None;
 }
 
 function Refresh()
 {
     HitSoundsAfterChange();
     DamageNumbersAfterChange();
-    RefreshCustomizeSection();
+    RefreshDamagePointEditorSection();
     Sections[SECTION_HIT_SOUNDS].SetHide(!Client.bAllowHitSounds, HIDE_DUE_DISABLE);
     Sections[SECTION_DAMAGE_NUMBERS].SetHide(!Client.bAllowDamageNumbers, HIDE_DUE_DISABLE);
     Sections[SECTION_DAMAGE_POINT_EDITOR].SetHide(
@@ -137,7 +131,7 @@ function HitSoundsAfterChange()
         DisableComponent(b_PlaySound);
         DisableComponent(sl_DPPitch);
     }
-    CustomizeAfterChange(
+    DamagePointEditorAfterChange(
         bHitSoundsEnabled || (Client.bAllowDamageNumbers && Client.HitEffects.bDamageNumbers));
 }
 
@@ -168,11 +162,11 @@ function DamageNumbersAfterChange()
         DisableComponent(sl_DPGreenColor);
         DisableComponent(sl_DPBlueColor);
     }
-    CustomizeAfterChange(
+    DamagePointEditorAfterChange(
         bDamageNumbersEnabled || (Client.bAllowHitSounds && Client.HitEffects.bHitSounds));
 }
 
-function CustomizeAfterChange(bool bAnyEffectEnabled)
+function DamagePointEditorAfterChange(bool bAnyEffectEnabled)
 {
     if (bAnyEffectEnabled)
     {
@@ -193,7 +187,19 @@ function CustomizeAfterChange(bool bAnyEffectEnabled)
     }
 }
 
-function CustomizeOnLoadINI(GUIComponent Sender, string s)
+function FontOnLoadINI(GUIComponent Sender, string s)
+{
+    if (Client == None || Client.HitEffects == None)
+    {
+        return;
+    }
+    if (Sender == co_DFont)
+    {
+        co_DFont.SilentSetIndex(GetFontIndex(string(Client.HitEffects.DFont)));
+    }
+}
+
+function DamagePointEditorOnLoadINI(GUIComponent Sender, string s)
 {
     if (Client == None || Client.HitEffects == None)
     {
@@ -247,7 +253,7 @@ function HitEffectsOnChange(GUIComponent Sender)
     }
 }
 
-function CustomizeOnChange(GUIComponent Sender)
+function DamagePointEditorOnChange(GUIComponent Sender)
 {
     if (Client == None || Client.HitEffects == None)
     {
@@ -257,7 +263,7 @@ function CustomizeOnChange(GUIComponent Sender)
     {
         case co_DamagePoints:
             DefaultOnChange(Sender, Self);
-            RefreshCustomizeSection();
+            RefreshDamagePointEditorSection();
             break;
         case nu_DPValue:
             Client.HitEffects.DamagePoints[DPIndex].Value = nu_DPValue.GetValue();
@@ -281,7 +287,7 @@ function CustomizeOnChange(GUIComponent Sender)
     Client.HitEffects.SaveConfig();
 }
 
-function RefreshCustomizeSection()
+function RefreshDamagePointEditorSection()
 {
     if (DPIndex != 0)
     {
@@ -461,7 +467,7 @@ defaultproperties
         INIOption="HxHitEffects FontIndex"
         ComponentWidth=0.7
         bReadOnly=true
-        OnLoadINI=DefaultOnLoadINI
+        OnLoadINI=FontOnLoadINI
         OnChange=HitEffectsOnChange
         TabOrder=6
     End Object
@@ -499,7 +505,7 @@ defaultproperties
         ComponentWidth=0.8
         bReadOnly=true
         OnLoadINI=DefaultOnLoadINI
-        OnChange=CustomizeOnChange
+        OnChange=DamagePointEditorOnChange
         TabOrder=9
     End Object
     co_DamagePoints=DamagePointsComboBox
@@ -523,8 +529,8 @@ defaultproperties
         MaxValue=300
         Step=1
         ComponentWidth=0.25
-        OnLoadINI=CustomizeOnLoadINI
-        OnChange=CustomizeOnChange
+        OnLoadINI=DamagePointEditorOnLoadINI
+        OnChange=DamagePointEditorOnChange
         TabOrder=11
     End Object
     nu_DPValue=DPValueNumericEdit
@@ -535,8 +541,8 @@ defaultproperties
         ComponentWidth=0.8
         MinValue=0.0
         MaxValue=1.0
-        OnLoadINI=CustomizeOnLoadINI
-        OnChange=CustomizeOnChange
+        OnLoadINI=DamagePointEditorOnLoadINI
+        OnChange=DamagePointEditorOnChange
         TabOrder=12
     End Object
     sl_DPPitch=DPPitchSlider
@@ -556,8 +562,8 @@ defaultproperties
         ComponentWidth=0.8
         MinValue=0.0
         MaxValue=1.0
-        OnLoadINI=CustomizeOnLoadINI
-        OnChange=CustomizeOnChange
+        OnLoadINI=DamagePointEditorOnLoadINI
+        OnChange=DamagePointEditorOnChange
         TabOrder=14
     End Object
     sl_DPScale=DPScaleSlider
@@ -569,8 +575,8 @@ defaultproperties
         MinValue=0
         MaxValue=255
         bIntSlider=true
-        OnLoadINI=CustomizeOnLoadINI
-        OnChange=CustomizeOnChange
+        OnLoadINI=DamagePointEditorOnLoadINI
+        OnChange=DamagePointEditorOnChange
         TabOrder=15
     End Object
     sl_DPRedColor=DPRedColorSlider
@@ -582,8 +588,8 @@ defaultproperties
         MinValue=0
         MaxValue=255
         bIntSlider=true
-        OnLoadINI=CustomizeOnLoadINI
-        OnChange=CustomizeOnChange
+        OnLoadINI=DamagePointEditorOnLoadINI
+        OnChange=DamagePointEditorOnChange
         TabOrder=16
     End Object
     sl_DPGreenColor=DPGreenColorSlider
@@ -595,8 +601,8 @@ defaultproperties
         MinValue=0
         MaxValue=255
         bIntSlider=true
-        OnLoadINI=CustomizeOnLoadINI
-        OnChange=CustomizeOnChange
+        OnLoadINI=DamagePointEditorOnLoadINI
+        OnChange=DamagePointEditorOnChange
         TabOrder=17
     End Object
     sl_DPBlueColor=DPBlueColorSlider
