@@ -35,24 +35,24 @@ var HxUTClient Client;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
-    Sections[SECTION_HIT_SOUNDS].AddItem(ch_HitSounds);
-    Sections[SECTION_HIT_SOUNDS].AddItem(co_SelectedHitSound);
-    Sections[SECTION_HIT_SOUNDS].AddItem(sl_HSVolume);
-    Sections[SECTION_HIT_SOUNDS].AddItem(co_HSPitchMode);
-    Sections[SECTION_DAMAGE_NUMBERS].AddItem(ch_DamageNumbers);
-    Sections[SECTION_DAMAGE_NUMBERS].AddItem(co_DMode);
-    Sections[SECTION_DAMAGE_NUMBERS].AddItem(co_DFont);
-    Sections[SECTION_DAMAGE_NUMBERS].AddItem(fl_DNPosX);
-    Sections[SECTION_DAMAGE_NUMBERS].AddItem(fl_DNPosY);
-    Sections[SECTION_DAMAGE_POINT_EDITOR].AddItem(co_DamagePoints);
-    Sections[SECTION_DAMAGE_POINT_EDITOR].AddItem(nu_DPValue);
-    Sections[SECTION_DAMAGE_POINT_EDITOR].AddItem(sl_DPPitch);
-    Sections[SECTION_DAMAGE_POINT_EDITOR].AddItem(b_PlaySound);
-    Sections[SECTION_DAMAGE_POINT_EDITOR].AddItem(i_DPPreview);
-    Sections[SECTION_DAMAGE_POINT_EDITOR].AddItem(sl_DPScale);
-    Sections[SECTION_DAMAGE_POINT_EDITOR].AddItem(sl_DPRedColor);
-    Sections[SECTION_DAMAGE_POINT_EDITOR].AddItem(sl_DPGreenColor);
-    Sections[SECTION_DAMAGE_POINT_EDITOR].AddItem(sl_DPBlueColor);
+    Sections[SECTION_HIT_SOUNDS].Insert(ch_HitSounds);
+    Sections[SECTION_HIT_SOUNDS].Insert(co_SelectedHitSound);
+    Sections[SECTION_HIT_SOUNDS].Insert(sl_HSVolume);
+    Sections[SECTION_HIT_SOUNDS].Insert(co_HSPitchMode);
+    Sections[SECTION_DAMAGE_NUMBERS].Insert(ch_DamageNumbers);
+    Sections[SECTION_DAMAGE_NUMBERS].Insert(co_DMode);
+    Sections[SECTION_DAMAGE_NUMBERS].Insert(co_DFont);
+    Sections[SECTION_DAMAGE_NUMBERS].Insert(fl_DNPosX);
+    Sections[SECTION_DAMAGE_NUMBERS].Insert(fl_DNPosY);
+    Sections[SECTION_DAMAGE_POINT_EDITOR].Insert(co_DamagePoints);
+    Sections[SECTION_DAMAGE_POINT_EDITOR].Insert(nu_DPValue);
+    Sections[SECTION_DAMAGE_POINT_EDITOR].Insert(sl_DPPitch);
+    Sections[SECTION_DAMAGE_POINT_EDITOR].Insert(b_PlaySound);
+    Sections[SECTION_DAMAGE_POINT_EDITOR].Insert(i_DPPreview);
+    Sections[SECTION_DAMAGE_POINT_EDITOR].Insert(sl_DPScale);
+    Sections[SECTION_DAMAGE_POINT_EDITOR].Insert(sl_DPRedColor);
+    Sections[SECTION_DAMAGE_POINT_EDITOR].Insert(sl_DPGreenColor);
+    Sections[SECTION_DAMAGE_POINT_EDITOR].Insert(sl_DPBlueColor);
     super.InitComponent(MyController, MyOwner);
     PopulateComboBoxes();
 }

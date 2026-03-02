@@ -131,19 +131,15 @@ function InitSection(int i)
         {
             Sections[i].WinLeft = 0.5025;
             Sections[i].WinWidth = 0.49749;
-            Sections[i].LeftPadding = 0.02;
-            Sections[i].RightPadding = 0.02;
         }
         else if (i + 1 < Sections.Length
             && (Sections[i].ColumnWidths.Length == 1 || Sections[i + 1] != None))
         {
             Sections[i].WinWidth = 0.49749;
-            Sections[i].LeftPadding = 0.02;
-            Sections[i].RightPadding = 0.02;
         }
     }
     Sections[i].WinHeight = MINIMUM_SECTION_HEIGHT + (
-        (Sections[i].Items.Length / Sections[i].ColumnWidths.Length) * COMPONENT_HEIGHT);
+        (Sections[i].Grid.Length / Sections[i].ColumnWidths.Length) * COMPONENT_HEIGHT);
 }
 
 function AutoFillColumnHeight(int StartAt, int Step)

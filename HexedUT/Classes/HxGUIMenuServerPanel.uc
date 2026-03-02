@@ -19,19 +19,19 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     }
     for (i = 0; i < 7; ++i)
     {
-        Sections[SECTION_INDICATORS].AddItem(Options[i]);
+        Sections[SECTION_INDICATORS].Insert(Options[i]);
     }
     for (i = 7; i < 12; ++i)
     {
-        Sections[SECTION_STARTING_VALUES].AddItem(Options[i]);
+        Sections[SECTION_STARTING_VALUES].Insert(Options[i]);
     }
     for (i = 12; i < 21; ++i)
     {
-        Sections[SECTION_MOVEMENT].AddItem(Options[i]);
+        Sections[SECTION_MOVEMENT].Insert(Options[i]);
     }
     for (i = 21; i < 26; ++i)
     {
-        Sections[SECTION_POWER_UPS].AddItem(Options[i]);
+        Sections[SECTION_POWER_UPS].Insert(Options[i]);
     }
     super.InitComponent(MyController, MyOwner);
 }

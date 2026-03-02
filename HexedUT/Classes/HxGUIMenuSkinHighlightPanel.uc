@@ -2,7 +2,6 @@ class HxGUIMenuSkinHighlightPanel extends HxGUIMenuBasePanel;
 
 const SECTION_HIGHLIGHTS = 0;
 const SECTION_COLOR_EDITOR = 1;
-const SECTION_COLOR_PREVIEW = 3;
 
 const NO_HIGHLIGHT = "DISABLED";
 const RANDOM_HIGHLIGHT = "RANDOM";
@@ -57,25 +56,25 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     local int i;
 
     super.InitComponent(MyController, MyOwner);
-    Sections[SECTION_HIGHLIGHTS].AddItem(co_YourTeam);
-    Sections[SECTION_HIGHLIGHTS].AddItem(co_EnemyTeam);
-    Sections[SECTION_HIGHLIGHTS].AddItem(co_SoloPlayer);
-    Sections[SECTION_HIGHLIGHTS].AddItem(co_ShieldHit);
-    Sections[SECTION_HIGHLIGHTS].AddItem(co_LinkHit);
-    Sections[SECTION_HIGHLIGHTS].AddItem(co_ShockHit);
-    Sections[SECTION_HIGHLIGHTS].AddItem(co_LightningHit);
-    Sections[SECTION_HIGHLIGHTS].AddItem(ch_DisableOnDeadBodies);
-    Sections[SECTION_HIGHLIGHTS].AddItem(ch_ForceNormalSkins);
-    Sections[SECTION_HIGHLIGHTS].AddItem(co_SpectateAs);
-    Sections[SECTION_COLOR_EDITOR].AddItem(co_EditColor);
-    Sections[SECTION_COLOR_EDITOR].AddItem(sl_ColorRed);
-    Sections[SECTION_COLOR_EDITOR].AddItem(sl_ColorGreen);
-    Sections[SECTION_COLOR_EDITOR].AddItem(sl_ColorBlue);
-    Sections[SECTION_COLOR_EDITOR].AddItem(ch_AllowOnRandom);
-    Sections[SECTION_COLOR_EDITOR].AddItem(l_ButtonAnchor);
-    Sections[SECTION_COLOR_PREVIEW].AddItem(co_PreviewSkin);
-    Sections[SECTION_COLOR_PREVIEW].AddItem(b_PreviewBox);
-    Sections[SECTION_COLOR_PREVIEW].AddItem(b_ChangeModel);
+    Sections[SECTION_HIGHLIGHTS].Insert(co_YourTeam);
+    Sections[SECTION_HIGHLIGHTS].Insert(co_EnemyTeam);
+    Sections[SECTION_HIGHLIGHTS].Insert(co_SoloPlayer);
+    Sections[SECTION_HIGHLIGHTS].Insert(ch_DisableOnDeadBodies);
+    Sections[SECTION_HIGHLIGHTS].Insert(ch_ForceNormalSkins);
+    Sections[SECTION_HIGHLIGHTS].Insert(co_ShieldHit);
+    Sections[SECTION_HIGHLIGHTS].Insert(co_LinkHit);
+    Sections[SECTION_HIGHLIGHTS].Insert(co_ShockHit);
+    Sections[SECTION_HIGHLIGHTS].Insert(co_LightningHit);
+    Sections[SECTION_HIGHLIGHTS].Insert(co_SpectateAs);
+    Sections[SECTION_COLOR_EDITOR].Insert(co_EditColor);
+    Sections[SECTION_COLOR_EDITOR].Insert(sl_ColorRed);
+    Sections[SECTION_COLOR_EDITOR].Insert(sl_ColorGreen);
+    Sections[SECTION_COLOR_EDITOR].Insert(sl_ColorBlue);
+    Sections[SECTION_COLOR_EDITOR].Insert(ch_AllowOnRandom);
+    Sections[SECTION_COLOR_EDITOR].Insert(l_ButtonAnchor);
+    Sections[SECTION_COLOR_EDITOR].Insert(co_PreviewSkin);
+    Sections[SECTION_COLOR_EDITOR].Insert(b_PreviewBox);
+    Sections[SECTION_COLOR_EDITOR].Insert(b_ChangeModel);
     PreviewEffect = New(Self) class'ConstantColor';
     PreviewShader = New(Self) class'Shader';
     PreviewShader.Specular = PreviewEffect;
@@ -114,20 +113,6 @@ function Refresh()
 {
     Sections[SECTION_HIGHLIGHTS].SetHide(!Client.bAllowSkinHighlight, HIDE_DUE_DISABLE);
     Super.Refresh();
-}
-
-function bool InternalOnPreDraw(Canvas C)
-{
-    b_NewColor.WinLeft = l_ButtonAnchor.WinLeft;
-    b_NewColor.WinTop = l_ButtonAnchor.WinTop;
-    b_NewColor.WinWidth = l_ButtonAnchor.WinWidth / 3;
-    b_RenameColor.WinLeft = b_NewColor.WinLeft + b_NewColor.WinWidth;
-    b_RenameColor.WinTop = l_ButtonAnchor.WinTop;
-    b_RenameColor.WinWidth = b_NewColor.WinWidth;
-    b_DeleteColor.WinLeft = b_RenameColor.WinLeft + b_RenameColor.WinWidth;
-    b_DeleteColor.WinTop = l_ButtonAnchor.WinTop;
-    b_DeleteColor.WinWidth = b_NewColor.WinWidth;
-    return false;
 }
 
 function CustomizeColorOnLoadINI(GUIComponent Sender, string s)
@@ -203,7 +188,7 @@ function CustomizeColorOnChange(GUIComponent Sender)
     Index = co_EditColor.GetIndex();
     if (Sender == co_EditColor)
     {
-        UpdateCustomizeColorSection(co_EditColor.GetComponentValue());
+        UpdateColorEditorSection(co_EditColor.GetComponentValue());
     }
     else if (Sender == ch_AllowOnRandom)
     {
@@ -308,7 +293,7 @@ function SaveHighlightChanges(PlayerController PC)
     class'HxSkinHighlight'.static.StaticSaveConfig();
 }
 
-function UpdateCustomizeColorSection(string ColorName)
+function UpdateColorEditorSection(string ColorName)
 {
     local HxSkinHighlight.HxColorEntry ColorEntry;
 
@@ -447,6 +432,24 @@ function UpdatePreviewColor()
     PreviewEffect.Color.B = PreviewEffect.Color.B * Client.SkinHighlightIntensity;
 }
 
+function bool ColorEditorButtonsOnPreDraw(Canvas C)
+{
+    if (l_ButtonAnchor.bInit)
+    {
+        l_ButtonAnchor.bInit = Sections[SECTION_COLOR_EDITOR].bInit;
+        b_NewColor.WinLeft = l_ButtonAnchor.WinLeft;
+        b_NewColor.WinTop = l_ButtonAnchor.WinTop;
+        b_NewColor.WinWidth = l_ButtonAnchor.WinWidth / 3;
+        b_RenameColor.WinLeft = b_NewColor.WinLeft + b_NewColor.WinWidth;
+        b_RenameColor.WinTop = l_ButtonAnchor.WinTop;
+        b_RenameColor.WinWidth = b_NewColor.WinWidth;
+        b_DeleteColor.WinLeft = b_RenameColor.WinLeft + b_RenameColor.WinWidth;
+        b_DeleteColor.WinTop = l_ButtonAnchor.WinTop;
+        b_DeleteColor.WinWidth = b_NewColor.WinWidth;
+    }
+    return false;
+}
+
 function bool OnClickNewColor(GUIComponent Sender)
 {
     if (Controller.OpenMenu(Controller.RequestDataMenu, NewColorPageCaption, NameLabel))
@@ -471,7 +474,7 @@ function OnCloseNewColor(optional bool bCancelled)
             class'HxSkinHighlight'.static.StaticSaveConfig();
             PopulateColorComboBoxes();
             co_EditColor.SilentSetIndex(Index);
-            UpdateCustomizeColorSection(ColorName);
+            UpdateColorEditorSection(ColorName);
         }
         else
         {
@@ -527,7 +530,7 @@ function OnCloseDeleteColor(byte bButton)
     {
         class'HxSkinHighlight'.static.StaticSaveConfig();
         PopulateColorComboBoxes();
-        UpdateCustomizeColorSection(co_EditColor.GetComponentValue());
+        UpdateColorEditorSection(co_EditColor.GetComponentValue());
         SaveHighlightChanges(PlayerOwner());
     }
 }
@@ -579,15 +582,15 @@ defaultproperties
 {
     Begin Object class=HxGUIFramedSection Name=HighlightsSection
         Caption="Highlights"
+        ColumnWidths=(0.5,0.5)
+        MaxItemsPerColumn=5
     End Object
 
     Begin Object class=HxGUIFramedSection Name=ColorEditorSection
         Caption="Color Editor"
-    End Object
-
-    Begin Object class=HxGUIFramedSection Name=ColorPreviewSection
-        Caption="Color Preview"
-        ExpandItem=1
+        ColumnWidths=(0.5,0.5)
+        MaxItemsPerColumn=6
+        ExpandIndex=7
     End Object
 
     Begin Object class=moComboBox Name=YourTeamComboBox
@@ -626,6 +629,28 @@ defaultproperties
     End Object
     co_SoloPlayer=SoloPlayerComboBox
 
+    Begin Object class=moCheckBox Name=DisableOnDeadBodiesCheckBox
+        Caption="Disable highlight on dead bodies"
+        Hint="Disable any active highlights on dead bodies."
+        INIOption="HxSkinHighlight bDisableOnDeadBodies"
+        CaptionWidth=0.8
+        OnLoadINI=DefaultOnLoadINI
+        OnChange=InternalOnChange
+        TabOrder=3
+    End Object
+    ch_DisableOnDeadBodies=DisableOnDeadBodiesCheckBox
+
+    Begin Object class=moCheckBox Name=ForceNormalSkinsCheckBox
+        Caption="Force normal skins"
+        Hint="When highlight is enabled, force normal (uncolored) variation of the underlying skin."
+        INIOption="HxSkinHighlight bForceNormalSkins"
+        CaptionWidth=0.8
+        OnLoadINI=DefaultOnLoadINI
+        OnChange=InternalOnChange
+        TabOrder=4
+    End Object
+    ch_ForceNormalSkins=ForceNormalSkinsCheckBox
+
     Begin Object class=moComboBox Name=ShieldHitComboBox
         Caption="Shield hit"
         Hint="Highlight color to use when a shielded player is hit or has spawn protection."
@@ -634,7 +659,7 @@ defaultproperties
         bReadOnly=true
         OnLoadINI=DefaultOnLoadINI
         OnChange=InternalOnChange
-        TabOrder=3
+        TabOrder=5
     End Object
     co_ShieldHit=ShieldHitComboBox
 
@@ -646,7 +671,7 @@ defaultproperties
         bReadOnly=true
         OnLoadINI=DefaultOnLoadINI
         OnChange=InternalOnChange
-        TabOrder=4
+        TabOrder=6
     End Object
     co_LinkHit=LinkHitComboBox
 
@@ -658,7 +683,7 @@ defaultproperties
         bReadOnly=true
         OnLoadINI=DefaultOnLoadINI
         OnChange=InternalOnChange
-        TabOrder=5
+        TabOrder=7
     End Object
     co_ShockHit=ShockHitComboBox
 
@@ -670,31 +695,9 @@ defaultproperties
         bReadOnly=true
         OnLoadINI=DefaultOnLoadINI
         OnChange=InternalOnChange
-        TabOrder=6
-    End Object
-    co_LightningHit=LightningHitComboBox
-
-    Begin Object class=moCheckBox Name=DisableOnDeadBodiesCheckBox
-        Caption="Disable highlight on dead bodies"
-        Hint="Disable any active highlights on dead bodies."
-        INIOption="HxSkinHighlight bDisableOnDeadBodies"
-        CaptionWidth=0.8
-        OnLoadINI=DefaultOnLoadINI
-        OnChange=InternalOnChange
-        TabOrder=7
-    End Object
-    ch_DisableOnDeadBodies=DisableOnDeadBodiesCheckBox
-
-    Begin Object class=moCheckBox Name=ForceNormalSkinsCheckBox
-        Caption="Force normal skins"
-        Hint="When highlight is enabled, force normal (uncolored) variation of the underlying skin."
-        INIOption="HxSkinHighlight bForceNormalSkins"
-        CaptionWidth=0.8
-        OnLoadINI=DefaultOnLoadINI
-        OnChange=InternalOnChange
         TabOrder=8
     End Object
-    ch_ForceNormalSkins=ForceNormalSkinsCheckBox
+    co_LightningHit=LightningHitComboBox
 
     Begin Object class=moComboBox Name=SpectateAsComboBox
         Caption="Spectate as"
@@ -711,7 +714,7 @@ defaultproperties
     Begin Object class=moComboBox Name=EditColorComboBox
         Caption="Color"
         Hint="Color to customize."
-        ComponentWidth=0.8
+        ComponentWidth=0.65
         bReadOnly=true
         OnChange=CustomizeColorOnChange
         TabOrder=10
@@ -721,7 +724,7 @@ defaultproperties
     Begin Object class=moSlider Name=ColorRedSlider
         Caption="Red"
         INIOption="@INTERNAL"
-        ComponentWidth=0.8
+        ComponentWidth=0.65
         MinValue=0
         MaxValue=255
         bIntSlider=true
@@ -734,7 +737,7 @@ defaultproperties
     Begin Object class=moSlider Name=ColorGreenSlider
         Caption="Green"
         INIOption="@INTERNAL"
-        ComponentWidth=0.8
+        ComponentWidth=0.65
         MinValue=0
         MaxValue=255
         bIntSlider=true
@@ -747,7 +750,7 @@ defaultproperties
     Begin Object class=moSlider Name=ColorBlueSlider
         Caption="Blue"
         INIOption="@INTERNAL"
-        ComponentWidth=0.8
+        ComponentWidth=0.65
         MinValue=0
         MaxValue=255
         bIntSlider=true
@@ -769,6 +772,10 @@ defaultproperties
     ch_AllowOnRandom=AllowOnRandomCheckBox
 
     Begin Object class=GUILabel Name=ButtonAnchorLabel
+        StandardHeight=0.035
+        bStandardized=true
+        bInit=true
+        OnPreDraw=ColorEditorButtonsOnPreDraw
     End Object
     l_ButtonAnchor=ButtonAnchorLabel
 
@@ -840,11 +847,9 @@ defaultproperties
     PanelCaption="Skin Highlight"
     PanelHint="Skin highlight options"
     bInsertFront=true
-    bDoubleColumn=true
+    bDoubleColumn=false
     Sections(0)=HighlightsSection
     Sections(1)=ColorEditorSection
-    Sections(2)=None
-    Sections(3)=ColorPreviewSection
     DisabledLabel="Disabled"
     DefaultLabel="Default"
     NameLabel="Name:"
@@ -859,6 +864,5 @@ defaultproperties
     TeamLabels(0)="Red Team"
     TeamLabels(1)="Blue Team"
     PreviewSkinVariation=-1
-    PreviewOffset=(X=475,Z=-5)
-    OnPreDraw=InternalOnPreDraw
+    PreviewOffset=(X=475,Z=-3)
 }

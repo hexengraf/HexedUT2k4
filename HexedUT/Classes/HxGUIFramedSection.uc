@@ -5,7 +5,7 @@ var automated GUILabel l_Header;
 var automated GUILabel l_HideReason;
 
 var localized string Caption;
-var array<GUIComponent> Items;
+var array<GUIComponent> Grid;
 var array<float> ColumnWidths;
 var float LeftPadding;
 var float TopPadding;
@@ -16,12 +16,13 @@ var float ColumnSpacing;
 var bool bAutoSpacing;
 var bool bShrinkToFit;
 var int MaxItemsPerColumn;
-var int ExpandItem;
+var int ExpandIndex;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
-    l_Header.Caption = Caption;
     Super.InitComponent(MyController, MyOwner);
+    l_Header.Caption = Caption;
+    bInit = true;
 }
 
 event SetVisibility(bool bIsVisible)
@@ -31,9 +32,9 @@ event SetVisibility(bool bIsVisible)
     Super.SetVisibility(bIsVisible);
     HeaderBar.SetVisibility(bIsVisible);
     l_Header.SetVisibility(bIsVisible);
-    for (i = 0; i < Items.Length; ++i)
+    for (i = 0; i < Grid.Length; ++i)
     {
-        Items[i].SetVisibility(bIsVisible);
+        Grid[i].SetVisibility(bIsVisible);
     }
 }
 
@@ -41,15 +42,15 @@ function SetHide(bool bHide, optional string Reason)
 {
     local int i;
 
-    for (i = 0; i < Items.Length; ++i)
+    for (i = 0; i < Grid.Length; ++i)
     {
-        Items[i].SetVisibility(!bHide);
+        Grid[i].SetVisibility(!bHide);
     }
     l_HideReason.Caption = Reason;
     l_HideReason.SetVisibility(bHide);
 }
 
-function bool AddItem(GUIComponent Component)
+function bool Insert(GUIComponent Component)
 {
     if (Component == None)
     {
@@ -57,20 +58,20 @@ function bool AddItem(GUIComponent Component)
     }
     if (FindIndex(Component) == -1)
     {
-        Items[Items.Length] = Component;
+        Grid[Grid.Length] = Component;
         return true;
     }
     return false;
 }
 
-function bool RemoveItem(GUIComponent Component)
+function bool Remove(GUIComponent Component)
 {
     local int i;
 
     i = FindIndex(Component);
-    if (i >= 0 && i < Items.Length)
+    if (i >= 0 && i < Grid.Length)
     {
-        Items.Remove(i, 1);
+        Grid.Remove(i, 1);
         return true;
     }
     return false;
@@ -82,9 +83,9 @@ function int FindIndex(GUIComponent Component)
 
     if (Component != None)
     {
-        for (i = 0; i < Items.Length; ++i)
+        for (i = 0; i < Grid.Length; ++i)
         {
-            if (Items[i] == Component)
+            if (Grid[i] == Component)
             {
                 return i;
             }
@@ -93,29 +94,22 @@ function int FindIndex(GUIComponent Component)
     return -1;
 }
 
-function Reset()
-{
-    Items.Remove(0, Items.Length);
-    bInit = true;
-}
-
 function bool OnPreDrawInit(Canvas C)
 {
-    local float Width;
     local float Height;
     local float Border;
     local float Top;
     local float Bottom;
 
-    Width = ActualWidth();
     Height = ActualHeight();
     Border = ActualFrameThickness(C);
     Top = AlignHeader(C, Border, Height);
     Bottom = AlignColumns(
-        ActualLeft() + Border + (LeftPadding * Width),
-        Top + (TopPadding * Height),
-        Width - (2 * Border) - (RightPadding + LeftPadding) * Width,
-        Height - (Top - ActualTop()) - Border - (TopPadding + BottomPadding) * Height,
+        C,
+        ActualLeft() + Border + (LeftPadding * C.ClipY),
+        Top + (TopPadding * C.ClipY),
+        ActualWidth() - (2 * Border) - (RightPadding + LeftPadding) * C.ClipY,
+        Height - (Top - ActualTop()) - Border - (TopPadding + BottomPadding) * C.ClipY,
         0);
     if (bShrinkToFit)
     {
@@ -136,95 +130,100 @@ function float AlignHeader(Canvas C, float ActualTop, float Height)
     return l_Header.ActualTop() + l_Header.WinHeight;
 }
 
-function float AlignColumns(float Left, float Top, float Width, float Height, int Index)
+function float AlignColumns(Canvas C, float Left, float Top, float Width, float Height, int Index)
 {
     local float ColumnWidth;
-    local float Offset;
+    local float Spacing;
     local float Bottom;
     local int i;
 
-    Offset = (ColumnSpacing * Width) / 2;
-    Width += Offset;
+    Spacing = ColumnSpacing * C.ClipY;
+    Left += Spacing / 2;
     for (i = 0; i < ColumnWidths.Length; ++i)
     {
-        ColumnWidth = Width * ColumnWidths[i];
-        Bottom = Max(Bottom, AlignColumn(Left, Top, ColumnWidth - Offset, Height, Index));
-        if (Index >= Items.Length)
+        ColumnWidth = (Width * ColumnWidths[i]);
+        Bottom = Max(Bottom, AlignColumn(C, Left, Top, ColumnWidth - Spacing, Height, Index));
+        if (Index >= Grid.Length)
         {
             break;
         }
-        Left += ColumnWidth + Offset;
+        Left += ColumnWidth;
     }
     return Bottom;
 }
 
-function float AlignColumn(float Left, float Top, float Width, float Height, out int Index)
+function float AlignColumn(Canvas C, float Left, float Top, float Width, float Height, out int Index)
 {
-    local int MaxItems;
+    local int MaxLines;
     local float Spacing;
-    local float LowerBound;
+    local float Bottom;
 
-    MaxItems = GetMaxItems(Index);
-    Spacing = GetLineSpacing(Index, MaxItems, Height) / 2;
-    Top += Spacing;
-    LowerBound = Top + Height;
-    if (ExpandItem >= Index && ExpandItem < MaxItems)
+    MaxLines = GetMaxLines(Index);
+    Spacing = GetLineSpacing(C, Index, MaxLines, Height);
+    Top -= Spacing / 2;
+
+    Bottom = Top + Height;
+    if (ExpandIndex >= Index && ExpandIndex < MaxLines)
     {
-        Items[ExpandItem].WinHeight = Items[ExpandItem].RelativeHeight(
-            Items[ExpandItem].ActualHeight() + Height - GetFilledHeight(Index, MaxItems));
+        Grid[ExpandIndex].WinHeight = Grid[ExpandIndex].RelativeHeight(
+            Grid[ExpandIndex].ActualHeight() + Height - GetFilledHeight(C, Index, MaxLines));
     }
-    while (Index < MaxItems)
+    while (Index < MaxLines && Top < Bottom)
     {
-        Top += Spacing;
-        Items[Index].WinLeft = Items[Index].RelativeLeft(Left);
-        Items[Index].WinTop = Items[Index].RelativeTop(Top);
-        Items[Index].WinWidth = Items[Index].RelativeWidth(Width);
-        Top += Items[Index].ActualHeight() + Spacing;
-        if (Top >= LowerBound)
-        {
-            break;
-        }
+        Grid[Index].WinLeft = Grid[Index].RelativeLeft(Left);
+        Grid[Index].WinTop = Grid[Index].RelativeTop(Top + Spacing / 2);
+        Grid[Index].WinWidth = Grid[Index].RelativeWidth(Width);
+        Top += Grid[Index].ActualHeight() + Spacing;
         ++Index;
     }
-    Top += Spacing;
     return Top;
 }
 
-function float GetLineSpacing(int Index, int MaxItems, float Height)
+function float GetLineSpacing(Canvas C, int Index, int MaxLines, float Height)
 {
-    if (bAutoSpacing && !bShrinkToFit && ExpandItem == -1)
+    if (bAutoSpacing && !bShrinkToFit && (ExpandIndex < Index || ExpandIndex >= MaxLines))
     {
-        Height -= GetFilledHeight(Index, MaxItems);
+        Height -= GetFilledHeight(C, Index, MaxLines);
         if (Height > 0)
         {
-            return LineSpacing * ActualHeight() + Height / (MaxItems + 1);
+            return ActualLineSpacing(C) + (Height / (MaxLines - Index - 1));
         }
     }
-    return LineSpacing * ActualHeight();
+    return ActualLineSpacing(C);
 }
 
-function float GetFilledHeight(int Index, int MaxItems)
+function float GetFilledHeight(Canvas C, int Index, int MaxLines)
 {
     local float FilledHeight;
     local float Spacing;
     local int i;
 
-    Spacing = LineSpacing * ActualHeight();
-    FilledHeight = Spacing;
-    for (i = 0; i < MaxItems; ++i)
+    Spacing = ActualLineSpacing(C);
+    for (i = Index; i < MaxLines; ++i)
     {
-        FilledHeight += Items[Index + i].ActualHeight() + Spacing;
+        FilledHeight += Grid[i].ActualHeight() + Spacing;
     }
-    return FilledHeight;
+    return FilledHeight - Spacing;
 }
 
-function int GetMaxItems(optional int Index)
+function int GetMaxLines(optional int Index)
 {
     if (MaxItemsPerColumn > 0)
     {
-        return Min(Index + MaxItemsPerColumn, Items.Length);
+        return Min(Index + MaxItemsPerColumn, Grid.Length);
     }
-    return Items.Length;
+    return Grid.Length;
+}
+
+function float ActualLineSpacing(Canvas C)
+{
+    return LineSpacing * C.ClipY;
+}
+
+function Reset()
+{
+    Grid.Remove(0, Grid.Length);
+    bInit = true;
 }
 
 function SetPosition(float Left, float Top, float Width, float Height, optional bool bRelative)
@@ -273,15 +272,15 @@ defaultproperties
     l_HideReason=HideReasonLabel
 
     ColumnWidths(0)=1.0
-    LeftPadding=0.01
-    TopPadding=0
-    RightPadding=0.01
-    BottomPadding=0
-    LineSpacing=0.03
-    ColumnSpacing=0.01
+    LeftPadding=0.005
+    TopPadding=0.015
+    RightPadding=0.005
+    BottomPadding=0.015
+    LineSpacing=0.01
+    ColumnSpacing=0.02
     bAutoSpacing=true
     bShrinkToFit=false
-    ExpandItem=-1
+    ExpandIndex=-1
     FrameThickness=0.003
     FrameColor=(R=68,G=159,B=241,A=255)
     ImageSources(0)=(Color=(R=11,G=59,B=106,A=255),Style=ISTY_Stretched,RenderWeight=0.1)
