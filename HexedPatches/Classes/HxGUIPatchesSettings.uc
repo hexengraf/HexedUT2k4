@@ -116,23 +116,23 @@ function InternalOnLoadINI(GUIComponent Sender, string s)
             ch_ScaleWeapons.SetComponentValue(bScaleWeapons, true);
             break;
         case ch_SPShowTimer:
-            bSPShowTimer = class'HxHUDSpawnProtectionTimer'.default.bShowTimer;
+            bSPShowTimer = class'HxSpawnProtectionTimer'.default.bShowTimer;
             ch_SPShowTimer.SetComponentValue(bSPShowTimer, true);
             break;
         case ch_SPFollowHUDColor:
-            bSPFollowHUDColor = class'HxHUDSpawnProtectionTimer'.default.bFollowHUDColor;
+            bSPFollowHUDColor = class'HxSpawnProtectionTimer'.default.bFollowHUDColor;
             ch_SPFollowHUDColor.SetComponentValue(bSPFollowHUDColor, true);
             break;
         case ch_SPPulsingDigits:
-            bSPPulsingDigits = class'HxHUDSpawnProtectionTimer'.default.bPulsingDigits;
+            bSPPulsingDigits = class'HxSpawnProtectionTimer'.default.bPulsingDigits;
             ch_SPPulsingDigits.SetComponentValue(bSPPulsingDigits, true);
             break;
         case fl_SPPosX:
-            SPPosX = class'HxHUDSpawnProtectionTimer'.default.PosX;
+            SPPosX = class'HxSpawnProtectionTimer'.default.PosX;
             fl_SPPosX.SetComponentValue(SPPosX, true);
             break;
         case fl_SPPosY:
-            SPPosY = class'HxHUDSpawnProtectionTimer'.default.PosY;
+            SPPosY = class'HxSpawnProtectionTimer'.default.PosY;
             fl_SPPosY.SetComponentValue(SPPosY, true);
             break;
         case nu_CustomNetSpeed:
@@ -203,35 +203,35 @@ function SaveSettings()
         bSave = false;
         HUDController.SaveConfig();
     }
-    if (class'HxHUDSpawnProtectionTimer'.default.bShowTimer != bSPShowTimer)
+    if (class'HxSpawnProtectionTimer'.default.bShowTimer != bSPShowTimer)
     {
-        class'HxHUDSpawnProtectionTimer'.static.SetShowTimer(bSPShowTimer);
+        class'HxSpawnProtectionTimer'.default.bShowTimer = bSPShowTimer;
         bSave = true;
     }
-    if (class'HxHUDSpawnProtectionTimer'.default.bFollowHUDColor != bSPFollowHUDColor)
+    if (class'HxSpawnProtectionTimer'.default.bFollowHUDColor != bSPFollowHUDColor)
     {
-        class'HxHUDSpawnProtectionTimer'.static.SetFollowHUDColor(bSPFollowHUDColor);
+        class'HxSpawnProtectionTimer'.default.bFollowHUDColor = bSPFollowHUDColor;
         bSave = true;
     }
-    if (class'HxHUDSpawnProtectionTimer'.default.bPulsingDigits != bSPPulsingDigits)
+    if (class'HxSpawnProtectionTimer'.default.bPulsingDigits != bSPPulsingDigits)
     {
-        class'HxHUDSpawnProtectionTimer'.static.SetPulsingDigits(bSPPulsingDigits);
+        class'HxSpawnProtectionTimer'.default.bPulsingDigits = bSPPulsingDigits;
         bSave = true;
     }
-    if (class'HxHUDSpawnProtectionTimer'.default.PosX != SPPosX)
+    if (class'HxSpawnProtectionTimer'.default.PosX != SPPosX)
     {
-        class'HxHUDSpawnProtectionTimer'.static.SetPosX(SPPosX);
+        class'HxSpawnProtectionTimer'.default.PosX = SPPosX;
         bSave = true;
     }
-    if (class'HxHUDSpawnProtectionTimer'.default.PosY != SPPosY)
+    if (class'HxSpawnProtectionTimer'.default.PosY != SPPosY)
     {
-        class'HxHUDSpawnProtectionTimer'.static.SetPosY(SPPosY);
+        class'HxSpawnProtectionTimer'.default.PosY = SPPosY;
         bSave = true;
     }
     if (bSave)
     {
         bSave = false;
-        class'HxHUDSpawnProtectionTimer'.static.StaticSaveConfig();
+        class'HxSpawnProtectionTimer'.static.StaticSaveConfig();
     }
     if (NETController.CustomNetSpeed != CustomNetSpeed)
     {
@@ -264,11 +264,11 @@ function ResetClicked()
     class'HxGUIFont'.static.ResetConfig("OverrideFontSize");
     class'HxHUDController'.static.ResetConfig("bReplaceHUDs");
     class'HxHUDController'.static.ResetConfig("bScaleWeapons");
-    class'HxHUDSpawnProtectionTimer'.static.ResetConfig("bShowTimer");
-    class'HxHUDSpawnProtectionTimer'.static.ResetConfig("bFollowHUDColor");
-    class'HxHUDSpawnProtectionTimer'.static.ResetConfig("bPulsingDigits");
-    class'HxHUDSpawnProtectionTimer'.static.ResetConfig("PosX");
-    class'HxHUDSpawnProtectionTimer'.static.ResetConfig("PosY");
+    class'HxSpawnProtectionTimer'.static.ResetConfig("bShowTimer");
+    class'HxSpawnProtectionTimer'.static.ResetConfig("bFollowHUDColor");
+    class'HxSpawnProtectionTimer'.static.ResetConfig("bPulsingDigits");
+    class'HxSpawnProtectionTimer'.static.ResetConfig("PosX");
+    class'HxSpawnProtectionTimer'.static.ResetConfig("PosY");
     class'HxNETController'.static.ResetConfig("CustomNetSpeed");
     class'HxNETController'.static.ResetConfig("MasterServer");
 
@@ -279,11 +279,11 @@ function ResetClicked()
     GUIController.SetSmallCursor(bSmallCursor);
     GUIController.bFixedMouseSize = bFixedMouseSize;
     UpdateHUDSection();
-    class'HxHUDSpawnProtectionTimer'.static.SetShowTimer(bSPShowTimer);
-    class'HxHUDSpawnProtectionTimer'.static.SetFollowHUDColor(bSPFollowHUDColor);
-    class'HxHUDSpawnProtectionTimer'.static.SetPulsingDigits(bSPPulsingDigits);
-    class'HxHUDSpawnProtectionTimer'.static.SetPosX(SPPosX);
-    class'HxHUDSpawnProtectionTimer'.static.SetPosY(SPPosY);
+    class'HxSpawnProtectionTimer'.default.bShowTimer = bSPShowTimer;
+    class'HxSpawnProtectionTimer'.default.bFollowHUDColor = bSPFollowHUDColor;
+    class'HxSpawnProtectionTimer'.default.bPulsingDigits = bSPPulsingDigits;
+    class'HxSpawnProtectionTimer'.default.PosX = SPPosX;
+    class'HxSpawnProtectionTimer'.default.PosY = SPPosY;
 }
 
 function InternalOnChange(GUIComponent Sender)

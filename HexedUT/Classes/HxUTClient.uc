@@ -141,6 +141,7 @@ simulated function bool InitializeClient()
     if (InitializePlayerController() && InitializeGUIController() && InitializeHitEffects())
     {
         Register(Self);
+        class'HxSpawnProtectionTimer'.static.Setup(PC);
         bReplaceMapVotingMenu = GUIController != None
             && GUIController.MapVotingMenu != string(class'HxGUIVotingPage')
             && !GUIController.SetPropertyText("CustomMapVotingMenu", string(class'HxGUIVotingPage'));

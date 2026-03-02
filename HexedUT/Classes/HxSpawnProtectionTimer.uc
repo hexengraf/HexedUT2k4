@@ -1,4 +1,4 @@
-class HxHUDSpawnProtectionTimer extends HudOverlay
+class HxSpawnProtectionTimer extends HudOverlay
     config(User)
     notplaceable;
 
@@ -16,22 +16,6 @@ var private HudBase.NumericWidget Counter;
 var private HudBase.SpriteWidget Icon;
 var private float Duration;
 var private float Timestamp;
-var private PlayerReplicationInfo OwnerPRI;
-var private HxHUDSpawnProtectionTimer Instance;
-
-simulated event PreBeginPlay()
-{
-    super.PreBeginPlay();
-    default.Instance = Self;
-}
-
-simulated event Destroyed()
-{
-    if (default.Instance == Self)
-    {
-        default.Instance = None;
-    }
-}
 
 auto state Unprotected
 {
@@ -64,7 +48,7 @@ state Protected
     {
         local HudBase HUD;
 
-        if (bShowTimer)
+        if (default.bShowTimer)
         {
             HUD = HudBase(Owner);
             HUD.DrawSpriteWidget(C, Icon);
@@ -87,24 +71,26 @@ state Dead
             {
                 Timestamp = Level.TimeSeconds;
                 Duration = Ceil(HudBase(Owner).PawnOwner.OverlayTimer);
-                UpdatePosition();
-                UpdateColor();
-                UpdateDigits();
+                Update();
                 GoToState('Protected');
             }
         }
     }
 }
 
-simulated function UpdateColor()
+simulated function Update()
 {
     local HudBase HUD;
 
+    Counter.PosX = default.PosX;
+    Counter.PosY = default.PosY;
+    Icon.PosX = default.PosX;
+    Icon.PosY = default.PosY;
     HUD = HudBase(Owner);
-    if (!bFollowHUDColor)
+    if (!default.bFollowHUDColor)
     {
-        Icon.Tints[0] = DefaultColor;
-        Icon.Tints[1] = DefaultColor;
+        Icon.Tints[0] = default.DefaultColor;
+        Icon.Tints[1] = default.DefaultColor;
     }
     else if (HUD.bUsingCustomHUDColor)
     {
@@ -116,11 +102,7 @@ simulated function UpdateColor()
         Icon.Tints[0] = HUD.GetTeamColor(0);
         Icon.Tints[1] = HUD.GetTeamColor(1);
     }
-}
-
-simulated function UpdateDigits()
-{
-    if (bPulsingDigits)
+    if (default.bPulsingDigits)
     {
         Digits = class'HudCDeathMatch'.default.DigitsBigPulse;
     }
@@ -130,14 +112,6 @@ simulated function UpdateDigits()
     }
 }
 
-simulated function UpdatePosition()
-{
-    Counter.PosX = PosX;
-    Counter.PosY = PosY;
-    Icon.PosX = PosX;
-    Icon.PosY = PosY;
-}
-
 simulated function bool PlayerIsDead()
 {
     return HudBase(Owner) == None
@@ -145,53 +119,18 @@ simulated function bool PlayerIsDead()
         || HudBase(Owner).PawnOwner.Health == 0;
 }
 
-simulated static function SetShowTimer(bool bValue)
+static function Setup(PlayerController PC)
 {
-    default.bShowTimer = bValue;
-    if (default.Instance != None)
-    {
-        default.Instance.bShowTimer = bValue;
-    }
-}
+    local int i;
 
-simulated static function SetFollowHUDColor(bool bValue)
-{
-    default.bFollowHUDColor = bValue;
-    if (default.Instance != None)
+    for (i = 0; i < PC.myHUD.Overlays.Length; ++i)
     {
-        default.Instance.bFollowHUDColor = bValue;
-        default.Instance.UpdateColor();
+        if (HxSpawnProtectionTimer(PC.myHUD.Overlays[i]) != None)
+        {
+            return;
+        }
     }
-}
-
-simulated static function SetPulsingDigits(bool bValue)
-{
-    default.bPulsingDigits = bValue;
-    if (default.Instance != None)
-    {
-        default.Instance.bPulsingDigits = bValue;
-        default.Instance.UpdateDigits();
-    }
-}
-
-simulated static function SetPosX(float Value)
-{
-    default.PosX = Value;
-    if (default.Instance != None)
-    {
-        default.Instance.PosX = Value;
-        default.Instance.UpdatePosition();
-    }
-}
-
-simulated static function SetPosY(float Value)
-{
-    default.PosY = Value;
-    if (default.Instance != None)
-    {
-        default.Instance.PosY = Value;
-        default.Instance.UpdatePosition();
-    }
+    PC.myHUD.AddHudOverlay(PC.myHUD.Spawn(class'HxSpawnProtectionTimer', PC.myHUD));
 }
 
 defaultproperties
