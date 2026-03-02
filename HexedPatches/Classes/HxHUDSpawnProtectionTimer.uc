@@ -11,12 +11,13 @@ var config float PosX;
 var config float PosY;
 var config Color DefaultColor;
 
-var HudBase.DigitSet Digits;
-var HudBase.NumericWidget Counter;
-var HudBase.SpriteWidget Icon;
-var float Duration;
-var float Timestamp;
-var HxHUDSpawnProtectionTimer Instance;
+var private HudBase.DigitSet Digits;
+var private HudBase.NumericWidget Counter;
+var private HudBase.SpriteWidget Icon;
+var private float Duration;
+var private float Timestamp;
+var private PlayerReplicationInfo OwnerPRI;
+var private HxHUDSpawnProtectionTimer Instance;
 
 simulated event PreBeginPlay()
 {
@@ -78,12 +79,19 @@ state Dead
     {
         if (!PlayerIsDead())
         {
-            Timestamp = Level.TimeSeconds;
-            Duration = Ceil(HudBase(Owner).PawnOwner.OverlayTimer);
-            UpdatePosition();
-            UpdateColor();
-            UpdateDigits();
-            GoToState('Protected');
+            if (HudBase(Owner).PlayerOwner.IsSpectating())
+            {
+                GoToState('Unprotected');
+            }
+            else
+            {
+                Timestamp = Level.TimeSeconds;
+                Duration = Ceil(HudBase(Owner).PawnOwner.OverlayTimer);
+                UpdatePosition();
+                UpdateColor();
+                UpdateDigits();
+                GoToState('Protected');
+            }
         }
     }
 }
