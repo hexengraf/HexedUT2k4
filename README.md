@@ -14,6 +14,8 @@ To enable HexedPatches, open `System/UT2004.ini` and replace the default value o
 ; GUIController=GUI2K4.UT2K4GUIController
 GUIController=HexedPatches.HxGUIController
 ```
+**WARNING: do not change the `GUIController` if you plan to join servers running AntiTCC, otherwise you will most likely be banned.**
+
 All configuration can be changed through a new tab called "Patches" in the settings.
 
 HexedUT and HexedUTComp provide MutHexedUT and MutUTComp mutators respectively. Enable them in-game or through the command line for your dedicated server. E.g.:
