@@ -170,11 +170,11 @@ simulated function bool TickFloatMode(int i, float DeltaTime)
 simulated function Render(Canvas C)
 {
     local int i;
-    local float OldFontScaleX;
-    local float OldFontScaleY;
+    local float SavedFontScaleX;
+    local float SavedFontScaleY;
 
-    OldFontScaleX = C.FontScaleX;
-    OldFontScaleY = C.FontScaleY;
+    SavedFontScaleX = C.FontScaleX;
+    SavedFontScaleY = C.FontScaleY;
     GlobalScale = C.ClipX / REFERENCE_SCREEN_X;
     for (i = 0; i < DamageNumbers.Length; ++i)
     {
@@ -183,21 +183,19 @@ simulated function Render(Canvas C)
             DrawDamageNumber(C, i);
         }
     }
-    C.FontScaleX = OldFontScaleX;
-    C.FontScaleY = OldFontScaleY;
+    C.FontScaleX = SavedFontScaleX;
+    C.FontScaleY = SavedFontScaleY;
 }
 
 simulated function DrawDamageNumber(Canvas C, int i)
 {
     local float XL;
     local float YL;
-    local float FinalScale;
 
-    FinalScale = GlobalScale * DamageNumbers[i].Scale;
     C.DrawColor = DamageNumbers[i].Color;
     C.Font = DFont;
-    C.FontScaleX = FinalScale;
-    C.FontScaleY = FinalScale;
+    C.FontScaleX = GlobalScale * DamageNumbers[i].Scale;
+    C.FontScaleY = C.FontScaleX;
     C.StrLen(DamageNumbers[i].Value, XL, YL);
     C.SetPos((C.ClipX - XL) * PosX, (C.ClipY - YL) * (PosY + DamageNumbers[i].DeltaY));
     C.DrawText(DamageNumbers[i].Value);
@@ -207,22 +205,14 @@ simulated function DrawDamageNumberPreview(Canvas C, int i)
 {
     local float XL;
     local float YL;
-    local float OldFontScaleX;
-    local float OldFontScaleY;
-    local float FinalScale;
 
-    OldFontScaleX = C.FontScaleX;
-    OldFontScaleY = C.FontScaleY;
-    FinalScale = GlobalScale * ToAbsoluteScale(DamagePoints[i].Scale);
     C.DrawColor = DamagePoints[i].Color;
     C.Font = DFont;
-    C.FontScaleX = FinalScale;
-    C.FontScaleY = FinalScale;
+    C.FontScaleX = GlobalScale * ToAbsoluteScale(DamagePoints[i].Scale);
+    C.FontScaleY = C.FontScaleX;
     C.StrLen(DamagePoints[i].Value, XL, YL);
     C.SetPos((C.ClipX - XL) * 0.5, (C.ClipY - YL) * 0.5);
     C.DrawText(DamagePoints[i].Value);
-    C.FontScaleX = OldFontScaleX;
-    C.FontScaleY = OldFontScaleY;
 }
 
 simulated function Update(int Damage, bool bAllowHitSounds, bool bAllowDamageNumbers)

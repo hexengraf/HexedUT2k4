@@ -1,8 +1,8 @@
 class HxGUIMenuHitEffectsPanel extends HxGUIMenuBasePanel;
 
 const SECTION_HIT_SOUNDS = 0;
-const SECTION_DAMAGE_NUMBERS = 2;
-const SECTION_DAMAGE_POINT_EDITOR = 1;
+const SECTION_DAMAGE_NUMBERS = 1;
+const SECTION_DAMAGE_POINT_EDITOR = 2;
 
 var automated moCheckBox ch_HitSounds;
 var automated moComboBox co_SelectedHitSound;
@@ -17,7 +17,7 @@ var automated moComboBox co_DamagePoints;
 var automated moNumericEdit nu_DPValue;
 var automated moSlider sl_DPPitch;
 var automated GUIButton b_PlaySound;
-var automated GUIImage i_DPPReview;
+var automated HxGUIFramedImage i_DPPReview;
 var automated moSlider sl_DPScale;
 var automated moSlider sl_DPRedColor;
 var automated moSlider sl_DPGreenColor;
@@ -49,11 +49,11 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     Sections[SECTION_DAMAGE_POINT_EDITOR].Insert(nu_DPValue);
     Sections[SECTION_DAMAGE_POINT_EDITOR].Insert(sl_DPPitch);
     Sections[SECTION_DAMAGE_POINT_EDITOR].Insert(b_PlaySound);
-    Sections[SECTION_DAMAGE_POINT_EDITOR].Insert(i_DPPreview);
     Sections[SECTION_DAMAGE_POINT_EDITOR].Insert(sl_DPScale);
     Sections[SECTION_DAMAGE_POINT_EDITOR].Insert(sl_DPRedColor);
     Sections[SECTION_DAMAGE_POINT_EDITOR].Insert(sl_DPGreenColor);
     Sections[SECTION_DAMAGE_POINT_EDITOR].Insert(sl_DPBlueColor);
+    Sections[SECTION_DAMAGE_POINT_EDITOR].Insert(i_DPPreview);
     PopulateComboBoxes();
 }
 
@@ -207,6 +207,9 @@ function DamagePointEditorOnLoadINI(GUIComponent Sender, string s)
     }
     switch (Sender)
     {
+        case co_DamagePoints:
+            co_DamagePoints.SilentSetIndex(DPIndex);
+            break;
         case nu_DPValue:
             nu_DPValue.SetComponentValue(Client.HitEffects.DamagePoints[DPIndex].Value, true);
             break;
@@ -311,24 +314,30 @@ function DrawDamageNumberPreview(Canvas C)
     local float SavedOrgY;
     local float SavedClipX;
     local float SavedClipY;
+    local float SavedFontScaleX;
+    local float SavedFontScaleY;
 
-    if (Client == None || !Client.bAllowDamageNumbers || !Client.HitEffects.bDamageNumbers)
+    if (Client != None && Client.bAllowDamageNumbers && Client.HitEffects.bDamageNumbers)
     {
-        return;
+        SavedOrgX = C.OrgX;
+        SavedOrgY = C.OrgY;
+        SavedClipX = C.ClipX;
+        SavedClipY = C.ClipY;
+        SavedFontScaleX = C.FontScaleX;
+        SavedFontScaleY = C.FontScaleY;
+        C.OrgX = i_DPPReview.ActualLeft();
+        C.OrgY = i_DPPReview.ActualTop();
+        C.ClipX = i_DPPReview.ActualWidth();
+        C.ClipY = i_DPPReview.ActualHeight();
+        Client.HitEffects.DrawDamageNumberPreview(C, DPIndex);
+        C.OrgX = SavedOrgX;
+        C.OrgY = SavedOrgY;
+        C.ClipX = SavedClipX;
+        C.ClipY = SavedClipY;
+        C.FontScaleX = SavedFontScaleX;
+        C.FontScaleY = SavedFontScaleY;
     }
-    SavedOrgX = C.OrgX;
-    SavedOrgY = C.OrgY;
-    SavedClipX = C.ClipX;
-    SavedClipY = C.ClipY;
-    C.OrgX = i_DPPReview.ActualLeft();
-    C.OrgY = i_DPPReview.ActualTop();
-    C.ClipX = i_DPPReview.ActualWidth();
-    C.ClipY = i_DPPReview.ActualHeight();
-    Client.HitEffects.DrawDamageNumberPreview(C, DPIndex);
-    C.OrgX = SavedOrgX;
-    C.OrgY = SavedOrgY;
-    C.ClipX = SavedClipX;
-    C.ClipY = SavedClipY;
+    i_DPPReview.InternalOnRendered(C);
 }
 
 function bool PlaySoundOnClick(GUIComponent Sender)
@@ -387,14 +396,20 @@ defaultproperties
 {
     Begin Object class=HxGUIFramedSection Name=HitSoundsSection
         Caption="Hit Sounds"
+        WinHeight=0.4
     End Object
 
     Begin Object class=HxGUIFramedSection Name=DamageNumbersSection
         Caption="Damage Numbers"
+        WinHeight=0.4
     End Object
 
     Begin Object class=HxGUIFramedSection Name=DamagePointEditorSection
         Caption="Damage Point Editor"
+        WinHeight=0.6
+        ColumnWidths=(0.5,0.5)
+        MaxItemsPerColumn=8
+        ExpandIndex=8
     End Object
 
     Begin Object class=moCheckBox Name=HitSoundsCheckBox
@@ -502,25 +517,13 @@ defaultproperties
     Begin Object class=moComboBox Name=DamagePointsComboBox
         Caption="Point"
         INIOption="HxHitEffectsMenuPanel DPIndex"
-        ComponentWidth=0.8
+        ComponentWidth=0.7
         bReadOnly=true
-        OnLoadINI=DefaultOnLoadINI
+        OnLoadINI=DamagePointEditorOnLoadINI
         OnChange=DamagePointEditorOnChange
         TabOrder=9
     End Object
     co_DamagePoints=DamagePointsComboBox
-
-    Begin Object class=GUIImage Name=DPPreviewImage
-        Image=Material'2K4Menus.Controls.buttonSquare_b'
-        ImageColor=(R=0,G=0,B=0,A=255)
-        ImageStyle=ISTY_Stretched
-        ImageRenderStyle=MSTY_Alpha
-        bStandardized=true
-        StandardHeight=0.05
-        TabOrder=10
-        OnRendered=DrawDamageNumberPreview
-    End Object
-    i_DPPReview=DPPreviewImage
 
     Begin Object class=moNumericEdit Name=DPValueNumericEdit
         Caption="Damage value"
@@ -538,7 +541,7 @@ defaultproperties
     Begin Object class=moSlider Name=DPPitchSlider
         Caption="Pitch"
         INIOption="@INTERNAL"
-        ComponentWidth=0.8
+        ComponentWidth=0.7
         MinValue=0.0
         MaxValue=1.0
         OnLoadINI=DamagePointEditorOnLoadINI
@@ -550,6 +553,7 @@ defaultproperties
     Begin Object class=GUIButton Name=PlaySound
         Caption="Play sound"
         bStandardized=true
+        StandardHeight=0.035
         OnClick=PlaySoundOnClick
         OnClickSound=CS_None
         TabOrder=13
@@ -559,7 +563,7 @@ defaultproperties
     Begin Object class=moSlider Name=DPScaleSlider
         Caption="Scale"
         INIOption="@INTERNAL"
-        ComponentWidth=0.8
+        ComponentWidth=0.7
         MinValue=0.0
         MaxValue=1.0
         OnLoadINI=DamagePointEditorOnLoadINI
@@ -571,7 +575,7 @@ defaultproperties
     Begin Object class=moSlider Name=DPRedColorSlider
         Caption="Red"
         INIOption="@INTERNAL"
-        ComponentWidth=0.8
+        ComponentWidth=0.7
         MinValue=0
         MaxValue=255
         bIntSlider=true
@@ -584,7 +588,7 @@ defaultproperties
     Begin Object class=moSlider Name=DPGreenColorSlider
         Caption="Green"
         INIOption="@INTERNAL"
-        ComponentWidth=0.8
+        ComponentWidth=0.7
         MinValue=0
         MaxValue=255
         bIntSlider=true
@@ -597,7 +601,7 @@ defaultproperties
     Begin Object class=moSlider Name=DPBlueColorSlider
         Caption="Blue"
         INIOption="@INTERNAL"
-        ComponentWidth=0.8
+        ComponentWidth=0.7
         MinValue=0
         MaxValue=255
         bIntSlider=true
@@ -607,13 +611,21 @@ defaultproperties
     End Object
     sl_DPBlueColor=DPBlueColorSlider
 
+    Begin Object class=HxGUIFramedImage Name=DPPreviewImage
+        ImageSources(0)=(Color=(R=0,G=0,B=0,A=128),Style=ISTY_Stretched)
+        RenderStyle=MSTY_Alpha
+        OnRendered=DrawDamageNumberPreview
+    End Object
+    i_DPPReview=DPPreviewImage
+
     PanelCaption="Hit Effects"
     PanelHint="Hit sounds and damage numbers"
     bInsertFront=true
     bDoubleColumn=true
+    bFillPanelHeight=false
     Sections(0)=HitSoundsSection
-    Sections(1)=DamagePointEditorSection
-    Sections(2)=DamageNumbersSection
+    Sections(1)=DamageNumbersSection
+    Sections(2)=DamagePointEditorSection
     Sections(3)=None
     FontNames(0)="UT2003Fonts.FontEurostile29"
     FontNames(1)="UT2003Fonts.FontEurostile37"
@@ -639,4 +651,5 @@ defaultproperties
     DamagePointNames(2)="Medium damage"
     DamagePointNames(3)="High damage"
     DamagePointNames(4)="Extreme damage"
+    DPIndex=4
 }
