@@ -582,12 +582,14 @@ defaultproperties
 {
     Begin Object class=HxGUIFramedSection Name=HighlightsSection
         Caption="Highlights"
+        WinHeight=0.46
         ColumnWidths=(0.5,0.5)
         MaxItemsPerColumn=5
     End Object
 
     Begin Object class=HxGUIFramedSection Name=ColorEditorSection
         Caption="Color Editor"
+        WinHeight=0.54
         ColumnWidths=(0.5,0.5)
         MaxItemsPerColumn=6
         ExpandIndex=7
@@ -848,6 +850,7 @@ defaultproperties
     PanelHint="Skin highlight options"
     bInsertFront=true
     bDoubleColumn=false
+    bFillPanelHeight=false
     Sections(0)=HighlightsSection
     Sections(1)=ColorEditorSection
     DisabledLabel="Disabled"
@@ -864,5 +867,5 @@ defaultproperties
     TeamLabels(0)="Red Team"
     TeamLabels(1)="Blue Team"
     PreviewSkinVariation=-1
-    PreviewOffset=(X=475,Z=-3)
+    PreviewOffset=(X=440,Z=-3)
 }

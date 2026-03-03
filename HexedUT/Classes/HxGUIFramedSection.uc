@@ -5,7 +5,6 @@ var automated GUILabel l_Header;
 var automated GUILabel l_HideReason;
 
 var localized string Caption;
-var array<GUIComponent> Grid;
 var array<float> ColumnWidths;
 var float LeftPadding;
 var float TopPadding;
@@ -17,6 +16,8 @@ var bool bAutoSpacing;
 var bool bShrinkToFit;
 var int MaxItemsPerColumn;
 var int ExpandIndex;
+
+var private array<GUIComponent> Grid;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
@@ -218,6 +219,16 @@ function int GetMaxLines(optional int Index)
 function float ActualLineSpacing(Canvas C)
 {
     return LineSpacing * C.ClipY;
+}
+
+function int Count()
+{
+    return Grid.Length;
+}
+
+function int ColumnCount()
+{
+    return ColumnWidths.Length;
 }
 
 function Reset()

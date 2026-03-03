@@ -12,6 +12,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
     local int i;
 
+    super.InitComponent(MyController, MyOwner);
     for (i = 0; i < Options.Length; ++i)
     {
         Options[i].OnLoadINI = InternalOnLoadINI;
@@ -33,7 +34,6 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     {
         Sections[SECTION_POWER_UPS].Insert(Options[i]);
     }
-    super.InitComponent(MyController, MyOwner);
 }
 
 function bool Initialize()

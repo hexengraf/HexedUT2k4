@@ -35,6 +35,7 @@ var HxUTClient Client;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
+    super.InitComponent(MyController, MyOwner);
     Sections[SECTION_HIT_SOUNDS].Insert(ch_HitSounds);
     Sections[SECTION_HIT_SOUNDS].Insert(co_SelectedHitSound);
     Sections[SECTION_HIT_SOUNDS].Insert(sl_HSVolume);
@@ -53,7 +54,6 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     Sections[SECTION_DAMAGE_POINT_EDITOR].Insert(sl_DPRedColor);
     Sections[SECTION_DAMAGE_POINT_EDITOR].Insert(sl_DPGreenColor);
     Sections[SECTION_DAMAGE_POINT_EDITOR].Insert(sl_DPBlueColor);
-    super.InitComponent(MyController, MyOwner);
     PopulateComboBoxes();
 }
 

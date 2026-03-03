@@ -6,16 +6,20 @@ const HIDE_DUE_DISABLE = "Feature disabled on this server";
 const HIDE_DUE_ADMIN = "Requires administrator privileges";
 
 const BASE_WIN_TOP = 0.01;
+const OFFSET_HEIGHT = 0.045;
 const BASE_WIN_BOTTOM = 0.965;
-const MINIMUM_SECTION_HEIGHT = 0.12;
 const COMPONENT_HEIGHT = 0.05;
+const HORIZONTAL_SPACING = 0.0074;
+const VERTICAL_SPACING = 0.0025;
 
+var automated array<HxGUIFramedSection> Sections;
 var localized string PanelHint;
+
+var array<float> SectionHeights;
 var bool bInsertFront;
 var bool bDoubleColumn;
 var bool bFillPanelHeight;
 
-var automated array<HxGUIFramedSection> Sections;
 var private automated array<GUILabel> HideMessages;
 var private bool bPanelAdded;
 
@@ -24,8 +28,18 @@ function bool Initialize();
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
     super.InitComponent(MyController, MyOwner);
-    InitSections();
     HideAllSections(true, HIDE_DUE_INIT);
+    bInit = true;
+}
+
+function bool InternalOnPreDraw(Canvas C)
+{
+    if (bInit)
+    {
+        InitSections();
+        bInit = false;
+    }
+    return false;
 }
 
 function ShowPanel(bool bShow)
@@ -104,6 +118,8 @@ function InitSection(int i)
     {
         return;
     }
+    Sections[i].WinLeft = 0;
+    Sections[i].WinWidth = 1;
     if (i == 0)
     {
         Sections[i].WinTop = BASE_WIN_TOP;
@@ -116,30 +132,49 @@ function InitSection(int i)
         }
         else
         {
-            Sections[i].WinTop = Sections[i - 2].WinTop + Sections[i - 2].WinHeight + 0.0074;
+            if (Sections[i].WinHeight > 0)
+            {
+                Sections[i].WinHeight -= HORIZONTAL_SPACING;
+            }
+            Sections[i].WinTop =
+                Sections[i - 2].WinTop + Sections[i - 2].WinHeight + HORIZONTAL_SPACING;
         }
     }
     else
     {
-        Sections[i].WinTop = Sections[i - 1].WinTop + Sections[i - 1].WinHeight + 0.0074;
+        if (Sections[i].WinHeight > 0)
+        {
+            Sections[i].WinHeight -= HORIZONTAL_SPACING;
+        }
+        Sections[i].WinTop =
+            Sections[i - 1].WinTop + Sections[i - 1].WinHeight + HORIZONTAL_SPACING;
     }
-    Sections[i].WinLeft = 0.00001;
-    Sections[i].WinWidth = 0.99998;
     if (bDoubleColumn)
     {
         if (i % 2 == 1)
         {
-            Sections[i].WinLeft = 0.5025;
-            Sections[i].WinWidth = 0.49749;
+            Sections[i].WinLeft = 0.5 + VERTICAL_SPACING;
+            Sections[i].WinWidth = 0.5 - VERTICAL_SPACING;
         }
         else if (i + 1 < Sections.Length
-            && (Sections[i].ColumnWidths.Length == 1 || Sections[i + 1] != None))
+            && (Sections[i].ColumnCount() == 1 || Sections[i + 1] != None))
         {
-            Sections[i].WinWidth = 0.49749;
+            Sections[i].WinWidth = 0.5 - VERTICAL_SPACING;
         }
     }
-    Sections[i].WinHeight = MINIMUM_SECTION_HEIGHT + (
-        (Sections[i].Grid.Length / Sections[i].ColumnWidths.Length) * COMPONENT_HEIGHT);
+    if (Sections[i].WinHeight <= 0)
+    {
+        Sections[i].WinHeight =
+            ((Sections[i].Count() / Sections[i].ColumnCount()) + 1) * COMPONENT_HEIGHT;
+    }
+    else if (bDoubleColumn)
+    {
+        Sections[i].WinHeight -= OFFSET_HEIGHT / int((Sections.Length + 1) / 2.0);
+    }
+    else
+    {
+        Sections[i].WinHeight -= OFFSET_HEIGHT / Sections.Length;
+    }
 }
 
 function AutoFillColumnHeight(int StartAt, int Step)
@@ -214,4 +249,5 @@ defaultproperties
     bInsertFront=false
     bDoubleColumn=false
     bFillPanelHeight=true
+    OnPreDraw=InternalOnPreDraw
 }
