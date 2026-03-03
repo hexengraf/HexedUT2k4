@@ -867,5 +867,5 @@ defaultproperties
     TeamLabels(0)="Red Team"
     TeamLabels(1)="Blue Team"
     PreviewSkinVariation=-1
-    PreviewOffset=(X=440,Z=-3)
+    PreviewOffset=(X=350,Z=-3)
 }

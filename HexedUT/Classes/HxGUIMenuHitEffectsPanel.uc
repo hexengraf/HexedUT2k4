@@ -415,7 +415,6 @@ defaultproperties
     Begin Object class=moCheckBox Name=HitSoundsCheckBox
         Caption="Enable hit sounds"
         INIOption="HxHitEffects bHitSounds"
-        CaptionWidth=0.7
         OnLoadINI=DefaultOnLoadINI
         OnChange=HitEffectsOnChange
         TabOrder=0
@@ -425,7 +424,7 @@ defaultproperties
     Begin Object class=moComboBox Name=SelectedHitSoundComboBox
         Caption="Sound"
         INIOption="HxHitEffects SelectedHitSound"
-        ComponentWidth=0.7
+        ComponentWidth=0.65
         bReadOnly=true
         OnLoadINI=DefaultOnLoadINI
         OnChange=HitEffectsOnChange
@@ -436,7 +435,7 @@ defaultproperties
     Begin Object class=moSlider Name=HSVolumeSlider
         Caption="Volume"
         INIOption="HxHitEffects HitSoundVolume"
-        ComponentWidth=0.7
+        ComponentWidth=0.65
         MinValue=0.0
         MaxValue=1.0
         OnLoadINI=DefaultOnLoadINI
@@ -448,7 +447,7 @@ defaultproperties
     Begin Object class=moComboBox Name=HSPitchModeComboBox
         Caption="Pitch mode"
         INIOption="HxHitEffects PitchMode"
-        ComponentWidth=0.7
+        ComponentWidth=0.65
         bReadOnly=true
         OnLoadINI=DefaultOnLoadINI
         OnChange=HitEffectsOnChange
@@ -459,7 +458,6 @@ defaultproperties
     Begin Object class=moCheckBox Name=DamageNumbersCheckBox
         Caption="Enable damage numbers"
         INIOption="HxHitEffects bDamageNumbers"
-        CaptionWidth=0.7
         OnLoadINI=DefaultOnLoadINI
         OnChange=HitEffectsOnChange
         TabOrder=4
@@ -469,7 +467,7 @@ defaultproperties
     Begin Object class=moComboBox Name=DModeComboBox
         Caption="Mode"
         INIOption="HxHitEffects DMode"
-        ComponentWidth=0.7
+        ComponentWidth=0.65
         bReadOnly=true
         OnLoadINI=DefaultOnLoadINI
         OnChange=HitEffectsOnChange
@@ -480,7 +478,7 @@ defaultproperties
     Begin Object class=moComboBox Name=DFontComboBox
         Caption="Font"
         INIOption="HxHitEffects FontIndex"
-        ComponentWidth=0.7
+        ComponentWidth=0.65
         bReadOnly=true
         OnLoadINI=FontOnLoadINI
         OnChange=HitEffectsOnChange
@@ -517,7 +515,7 @@ defaultproperties
     Begin Object class=moComboBox Name=DamagePointsComboBox
         Caption="Point"
         INIOption="HxHitEffectsMenuPanel DPIndex"
-        ComponentWidth=0.7
+        ComponentWidth=0.65
         bReadOnly=true
         OnLoadINI=DamagePointEditorOnLoadINI
         OnChange=DamagePointEditorOnChange
@@ -541,7 +539,7 @@ defaultproperties
     Begin Object class=moSlider Name=DPPitchSlider
         Caption="Pitch"
         INIOption="@INTERNAL"
-        ComponentWidth=0.7
+        ComponentWidth=0.65
         MinValue=0.0
         MaxValue=1.0
         OnLoadINI=DamagePointEditorOnLoadINI
@@ -563,7 +561,7 @@ defaultproperties
     Begin Object class=moSlider Name=DPScaleSlider
         Caption="Scale"
         INIOption="@INTERNAL"
-        ComponentWidth=0.7
+        ComponentWidth=0.65
         MinValue=0.0
         MaxValue=1.0
         OnLoadINI=DamagePointEditorOnLoadINI
@@ -575,7 +573,7 @@ defaultproperties
     Begin Object class=moSlider Name=DPRedColorSlider
         Caption="Red"
         INIOption="@INTERNAL"
-        ComponentWidth=0.7
+        ComponentWidth=0.65
         MinValue=0
         MaxValue=255
         bIntSlider=true
@@ -588,7 +586,7 @@ defaultproperties
     Begin Object class=moSlider Name=DPGreenColorSlider
         Caption="Green"
         INIOption="@INTERNAL"
-        ComponentWidth=0.7
+        ComponentWidth=0.65
         MinValue=0
         MaxValue=255
         bIntSlider=true
@@ -601,7 +599,7 @@ defaultproperties
     Begin Object class=moSlider Name=DPBlueColorSlider
         Caption="Blue"
         INIOption="@INTERNAL"
-        ComponentWidth=0.7
+        ComponentWidth=0.65
         MinValue=0
         MaxValue=255
         bIntSlider=true

@@ -115,9 +115,9 @@ defaultproperties
     bRequire640x480=true
     bAllowedAsLast=true
     bScaleToParent=true
-    WinWidth=0.90
+    WinWidth=0.75
     WinHeight=0.85
-    WinLeft=0.05
+    WinLeft=0.125
     WinTop=0.05
     bResizeWidthAllowed=false
     bResizeHeightAllowed=false
