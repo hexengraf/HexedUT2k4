@@ -139,11 +139,29 @@ function float AlignColumns(Canvas C, float Left, float Top, float Width, float 
     local int i;
 
     Spacing = ColumnSpacing * C.ClipY;
-    Left += Spacing / 2;
     for (i = 0; i < ColumnWidths.Length; ++i)
     {
         ColumnWidth = (Width * ColumnWidths[i]);
-        Bottom = Max(Bottom, AlignColumn(C, Left, Top, ColumnWidth - Spacing, Height, Index));
+        if (i == 0)
+        {
+            if (ColumnWidths.Length > 1)
+            {
+                ColumnWidth -= Spacing / 2;
+            }
+        }
+        else
+        {
+            if (i == ColumnWidths.Length - 1)
+            {
+                ColumnWidth -= Spacing / 2;
+            }
+            else
+            {
+                ColumnWidth -= Spacing;
+            }
+            Left += Spacing;
+        }
+        Bottom = Max(Bottom, AlignColumn(C, Left, Top, ColumnWidth, Height, Index));
         if (Index >= Grid.Length)
         {
             break;
@@ -167,7 +185,7 @@ function float AlignColumn(Canvas C, float Left, float Top, float Width, float H
     if (ExpandIndex >= Index && ExpandIndex < MaxLines)
     {
         Grid[ExpandIndex].WinHeight = Grid[ExpandIndex].RelativeHeight(
-            Grid[ExpandIndex].ActualHeight() + Height - GetFilledHeight(C, Index, MaxLines));
+            Grid[ExpandIndex].ActualHeight() + Height - GetFilledHeight(C, Index, MaxLines, Height));
     }
     while (Index < MaxLines && Top < Bottom)
     {
@@ -193,7 +211,7 @@ function float GetLineSpacing(Canvas C, int Index, int MaxLines, float Height)
     return ActualLineSpacing(C);
 }
 
-function float GetFilledHeight(Canvas C, int Index, int MaxLines)
+function float GetFilledHeight(Canvas C, int Index, int MaxLines, optional float Height)
 {
     local float FilledHeight;
     local float Spacing;
@@ -203,6 +221,10 @@ function float GetFilledHeight(Canvas C, int Index, int MaxLines)
     for (i = Index; i < MaxLines; ++i)
     {
         FilledHeight += Grid[i].ActualHeight() + Spacing;
+        if ((Height > 0 && FilledHeight >= Height))
+        {
+            break;
+        }
     }
     return FilledHeight - Spacing;
 }
@@ -283,12 +305,12 @@ defaultproperties
     l_HideReason=HideReasonLabel
 
     ColumnWidths(0)=1.0
-    LeftPadding=0.005
+    LeftPadding=0.015
     TopPadding=0.015
-    RightPadding=0.005
+    RightPadding=0.015
     BottomPadding=0.015
     LineSpacing=0.01
-    ColumnSpacing=0.02
+    ColumnSpacing=0.042
     bAutoSpacing=true
     bShrinkToFit=false
     ExpandIndex=-1
