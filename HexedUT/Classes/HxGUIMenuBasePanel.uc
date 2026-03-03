@@ -9,8 +9,8 @@ const BASE_WIN_TOP = 0.01;
 const OFFSET_HEIGHT = 0.045;
 const BASE_WIN_BOTTOM = 0.965;
 const COMPONENT_HEIGHT = 0.05;
-const HORIZONTAL_SPACING = 0.0074;
-const VERTICAL_SPACING = 0.0025;
+const HORIZONTAL_SPACING = 0.0085;
+const VERTICAL_SPACING = 0.0035;
 
 var automated array<HxGUIFramedSection> Sections;
 var localized string PanelHint;

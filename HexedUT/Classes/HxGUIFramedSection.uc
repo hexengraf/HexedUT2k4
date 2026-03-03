@@ -271,7 +271,6 @@ defaultproperties
         WinLeft=0
         WinTop=0
         RenderWeight=0.3
-        FrameColor=(R=68,G=159,B=241,A=255)
         ImageSources(0)=(Color=(R=21,G=73,B=126,A=255),Style=ISTY_Stretched)
         bScaleToParent=false
         bBoundToParent=true
@@ -281,7 +280,6 @@ defaultproperties
     Begin Object class=GUILabel Name=HeaderLabel
         WinLeft=0
         WinTop=0
-        // StyleName="TextLabel"
         TextColor=(R=255,G=255,B=255,A=255)
         TextAlign=TXTA_Center
         bTransparent=true
@@ -295,7 +293,6 @@ defaultproperties
         WinTop=0
         WinWidth=1
         WinHeight=1
-        // StyleName="TextLabel"
         TextColor=(R=255,G=210,B=0,A=255)
         TextAlign=TXTA_Center
         bTransparent=true
@@ -310,13 +307,11 @@ defaultproperties
     RightPadding=0.015
     BottomPadding=0.015
     LineSpacing=0.01
-    ColumnSpacing=0.042
+    ColumnSpacing=0.038
     bAutoSpacing=true
     bShrinkToFit=false
     ExpandIndex=-1
-    FrameThickness=0.003
-    FrameColor=(R=68,G=159,B=241,A=255)
-    ImageSources(0)=(Color=(R=11,G=59,B=106,A=255),Style=ISTY_Stretched,RenderWeight=0.1)
+    ImageSources(0)=(Color=(R=0,G=38,B=74,A=176),Style=ISTY_Stretched,RenderWeight=0.1)
 
     bScaleToParent=true
     bBoundToParent=true
