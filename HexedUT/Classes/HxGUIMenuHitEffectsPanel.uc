@@ -88,7 +88,7 @@ function PopulateComboBoxes()
     {
         for (i = 0; i < HitSoundNames.Length; ++i)
         {
-            co_SelectedHitSound.AddItem(HitSoundNames[i],,string(i));
+            co_SelectedHitSound.AddItem(GetItemName(HitSoundNames[i]),,string(i));
         }
     }
     for (i = 0; i < ArrayCount(PitchModeNames); ++i)
@@ -102,7 +102,7 @@ function PopulateComboBoxes()
     AddCustomFonts();
     for (i = 0; i < FontNames.Length; ++i)
     {
-        co_DFont.AddItem(FontNames[i],,FontNames[i]);
+        co_DFont.AddItem(GetItemName(FontNames[i]),,FontNames[i]);
     }
     for (i = 0; i < ArrayCount(DamagePointNames); ++i)
     {
