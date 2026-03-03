@@ -10,5 +10,5 @@ defaultproperties
     FontArrayNames(3)="2K4Fonts.Verdana18"
     FontArrayNames(4)="2K4Fonts.Verdana20" // last original
     FontArrayNames(5)="2K4Fonts.Verdana26"
-    FontArrayNames(6)="HexedPatches.Verdana36"
+    FontArrayNames(6)="HexedPatches.HxVerdana36"
 }
