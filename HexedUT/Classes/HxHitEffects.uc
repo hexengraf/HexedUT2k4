@@ -2,11 +2,11 @@ class HxHitEffects extends HudOverlay
     config(User)
     notplaceable;
 
-#exec AUDIO IMPORT FILE=Sounds\HitSound1.wav
-#exec AUDIO IMPORT FILE=Sounds\HitSound2.wav
-#exec AUDIO IMPORT FILE=Sounds\HitSound3.wav
-#exec AUDIO IMPORT FILE=Sounds\HitSound4.wav
-#exec AUDIO IMPORT FILE=Sounds\HitSound5.wav
+#exec AUDIO IMPORT FILE=Sounds\HxHitSound1.wav
+#exec AUDIO IMPORT FILE=Sounds\HxHitSound2.wav
+#exec AUDIO IMPORT FILE=Sounds\HxHitSound3.wav
+#exec AUDIO IMPORT FILE=Sounds\HxHitSound4.wav
+#exec AUDIO IMPORT FILE=Sounds\HxHitSound5.wav
 
 enum EHxPitchMode
 {
@@ -435,9 +435,9 @@ defaultproperties
     DamagePoints(2)=(Value=70,Pitch=0.55,Scale=0.55,Color=(R=255,G=119,B=32))
     DamagePoints(3)=(Value=120,Pitch=0.75,Scale=0.75,Color=(R=255,G=32,B=32))
     DamagePoints(4)=(Value=180,Pitch=1.00,Scale=1.00,Color=(R=143,G=32,B=245))
-    HitSounds(0)=Sound'HitSound1'
-    HitSounds(1)=Sound'HitSound2'
-    HitSounds(2)=Sound'HitSound3'
-    HitSounds(3)=Sound'HitSound4'
-    HitSounds(4)=Sound'HitSound5'
+    HitSounds(0)=Sound'HxHitSound1'
+    HitSounds(1)=Sound'HxHitSound2'
+    HitSounds(2)=Sound'HxHitSound3'
+    HitSounds(3)=Sound'HxHitSound4'
+    HitSounds(4)=Sound'HxHitSound5'
 }
