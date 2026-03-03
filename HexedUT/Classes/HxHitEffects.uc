@@ -1,6 +1,5 @@
 class HxHitEffects extends HudOverlay
-    config(User)
-    notplaceable;
+    config(User);
 
 #exec AUDIO IMPORT FILE=Sounds\HxHitSound1.wav
 #exec AUDIO IMPORT FILE=Sounds\HxHitSound2.wav
@@ -15,16 +14,16 @@ enum EHxPitchMode
     HX_PITCH_High2Low,
 };
 
-enum EHxDMode
+enum EHxDisplayMode
 {
-    HX_DMODE_Static,
-    HX_DMODE_StaticTotal,
-    HX_DMODE_StaticDual,
-    HX_DMODE_Float,
-    HX_DMODE_FloatDual,
+    HX_DISPLAY_Static,
+    HX_DISPLAY_StaticTotal,
+    HX_DISPLAY_StaticDual,
+    HX_DISPLAY_Float,
+    HX_DISPLAY_FloatDual,
 };
 
-struct HxDamageNumber
+struct HxDisplayWidget
 {
     var int Value;
     var float Scale;
@@ -57,157 +56,259 @@ const DN_EXTENDED_DURATION = 1.5;
 const DN_TRAVEL = 0.15;
 const DN_DUAL_OFFSET = 0.025;
 
-const DAMAGE_POINT_COUNT = 5;
-
 var config bool bHitSounds;
-var config int SelectedHitSound;
+var config string HitSoundName;
 var config float HitSoundVolume;
 var config EHxPitchMode PitchMode;
 var config bool bDamageNumbers;
-var config EHxDMode DMode;
-var config Font DFont;
-var config float PosX;
-var config float PosY;
-var config HxDamagePoint DamagePoints[DAMAGE_POINT_COUNT];
+var config EHxDisplayMode DisplayMode;
+var config string DisplayFontName;
+var config float DisplayPosX;
+var config float DisplayPosY;
+var config HxDamagePoint DamagePoints[5];
+var config array<string> FontNames;
+var config array<string> CustomHitSounds;
 
 var private PlayerController PC;
-var private array<Sound> HitSounds;
-var private array<HxDamageNumber> DamageNumbers;
+var private array<Sound> BuiltInHitSounds;
+var private array<HxDisplayWidget> Widgets;
+var private Sound LoadedHitSound;
+var private Font LoadedFont;
 var private float GlobalScale;
 
 simulated event PreBeginPlay()
 {
     super.PreBeginPlay();
     PC = HUD(Owner).PlayerOwner;
-    InitializeDamageNumbers();
-    ValidateConfig();
+    InitializeWidgets();
+    LoadHitSound();
+    LoadFont();
+    ValidatePositions();
+    ValidateCustomHitSounds();
+    ValidateDamagePoints();
+    ValidateFontNames();
+    SaveConfig();
 }
 
-simulated function ValidateConfig()
+simulated function ValidatePositions()
+{
+    DisplayPosX = FClamp(DisplayPosX, 0.0, 1.0);
+    DisplayPosY = FClamp(DisplayPosY, 0.0, 1.0);
+}
+
+simulated function ValidateCustomHitSounds()
 {
     local int i;
 
-    for (i = 0; i < DAMAGE_POINT_COUNT; ++i)
+    for (i = 0; i < BuiltInHitSounds.Length; ++i)
+    {
+        if (HitSoundName ~= GetItemName(string(BuiltInHitSounds[i])))
+        {
+            return;
+        }
+    }
+    for (i = 0; i < CustomHitSounds.Length; ++i)
+    {
+        if (HitSoundName ~= CustomHitSounds[i])
+        {
+            break;
+        }
+    }
+    if (i == CustomHitSounds.Length)
+    {
+        CustomHitSounds[CustomHitSounds.Length] = HitSoundName;
+    }
+}
+
+simulated function ValidateFontNames()
+{
+    local int i;
+
+    for (i = 0; i < FontNames.Length; ++i)
+    {
+        if (DisplayFontName ~= FontNames[i])
+        {
+            break;
+        }
+    }
+    if (i == FontNames.Length)
+    {
+        FontNames[FontNames.Length] = DisplayFontName;
+    }
+}
+
+simulated function ValidateDamagePoints()
+{
+    local int i;
+
+    for (i = 0; i < ArrayCount(DamagePoints); ++i)
     {
         DamagePoints[i].Color.A = 255;
         DamagePoints[i].Pitch = FClamp(DamagePoints[i].Pitch, 0.0, 1.0);
         DamagePoints[i].Scale = FClamp(DamagePoints[i].Scale, 0.0, 1.0);
     }
-    SelectedHitSound = Clamp(SelectedHitSound, 0, default.HitSounds.Length - 1);
     DamagePoints[0].Value = 0;
-    SaveConfig();
 }
 
-simulated function InitializeDamageNumbers()
+simulated function bool LoadHitSound()
+{
+    if (IsHitSoundChanged())
+    {
+        if (LoadHitSoundFromBuiltIn())
+        {
+            return true;
+        }
+        LoadedHitSound = Sound(DynamicLoadObject(HitSoundName, class'Sound', true));
+        if (LoadedHitSound == None)
+        {
+            ResetConfig("HitSoundName");
+            LoadHitSoundFromBuiltIn();
+            return false;
+        }
+    }
+    return true;
+}
+
+simulated function bool LoadHitSoundFromBuiltIn()
 {
     local int i;
 
-    DamageNumbers.Length = DN_TOTAL_INDEX + 1;
-    for (i = 0; i < DamageNumbers.Length; ++i)
+    for (i = 0; i < BuiltInHitSounds.Length; ++i)
     {
-        InitializeDamageNumber(i);
+        if (HitSoundName ~= GetItemName(string(BuiltInHitSounds[i])))
+        {
+            LoadedHitSound = BuiltInHitSounds[i];
+            return true;
+        }
+    }
+    return false;
+}
+
+simulated function bool LoadFont()
+{
+    if (IsFontChanged())
+    {
+        LoadedFont = Font(DynamicLoadObject(DisplayFontName, class'Font', true));
+        if (LoadedFont == None)
+        {
+            ResetConfig("DisplayFontName");
+            LoadedFont = Font(DynamicLoadObject(DisplayFontName, class'Font'));
+            return false;
+        }
+    }
+    return true;
+}
+
+simulated function InitializeWidgets()
+{
+    local int i;
+
+    Widgets.Length = DN_TOTAL_INDEX + 1;
+    for (i = 0; i < Widgets.Length; ++i)
+    {
+        InitializeWidget(i);
     }
 }
 
-simulated function InitializeDamageNumber(int i)
+simulated function InitializeWidget(int i)
 {
-    DamageNumbers[i].Value = 0;
-    DamageNumbers[i].DeltaY = 0;
-    DamageNumbers[i].Duration = DN_NORMAL_DURATION;
+    Widgets[i].Value = 0;
+    Widgets[i].DeltaY = 0;
+    Widgets[i].Duration = DN_NORMAL_DURATION;
 }
 
 simulated Event Tick(float DeltaTime)
 {
-    local int i;
     local bool bKeepSize;
+    local int i;
 
-    bKeepSize = DamageNumbers.Length == DN_TOTAL_INDEX + 1;
+    bKeepSize = Widgets.Length == DN_TOTAL_INDEX + 1;
 
-    for (i = 0; i < DamageNumbers.Length; ++i)
+    for (i = 0; i < Widgets.Length; ++i)
     {
-        if (DamageNumbers[i].Value > 0)
+        if (Widgets[i].Value > 0)
         {
-            DamageNumbers[i].Duration -= DeltaTime;
-            if (i > DN_TOTAL_INDEX && TickFloatMode(i, DeltaTime))
+            Widgets[i].Duration -= DeltaTime;
+            if (i > DN_TOTAL_INDEX && TickFloatWidgets(i, DeltaTime))
             {
                 bKeepSize = true;
             }
-            if (DamageNumbers[i].Duration <= 0)
+            if (Widgets[i].Duration <= 0)
             {
-                InitializeDamageNumber(i);
+                InitializeWidget(i);
             }
             else
             {
-                DamageNumbers[i].Color.A = GetFade(i);
+                Widgets[i].Color.A = GetFade(i);
             }
         }
     }
     if (!bKeepSize)
     {
-        DamageNumbers.Length = DN_TOTAL_INDEX + 1;
+        Widgets.Length = DN_TOTAL_INDEX + 1;
     }
 }
 
-simulated function bool TickFloatMode(int i, float DeltaTime)
+simulated function bool TickFloatWidgets(int i, float DeltaTime)
 {
-    if (DamageNumbers[i].Duration > 0)
+    if (Widgets[i].Duration > 0)
     {
-        DamageNumbers[i].DeltaY -= DeltaTime * DN_TRAVEL;
+        Widgets[i].DeltaY -= DeltaTime * DN_TRAVEL;
         return true;
     }
-    if (DMode == HX_DMODE_FloatDual)
+    if (DisplayMode == HX_DISPLAY_FloatDual)
     {
-        if (DamageNumbers[DN_TOTAL_INDEX].Value == 0)
+        if (Widgets[DN_TOTAL_INDEX].Value == 0)
         {
-            DamageNumbers[DN_TOTAL_INDEX].DeltaY = -DN_TRAVEL - DeltaTime * DN_TRAVEL;
+            Widgets[DN_TOTAL_INDEX].DeltaY = -DN_TRAVEL - DeltaTime * DN_TRAVEL;
         }
-        UpdateDamageNumber(DN_TOTAL_INDEX, DamageNumbers[i].Value);
-        DamageNumbers[DN_TOTAL_INDEX].Duration = DN_EXTENDED_DURATION;
+        UpdateWidget(DN_TOTAL_INDEX, Widgets[i].Value);
+        Widgets[DN_TOTAL_INDEX].Duration = DN_EXTENDED_DURATION;
     }
     return false;
 }
 
 simulated function Render(Canvas C)
 {
-    local int i;
     local float SavedFontScaleX;
     local float SavedFontScaleY;
+    local int i;
 
     SavedFontScaleX = C.FontScaleX;
     SavedFontScaleY = C.FontScaleY;
     GlobalScale = C.ClipX / REFERENCE_SCREEN_X;
-    for (i = 0; i < DamageNumbers.Length; ++i)
+    for (i = 0; i < Widgets.Length; ++i)
     {
-        if (DamageNumbers[i].Value > 0)
+        if (Widgets[i].Value > 0)
         {
-            DrawDamageNumber(C, i);
+            DrawWidget(C, i);
         }
     }
     C.FontScaleX = SavedFontScaleX;
     C.FontScaleY = SavedFontScaleY;
 }
 
-simulated function DrawDamageNumber(Canvas C, int i)
+simulated function DrawWidget(Canvas C, int i)
 {
     local float XL;
     local float YL;
 
-    C.DrawColor = DamageNumbers[i].Color;
-    C.Font = DFont;
-    C.FontScaleX = GlobalScale * DamageNumbers[i].Scale;
+    C.DrawColor = Widgets[i].Color;
+    C.Font = LoadedFont;
+    C.FontScaleX = GlobalScale * Widgets[i].Scale;
     C.FontScaleY = C.FontScaleX;
-    C.StrLen(DamageNumbers[i].Value, XL, YL);
-    C.SetPos((C.ClipX - XL) * PosX, (C.ClipY - YL) * (PosY + DamageNumbers[i].DeltaY));
-    C.DrawText(DamageNumbers[i].Value);
+    C.StrLen(Widgets[i].Value, XL, YL);
+    C.SetPos((C.ClipX - XL) * DisplayPosX, (C.ClipY - YL) * (DisplayPosY + Widgets[i].DeltaY));
+    C.DrawText(Widgets[i].Value);
 }
 
-simulated function DrawDamageNumberPreview(Canvas C, int i)
+simulated function DrawPreview(Canvas C, int i)
 {
     local float XL;
     local float YL;
 
     C.DrawColor = DamagePoints[i].Color;
-    C.Font = DFont;
+    C.Font = LoadedFont;
     C.FontScaleX = GlobalScale * ToAbsoluteScale(DamagePoints[i].Scale);
     C.FontScaleY = C.FontScaleX;
     C.StrLen(DamagePoints[i].Value, XL, YL);
@@ -223,7 +324,7 @@ simulated function Update(int Damage, bool bAllowHitSounds, bool bAllowDamageNum
     }
     if (bAllowDamageNumbers && bDamageNumbers)
     {
-        UpdateDamageNumbers(Damage);
+        UpdateWidgets(Damage);
     }
 }
 
@@ -231,94 +332,93 @@ simulated function PlayHitSound(int Damage)
 {
     if (PC.ViewTarget != None)
     {
-        PC.ViewTarget.PlaySound(
-            default.HitSounds[SelectedHitSound],,HitSoundVolume,,,GetPitch(Damage));
+        PC.ViewTarget.PlaySound(LoadedHitSound,,HitSoundVolume,,,GetPitch(Damage));
     }
 }
 
 simulated function float GetPitch(int Damage)
 {
+    local float Pitch;
     local int i;
-    local float NormalizedPitch;
 
     if (PitchMode == HX_PITCH_Disabled)
     {
         return ALAUDIO_PITCH_NEUTRAL;
     }
-    for (i = 1; i < DAMAGE_POINT_COUNT; ++i)
+    for (i = 1; i < ArrayCount(DamagePoints); ++i)
     {
         if (Damage < DamagePoints[i].Value)
         {
-            NormalizedPitch = FInterpolate(
+            Pitch = FInterpolate(
                 Damage, DamagePoints[i].Value, DamagePoints[i - 1].Pitch, DamagePoints[i].Pitch);
             break;
         }
     }
-    if (i == DAMAGE_POINT_COUNT)
+    if (i == ArrayCount(DamagePoints))
     {
-        NormalizedPitch = DamagePoints[DAMAGE_POINT_COUNT - 1].Pitch;
+        Pitch = DamagePoints[ArrayCount(DamagePoints) - 1].Pitch;
     }
     if (PitchMode == HX_PITCH_Low2High)
     {
-        return ALAUDIO_PITCH_MIN + NormalizedPitch * ALAUDIO_PITCH_SPECTRUM;
+        return ALAUDIO_PITCH_MIN + Pitch * ALAUDIO_PITCH_SPECTRUM;
     }
-    return ALAUDIO_PITCH_MAX - NormalizedPitch * ALAUDIO_PITCH_SPECTRUM;
+    return ALAUDIO_PITCH_MAX - Pitch * ALAUDIO_PITCH_SPECTRUM;
 }
 
-simulated function UpdateDamageNumbers(int Damage)
+simulated function UpdateWidgets(int Damage)
 {
-    switch (DMode)
+    switch (DisplayMode)
     {
-        case HX_DMODE_Static:
-            DamageNumbers[DN_STATIC_INDEX].Value = 0;
-            UpdateDamageNumber(DN_STATIC_INDEX, Damage);
+        case HX_DISPLAY_Static:
+            Widgets[DN_STATIC_INDEX].Value = 0;
+            UpdateWidget(DN_STATIC_INDEX, Damage);
             break;
-        case HX_DMODE_StaticTotal:
-            UpdateDamageNumber(DN_TOTAL_INDEX, Damage);
+        case HX_DISPLAY_StaticTotal:
+            UpdateWidget(DN_TOTAL_INDEX, Damage);
             break;
-        case HX_DMODE_StaticDual:
-            if (DamageNumbers[DN_STATIC_INDEX].Value > 0)
+        case HX_DISPLAY_StaticDual:
+            if (Widgets[DN_STATIC_INDEX].Value > 0)
             {
-                if (DamageNumbers[DN_TOTAL_INDEX].Value == 0)
+                if (Widgets[DN_TOTAL_INDEX].Value == 0)
                 {
-                    DamageNumbers[DN_TOTAL_INDEX].Value = DamageNumbers[DN_STATIC_INDEX].Value;
-                    DamageNumbers[DN_TOTAL_INDEX].DeltaY -= DN_DUAL_OFFSET;
+                    Widgets[DN_TOTAL_INDEX].Value = Widgets[DN_STATIC_INDEX].Value;
+                    Widgets[DN_TOTAL_INDEX].DeltaY -= DN_DUAL_OFFSET;
                 }
-                UpdateDamageNumber(DN_TOTAL_INDEX, Damage);
-                DamageNumbers[DN_STATIC_INDEX].Value = 0;
+                UpdateWidget(DN_TOTAL_INDEX, Damage);
+                Widgets[DN_STATIC_INDEX].Value = 0;
             }
-            UpdateDamageNumber(DN_STATIC_INDEX, Damage);
+            UpdateWidget(DN_STATIC_INDEX, Damage);
             break;
-        case HX_DMODE_Float:
-        case HX_DMODE_FloatDual:
-            UpdateDamageNumber(GetFloatModeIndex(), Damage);
+        case HX_DISPLAY_Float:
+        case HX_DISPLAY_FloatDual:
+            UpdateWidget(GetFloatWidgetIndex(), Damage);
             break;
     }
 }
 
-simulated function UpdateDamageNumber(int i, int Damage)
+simulated function UpdateWidget(int i, int Damage)
 {
-    DamageNumbers[i].Value += Damage;
-    DamageNumbers[i].Scale = GetScale(DamageNumbers[i].Value);
-    DamageNumbers[i].Color = GetColor(DamageNumbers[i].Value);
-    DamageNumbers[i].Duration = DN_NORMAL_DURATION;
+    Widgets[i].Value += Damage;
+    Widgets[i].Scale = GetScale(Widgets[i].Value);
+    Widgets[i].Color = GetColor(Widgets[i].Value);
+    Widgets[i].Duration = DN_NORMAL_DURATION;
 }
 
-simulated function int GetFloatModeIndex()
+simulated function int GetFloatWidgetIndex()
 {
     local int i;
 
-    for (i = DN_TOTAL_INDEX + 1; i < DamageNumbers.Length; ++i)
+    for (i = DN_TOTAL_INDEX + 1; i < Widgets.Length; ++i)
     {
-        if (DamageNumbers[i].Value == 0)
+        if (Widgets[i].Value == 0)
         {
             break;
         }
     }
-    if (i == DamageNumbers.Length)
+    if (i == Widgets.Length)
     {
-        DamageNumbers.Insert(DamageNumbers.Length, 1);
-        InitializeDamageNumber(i);
+        Widgets.Insert(Widgets.Length, 1);
+        InitializeWidget(i);
     }
     return i;
 }
@@ -327,7 +427,7 @@ simulated function float GetScale(int Damage)
 {
     local int i;
 
-    for (i = 1; i < DAMAGE_POINT_COUNT; ++i)
+    for (i = 1; i < ArrayCount(DamagePoints); ++i)
     {
         if (Damage < DamagePoints[i].Value)
         {
@@ -336,14 +436,14 @@ simulated function float GetScale(int Damage)
             break;
         }
     }
-    return ToAbsoluteScale(DamagePoints[DAMAGE_POINT_COUNT - 1].Scale);
+    return ToAbsoluteScale(DamagePoints[ArrayCount(DamagePoints) - 1].Scale);
 }
 
 simulated function Color GetColor(int Damage)
 {
     local int i;
 
-    for (i = 1; i < DAMAGE_POINT_COUNT; ++i)
+    for (i = 1; i < ArrayCount(DamagePoints); ++i)
     {
         if (Damage < DamagePoints[i].Value)
         {
@@ -351,14 +451,14 @@ simulated function Color GetColor(int Damage)
                 Damage, DamagePoints[i].Value, DamagePoints[i - 1].Color, DamagePoints[i].Color);
         }
     }
-    return DamagePoints[DAMAGE_POINT_COUNT - 1].Color;
+    return DamagePoints[ArrayCount(DamagePoints) - 1].Color;
 }
 
 simulated function int GetFade(int DNIndex)
 {
-    if (DamageNumbers[DNIndex].Duration <= 0.33)
+    if (Widgets[DNIndex].Duration <= 0.33)
     {
-        return Clamp(int(3 * DamageNumbers[DNIndex].Duration * 255), 0, 255);
+        return Clamp(int(3 * Widgets[DNIndex].Duration * 255), 0, 255);
     }
     return 255;
 }
@@ -376,6 +476,18 @@ simulated function Color InterpolateColor(int Damage, float MaxValue, Color Firs
     return Result;
 }
 
+simulated function bool IsHitSoundChanged()
+{
+    return LoadedHitSound == None
+        || !(string(LoadedHitSound) ~= HitSoundName
+            || GetItemName(string(LoadedHitSound)) ~= HitSoundName);
+}
+
+simulated function bool IsFontChanged()
+{
+    return LoadedFont == None || !(string(LoadedFont) ~= DisplayFontName);
+}
+
 static function float FInterpolate(int Value, float MaxValue, float First, float Second)
 {
     return First + FClamp(Value / MaxValue, 0.0, 1.0) * (Second - First);
@@ -386,58 +498,48 @@ static function float ToAbsoluteScale(float NormalizedScale)
     return FONT_SCALE_MIN + NormalizedScale * FONT_SCALE_SPECTRUM;
 }
 
-static function AddHitSound(Sound HitSound, optional bool bPrepend)
-{
-    local int i;
-
-    for (i = 0; i < default.HitSounds.Length; ++i)
-    {
-        if (default.HitSounds[i] == HitSound)
-        {
-            return;
-        }
-    }
-    if (bPrepend)
-    {
-        default.HitSounds.Insert(0, 1);
-        default.HitSounds[0] = HitSound;
-    }
-    else
-    {
-        default.HitSounds[default.HitSounds.Length] = HitSound;
-    }
-}
-
 static function bool GetHitSoundNames(out array<string> Names)
 {
     local int i;
 
-    for (i = 0; i < default.HitSounds.Length; ++i)
+    for (i = 0; i < default.BuiltInHitSounds.Length; ++i)
     {
-        Names[Names.Length] = string(default.HitSounds[i]);
+        Names[Names.Length] = GetItemName(string(default.BuiltInHitSounds[i]));
     }
-    return default.HitSounds.Length > 0;
+    for (i = 0; i < default.CustomHitSounds.Length; ++i)
+    {
+        Names[Names.Length] = default.CustomHitSounds[i];
+    }
+    return Names.Length > 0;
 }
 
 defaultproperties
 {
     bHitSounds=true
-    SelectedHitSound=0
+    HitSoundName="HxHitSound1"
     HitSoundVolume=1.0
     PitchMode=HX_PITCH_High2Low
     bDamageNumbers=true
-    DMode=HX_DMODE_StaticDual
-    DFont=Font'UT2003Fonts.FontEurostile37';
-    PosX=0.5
-    PosY=0.45
+    DisplayMode=HX_DISPLAY_StaticDual
+    DisplayFontName="UT2003Fonts.FontEurostile37";
+    DisplayPosX=0.5
+    DisplayPosY=0.45
     DamagePoints(0)=(Value=0,Pitch=0,Scale=0,Color=(R=255,G=255,B=255))
     DamagePoints(1)=(Value=30,Pitch=0.30,Scale=0.30,Color=(R=255,G=255,B=32))
     DamagePoints(2)=(Value=70,Pitch=0.55,Scale=0.55,Color=(R=255,G=119,B=32))
     DamagePoints(3)=(Value=120,Pitch=0.75,Scale=0.75,Color=(R=255,G=32,B=32))
     DamagePoints(4)=(Value=180,Pitch=1.00,Scale=1.00,Color=(R=143,G=32,B=245))
-    HitSounds(0)=Sound'HxHitSound1'
-    HitSounds(1)=Sound'HxHitSound2'
-    HitSounds(2)=Sound'HxHitSound3'
-    HitSounds(3)=Sound'HxHitSound4'
-    HitSounds(4)=Sound'HxHitSound5'
+    FontNames(0)="UT2003Fonts.FontEurostile29"
+    FontNames(1)="UT2003Fonts.FontEurostile37"
+    FontNames(2)="UT2003Fonts.FontNeuzeit29"
+    FontNames(3)="UT2003Fonts.FontNeuzeit37"
+    FontNames(4)="2K4Fonts.Verdana28"
+    FontNames(5)="2K4Fonts.Verdana30"
+    FontNames(6)="2K4Fonts.Verdana32"
+    FontNames(7)="2K4Fonts.Verdana34"
+    BuiltInHitSounds(0)=Sound'HxHitSound1'
+    BuiltInHitSounds(1)=Sound'HxHitSound2'
+    BuiltInHitSounds(2)=Sound'HxHitSound3'
+    BuiltInHitSounds(3)=Sound'HxHitSound4'
+    BuiltInHitSounds(4)=Sound'HxHitSound5'
 }
