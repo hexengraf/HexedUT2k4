@@ -221,6 +221,18 @@ function HideAllSections(bool bHidden, optional String Reason)
     }
 }
 
+function SetEnable(GUIComponent Comp, bool bEnable)
+{
+    if (bEnable)
+    {
+        EnableComponent(Comp);
+    }
+    else
+    {
+        DisableComponent(Comp);
+    }
+}
+
 function bool IsAdmin()
 {
     local PlayerController PC;

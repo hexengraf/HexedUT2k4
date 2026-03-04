@@ -67,7 +67,6 @@ function Refresh()
 {
     HitSoundsAfterChange();
     DamageNumbersAfterChange();
-    RefreshDamagePointEditorSection();
     Sections[SECTION_HIT_SOUNDS].SetHide(!Client.bAllowHitSounds, HIDE_DUE_DISABLE);
     Sections[SECTION_DAMAGE_NUMBERS].SetHide(!Client.bAllowDamageNumbers, HIDE_DUE_DISABLE);
     Sections[SECTION_DAMAGE_POINT_EDITOR].SetHide(
@@ -133,22 +132,11 @@ function HitSoundsAfterChange()
     local bool bHitSoundsEnabled;
 
     bHitSoundsEnabled = Client.bAllowHitSounds && Client.HitEffects.bHitSounds;
-    if (bHitSoundsEnabled)
-    {
-        EnableComponent(co_HitSoundNames);
-        EnableComponent(sl_HitSoundVolume);
-        EnableComponent(co_PitchMode);
-        EnableComponent(b_PlaySound);
-        EnableComponent(sl_Pitch);
-    }
-    else
-    {
-        DisableComponent(co_HitSoundNames);
-        DisableComponent(sl_HitSoundVolume);
-        DisableComponent(co_PitchMode);
-        DisableComponent(b_PlaySound);
-        DisableComponent(sl_Pitch);
-    }
+    SetEnable(co_HitSoundNames, bHitSoundsEnabled);
+    SetEnable(sl_HitSoundVolume, bHitSoundsEnabled);
+    SetEnable(co_PitchMode, bHitSoundsEnabled);
+    SetEnable(b_PlaySound, bHitSoundsEnabled);
+    SetEnable(sl_Pitch, bHitSoundsEnabled);
     DamagePointEditorAfterChange(
         bHitSoundsEnabled || (Client.bAllowDamageNumbers && Client.HitEffects.bDamageNumbers));
 }
@@ -158,51 +146,22 @@ function DamageNumbersAfterChange()
     local bool bDamageNumbersEnabled;
 
     bDamageNumbersEnabled = Client.bAllowDamageNumbers && Client.HitEffects.bDamageNumbers;
-    if (bDamageNumbersEnabled)
-    {
-        EnableComponent(co_DisplayMode);
-        EnableComponent(co_DisplayFont);
-        EnableComponent(fl_DisplayPosX);
-        EnableComponent(fl_DisplayPosY);
-        EnableComponent(sl_Scale);
-        EnableComponent(sl_RedColor);
-        EnableComponent(sl_GreenColor);
-        EnableComponent(sl_BlueColor);
-    }
-    else
-    {
-        DisableComponent(co_DisplayMode);
-        DisableComponent(co_DisplayFont);
-        DisableComponent(fl_DisplayPosX);
-        DisableComponent(fl_DisplayPosY);
-        DisableComponent(sl_Scale);
-        DisableComponent(sl_RedColor);
-        DisableComponent(sl_GreenColor);
-        DisableComponent(sl_BlueColor);
-    }
+    SetEnable(co_DisplayMode, bDamageNumbersEnabled);
+    SetEnable(co_DisplayFont, bDamageNumbersEnabled);
+    SetEnable(fl_DisplayPosX, bDamageNumbersEnabled);
+    SetEnable(fl_DisplayPosY, bDamageNumbersEnabled);
+    SetEnable(sl_Scale, bDamageNumbersEnabled);
+    SetEnable(sl_RedColor, bDamageNumbersEnabled);
+    SetEnable(sl_GreenColor, bDamageNumbersEnabled);
+    SetEnable(sl_BlueColor, bDamageNumbersEnabled);
     DamagePointEditorAfterChange(
         bDamageNumbersEnabled || (Client.bAllowHitSounds && Client.HitEffects.bHitSounds));
 }
 
 function DamagePointEditorAfterChange(bool bAnyEffectEnabled)
 {
-    if (bAnyEffectEnabled)
-    {
-        EnableComponent(co_DamagePoints);
-        if (DPIndex != 0)
-        {
-            EnableComponent(nu_Value);
-        }
-        else
-        {
-            DisableComponent(nu_Value);
-        }
-    }
-    else
-    {
-        DisableComponent(co_DamagePoints);
-        DisableComponent(nu_Value);
-    }
+    SetEnable(co_DamagePoints, bAnyEffectEnabled);
+    SetEnable(nu_Value, bAnyEffectEnabled && DPIndex != 0);
 }
 
 function DamagePointEditorOnLoadINI(GUIComponent Sender, string s)
@@ -277,7 +236,7 @@ function DamagePointEditorOnChange(GUIComponent Sender)
     switch(Sender)
     {
         case co_DamagePoints:
-            DefaultOnChange(Sender, Self);
+            DPIndex = co_DamagePoints.GetIndex();
             RefreshDamagePointEditorSection();
             break;
         case nu_Value:
@@ -304,14 +263,7 @@ function DamagePointEditorOnChange(GUIComponent Sender)
 
 function RefreshDamagePointEditorSection()
 {
-    if (DPIndex != 0)
-    {
-        EnableComponent(nu_Value);
-    }
-    else
-    {
-        DisableComponent(nu_Value);
-    }
+    SetEnable(nu_Value, DPIndex != 0);
     nu_Value.SetComponentValue(Client.HitEffects.DamagePoints[DPIndex].Value);
     sl_Pitch.SetComponentValue(Client.HitEffects.DamagePoints[DPIndex].Pitch);
     sl_Scale.SetComponentValue(Client.HitEffects.DamagePoints[DPIndex].Scale);
@@ -480,7 +432,6 @@ defaultproperties
 
     Begin Object class=moComboBox Name=DamagePointsComboBox
         Caption="Point"
-        INIOption="HxHitEffectsMenuPanel DPIndex"
         ComponentWidth=0.65
         bReadOnly=true
         OnLoadINI=DamagePointEditorOnLoadINI
