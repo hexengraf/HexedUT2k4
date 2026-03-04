@@ -65,11 +65,16 @@ var config EHxDisplayMode DisplayMode;
 var config string DisplayFontName;
 var config float DisplayPosX;
 var config float DisplayPosY;
-var config HxDamagePoint DamagePoints[5];
+var config HxDamagePoint ZeroDamage;
+var config HxDamagePoint LowDamage;
+var config HxDamagePoint MediumDamage;
+var config HxDamagePoint HighDamage;
+var config HxDamagePoint ExtremeDamage;
 var config array<string> FontNames;
 var config array<string> CustomHitSounds;
 
 var private PlayerController PC;
+var private HxDamagePoint DamagePoints[5];
 var private array<Sound> BuiltInHitSounds;
 var private array<HxDisplayWidget> Widgets;
 var private Sound LoadedHitSound;
@@ -81,11 +86,12 @@ simulated event PreBeginPlay()
     super.PreBeginPlay();
     PC = HUD(Owner).PlayerOwner;
     InitializeWidgets();
-    LoadHitSound();
-    LoadFont();
     ValidatePositions();
+    LoadHitSound();
     ValidateCustomHitSounds();
     ValidateDamagePoints();
+    LoadDamagePoints();
+    LoadFont();
     ValidateFontNames();
     SaveConfig();
 }
@@ -139,15 +145,22 @@ simulated function ValidateFontNames()
 
 simulated function ValidateDamagePoints()
 {
-    local int i;
-
-    for (i = 0; i < ArrayCount(DamagePoints); ++i)
-    {
-        DamagePoints[i].Color.A = 255;
-        DamagePoints[i].Pitch = FClamp(DamagePoints[i].Pitch, 0.0, 1.0);
-        DamagePoints[i].Scale = FClamp(DamagePoints[i].Scale, 0.0, 1.0);
-    }
-    DamagePoints[0].Value = 0;
+    ZeroDamage.Color.A = 255;
+    ZeroDamage.Pitch = FClamp(ZeroDamage.Pitch, 0.0, 1.0);
+    ZeroDamage.Scale = FClamp(ZeroDamage.Scale, 0.0, 1.0);
+    ZeroDamage.Value = 0;
+    LowDamage.Color.A = 255;
+    LowDamage.Pitch = FClamp(LowDamage.Pitch, 0.0, 1.0);
+    LowDamage.Scale = FClamp(LowDamage.Scale, 0.0, 1.0);
+    MediumDamage.Color.A = 255;
+    MediumDamage.Pitch = FClamp(MediumDamage.Pitch, 0.0, 1.0);
+    MediumDamage.Scale = FClamp(MediumDamage.Scale, 0.0, 1.0);
+    HighDamage.Color.A = 255;
+    HighDamage.Pitch = FClamp(HighDamage.Pitch, 0.0, 1.0);
+    HighDamage.Scale = FClamp(HighDamage.Scale, 0.0, 1.0);
+    ExtremeDamage.Color.A = 255;
+    ExtremeDamage.Pitch = FClamp(ExtremeDamage.Pitch, 0.0, 1.0);
+    ExtremeDamage.Scale = FClamp(ExtremeDamage.Scale, 0.0, 1.0);
 }
 
 simulated function bool LoadHitSound()
@@ -197,6 +210,15 @@ simulated function bool LoadFont()
         }
     }
     return true;
+}
+
+simulated function LoadDamagePoints()
+{
+    DamagePoints[0] = ZeroDamage;
+    DamagePoints[1] = LowDamage;
+    DamagePoints[2] = MediumDamage;
+    DamagePoints[3] = HighDamage;
+    DamagePoints[4] = ExtremeDamage;
 }
 
 simulated function InitializeWidgets()
@@ -336,6 +358,11 @@ simulated function PlayHitSound(int Damage)
     }
 }
 
+simulated function PlayHitSoundPreview(int Index)
+{
+    PlayHitSound(DamagePoints[Index].Value);
+}
+
 simulated function float GetPitch(int Damage)
 {
     local float Pitch;
@@ -463,6 +490,69 @@ simulated function int GetFade(int DNIndex)
     return 255;
 }
 
+simulated function HxDamagePoint GetDamagePoint(int Index)
+{
+    return DamagePoints[Index];
+}
+
+simulated function SetDamagePointValue(int Index, int Value)
+{
+    DamagePoints[Index].Value = Value;
+    UpdateDamagePointConfig(Index);
+}
+
+simulated function SetDamagePointPitch(int Index, float Pitch)
+{
+    DamagePoints[Index].Pitch = Pitch;
+    UpdateDamagePointConfig(Index);
+}
+
+simulated function SetDamagePointScale(int Index, float Scale)
+{
+    DamagePoints[Index].Scale = Scale;
+    UpdateDamagePointConfig(Index);
+}
+
+simulated function SetDamagePointColorR(int Index, byte R)
+{
+    DamagePoints[Index].Color.R = R;
+    UpdateDamagePointConfig(Index);
+}
+
+simulated function SetDamagePointColorG(int Index, byte G)
+{
+    DamagePoints[Index].Color.G = G;
+    UpdateDamagePointConfig(Index);
+}
+
+simulated function SetDamagePointColorB(int Index, byte B)
+{
+    DamagePoints[Index].Color.B = B;
+    UpdateDamagePointConfig(Index);
+}
+
+simulated function UpdateDamagePointConfig(int Index)
+{
+    switch (Index)
+    {
+        case 0:
+            ZeroDamage = DamagePoints[Index];
+            break;
+        case 1:
+            LowDamage = DamagePoints[Index];
+            break;
+        case 2:
+            MediumDamage = DamagePoints[Index];
+            break;
+        case 3:
+            HighDamage = DamagePoints[Index];
+            break;
+        case 4:
+            ExtremeDamage = DamagePoints[Index];
+            break;
+    }
+}
+
 simulated function Color InterpolateColor(int Damage, float MaxValue, Color First, Color Second)
 {
     local Color Result;
@@ -524,11 +614,11 @@ defaultproperties
     DisplayFontName="UT2003Fonts.FontEurostile37";
     DisplayPosX=0.5
     DisplayPosY=0.45
-    DamagePoints(0)=(Value=0,Pitch=0,Scale=0,Color=(R=255,G=255,B=255))
-    DamagePoints(1)=(Value=30,Pitch=0.30,Scale=0.30,Color=(R=255,G=255,B=32))
-    DamagePoints(2)=(Value=70,Pitch=0.55,Scale=0.55,Color=(R=255,G=119,B=32))
-    DamagePoints(3)=(Value=120,Pitch=0.75,Scale=0.75,Color=(R=255,G=32,B=32))
-    DamagePoints(4)=(Value=180,Pitch=1.00,Scale=1.00,Color=(R=143,G=32,B=245))
+    ZeroDamage=(Value=0,Pitch=0,Scale=0,Color=(R=255,G=255,B=255))
+    LowDamage=(Value=30,Pitch=0.30,Scale=0.30,Color=(R=255,G=255,B=32))
+    MediumDamage=(Value=70,Pitch=0.55,Scale=0.55,Color=(R=255,G=119,B=32))
+    HighDamage=(Value=120,Pitch=0.75,Scale=0.75,Color=(R=255,G=32,B=32))
+    ExtremeDamage=(Value=180,Pitch=1.00,Scale=1.00,Color=(R=143,G=32,B=245))
     FontNames(0)="UT2003Fonts.FontEurostile29"
     FontNames(1)="UT2003Fonts.FontEurostile37"
     FontNames(2)="UT2003Fonts.FontNeuzeit29"

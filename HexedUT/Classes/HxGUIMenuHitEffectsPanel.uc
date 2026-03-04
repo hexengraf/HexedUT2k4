@@ -78,6 +78,7 @@ function Refresh()
 function PopulateComboBoxes()
 {
     local array<string> HitSoundNames;
+    local bool bFoundFont;
     local int i;
 
     if (class'HxHitEffects'.static.GetHitSoundNames(HitSoundNames))
@@ -99,15 +100,6 @@ function PopulateComboBoxes()
     {
         co_DamagePoints.AddItem(DamagePointNames[i],,string(i));
     }
-    PopulateFonts();
-}
-
-function PopulateFonts()
-{
-    local bool bFoundFont;
-    local int i;
-
-    co_DisplayFont.bIgnoreChange = true;
     for (i = 0; i < class'HxHitEffects'.default.FontNames.Length; ++i)
     {
         if (class'HxHitEffects'.default.DisplayFontName ~= class'HxHitEffects'.default.FontNames[i])
@@ -124,7 +116,6 @@ function PopulateFonts()
             GetItemName(class'HxHitEffects'.default.DisplayFontName),,
             class'HxHitEffects'.default.DisplayFontName);
     }
-    co_DisplayFont.bIgnoreChange = false;
 }
 
 function HitSoundsAfterChange()
@@ -166,32 +157,28 @@ function DamagePointEditorAfterChange(bool bAnyEffectEnabled)
 
 function DamagePointEditorOnLoadINI(GUIComponent Sender, string s)
 {
-    if (Client == None || Client.HitEffects == None)
-    {
-        return;
-    }
     switch (Sender)
     {
         case co_DamagePoints:
             co_DamagePoints.SilentSetIndex(DPIndex);
             break;
         case nu_Value:
-            nu_Value.SetComponentValue(Client.HitEffects.DamagePoints[DPIndex].Value, true);
+            nu_Value.SetComponentValue(class'HxHitEffects'.default.ExtremeDamage.Value, true);
             break;
         case sl_Pitch:
-            sl_Pitch.SetComponentValue(Client.HitEffects.DamagePoints[DPIndex].Pitch, true);
+            sl_Pitch.SetComponentValue(class'HxHitEffects'.default.ExtremeDamage.Pitch, true);
             break;
         case sl_Scale:
-            sl_Scale.SetComponentValue(Client.HitEffects.DamagePoints[DPIndex].Scale, true);
+            sl_Scale.SetComponentValue(class'HxHitEffects'.default.ExtremeDamage.Scale, true);
             break;
         case sl_RedColor:
-            sl_RedColor.SetComponentValue(Client.HitEffects.DamagePoints[DPIndex].Color.R, true);
+            sl_RedColor.SetComponentValue(class'HxHitEffects'.default.ExtremeDamage.Color.R, true);
             break;
         case sl_GreenColor:
-            sl_GreenColor.SetComponentValue(Client.HitEffects.DamagePoints[DPIndex].Color.G, true);
+            sl_GreenColor.SetComponentValue(class'HxHitEffects'.default.ExtremeDamage.Color.G, true);
             break;
         case sl_BlueColor:
-            sl_BlueColor.SetComponentValue(Client.HitEffects.DamagePoints[DPIndex].Color.B, true);
+            sl_BlueColor.SetComponentValue(class'HxHitEffects'.default.ExtremeDamage.Color.B, true);
             break;
     }
 }
@@ -240,22 +227,22 @@ function DamagePointEditorOnChange(GUIComponent Sender)
             RefreshDamagePointEditorSection();
             break;
         case nu_Value:
-            Client.HitEffects.DamagePoints[DPIndex].Value = nu_Value.GetValue();
+            Client.HitEffects.SetDamagePointValue(DPIndex, nu_Value.GetValue());
             break;
         case sl_Pitch:
-            Client.HitEffects.DamagePoints[DPIndex].Pitch = sl_Pitch.GetValue();
+            Client.HitEffects.SetDamagePointPitch(DPIndex, sl_Pitch.GetValue());
             break;
         case sl_Scale:
-            Client.HitEffects.DamagePoints[DPIndex].Scale = sl_Scale.GetValue();
+            Client.HitEffects.SetDamagePointScale(DPIndex, sl_Scale.GetValue());
             break;
         case sl_RedColor:
-            Client.HitEffects.DamagePoints[DPIndex].Color.R = sl_RedColor.GetValue();
+            Client.HitEffects.SetDamagePointColorR(DPIndex, sl_RedColor.GetValue());
             break;
         case sl_GreenColor:
-            Client.HitEffects.DamagePoints[DPIndex].Color.G = sl_GreenColor.GetValue();
+            Client.HitEffects.SetDamagePointColorG(DPIndex, sl_GreenColor.GetValue());
             break;
         case sl_BlueColor:
-            Client.HitEffects.DamagePoints[DPIndex].Color.B = sl_BlueColor.GetValue();
+            Client.HitEffects.SetDamagePointColorB(DPIndex, sl_BlueColor.GetValue());
             break;
     }
     Client.HitEffects.SaveConfig();
@@ -264,12 +251,12 @@ function DamagePointEditorOnChange(GUIComponent Sender)
 function RefreshDamagePointEditorSection()
 {
     SetEnable(nu_Value, DPIndex != 0);
-    nu_Value.SetComponentValue(Client.HitEffects.DamagePoints[DPIndex].Value);
-    sl_Pitch.SetComponentValue(Client.HitEffects.DamagePoints[DPIndex].Pitch);
-    sl_Scale.SetComponentValue(Client.HitEffects.DamagePoints[DPIndex].Scale);
-    sl_RedColor.SetComponentValue(Client.HitEffects.DamagePoints[DPIndex].Color.R);
-    sl_GreenColor.SetComponentValue(Client.HitEffects.DamagePoints[DPIndex].Color.G);
-    sl_BlueColor.SetComponentValue(Client.HitEffects.DamagePoints[DPIndex].Color.B);
+    nu_Value.SetComponentValue(Client.HitEffects.GetDamagePoint(DPIndex).Value, true);
+    sl_Pitch.SetComponentValue(Client.HitEffects.GetDamagePoint(DPIndex).Pitch, true);
+    sl_Scale.SetComponentValue(Client.HitEffects.GetDamagePoint(DPIndex).Scale, true);
+    sl_RedColor.SetComponentValue(Client.HitEffects.GetDamagePoint(DPIndex).Color.R, true);
+    sl_GreenColor.SetComponentValue(Client.HitEffects.GetDamagePoint(DPIndex).Color.G, true);
+    sl_BlueColor.SetComponentValue(Client.HitEffects.GetDamagePoint(DPIndex).Color.B, true);
 }
 
 function DrawPreview(Canvas C)
@@ -306,7 +293,7 @@ function DrawPreview(Canvas C)
 
 function bool PlaySoundOnClick(GUIComponent Sender)
 {
-    Client.HitEffects.PlayHitSound(Client.HitEffects.DamagePoints[DPIndex].Value);
+    Client.HitEffects.PlayHitSoundPreview(DPIndex);
     return true;
 }
 
@@ -432,6 +419,7 @@ defaultproperties
 
     Begin Object class=moComboBox Name=DamagePointsComboBox
         Caption="Point"
+        INIOption="@INTERNAL"
         ComponentWidth=0.65
         bReadOnly=true
         OnLoadINI=DamagePointEditorOnLoadINI
