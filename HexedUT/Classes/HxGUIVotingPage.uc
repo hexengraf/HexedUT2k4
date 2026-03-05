@@ -3,8 +3,6 @@ class HxGUIVotingPage extends MapVotingPage;
 const VERT_SPACING = 0.009;
 const MED_FONT_SPACING = 1.44;
 
-var config bool bEnabled;
-
 var automated HxGUIVotingVoteListBox lb_VoteList;
 var automated GUIImage i_VoteListBorder;
 var automated moComboBox co_MapSource;
@@ -324,8 +322,6 @@ function LevelChanged()
 }
 
 defaultproperties {
-    bEnabled=true
-
     Begin Object Class=HxGUIVotingVoteListBox Name=VoteListBox
         WinLeft=0.0135
         WinTop=0.04

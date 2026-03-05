@@ -7,9 +7,12 @@ struct DamageInfo
     var float Timestamp;
 };
 
+const MIN_VERSION = 4;
+
 const DAMAGE_CLUSTERING_INTERVAL = 0.02;
 
 var config bool bFirstRun;
+var config bool bReplaceMapVoteMenu;
 
 var bool bAllowHitSounds;
 var bool bAllowDamageNumbers;
@@ -92,10 +95,7 @@ simulated event PreBeginPlay()
     {
         if (bFirstRun)
         {
-            class'HxHitEffects'.static.StaticRecoverConfigs(Self);
-            class'HxSkinHighlight'.static.StaticRecoverConfigs(Self);
-            bFirstRun = false;
-            SaveConfig();
+            RecoverConfigs();
         }
         class'HxGUIMenuServerPanel'.static.AddToMenu();
         class'HxGUIMenuSkinHighlightPanel'.static.AddToMenu();
@@ -236,7 +236,7 @@ simulated function bool ShouldDisableCombo(coerce string Name)
 
 simulated function TryReplaceMapVotingMenu()
 {
-    if (GUIController.ActivePage != None && class'HxGUIVotingPage'.default.bEnabled)
+    if (GUIController.ActivePage != None && bReplaceMapVoteMenu)
     {
         if (GUIController.ActivePage.Class == class'MapVotingPage')
         {
@@ -291,6 +291,22 @@ function Update()
     bDisableInvisibleCombo = HexedUT.bDisableInvisibleCombo;
     bDisableUDamage = HexedUT.bDisableUDamage;
     NetUpdateTime = Level.TimeSeconds - 1;
+}
+
+function RecoverConfigs()
+{
+    local Actor OldActor;
+
+    OldActor = class'HxConfig'.static.FindOldVersionActor(Self, Class, MIN_VERSION);
+    if (OldActor != None)
+    {
+        class'HxConfig'.static.CopyProperty(Self, OldActor, "bReplaceMapVoteMenu");
+        OldActor.Destroy();
+    }
+    class'HxHitEffects'.static.StaticRecoverConfigs(Self);
+    class'HxSkinHighlight'.static.StaticRecoverConfigs(Self);
+    bFirstRun = false;
+    SaveConfig();
 }
 
 static function RegisterDamage(int Damage, Pawn Injured, Pawn Inflictor, class<DamageType> Type)
@@ -376,6 +392,7 @@ static function HxUTClient GetClient(PlayerController PC)
 defaultproperties
 {
     bFirstRun=true
+    bReplaceMapVoteMenu=true
     RemoteRole=ROLE_SimulatedProxy
     bHidden=true
     bAlwaysRelevant=true
