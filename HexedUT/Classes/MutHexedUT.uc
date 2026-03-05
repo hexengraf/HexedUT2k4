@@ -285,7 +285,7 @@ simulated function RecoverConfigs()
 
 defaultproperties
 {
-    FriendlyName="HexedUT v4T1"
+    FriendlyName="HexedUT v4T2"
     Description="A mutator for hit sounds, damage numbers, skin highlights, colored death messages, changing hidden game parameters, and more."
     bAddToServerPackages=true
     MutatorGroup="HexedUT"
