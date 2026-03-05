@@ -7,35 +7,16 @@ struct HxGUIStyleEntry
 };
 
 var private array<HxGUIStyleEntry> Entries;
-
-static function bool Register(GUIController Controller, string StyleName, optional bool bTemporary)
-{
-    local GUI.eFontScale Ignored;
-    local int i;
-
-    if (Controller.GetStyle(StyleName, Ignored) == None)
-    {
-        for (i = 0; i < default.Entries.Length; ++i)
-        {
-            if (StyleName ~= default.Entries[i].StyleName)
-            {
-                Controller.RegisterStyle(default.Entries[i].StyleClass, bTemporary);
-                return true;
-            }
-        }
-        return false;
-    }
-    return true;
-}
+var private bool bRegisteredAll;
 
 static function RegisterAll(GUIController Controller, optional bool bTemporary)
 {
-    local GUI.eFontScale Ignored;
     local int i;
 
-    for (i = 0; i < default.Entries.Length; ++i)
+    if (!default.bRegisteredAll)
     {
-        if (Controller.GetStyle(default.Entries[i].StyleName, Ignored) == None)
+        default.bRegisteredAll = true;
+        for (i = 0; i < default.Entries.Length; ++i)
         {
             Controller.RegisterStyle(default.Entries[i].StyleClass, bTemporary);
         }
@@ -52,4 +33,5 @@ defaultproperties
     Entries(5)=(StyleName="HxEditBox",StyleClass=class'HxSTYEditBox')
     Entries(6)=(StyleName="HxListHeader",StyleClass=class'HxSTYListHeader')
     Entries(7)=(StyleName="HxFlatButton",StyleClass=class'HxSTYFlatButton')
+    bRegisteredAll=false
 }
