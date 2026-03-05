@@ -51,15 +51,17 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     Sections[SECTION_DAMAGE_POINT_EDITOR].Insert(sl_GreenColor);
     Sections[SECTION_DAMAGE_POINT_EDITOR].Insert(sl_BlueColor);
     Sections[SECTION_DAMAGE_POINT_EDITOR].Insert(i_Preview);
+    PrependClassNameToINIOptions();
     PopulateComboBoxes();
 }
 
 function bool Initialize()
 {
-    if (Client == None)
+    if (Client != None)
     {
-        Client = class'HxUTClient'.static.GetClient(PlayerOwner());
+        return Client.HitEffects != None;
     }
+    Client = class'HxUTClient'.static.GetClient(PlayerOwner());
     return Client != None && Client.HitEffects != None;
 }
 
@@ -297,6 +299,22 @@ function bool PlaySoundOnClick(GUIComponent Sender)
     return true;
 }
 
+function PrependClassNameToINIOptions()
+{
+    local string ClassName;
+
+    ClassName = string(class'HxHitEffects');
+    ch_HitSounds.INIOption = ClassName@ch_HitSounds.INIOption;
+    co_HitSoundNames.INIOption = ClassName@co_HitSoundNames.INIOption;
+    sl_HitSoundVolume.INIOption = ClassName@sl_HitSoundVolume.INIOption;
+    co_PitchMode.INIOption = ClassName@co_PitchMode.INIOption;
+    ch_DamageNumbers.INIOption = ClassName@ch_DamageNumbers.INIOption;
+    co_DisplayMode.INIOption = ClassName@co_DisplayMode.INIOption;
+    co_DisplayFont.INIOption = ClassName@co_DisplayFont.INIOption;
+    fl_DisplayPosX.INIOption = ClassName@fl_DisplayPosX.INIOption;
+    fl_DisplayPosY.INIOption = ClassName@fl_DisplayPosY.INIOption;
+}
+
 defaultproperties
 {
     Begin Object class=HxGUIFramedSection Name=HitSoundsSection
@@ -319,7 +337,7 @@ defaultproperties
 
     Begin Object class=moCheckBox Name=HitSoundsCheckBox
         Caption="Enable hit sounds"
-        INIOption="HxHitEffects bHitSounds"
+        INIOption="bHitSounds"
         OnLoadINI=DefaultOnLoadINI
         OnChange=HitEffectsOnChange
         TabOrder=0
@@ -328,7 +346,7 @@ defaultproperties
 
     Begin Object class=moComboBox Name=HitSoundNamesComboBox
         Caption="Sound"
-        INIOption="HxHitEffects HitSoundName"
+        INIOption="HitSoundName"
         ComponentWidth=0.65
         bReadOnly=true
         OnLoadINI=DefaultOnLoadINI
@@ -339,7 +357,7 @@ defaultproperties
 
     Begin Object class=moSlider Name=HitSoundVolumeSlider
         Caption="Volume"
-        INIOption="HxHitEffects HitSoundVolume"
+        INIOption="HitSoundVolume"
         ComponentWidth=0.65
         MinValue=0.0
         MaxValue=1.0
@@ -351,7 +369,7 @@ defaultproperties
 
     Begin Object class=moComboBox Name=PitchModeComboBox
         Caption="Pitch mode"
-        INIOption="HxHitEffects PitchMode"
+        INIOption="PitchMode"
         ComponentWidth=0.65
         bReadOnly=true
         OnLoadINI=DefaultOnLoadINI
@@ -362,7 +380,7 @@ defaultproperties
 
     Begin Object class=moCheckBox Name=DamageNumbersCheckBox
         Caption="Enable damage numbers"
-        INIOption="HxHitEffects bDamageNumbers"
+        INIOption="bDamageNumbers"
         OnLoadINI=DefaultOnLoadINI
         OnChange=HitEffectsOnChange
         TabOrder=4
@@ -371,7 +389,7 @@ defaultproperties
 
     Begin Object class=moComboBox Name=DisplayModeComboBox
         Caption="Mode"
-        INIOption="HxHitEffects DisplayMode"
+        INIOption="DisplayMode"
         ComponentWidth=0.65
         bReadOnly=true
         OnLoadINI=DefaultOnLoadINI
@@ -382,7 +400,7 @@ defaultproperties
 
     Begin Object class=moComboBox Name=DisplayFontComboBox
         Caption="Font"
-        INIOption="HxHitEffects DisplayFontName"
+        INIOption="DisplayFontName"
         ComponentWidth=0.65
         bReadOnly=true
         OnLoadINI=DefaultOnLoadINI
@@ -393,7 +411,7 @@ defaultproperties
 
     Begin Object class=moFloatEdit Name=PosXFloatEdit
         Caption="X position"
-        INIOption="HxHitEffects DisplayPosX"
+        INIOption="DisplayPosX"
         MinValue=0.0
         MaxValue=1.0
         Step=0.01
@@ -406,7 +424,7 @@ defaultproperties
 
     Begin Object class=moFloatEdit Name=PosYFloatEdit
         Caption="Y position"
-        INIOption="HxHitEffects DisplayPosY"
+        INIOption="DisplayPosY"
         MinValue=0.0
         MaxValue=1.0
         Step=0.01

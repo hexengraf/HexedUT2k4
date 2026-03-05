@@ -1,4 +1,5 @@
-class HxUTClient extends ReplicationInfo;
+class HxUTClient extends ReplicationInfo
+    config(User);
 
 struct DamageInfo
 {
@@ -7,6 +8,8 @@ struct DamageInfo
 };
 
 const DAMAGE_CLUSTERING_INTERVAL = 0.02;
+
+var config bool bFirstRun;
 
 var bool bAllowHitSounds;
 var bool bAllowDamageNumbers;
@@ -87,6 +90,13 @@ simulated event PreBeginPlay()
     Super.PreBeginPlay();
     if (Level.NetMode != NM_DedicatedServer)
     {
+        if (bFirstRun)
+        {
+            class'HxHitEffects'.static.StaticRecoverConfigs(Self);
+            class'HxSkinHighlight'.static.StaticRecoverConfigs(Self);
+            bFirstRun = false;
+            SaveConfig();
+        }
         class'HxGUIMenuServerPanel'.static.AddToMenu();
         class'HxGUIMenuSkinHighlightPanel'.static.AddToMenu();
         class'HxGUIMenuHitEffectsPanel'.static.AddToMenu();
@@ -365,6 +375,7 @@ static function HxUTClient GetClient(PlayerController PC)
 
 defaultproperties
 {
+    bFirstRun=true
     RemoteRole=ROLE_SimulatedProxy
     bHidden=true
     bAlwaysRelevant=true

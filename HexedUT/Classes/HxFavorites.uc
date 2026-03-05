@@ -1,4 +1,5 @@
-class HxFavorites extends Object
+class HxFavorites extends HxConfig
+    abstract
     config(User);
 
 #exec texture Import File=Textures\HxStarIcon.tga Name=HxStarIcon Mips=Off Alpha=1
@@ -11,59 +12,8 @@ enum EHxTag
     HX_TAG_Dislike,
 };
 
-struct HxMapTag
-{
-    var string Map;
-    var EHxTag Tag;
-};
-
 var config Color StarColor;
 var config Color BlockColor;
-var config array<HxMapTag> Maps;
-
-static function TagMap(string Map, EHxTag Tag)
-{
-    local bool bSave;
-    local int i;
-
-    for (i = 0; i < default.Maps.Length; ++i)
-    {
-        if (default.Maps[i].Map ~= Map)
-        {
-            break;
-        }
-    }
-    if (Tag != HX_TAG_None)
-    {
-        default.Maps.Length = Max(i + 1, default.Maps.Length);
-        default.Maps[i].Map = Map;
-        default.Maps[i].Tag = Tag;
-        bSave = true;
-    }
-    else if (i < default.Maps.Length)
-    {
-        default.Maps.Remove(i, 1);
-        bSave = true;
-    }
-    if (bSave)
-    {
-        StaticSaveConfig();
-    }
-}
-
-static function EHxTag GetMapTag(string Map)
-{
-    local int i;
-
-    for (i = 0; i < default.Maps.Length; ++i)
-    {
-        if (default.Maps[i].Map ~= Map)
-        {
-            return default.Maps[i].Tag;
-        }
-    }
-    return HX_TAG_None;
-}
 
 static function DrawTag(Canvas C, EHxTag Tag, int X, int Y, int Size)
 {

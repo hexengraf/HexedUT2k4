@@ -78,6 +78,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     PreviewEffect = New(Self) class'ConstantColor';
     PreviewShader = New(Self) class'Shader';
     PreviewShader.Specular = PreviewEffect;
+    PrependClassNameToINIOptions();
     PopulateColorComboBoxes();
 
     for (i = 0; i < 3; ++i)
@@ -578,6 +579,23 @@ function Free()
     Super.Free();
 }
 
+function PrependClassNameToINIOptions()
+{
+    local string ClassName;
+
+    ClassName = string(class'HxSkinHighlight');
+    co_YourTeam.INIOption = ClassName@co_YourTeam.INIOption;
+    co_EnemyTeam.INIOption = ClassName@co_EnemyTeam.INIOption;
+    co_SoloPlayer.INIOption = ClassName@co_SoloPlayer.INIOption;
+    ch_DisableOnDeadBodies.INIOption = ClassName@ch_DisableOnDeadBodies.INIOption;
+    ch_ForceNormalSkins.INIOption = ClassName@ch_ForceNormalSkins.INIOption;
+    co_ShieldHit.INIOption = ClassName@co_ShieldHit.INIOption;
+    co_LinkHit.INIOption = ClassName@co_LinkHit.INIOption;
+    co_ShockHit.INIOption = ClassName@co_ShockHit.INIOption;
+    co_LightningHit.INIOption = ClassName@co_LightningHit.INIOption;
+    co_SpectateAs.INIOption = ClassName@co_SpectateAs.INIOption;
+}
+
 defaultproperties
 {
     Begin Object class=HxGUIFramedSection Name=HighlightsSection
@@ -598,7 +616,7 @@ defaultproperties
     Begin Object class=moComboBox Name=YourTeamComboBox
         Caption="Your team"
         Hint="Highlight color for your team."
-        INIOption="HxSkinHighlight YourTeam"
+        INIOption="YourTeam"
         ComponentWidth=0.65
         bReadOnly=true
         OnLoadINI=DefaultOnLoadINI
@@ -610,7 +628,7 @@ defaultproperties
     Begin Object class=moComboBox Name=EnemyTeamComboBox
         Caption="Enemy team"
         Hint="Highlight color for the enemy team."
-        INIOption="HxSkinHighlight EnemyTeam"
+        INIOption="EnemyTeam"
         ComponentWidth=0.65
         bReadOnly=true
         OnLoadINI=DefaultOnLoadINI
@@ -622,7 +640,7 @@ defaultproperties
     Begin Object class=moComboBox Name=SoloPlayerComboBox
         Caption="Solo player"
         Hint="Highlight color for players on game modes with no team. Random assigns a random color for each player."
-        INIOption="HxSkinHighlight SoloPlayer"
+        INIOption="SoloPlayer"
         ComponentWidth=0.65
         bReadOnly=true
         OnLoadINI=DefaultOnLoadINI
@@ -634,7 +652,7 @@ defaultproperties
     Begin Object class=moCheckBox Name=DisableOnDeadBodiesCheckBox
         Caption="Disable highlight on dead bodies"
         Hint="Disable any active highlights on dead bodies."
-        INIOption="HxSkinHighlight bDisableOnDeadBodies"
+        INIOption="bDisableOnDeadBodies"
         CaptionWidth=0.8
         OnLoadINI=DefaultOnLoadINI
         OnChange=InternalOnChange
@@ -645,7 +663,7 @@ defaultproperties
     Begin Object class=moCheckBox Name=ForceNormalSkinsCheckBox
         Caption="Force normal skins"
         Hint="When highlight is enabled, force normal (uncolored) variation of the underlying skin."
-        INIOption="HxSkinHighlight bForceNormalSkins"
+        INIOption="bForceNormalSkins"
         CaptionWidth=0.8
         OnLoadINI=DefaultOnLoadINI
         OnChange=InternalOnChange
@@ -656,7 +674,7 @@ defaultproperties
     Begin Object class=moComboBox Name=ShieldHitComboBox
         Caption="Shield hit"
         Hint="Highlight color to use when a shielded player is hit or has spawn protection."
-        INIOption="HxSkinHighlight ShieldHit"
+        INIOption="ShieldHit"
         ComponentWidth=0.65
         bReadOnly=true
         OnLoadINI=DefaultOnLoadINI
@@ -668,7 +686,7 @@ defaultproperties
     Begin Object class=moComboBox Name=LinkHitComboBox
         Caption="Link hit"
         Hint="Highlight color to use when a player is hit with a link gun."
-        INIOption="HxSkinHighlight LinkHit"
+        INIOption="LinkHit"
         ComponentWidth=0.65
         bReadOnly=true
         OnLoadINI=DefaultOnLoadINI
@@ -680,7 +698,7 @@ defaultproperties
     Begin Object class=moComboBox Name=ShockHitComboBox
         Caption="Shock hit"
         Hint="Highlight color to use when a player is hit with a shock rifle."
-        INIOption="HxSkinHighlight ShockHit"
+        INIOption="ShockHit"
         ComponentWidth=0.65
         bReadOnly=true
         OnLoadINI=DefaultOnLoadINI
@@ -692,7 +710,7 @@ defaultproperties
     Begin Object class=moComboBox Name=LightningHitComboBox
         Caption="Lightning hit"
         Hint="Highlight color to use when a player is hit with a lightning gun."
-        INIOption="HxSkinHighlight LightningHit"
+        INIOption="LightningHit"
         ComponentWidth=0.65
         bReadOnly=true
         OnLoadINI=DefaultOnLoadINI
@@ -704,7 +722,7 @@ defaultproperties
     Begin Object class=moComboBox Name=SpectateAsComboBox
         Caption="Spectate as"
         Hint="Select which team's perspective to spectate as."
-        INIOption="HxSkinHighlight SpectatorTeam"
+        INIOption="SpectatorTeam"
         ComponentWidth=0.65
         bReadOnly=true
         OnLoadINI=DefaultOnLoadINI

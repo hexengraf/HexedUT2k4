@@ -1,5 +1,8 @@
 class MutHexedUT extends HxMutator;
 
+const MIN_VERSION = 3;
+
+var config bool bFirstRun;
 var config bool bAllowHitSounds;
 var config bool bAllowDamageNumbers;
 var config bool bAllowSkinHighlight;
@@ -46,6 +49,10 @@ event PreBeginPlay()
     Super.PreBeginPlay();
     ListDisableCombos();
     ModifyDeathMessageClass();
+    if (bFirstRun)
+    {
+        RecoverConfigs();
+    }
 }
 
 event PostBeginPlay()
@@ -116,7 +123,8 @@ function ModifyDeathMessageClass()
         {
             Level.Game.DeathMessageClass = class'HxDeathMessage';
         }
-    } else if (Level.Game.DeathMessageClass == class'HxDeathMessage')
+    }
+    else if (Level.Game.DeathMessageClass == class'HxDeathMessage')
     {
         Level.Game.DeathMessageClass = class'xDeathMessage';
     }
@@ -256,6 +264,25 @@ function UpdateAfterPropertyChange(string PropertyName, String PropertyValue)
     }
 }
 
+simulated function RecoverConfigs()
+{
+    local Actor OldActor;
+    local int Version;
+    local int i;
+
+    OldActor = class'HxConfig'.static.FindOldVersionActor(Self, Class, MIN_VERSION, Version);
+    if (OldActor != None)
+    {
+        for (i = 0; i < PropertyInfoEntries.Length; ++i)
+        {
+            class'HxConfig'.static.CopyProperty(Self, OldActor, PropertyInfoEntries[i].Name);
+        }
+        OldActor.Destroy();
+    }
+    bFirstRun = false;
+    SaveConfig();
+}
+
 defaultproperties
 {
     FriendlyName="HexedUT v4T1"
@@ -293,6 +320,7 @@ defaultproperties
     PropertyInfoEntries(24)=(Name="bDisableInvisibleCombo",Caption="Disable invisible combo",Hint="Disable invisible combo (right, right, left, left). Applied on restart/map change.",PIType="Check")
     PropertyInfoEntries(25)=(Name="bDisableUDamage",Caption="Disable UDamage",Hint="Disable UDamage packs on the maps. Applied on restart/map change.",PIType="Check")
 
+    bFirstRun=true
     // Config variables
     bAllowHitSounds=true
     bAllowDamageNumbers=true

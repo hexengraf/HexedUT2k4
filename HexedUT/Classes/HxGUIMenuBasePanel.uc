@@ -72,9 +72,13 @@ event Timer()
 
 function DefaultOnLoadINI(GUIComponent Sender, string s)
 {
-    if (GUIMenuOption(Sender) != None && s != "")
+    if (GUIMenuOption(Sender) != None && StrCmp("Unrecognized property", s, 21) != 0)
     {
         GUIMenuOption(Sender).SetComponentValue(s, true);
+    }
+    else
+    {
+        Warn("Failed to initialize component:"@s);
     }
 }
 

@@ -14,6 +14,8 @@ struct HxCacheEntry
     var string Highlight;
 };
 
+const MIN_VERSION = 3;
+
 const NO_HIGHLIGHT = "DISABLED";
 const RANDOM_HIGHLIGHT = "RANDOM";
 const DEFAULT_HIGHLIGHT = "DEFAULT";
@@ -388,6 +390,40 @@ simulated function PawnBaseDied()
     {
         DisableHighlight();
     }
+}
+
+simulated function RecoverConfigs()
+{
+    local Actor OldActor;
+    local int Version;
+
+    OldActor = class'HxConfig'.static.FindOldVersionActor(Self, Class, MIN_VERSION, Version);
+    if (OldActor != None)
+    {
+        class'HxConfig'.static.CopyProperty(Self, OldActor, "YourTeam");
+        class'HxConfig'.static.CopyProperty(Self, OldActor, "EnemyTeam");
+        class'HxConfig'.static.CopyProperty(Self, OldActor, "SoloPlayer");
+        class'HxConfig'.static.CopyProperty(Self, OldActor, "ShieldHit");
+        class'HxConfig'.static.CopyProperty(Self, OldActor, "LinkHit");
+        class'HxConfig'.static.CopyProperty(Self, OldActor, "ShockHit");
+        class'HxConfig'.static.CopyProperty(Self, OldActor, "LightningHit");
+        class'HxConfig'.static.CopyProperty(Self, OldActor, "bDisableOnDeadBodies");
+        class'HxConfig'.static.CopyProperty(Self, OldActor, "bForceNormalSkins");
+        class'HxConfig'.static.CopyProperty(Self, OldActor, "SpectatorTeam");
+        class'HxConfig'.static.CopyProperty(Self, OldActor, "Colors");
+        class'HxConfig'.static.CopyProperty(Self, OldActor, "Cache");
+        OldActor.Destroy();
+        SaveConfig();
+    }
+}
+
+static function StaticRecoverConfigs(Actor Spawner)
+{
+    local HxSkinHighlight Temp;
+
+    Temp = Spawner.Spawn(class'HxSkinHighlight');
+    Temp.RecoverConfigs();
+    Temp.Destroy();
 }
 
 static function Material GetNormalSkin(coerce string Name)

@@ -40,6 +40,8 @@ struct HxDamagePoint
     var Color Color;
 };
 
+const MIN_VERSION = 3;
+
 const ALAUDIO_PITCH_MIN = 0.5;
 const ALAUDIO_PITCH_MAX = 2.0;
 const ALAUDIO_PITCH_SPECTRUM = 1.5; // ALAUDIO_PITCH_MAX - ALAUDIO_PITCH_MIN
@@ -75,7 +77,7 @@ var config array<string> CustomHitSounds;
 
 var private PlayerController PC;
 var private HxDamagePoint DamagePoints[5];
-var private array<Sound> BuiltInHitSounds;
+var private Sound BuiltInHitSounds[5];
 var private array<HxDisplayWidget> Widgets;
 var private Sound LoadedHitSound;
 var private Font LoadedFont;
@@ -84,7 +86,10 @@ var private float GlobalScale;
 simulated event PreBeginPlay()
 {
     super.PreBeginPlay();
-    PC = HUD(Owner).PlayerOwner;
+    if (Owner != None)
+    {
+        PC = HUD(Owner).PlayerOwner;
+    }
     InitializeWidgets();
     ValidatePositions();
     LoadHitSound();
@@ -106,7 +111,7 @@ simulated function ValidateCustomHitSounds()
 {
     local int i;
 
-    for (i = 0; i < BuiltInHitSounds.Length; ++i)
+    for (i = 0; i < ArrayCount(BuiltInHitSounds); ++i)
     {
         if (HitSoundName ~= GetItemName(string(BuiltInHitSounds[i])))
         {
@@ -186,7 +191,7 @@ simulated function bool LoadHitSoundFromBuiltIn()
 {
     local int i;
 
-    for (i = 0; i < BuiltInHitSounds.Length; ++i)
+    for (i = 0; i < ArrayCount(BuiltInHitSounds); ++i)
     {
         if (HitSoundName ~= GetItemName(string(BuiltInHitSounds[i])))
         {
@@ -578,6 +583,125 @@ simulated function bool IsFontChanged()
     return LoadedFont == None || !(string(LoadedFont) ~= DisplayFontName);
 }
 
+simulated function RecoverConfigs()
+{
+    local Actor OldActor;
+    local int Version;
+
+    OldActor = class'HxConfig'.static.FindOldVersionActor(Self, Class, MIN_VERSION, Version);
+    if (OldActor != None)
+    {
+        class'HxConfig'.static.CopyProperty(Self, OldActor, "bHitSounds");
+        class'HxConfig'.static.CopyProperty(Self, OldActor, "HitSoundVolume");
+        class'HxConfig'.static.CopyProperty(Self, OldActor, "PitchMode");
+        class'HxConfig'.static.CopyProperty(Self, OldActor, "bDamageNumbers");
+        if (Version > 3)
+        {
+            class'HxConfig'.static.CopyProperty(Self, OldActor, "HitSoundName");
+            class'HxConfig'.static.CopyProperty(Self, OldActor, "DisplayMode");
+            class'HxConfig'.static.CopyProperty(Self, OldActor, "DisplayFontName");
+            class'HxConfig'.static.CopyProperty(Self, OldActor, "DisplayPosX");
+            class'HxConfig'.static.CopyProperty(Self, OldActor, "DisplayPosY");
+            class'HxConfig'.static.CopyProperty(Self, OldActor, "ZeroDamage");
+            class'HxConfig'.static.CopyProperty(Self, OldActor, "LowDamage");
+            class'HxConfig'.static.CopyProperty(Self, OldActor, "MediumDamage");
+            class'HxConfig'.static.CopyProperty(Self, OldActor, "HighDamage");
+            class'HxConfig'.static.CopyProperty(Self, OldActor, "ExtremeDamage");
+            class'HxConfig'.static.CopyProperty(Self, OldActor, "FontNames");
+            class'HxConfig'.static.CopyProperty(Self, OldActor, "CustomHitSounds");
+        }
+        else
+        {
+            RecoverConfigsFromV3(OldActor);
+        }
+        OldActor.Destroy();
+        SaveConfig();
+    }
+}
+
+simulated function RecoverConfigsFromV3(Actor OldActor)
+{
+    local array<string> DamagePointValues;
+    local string Value;
+
+    Value = OldActor.GetPropertyText("SelectedHitSound");
+    if (Value != "")
+    {
+        HitSoundName = GetItemName(
+            string(BuiltInHitSounds[Clamp(int(Value), 0, ArrayCount(BuiltInHitSounds))]));
+    }
+    Value = OldActor.GetPropertyText("DMode");
+    if (Value != "")
+    {
+        SetPropertyText("DisplayMode", "HX_DISPLAY"$Right(Value, Len(Value) - 8));
+    }
+    Value = OldActor.GetPropertyText("DFont");
+    if (Value != "")
+    {
+        DisplayFontName = Right(Value, Len(Value) - 5);
+        DisplayFontName = Left(DisplayFontName, Len(DisplayFontName) - 1);
+    }
+    SetPropertyText("DisplayPosX", OldActor.GetPropertyText("PosX"));
+    SetPropertyText("DisplayPosY", OldActor.GetPropertyText("PosY"));
+    Value = Repl(Repl(OldActor.GetPropertyText("DamagePoints"), "(", ""), ")", "");
+    if (Value != "")
+    {
+        ReplaceText(Value, "Value=", "");
+        ReplaceText(Value, "Pitch=", "");
+        ReplaceText(Value, "Scale=", "");
+        ReplaceText(Value, "Color=", "");
+        ReplaceText(Value, "B=", "");
+        ReplaceText(Value, "G=", "");
+        ReplaceText(Value, "R=", "");
+        ReplaceText(Value, "A=", "");
+        Split(Value, ",", DamagePointValues);
+        ZeroDamage.Value = int(DamagePointValues[0]);
+        ZeroDamage.Pitch = float(DamagePointValues[1]);
+        ZeroDamage.Scale = float(DamagePointValues[2]);
+        ZeroDamage.Color.B = byte(DamagePointValues[3]);
+        ZeroDamage.Color.G = byte(DamagePointValues[4]);
+        ZeroDamage.Color.R = byte(DamagePointValues[5]);
+        ZeroDamage.Color.A = byte(DamagePointValues[6]);
+        LowDamage.Value = int(DamagePointValues[7]);
+        LowDamage.Pitch = float(DamagePointValues[8]);
+        LowDamage.Scale = float(DamagePointValues[9]);
+        LowDamage.Color.B = byte(DamagePointValues[10]);
+        LowDamage.Color.G = byte(DamagePointValues[11]);
+        LowDamage.Color.R = byte(DamagePointValues[12]);
+        LowDamage.Color.A = byte(DamagePointValues[13]);
+        MediumDamage.Value = int(DamagePointValues[14]);
+        MediumDamage.Pitch = float(DamagePointValues[15]);
+        MediumDamage.Scale = float(DamagePointValues[16]);
+        MediumDamage.Color.B = byte(DamagePointValues[17]);
+        MediumDamage.Color.G = byte(DamagePointValues[18]);
+        MediumDamage.Color.R = byte(DamagePointValues[19]);
+        MediumDamage.Color.A = byte(DamagePointValues[20]);
+        HighDamage.Value = int(DamagePointValues[21]);
+        HighDamage.Pitch = float(DamagePointValues[22]);
+        HighDamage.Scale = float(DamagePointValues[23]);
+        HighDamage.Color.B = byte(DamagePointValues[24]);
+        HighDamage.Color.G = byte(DamagePointValues[25]);
+        HighDamage.Color.R = byte(DamagePointValues[26]);
+        HighDamage.Color.A = byte(DamagePointValues[27]);
+        ExtremeDamage.Value = int(DamagePointValues[28]);
+        ExtremeDamage.Pitch = float(DamagePointValues[29]);
+        ExtremeDamage.Scale = float(DamagePointValues[30]);
+        ExtremeDamage.Color.B = byte(DamagePointValues[31]);
+        ExtremeDamage.Color.G = byte(DamagePointValues[32]);
+        ExtremeDamage.Color.R = byte(DamagePointValues[33]);
+        ExtremeDamage.Color.A = byte(DamagePointValues[34]);
+    }
+}
+
+static function StaticRecoverConfigs(Actor Spawner)
+{
+    local HxHitEffects Temp;
+
+    Temp = Spawner.Spawn(class'HxHitEffects');
+    Temp.RecoverConfigs();
+    Temp.Destroy();
+}
+
 static function float FInterpolate(int Value, float MaxValue, float First, float Second)
 {
     return First + FClamp(Value / MaxValue, 0.0, 1.0) * (Second - First);
@@ -592,7 +716,7 @@ static function bool GetHitSoundNames(out array<string> Names)
 {
     local int i;
 
-    for (i = 0; i < default.BuiltInHitSounds.Length; ++i)
+    for (i = 0; i < ArrayCount(default.BuiltInHitSounds); ++i)
     {
         Names[Names.Length] = GetItemName(string(default.BuiltInHitSounds[i]));
     }

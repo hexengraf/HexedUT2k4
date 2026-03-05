@@ -105,7 +105,7 @@ function bool Refresh()
 function AddMap(int MapIndex)
 {
     MapIndices[MapIndices.Length] = MapIndex;
-    MapTags[MapTags.Length] = class'HxFavorites'.static.GetMapTag(VRI.MapList[MapIndex].MapName);
+    MapTags[MapTags.Length] = class'HxMapFavorites'.static.GetMapTag(VRI.MapList[MapIndex].MapName);
     AddedItem();
 }
 
@@ -398,7 +398,7 @@ function DrawLastPlayedIndicator(Canvas C, float X, float Y, float Size, float O
 function DrawMapTag(Canvas C, HxFavorites.EHxTag Tag, float X, float Y, float Size, float Offset)
 {
     X += ColumnWidths[0] + (Offset / 2) + ((ColumnWidths[1] - Size) / 2);
-    class'HxFavorites'.static.DrawTag(C, Tag, X, Y, Size);
+    class'HxMapFavorites'.static.DrawTag(C, Tag, X, Y, Size);
 }
 
 function bool OnOpenContextMenu(GUIContextMenu Sender)
@@ -436,7 +436,7 @@ function OnSelectMapTag(GUIContextMenu Sender, int Option)
         {
             T = HX_TAG_None;
         }
-        class'HxFavorites'.static.TagMap(GetMapName(), T);
+        class'HxMapFavorites'.static.TagMap(GetMapName(), T);
         MapTags[SortData[Index].SortItem] = T;
         OnTagUpdated(GetMapIndex(), T);
         UpdatedItem(SortData[Index].SortItem);
