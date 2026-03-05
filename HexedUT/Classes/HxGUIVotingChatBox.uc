@@ -256,6 +256,7 @@ defaultproperties
         TopPadding=0.05
         RightPadding=0.02
         BottomPadding=0.05
+        FontScale=FNS_Small
         VertAlign=TXTA_Right
         bAutoSpacing=true
         bVisibleWhenEmpty=true
