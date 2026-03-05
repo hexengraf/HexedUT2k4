@@ -14,6 +14,7 @@ var int PanelCount;
 
 function InitComponent(GUIController MyController, GUIComponent MyComponent)
 {
+    class'HxGUIStyleManager'.static.RegisterAll(MyController);
     Super.InitComponent(MyController, MyComponent);
     t_WindowTitle.bUseTextHeight = true;
     t_WindowTitle.FontScale = FNS_Small;
