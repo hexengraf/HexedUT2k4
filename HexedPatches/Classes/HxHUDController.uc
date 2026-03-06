@@ -44,7 +44,6 @@ function bool TryReplaceHUD()
         && ViewportOwner.Actor.myHUD.Class != class'HUD')
     {
         ReplaceHUD(ViewportOwner.Actor);
-        class'HxSpawnProtectionTimer'.static.Setup(ViewportOwner.Actor);
         return true;
     }
     return false;

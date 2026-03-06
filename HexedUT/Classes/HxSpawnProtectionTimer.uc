@@ -5,7 +5,7 @@ class HxSpawnProtectionTimer extends HudOverlay
 #exec texture Import File=Textures\HxSpawnProtectionTimer.tga Name=HxSPTimerIcon Mips=Off Alpha=1
 
 var config bool bShowTimer;
-var config bool bFollowHUDColor;
+var config bool bUseHUDColor;
 var config bool bPulsingDigits;
 var config float PosX;
 var config float PosY;
@@ -87,7 +87,7 @@ simulated function Update()
     Icon.PosX = default.PosX;
     Icon.PosY = default.PosY;
     HUD = HudBase(Owner);
-    if (!default.bFollowHUDColor)
+    if (!default.bUseHUDColor)
     {
         Icon.Tints[0] = default.DefaultColor;
         Icon.Tints[1] = default.DefaultColor;
@@ -136,7 +136,7 @@ static function Setup(PlayerController PC)
 defaultproperties
 {
     bShowTimer=true
-    bFollowHUDColor=true
+    bUseHUDColor=true
     bPulsingDigits=false
     PosX=0.95
     PosY=0.64

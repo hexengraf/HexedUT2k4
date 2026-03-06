@@ -10,11 +10,6 @@ var automated moNumericEdit nu_OverrideFontSize;
 var automated moNumericEdit nu_FOV43;
 var automated moCheckBox ch_ReplaceHUDs;
 var automated moCheckBox ch_ScaleWeapons;
-var automated moCheckBox ch_SPShowTimer;
-var automated moCheckBox ch_SPFollowHUDColor;
-var automated moCheckBox ch_SPPulsingDigits;
-var automated moFloatEdit fl_SPPosX;
-var automated moFloatEdit fl_SPPosY;
 var automated moNumericEdit nu_CustomNetSpeed;
 var automated moComboBox co_MasterServer;
 
@@ -31,11 +26,6 @@ var private int OverrideFontSize;
 var private int FOV43;
 var private bool bReplaceHUDs;
 var private bool bScaleWeapons;
-var private bool bSPShowTimer;
-var private bool bSPFollowHUDColor;
-var private bool bSPPulsingDigits;
-var private float SPPosX;
-var private float SPPosY;
 var private int CustomNetSpeed;
 var private HxNETController.EHxMasterServer MasterServer;
 
@@ -54,11 +44,6 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 
     i_BG2.ManageComponent(ch_ReplaceHUDs);
     i_BG2.ManageComponent(ch_ScaleWeapons);
-    i_BG2.ManageComponent(ch_SPShowTimer);
-    i_BG2.ManageComponent(ch_SPFollowHUDColor);
-    i_BG2.ManageComponent(ch_SPPulsingDigits);
-    i_BG2.ManageComponent(fl_SPPosX);
-    i_BG2.ManageComponent(fl_SPPosY);
 
     i_BG3.ManageComponent(nu_CustomNetSpeed);
     i_BG3.ManageComponent(co_MasterServer);
@@ -114,26 +99,6 @@ function InternalOnLoadINI(GUIComponent Sender, string s)
         case ch_ScaleWeapons:
             bScaleWeapons = class'HxHUDController'.default.bScaleWeapons;
             ch_ScaleWeapons.SetComponentValue(bScaleWeapons, true);
-            break;
-        case ch_SPShowTimer:
-            bSPShowTimer = class'HxSpawnProtectionTimer'.default.bShowTimer;
-            ch_SPShowTimer.SetComponentValue(bSPShowTimer, true);
-            break;
-        case ch_SPFollowHUDColor:
-            bSPFollowHUDColor = class'HxSpawnProtectionTimer'.default.bFollowHUDColor;
-            ch_SPFollowHUDColor.SetComponentValue(bSPFollowHUDColor, true);
-            break;
-        case ch_SPPulsingDigits:
-            bSPPulsingDigits = class'HxSpawnProtectionTimer'.default.bPulsingDigits;
-            ch_SPPulsingDigits.SetComponentValue(bSPPulsingDigits, true);
-            break;
-        case fl_SPPosX:
-            SPPosX = class'HxSpawnProtectionTimer'.default.PosX;
-            fl_SPPosX.SetComponentValue(SPPosX, true);
-            break;
-        case fl_SPPosY:
-            SPPosY = class'HxSpawnProtectionTimer'.default.PosY;
-            fl_SPPosY.SetComponentValue(SPPosY, true);
             break;
         case nu_CustomNetSpeed:
             CustomNetSpeed = class'HxNETController'.default.CustomNetSpeed;
@@ -203,36 +168,6 @@ function SaveSettings()
         bSave = false;
         HUDController.SaveConfig();
     }
-    if (class'HxSpawnProtectionTimer'.default.bShowTimer != bSPShowTimer)
-    {
-        class'HxSpawnProtectionTimer'.default.bShowTimer = bSPShowTimer;
-        bSave = true;
-    }
-    if (class'HxSpawnProtectionTimer'.default.bFollowHUDColor != bSPFollowHUDColor)
-    {
-        class'HxSpawnProtectionTimer'.default.bFollowHUDColor = bSPFollowHUDColor;
-        bSave = true;
-    }
-    if (class'HxSpawnProtectionTimer'.default.bPulsingDigits != bSPPulsingDigits)
-    {
-        class'HxSpawnProtectionTimer'.default.bPulsingDigits = bSPPulsingDigits;
-        bSave = true;
-    }
-    if (class'HxSpawnProtectionTimer'.default.PosX != SPPosX)
-    {
-        class'HxSpawnProtectionTimer'.default.PosX = SPPosX;
-        bSave = true;
-    }
-    if (class'HxSpawnProtectionTimer'.default.PosY != SPPosY)
-    {
-        class'HxSpawnProtectionTimer'.default.PosY = SPPosY;
-        bSave = true;
-    }
-    if (bSave)
-    {
-        bSave = false;
-        class'HxSpawnProtectionTimer'.static.StaticSaveConfig();
-    }
     if (NETController.CustomNetSpeed != CustomNetSpeed)
     {
         NETController.CustomNetSpeed = CustomNetSpeed;
@@ -264,11 +199,6 @@ function ResetClicked()
     class'HxGUIFont'.static.ResetConfig("OverrideFontSize");
     class'HxHUDController'.static.ResetConfig("bReplaceHUDs");
     class'HxHUDController'.static.ResetConfig("bScaleWeapons");
-    class'HxSpawnProtectionTimer'.static.ResetConfig("bShowTimer");
-    class'HxSpawnProtectionTimer'.static.ResetConfig("bFollowHUDColor");
-    class'HxSpawnProtectionTimer'.static.ResetConfig("bPulsingDigits");
-    class'HxSpawnProtectionTimer'.static.ResetConfig("PosX");
-    class'HxSpawnProtectionTimer'.static.ResetConfig("PosY");
     class'HxNETController'.static.ResetConfig("CustomNetSpeed");
     class'HxNETController'.static.ResetConfig("MasterServer");
 
@@ -279,11 +209,6 @@ function ResetClicked()
     GUIController.SetSmallCursor(bSmallCursor);
     GUIController.bFixedMouseSize = bFixedMouseSize;
     UpdateHUDSection();
-    class'HxSpawnProtectionTimer'.default.bShowTimer = bSPShowTimer;
-    class'HxSpawnProtectionTimer'.default.bFollowHUDColor = bSPFollowHUDColor;
-    class'HxSpawnProtectionTimer'.default.bPulsingDigits = bSPPulsingDigits;
-    class'HxSpawnProtectionTimer'.default.PosX = SPPosX;
-    class'HxSpawnProtectionTimer'.default.PosY = SPPosY;
 }
 
 function InternalOnChange(GUIComponent Sender)
@@ -312,21 +237,6 @@ function InternalOnChange(GUIComponent Sender)
             break;
         case ch_ScaleWeapons:
             bScaleWeapons = ch_ScaleWeapons.IsChecked();
-            break;
-        case ch_SPShowTimer:
-            bSPShowTimer = ch_SPShowTimer.IsChecked();
-            break;
-        case ch_SPFollowHUDColor:
-            bSPFollowHUDColor = ch_SPFollowHUDColor.IsChecked();
-            break;
-        case ch_SPPulsingDigits:
-            bSPPulsingDigits = ch_SPPulsingDigits.IsChecked();
-            break;
-        case fl_SPPosX:
-            SPPosX = fl_SPPosX.GetValue();
-            break;
-        case fl_SPPosY:
-            SPPosY = fl_SPPosY.GetValue();
             break;
         case nu_CustomNetSpeed:
             CustomNetSpeed = nu_CustomNetSpeed.GetValue();
@@ -477,64 +387,6 @@ defaultproperties
         TabOrder=5
     End Object
     ch_ScaleWeapons=TemplateScaleWeapons
-
-    Begin Object class=moCheckBox Name=TemplateSPShowTimer
-        Caption="Show spawn protection timer"
-        Hint="Show timer indicating remaining spawn protection duration."
-        INIOption="@Internal"
-        OnLoadINI=InternalOnLoadINI
-        OnChange=InternalOnChange
-        TabOrder=6
-    End Object
-    ch_SPShowTimer=TemplateSPShowTimer
-
-    Begin Object class=moCheckBox Name=TemplateSPFollowHUDColor
-        Caption="Timer follows HUD's color"
-        Hint="Use the same color as the HUD for the timer's icon."
-        INIOption="@Internal"
-        OnLoadINI=InternalOnLoadINI
-        OnChange=InternalOnChange
-        TabOrder=7
-    End Object
-    ch_SPFollowHUDColor=TemplateSPFollowHUDColor
-
-    Begin Object class=moCheckBox Name=TemplateSPPulsingDigits
-        Caption="Timer uses pulsing digits"
-        Hint="Use pulsing digits for the timer."
-        INIOption="@Internal"
-        OnLoadINI=InternalOnLoadINI
-        OnChange=InternalOnChange
-        TabOrder=8
-    End Object
-    ch_SPPulsingDigits=TemplateSPPulsingDigits
-
-    Begin Object class=moFloatEdit Name=TemplateSPPosX
-        Caption="Timer's X position"
-        Hint="Adjust timer's position in the X axis."
-        INIOption="@Internal"
-        MinValue=0.0
-        MaxValue=1.0
-        Step=0.01
-        CaptionWidth=0.725
-        OnLoadINI=InternalOnLoadINI
-        OnChange=InternalOnChange
-        TabOrder=9
-    End Object
-    fl_SPPosX=TemplateSPPosX
-
-    Begin Object class=moFloatEdit Name=TemplateSPPosY
-        Caption="Timer's Y position"
-        Hint="Adjust timer's position in the Y axis."
-        INIOption="@Internal"
-        MinValue=0.0
-        MaxValue=1.0
-        Step=0.01
-        CaptionWidth=0.725
-        OnLoadINI=InternalOnLoadINI
-        OnChange=InternalOnChange
-        TabOrder=10
-    End Object
-    fl_SPPosY=TemplateSPPosY
 
     Begin Object class=moNumericEdit Name=TemplateCustomNetSpeed
         Caption="Custom network speed"
