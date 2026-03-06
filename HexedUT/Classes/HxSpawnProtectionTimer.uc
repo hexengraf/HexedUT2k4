@@ -17,18 +17,22 @@ var private HudBase.SpriteWidget Icon;
 var private float Duration;
 var private float Timestamp;
 
-auto state Unprotected
+auto state Inactive
+{
+}
+
+state Setup
 {
     simulated Event Tick(float DeltaTime)
     {
-        if (PlayerIsDead())
+        if (HudBase(Owner).PawnOwner != None)
         {
-            GoToState('Dead');
+            GoToState('Active');
         }
     }
 }
 
-state Protected
+state Active
 {
     simulated Event Tick(float DeltaTime)
     {
@@ -40,69 +44,51 @@ state Protected
             || Pawn.OverlayTimer == 0 || Pawn.OverlayTimer > Duration)
         {
             Counter.Value = 0;
-            GoToState('Unprotected');
+            GoToState('Inactive');
         }
     }
 
     simulated function Render(Canvas C)
     {
-        local HudBase HUD;
-
-        if (default.bShowTimer)
-        {
-            HUD = HudBase(Owner);
-            HUD.DrawSpriteWidget(C, Icon);
-            HUD.DrawNumericWidget(C, Counter, Digits);
-        }
+        HudBase(Owner).DrawSpriteWidget(C, Icon);
+        HudBase(Owner).DrawNumericWidget(C, Counter, Digits);
     }
 }
 
-state Dead
+simulated function SetProtected(float ProtectionDuration)
 {
-    simulated Event Tick(float DeltaTime)
+    if (bShowTimer)
     {
-        if (!PlayerIsDead())
-        {
-            if (HudBase(Owner).PlayerOwner.IsSpectating())
-            {
-                GoToState('Unprotected');
-            }
-            else
-            {
-                Timestamp = Level.TimeSeconds;
-                Duration = Ceil(HudBase(Owner).PawnOwner.OverlayTimer);
-                Update();
-                GoToState('Protected');
-            }
-        }
+        Timestamp = Level.TimeSeconds;
+        Duration = ProtectionDuration;
+        Update();
+        GoToState('Setup');
     }
 }
 
 simulated function Update()
 {
-    local HudBase HUD;
+    Counter.PosX = PosX;
+    Counter.PosY = PosY;
+    Icon.PosX = PosX;
+    Icon.PosY = PosY;
 
-    Counter.PosX = default.PosX;
-    Counter.PosY = default.PosY;
-    Icon.PosX = default.PosX;
-    Icon.PosY = default.PosY;
-    HUD = HudBase(Owner);
-    if (!default.bUseHUDColor)
+    if (!bUseHUDColor)
     {
-        Icon.Tints[0] = default.DefaultColor;
-        Icon.Tints[1] = default.DefaultColor;
+        Icon.Tints[0] = DefaultColor;
+        Icon.Tints[1] = DefaultColor;
     }
-    else if (HUD.bUsingCustomHUDColor)
+    else if (HudBase(Owner).bUsingCustomHUDColor)
     {
-        Icon.Tints[0] = HUD.CustomHUDColor;
-        Icon.Tints[1] = HUD.CustomHUDColor;
+        Icon.Tints[0] = HudBase(Owner).CustomHUDColor;
+        Icon.Tints[1] = HudBase(Owner).CustomHUDColor;
     }
     else
     {
-        Icon.Tints[0] = HUD.GetTeamColor(0);
-        Icon.Tints[1] = HUD.GetTeamColor(1);
+        Icon.Tints[0] = HudBase(Owner).GetTeamColor(0);
+        Icon.Tints[1] = HudBase(Owner).GetTeamColor(1);
     }
-    if (default.bPulsingDigits)
+    if (bPulsingDigits)
     {
         Digits = class'HudCDeathMatch'.default.DigitsBigPulse;
     }
@@ -110,27 +96,6 @@ simulated function Update()
     {
         Digits = class'HudCDeathMatch'.default.DigitsBig;
     }
-}
-
-simulated function bool PlayerIsDead()
-{
-    return HudBase(Owner) == None
-        || HudBase(Owner).PawnOwner == None
-        || HudBase(Owner).PawnOwner.Health == 0;
-}
-
-static function Setup(PlayerController PC)
-{
-    local int i;
-
-    for (i = 0; i < PC.myHUD.Overlays.Length; ++i)
-    {
-        if (HxSpawnProtectionTimer(PC.myHUD.Overlays[i]) != None)
-        {
-            return;
-        }
-    }
-    PC.myHUD.AddHudOverlay(PC.myHUD.Spawn(class'HxSpawnProtectionTimer', PC.myHUD));
 }
 
 defaultproperties

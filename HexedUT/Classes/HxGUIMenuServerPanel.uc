@@ -18,19 +18,19 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
         Options[i].OnLoadINI = InternalOnLoadINI;
         Options[i].OnChange = InternalOnChange;
     }
-    for (i = 0; i < 7; ++i)
+    for (i = 0; i < 8; ++i)
     {
         Sections[SECTION_INDICATORS].Insert(Options[i]);
     }
-    for (i = 7; i < 12; ++i)
+    for (i = 8; i < 13; ++i)
     {
         Sections[SECTION_STARTING_VALUES].Insert(Options[i]);
     }
-    for (i = 12; i < 21; ++i)
+    for (i = 13; i < 22; ++i)
     {
         Sections[SECTION_MOVEMENT].Insert(Options[i]);
     }
-    for (i = 21; i < 26; ++i)
+    for (i = 22; i < 27; ++i)
     {
         Sections[SECTION_POWER_UPS].Insert(Options[i]);
     }
@@ -125,6 +125,12 @@ defaultproperties
         MaxValue=1.0
         Step=0.01
         ComponentWidth=0.25
+    End Object
+
+    Begin Object class=moCheckBox Name=AllowSpawnProtectionTimerCheckBox
+    End Object
+
+    Begin Object class=moCheckBox Name=ColoredDeathMessagesCheckBox
     End Object
 
     Begin Object class=moFloatEdit Name=HealthLeechRatioFloatEdit
@@ -231,9 +237,6 @@ defaultproperties
     Begin Object class=moCheckBox Name=DisableDodgeJumpCheckBox
     End Object
 
-    Begin Object class=moCheckBox Name=ColoredDeathMessagesCheckBox
-    End Object
-
     Begin Object class=moCheckBox Name=DisableSpeedComboCheckBox
     End Object
 
@@ -261,26 +264,27 @@ defaultproperties
     Options(1)=AllowDamageNumbersCheckBox
     Options(2)=AllowSkinHighlightCheckBox
     Options(3)=SkinHighlightFactorFloatEdit
-    Options(4)=ColoredDeathMessagesCheckBox
-    Options(5)=HealthLeechRatioFloatEdit
-    Options(6)=HealthLeechLimitNumericEdit
-    Options(7)=BonusStartingHealthNumericEdit
-    Options(8)=BonusStartingShieldNumericEdit
-    Options(9)=BonusStartingGrenadesNumericEdit
-    Options(10)=BonusStartingAdrenalineNumericEdit
-    Options(11)=BonusAdrenalineOnSpawnNumericEdit
-    Options(12)=MaxSpeedMultiplierFloatEdit
-    Options(13)=AirControlMultiplierFloatEdit
-    Options(14)=BaseJumpMultiplierFloatEdit
-    Options(15)=MultiJumpMultiplierFloatEdit
-    Options(16)=BonusMultiJumpsNumericEdit
-    Options(17)=DodgeMultiplierFloatEdit
-    Options(18)=DodgeSpeedMultiplierFloatEdit
-    Options(19)=DisableWallDodgeCheckBox
-    Options(20)=DisableDodgeJumpCheckBox
-    Options(21)=DisableSpeedComboCheckBox
-    Options(22)=DisableBerserkComboCheckBox
-    Options(23)=DisableBoosterComboCheckBox
-    Options(24)=DisableInvisibleComboCheckBox
-    Options(25)=DisableUDamageCheckBox
+    Options(4)=AllowSpawnProtectionTimerCheckBox
+    Options(5)=ColoredDeathMessagesCheckBox
+    Options(6)=HealthLeechRatioFloatEdit
+    Options(7)=HealthLeechLimitNumericEdit
+    Options(8)=BonusStartingHealthNumericEdit
+    Options(9)=BonusStartingShieldNumericEdit
+    Options(10)=BonusStartingGrenadesNumericEdit
+    Options(11)=BonusStartingAdrenalineNumericEdit
+    Options(12)=BonusAdrenalineOnSpawnNumericEdit
+    Options(13)=MaxSpeedMultiplierFloatEdit
+    Options(14)=AirControlMultiplierFloatEdit
+    Options(15)=BaseJumpMultiplierFloatEdit
+    Options(16)=MultiJumpMultiplierFloatEdit
+    Options(17)=BonusMultiJumpsNumericEdit
+    Options(18)=DodgeMultiplierFloatEdit
+    Options(19)=DodgeSpeedMultiplierFloatEdit
+    Options(20)=DisableWallDodgeCheckBox
+    Options(21)=DisableDodgeJumpCheckBox
+    Options(22)=DisableSpeedComboCheckBox
+    Options(23)=DisableBerserkComboCheckBox
+    Options(24)=DisableBoosterComboCheckBox
+    Options(25)=DisableInvisibleComboCheckBox
+    Options(26)=DisableUDamageCheckBox
 }

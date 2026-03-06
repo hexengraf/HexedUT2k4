@@ -18,6 +18,7 @@ var bool bAllowHitSounds;
 var bool bAllowDamageNumbers;
 var bool bAllowSkinHighlight;
 var float SkinHighlightIntensity;
+var bool bAllowSpawnProtectionTimer;
 var bool bColoredDeathMessages;
 var float HealthLeechRatio;
 var int HealthLeechLimit;
@@ -43,6 +44,7 @@ var bool bDisableUDamage;
 
 var MutHexedUT HexedUT;
 var HxHitEffects HitEffects;
+var HxSpawnProtectionTimer SPTimer;
 
 var private PlayerController PC;
 var private GUIController GUIController;
@@ -54,13 +56,15 @@ var private bool bReplaceMapVotingMenu;
 replication
 {
     reliable if (Role == ROLE_Authority)
-        ClientUpdateHitEffects;
+        ClientUpdateHitEffects,
+        ClientNotifySpawn;
 
     reliable if (Role == ROLE_Authority)
         bAllowHitSounds,
         bAllowDamageNumbers,
         bAllowSkinHighlight,
         SkinHighlightIntensity,
+        bAllowSpawnProtectionTimer,
         bColoredDeathMessages,
         HealthLeechRatio,
         HealthLeechLimit,
@@ -146,12 +150,27 @@ simulated function ClientUpdateHitEffects(int Damage)
     }
 }
 
+function NotifySpawn(Pawn Spawned)
+{
+    if (DeathMatch(Level.Game) != None)
+    {
+        ClientNotifySpawn(DeathMatch(Level.Game).SpawnProtectionTime);
+    }
+}
+
+simulated function ClientNotifySpawn(float SpawnProtectionTime)
+{
+    if (Level.NetMode != NM_DedicatedServer && SPTimer != None)
+    {
+        SPTimer.SetProtected(SpawnProtectionTime);
+    }
+}
+
 simulated function bool InitializeClient()
 {
-    if (InitializePlayerController() && InitializeGUIController() && InitializeHitEffects())
+    if (InitializePlayerController() && InitializeGUIController() && InitializeHUDOverlays())
     {
         Register(Self);
-        class'HxSpawnProtectionTimer'.static.Setup(PC);
         bReplaceMapVotingMenu = GUIController != None
             && GUIController.MapVotingMenu != string(class'HxGUIVotingPage')
             && !GUIController.SetPropertyText("CustomMapVotingMenu", string(class'HxGUIVotingPage'));
@@ -173,7 +192,7 @@ simulated function bool InitializePlayerController()
 
 simulated function bool InitializeGUIController()
 {
-    if (PC != None && PC.Player != None)
+    if (PC.Player != None)
     {
         GUIController = GUIController(PC.Player.GUIController);
         return true;
@@ -181,14 +200,22 @@ simulated function bool InitializeGUIController()
     return false;
 }
 
-simulated function bool InitializeHitEffects()
+simulated function bool InitializeHUDOverlays()
 {
-    if (HitEffects == None && PC != None && PC.myHUD != None)
+    if (PC.myHUD != None)
     {
-        HitEffects = PC.myHUD.Spawn(class'HxHitEffects', PC.myHUD);
-        PC.myHUD.AddHudOverlay(HitEffects);
+        if (HitEffects == None)
+        {
+            HitEffects = PC.myHUD.Spawn(class'HxHitEffects', PC.myHUD);
+            PC.myHUD.AddHudOverlay(HitEffects);
+        }
+        if (SPTimer == None)
+        {
+            SPTimer = PC.myHUD.Spawn(class'HxSpawnProtectionTimer', PC.myHUD);
+            PC.myHUD.AddHudOverlay(SPTimer);
+        }
     }
-    return HitEffects != None;
+    return HitEffects != None && SPTimer != None;
 }
 
 simulated function ModifyPlayerCombos(xPlayer Other)
@@ -268,6 +295,7 @@ function Update()
     bAllowDamageNumbers = HexedUT.bAllowDamageNumbers;
     bAllowSkinHighlight = HexedUT.bAllowSkinHighlight;
     SkinHighlightIntensity = HexedUT.SkinHighlightIntensity;
+    bAllowSpawnProtectionTimer = HexedUT.bAllowSpawnProtectionTimer;
     bColoredDeathMessages = HexedUT.bColoredDeathMessages;
     HealthLeechRatio = HexedUT.HealthLeechRatio;
     HealthLeechLimit = HexedUT.HealthLeechLimit;
@@ -321,6 +349,21 @@ static function RegisterDamage(int Damage, Pawn Injured, Pawn Inflictor, class<D
             && IsEnemy(Injured, Inflictor))
         {
             default.Clients[i].UpdateDamage(Damage, Injured, Inflictor, Type);
+        }
+    }
+}
+
+static function RegisterSpawn(Pawn Spawned)
+{
+    local PlayerController PC;
+    local int i;
+
+    for (i = 0; i < default.Clients.Length; ++i)
+    {
+        PC = PlayerController(default.Clients[i].Owner);
+        if (PC != None && PC.ViewTarget == Spawned)
+        {
+            default.Clients[i].NotifySpawn(Spawned);
         }
     }
 }
