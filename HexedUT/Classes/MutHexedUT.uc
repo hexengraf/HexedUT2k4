@@ -282,10 +282,40 @@ simulated function RecoverConfigs()
         {
             class'HxConfig'.static.CopyProperty(Self, OldActor, PropertyInfoEntries[i].Name);
         }
+        CleanUpOldGameRules(OldActor);
         OldActor.Destroy();
     }
     bFirstRun = false;
     SaveConfig();
+}
+
+simulated function CleanUpOldGameRules(Actor OldActor)
+{
+    local GameRules Rules;
+    local GameRules PrevRules;
+    local string PackageName;
+    local string ClassName;
+
+    if (Divide(string(OldActor.Class), ".", PackageName, ClassName))
+    {
+	    for (Rules = Level.Game.GameRulesModifiers; Rules != None; Rules = Rules.NextGameRules)
+        {
+            if (StrCmp(PackageName, string(Rules.Class), Len(PackageName)) == 0)
+            {
+                if (PrevRules != None)
+                {
+                    PrevRules.NextGameRules = Rules.NextGameRules;
+                }
+                else
+                {
+                    Level.Game.GameRulesModifiers = Rules.NextGameRules;
+                }
+                Rules.Destroy();
+                break;
+            }
+            PrevRules = Rules;
+        }
+    }
 }
 
 defaultproperties
