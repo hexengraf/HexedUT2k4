@@ -442,6 +442,7 @@ defaultproperties {
     WinWidth=0.96
     OnKeyEvent=InternalOnKeyEvent
 
+    WindowName="HexedUT - Map Voting"
     lb_VoteCountListBox=None
     lb_MapListBox=None
     i_MapCountListBackground=None
