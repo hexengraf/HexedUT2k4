@@ -600,14 +600,14 @@ defaultproperties
 {
     Begin Object class=HxGUIFramedSection Name=HighlightsSection
         Caption="Highlights"
-        WinHeight=0.46
+        WinHeight=0.40
         ColumnWidths=(0.5,0.5)
         MaxItemsPerColumn=5
     End Object
 
     Begin Object class=HxGUIFramedSection Name=ColorEditorSection
         Caption="Color Editor"
-        WinHeight=0.54
+        WinHeight=0.6
         ColumnWidths=(0.5,0.5)
         MaxItemsPerColumn=6
         ExpandIndex=7
@@ -617,7 +617,7 @@ defaultproperties
         Caption="Your team"
         Hint="Highlight color for your team."
         INIOption="YourTeam"
-        ComponentWidth=0.65
+        ComponentWidth=0.64
         bReadOnly=true
         OnLoadINI=DefaultOnLoadINI
         OnChange=InternalOnChange
@@ -629,7 +629,7 @@ defaultproperties
         Caption="Enemy team"
         Hint="Highlight color for the enemy team."
         INIOption="EnemyTeam"
-        ComponentWidth=0.65
+        ComponentWidth=0.64
         bReadOnly=true
         OnLoadINI=DefaultOnLoadINI
         OnChange=InternalOnChange
@@ -641,7 +641,7 @@ defaultproperties
         Caption="Solo player"
         Hint="Highlight color for players on game modes with no team. Random assigns a random color for each player."
         INIOption="SoloPlayer"
-        ComponentWidth=0.65
+        ComponentWidth=0.64
         bReadOnly=true
         OnLoadINI=DefaultOnLoadINI
         OnChange=InternalOnChange
@@ -675,7 +675,7 @@ defaultproperties
         Caption="Shield hit"
         Hint="Highlight color to use when a shielded player is hit or has spawn protection."
         INIOption="ShieldHit"
-        ComponentWidth=0.65
+        ComponentWidth=0.64
         bReadOnly=true
         OnLoadINI=DefaultOnLoadINI
         OnChange=InternalOnChange
@@ -687,7 +687,7 @@ defaultproperties
         Caption="Link hit"
         Hint="Highlight color to use when a player is hit with a link gun."
         INIOption="LinkHit"
-        ComponentWidth=0.65
+        ComponentWidth=0.64
         bReadOnly=true
         OnLoadINI=DefaultOnLoadINI
         OnChange=InternalOnChange
@@ -699,7 +699,7 @@ defaultproperties
         Caption="Shock hit"
         Hint="Highlight color to use when a player is hit with a shock rifle."
         INIOption="ShockHit"
-        ComponentWidth=0.65
+        ComponentWidth=0.64
         bReadOnly=true
         OnLoadINI=DefaultOnLoadINI
         OnChange=InternalOnChange
@@ -711,7 +711,7 @@ defaultproperties
         Caption="Lightning hit"
         Hint="Highlight color to use when a player is hit with a lightning gun."
         INIOption="LightningHit"
-        ComponentWidth=0.65
+        ComponentWidth=0.64
         bReadOnly=true
         OnLoadINI=DefaultOnLoadINI
         OnChange=InternalOnChange
@@ -723,7 +723,7 @@ defaultproperties
         Caption="Spectate as"
         Hint="Select which team's perspective to spectate as."
         INIOption="SpectatorTeam"
-        ComponentWidth=0.65
+        ComponentWidth=0.64
         bReadOnly=true
         OnLoadINI=DefaultOnLoadINI
         OnChange=InternalOnChange
@@ -734,7 +734,7 @@ defaultproperties
     Begin Object class=moComboBox Name=EditColorComboBox
         Caption="Color"
         Hint="Color to customize."
-        ComponentWidth=0.65
+        ComponentWidth=0.64
         bReadOnly=true
         OnChange=CustomizeColorOnChange
         TabOrder=10
@@ -744,7 +744,7 @@ defaultproperties
     Begin Object class=moSlider Name=ColorRedSlider
         Caption="Red"
         INIOption="@INTERNAL"
-        ComponentWidth=0.65
+        ComponentWidth=0.64
         MinValue=0
         MaxValue=255
         bIntSlider=true
@@ -757,7 +757,7 @@ defaultproperties
     Begin Object class=moSlider Name=ColorGreenSlider
         Caption="Green"
         INIOption="@INTERNAL"
-        ComponentWidth=0.65
+        ComponentWidth=0.64
         MinValue=0
         MaxValue=255
         bIntSlider=true
@@ -770,7 +770,7 @@ defaultproperties
     Begin Object class=moSlider Name=ColorBlueSlider
         Caption="Blue"
         INIOption="@INTERNAL"
-        ComponentWidth=0.65
+        ComponentWidth=0.64
         MinValue=0
         MaxValue=255
         bIntSlider=true

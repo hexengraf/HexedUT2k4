@@ -1,12 +1,13 @@
-class HxGUIMenuServerPanel extends HxGUIMenuBasePanel;
+class HxGUIMenuModifiersPanel extends HxGUIMenuBasePanel;
 
-const SECTION_INDICATORS = 0;
+const SECTION_STARTING_VALUES = 0;
+const SECTION_POWER_UPS = 2;
 const SECTION_MOVEMENT = 1;
-const SECTION_STARTING_VALUES = 2;
-const SECTION_POWER_UPS = 3;
+const SECTION_HEALTH_LEECH = 3;
 
 var automated array<GUIMenuOption> Options;
-var HxUTClient Client;
+
+var private HxUTClient Client;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
@@ -15,24 +16,24 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     super.InitComponent(MyController, MyOwner);
     for (i = 0; i < Options.Length; ++i)
     {
-        Options[i].OnLoadINI = InternalOnLoadINI;
-        Options[i].OnChange = InternalOnChange;
+        Options[i].OnLoadINI = ServerOptionOnLoadINI;
+        Options[i].OnChange = ServerOptionOnChange;
     }
-    for (i = 0; i < 8; ++i)
-    {
-        Sections[SECTION_INDICATORS].Insert(Options[i]);
-    }
-    for (i = 8; i < 13; ++i)
+    for (i = 0; i < 5; ++i)
     {
         Sections[SECTION_STARTING_VALUES].Insert(Options[i]);
     }
-    for (i = 13; i < 22; ++i)
+    for (i = 5; i < 10; ++i)
+    {
+        Sections[SECTION_POWER_UPS].Insert(Options[i]);
+    }
+    for (i = 10; i < 19; ++i)
     {
         Sections[SECTION_MOVEMENT].Insert(Options[i]);
     }
-    for (i = 22; i < 27; ++i)
+    for (i = 19; i < 21; ++i)
     {
-        Sections[SECTION_POWER_UPS].Insert(Options[i]);
+        Sections[SECTION_HEALTH_LEECH].Insert(Options[i]);
     }
 }
 
@@ -48,11 +49,11 @@ function bool Initialize()
 
 function Refresh()
 {
-    HideAllSections(!IsAdmin(), HIDE_DUE_ADMIN);
     Super.Refresh();
+    HideAllSections(!IsAdmin(), HIDE_DUE_ADMIN);
 }
 
-function InternalOnLoadINI(GUIComponent Sender, string s)
+function ServerOptionOnLoadINI(GUIComponent Sender, string s)
 {
     local GUIMenuOption Option;
 
@@ -63,7 +64,7 @@ function InternalOnLoadINI(GUIComponent Sender, string s)
     }
 }
 
-function InternalOnChange(GUIComponent C)
+function ServerOptionOnChange(GUIComponent C)
 {
     local GUIMenuOption Option;
 
@@ -81,12 +82,14 @@ static function bool AddToMenu()
 
     if (Super.AddToMenu())
     {
-        for (i = 0; i < default.Options.Length; ++i)
+        for (i = 6; i < class'MutHexedUT'.default.PropertyInfoEntries.Length; ++i)
         {
-            default.Options[i].TabOrder = Order++;
-            default.Options[i].Caption = class'MutHexedUT'.default.PropertyInfoEntries[i].Caption;
-            default.Options[i].Hint = class'MutHexedUT'.default.PropertyInfoEntries[i].Hint;
-            default.Options[i].INIOption = class'MutHexedUT'.default.PropertyInfoEntries[i].Name;
+            default.Options[i - 6].TabOrder = Order++;
+            default.Options[i - 6].Caption =
+                class'MutHexedUT'.default.PropertyInfoEntries[i].Caption;
+            default.Options[i - 6].Hint = class'MutHexedUT'.default.PropertyInfoEntries[i].Hint;
+            default.Options[i - 6].INIOption =
+                class'MutHexedUT'.default.PropertyInfoEntries[i].Name;
         }
         return true;
     }
@@ -95,42 +98,24 @@ static function bool AddToMenu()
 
 defaultproperties
 {
-    Begin Object class=HxGUIFramedSection Name=GeneralSection
-        Caption="General"
-    End Object
-
     Begin Object class=HxGUIFramedSection Name=StartingValuesSection
         Caption="Starting Values"
-    End Object
-
-    Begin Object class=HxGUIFramedSection Name=MovementSection
-        Caption="Movement"
+        WinHeight=0.5
     End Object
 
     begin Object class=HxGUIFramedSection Name=PowerUpsSection
         Caption="Power-Ups"
+        WinHeight=0.5
     End Object
 
-    Begin Object class=moCheckBox Name=AllowHitSoundsCheckBox
+    Begin Object class=HxGUIFramedSection Name=MovementSection
+        Caption="Movement"
+        WinHeight=0.77
     End Object
 
-    Begin Object class=moCheckBox Name=AllowDamageNumbersCheckBox
-    End Object
-
-    Begin Object class=moCheckBox Name=AllowSkinHighlightCheckBox
-    End Object
-
-    Begin Object class=moFloatEdit Name=SkinHighlightFactorFloatEdit
-        MinValue=0.0
-        MaxValue=1.0
-        Step=0.01
-        ComponentWidth=0.25
-    End Object
-
-    Begin Object class=moCheckBox Name=AllowSpawnProtectionTimerCheckBox
-    End Object
-
-    Begin Object class=moCheckBox Name=ColoredDeathMessagesCheckBox
+    Begin Object class=HxGUIFramedSection Name=HealthLeechSection
+        Caption="Health leech"
+        WinHeight=0.23
     End Object
 
     Begin Object class=moFloatEdit Name=HealthLeechRatioFloatEdit
@@ -180,6 +165,21 @@ defaultproperties
         MaxValue=100
         Step=10
         ComponentWidth=0.25
+    End Object
+
+    Begin Object class=moCheckBox Name=DisableSpeedComboCheckBox
+    End Object
+
+    Begin Object class=moCheckBox Name=DisableBerserkComboCheckBox
+    End Object
+
+    Begin Object class=moCheckBox Name=DisableBoosterComboCheckBox
+    End Object
+
+    Begin Object class=moCheckBox Name=DisableInvisibleComboCheckBox
+    End Object
+
+    Begin Object class=moCheckBox Name=DisableUDamageCheckBox
     End Object
 
     Begin Object class=moFloatEdit Name=MaxSpeedMultiplierFloatEdit
@@ -237,54 +237,34 @@ defaultproperties
     Begin Object class=moCheckBox Name=DisableDodgeJumpCheckBox
     End Object
 
-    Begin Object class=moCheckBox Name=DisableSpeedComboCheckBox
-    End Object
-
-    Begin Object class=moCheckBox Name=DisableBerserkComboCheckBox
-    End Object
-
-    Begin Object class=moCheckBox Name=DisableBoosterComboCheckBox
-    End Object
-
-    Begin Object class=moCheckBox Name=DisableInvisibleComboCheckBox
-    End Object
-
-    Begin Object class=moCheckBox Name=DisableUDamageCheckBox
-    End Object
-
-    PanelCaption="Server"
-    PanelHint="Server options (admin only)"
+    PanelCaption="Modifiers"
+    PanelHint="Game modifiers and custom behavior options (admin only)"
     bInsertFront=true
     bDoubleColumn=true
-    Sections(0)=GeneralSection
+    bFillPanelHeight=false
+    Sections(0)=StartingValuesSection
     Sections(1)=MovementSection
-    Sections(2)=StartingValuesSection
-    Sections(3)=PowerUpsSection
-    Options(0)=AllowHitSoundsCheckBox
-    Options(1)=AllowDamageNumbersCheckBox
-    Options(2)=AllowSkinHighlightCheckBox
-    Options(3)=SkinHighlightFactorFloatEdit
-    Options(4)=AllowSpawnProtectionTimerCheckBox
-    Options(5)=ColoredDeathMessagesCheckBox
-    Options(6)=HealthLeechRatioFloatEdit
-    Options(7)=HealthLeechLimitNumericEdit
-    Options(8)=BonusStartingHealthNumericEdit
-    Options(9)=BonusStartingShieldNumericEdit
-    Options(10)=BonusStartingGrenadesNumericEdit
-    Options(11)=BonusStartingAdrenalineNumericEdit
-    Options(12)=BonusAdrenalineOnSpawnNumericEdit
-    Options(13)=MaxSpeedMultiplierFloatEdit
-    Options(14)=AirControlMultiplierFloatEdit
-    Options(15)=BaseJumpMultiplierFloatEdit
-    Options(16)=MultiJumpMultiplierFloatEdit
-    Options(17)=BonusMultiJumpsNumericEdit
-    Options(18)=DodgeMultiplierFloatEdit
-    Options(19)=DodgeSpeedMultiplierFloatEdit
-    Options(20)=DisableWallDodgeCheckBox
-    Options(21)=DisableDodgeJumpCheckBox
-    Options(22)=DisableSpeedComboCheckBox
-    Options(23)=DisableBerserkComboCheckBox
-    Options(24)=DisableBoosterComboCheckBox
-    Options(25)=DisableInvisibleComboCheckBox
-    Options(26)=DisableUDamageCheckBox
+    Sections(2)=PowerUpsSection
+    Sections(3)=HealthLeechSection
+    Options(0)=BonusStartingHealthNumericEdit
+    Options(1)=BonusStartingShieldNumericEdit
+    Options(2)=BonusStartingGrenadesNumericEdit
+    Options(3)=BonusStartingAdrenalineNumericEdit
+    Options(4)=BonusAdrenalineOnSpawnNumericEdit
+    Options(5)=DisableSpeedComboCheckBox
+    Options(6)=DisableBerserkComboCheckBox
+    Options(7)=DisableBoosterComboCheckBox
+    Options(8)=DisableInvisibleComboCheckBox
+    Options(9)=DisableUDamageCheckBox
+    Options(10)=MaxSpeedMultiplierFloatEdit
+    Options(11)=AirControlMultiplierFloatEdit
+    Options(12)=BaseJumpMultiplierFloatEdit
+    Options(13)=MultiJumpMultiplierFloatEdit
+    Options(14)=BonusMultiJumpsNumericEdit
+    Options(15)=DodgeMultiplierFloatEdit
+    Options(16)=DodgeSpeedMultiplierFloatEdit
+    Options(17)=DisableWallDodgeCheckBox
+    Options(18)=DisableDodgeJumpCheckBox
+    Options(19)=HealthLeechRatioFloatEdit
+    Options(20)=HealthLeechLimitNumericEdit
 }

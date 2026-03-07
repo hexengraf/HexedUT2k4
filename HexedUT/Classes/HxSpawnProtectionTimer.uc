@@ -4,7 +4,7 @@ class HxSpawnProtectionTimer extends HudOverlay
 
 #exec texture Import File=Textures\HxSpawnProtectionTimer.tga Name=HxSPTimerIcon Mips=Off Alpha=1
 
-var config bool bShowTimer;
+var config bool bEnabled;
 var config bool bUseHUDColor;
 var config bool bPulsingDigits;
 var config float PosX;
@@ -57,7 +57,7 @@ state Active
 
 simulated function SetProtected(float ProtectionDuration)
 {
-    if (bShowTimer)
+    if (bEnabled)
     {
         Timestamp = Level.TimeSeconds;
         Duration = ProtectionDuration;
@@ -100,7 +100,7 @@ simulated function Update()
 
 defaultproperties
 {
-    bShowTimer=true
+    bEnabled=true
     bUseHUDColor=true
     bPulsingDigits=false
     PosX=0.95

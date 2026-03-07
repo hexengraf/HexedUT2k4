@@ -1,5 +1,7 @@
 class HxGUIFramedSection extends HxGUIFramedImage;
 
+const INDENT_SPACE = 0.03;
+
 var automated HxGUIFramedImage HeaderBar;
 var automated GUILabel l_Header;
 var automated GUILabel l_HideReason;
@@ -18,6 +20,7 @@ var int MaxItemsPerColumn;
 var int ExpandIndex;
 
 var private array<GUIComponent> Grid;
+var private array<int> Indents;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
@@ -51,7 +54,7 @@ function SetHide(bool bHide, optional string Reason)
     l_HideReason.SetVisibility(bHide);
 }
 
-function bool Insert(GUIComponent Component)
+function bool Insert(GUIComponent Component, optional int Indent)
 {
     if (Component == None)
     {
@@ -60,6 +63,7 @@ function bool Insert(GUIComponent Component)
     if (FindIndex(Component) == -1)
     {
         Grid[Grid.Length] = Component;
+        Indents[Indents.Length] = Indent;
         return true;
     }
     return false;
@@ -128,6 +132,8 @@ function float AlignHeader(Canvas C, float ActualTop, float Height)
     HeaderBar.WinTop = l_Header.WinTop;
     HeaderBar.WinWidth = l_Header.WinWidth;
     HeaderBar.WinHeight = l_Header.WinHeight;
+    l_HideReason.WinTop = l_HideReason.RelativeHeight(l_Header.ActualHeight());
+    l_HideReason.WinHeight = 1.0 - l_HideReason.WinTop;
     return l_Header.ActualTop() + l_Header.WinHeight;
 }
 
@@ -176,6 +182,7 @@ function float AlignColumn(Canvas C, float Left, float Top, float Width, float H
     local int MaxLines;
     local float Spacing;
     local float Bottom;
+    local float Indent;
 
     MaxLines = GetMaxLines(Index);
     Spacing = GetLineSpacing(C, Index, MaxLines, Height);
@@ -189,9 +196,10 @@ function float AlignColumn(Canvas C, float Left, float Top, float Width, float H
     }
     while (Index < MaxLines && Top < Bottom)
     {
-        Grid[Index].WinLeft = Grid[Index].RelativeLeft(Left);
+        Indent = GetIndent(C, Index);
+        Grid[Index].WinLeft = Grid[Index].RelativeLeft(Left + Indent);
+        Grid[Index].WinWidth = Grid[Index].RelativeWidth(Width - Indent);
         Grid[Index].WinTop = Grid[Index].RelativeTop(Top + Spacing / 2);
-        Grid[Index].WinWidth = Grid[Index].RelativeWidth(Width);
         Top += Grid[Index].ActualHeight() + Spacing;
         ++Index;
     }
@@ -205,7 +213,7 @@ function float GetLineSpacing(Canvas C, int Index, int MaxLines, float Height)
         Height -= GetFilledHeight(C, Index, MaxLines);
         if (Height > 0)
         {
-            return ActualLineSpacing(C) + (Height / (MaxLines - Index - 1));
+            return ActualLineSpacing(C) + (Height / Max(1, MaxLines - Index - 1));
         }
     }
     return ActualLineSpacing(C);
@@ -236,6 +244,11 @@ function int GetMaxLines(optional int Index)
         return Min(Index + MaxItemsPerColumn, Grid.Length);
     }
     return Grid.Length;
+}
+
+function float GetIndent(Canvas C, int Index)
+{
+    return Indents[Index] * INDENT_SPACE * C.ClipY;
 }
 
 function float ActualLineSpacing(Canvas C)
@@ -293,7 +306,7 @@ defaultproperties
         WinTop=0
         WinWidth=1
         WinHeight=1
-        TextColor=(R=255,G=210,B=0,A=255)
+        TextColor=(R=255,G=255,B=255,A=255)
         TextAlign=TXTA_Center
         bTransparent=true
         bScaleToParent=true
@@ -307,7 +320,7 @@ defaultproperties
     RightPadding=0.015
     BottomPadding=0.015
     LineSpacing=0.01
-    ColumnSpacing=0.038
+    ColumnSpacing=0.039
     bAutoSpacing=true
     bShrinkToFit=false
     ExpandIndex=-1

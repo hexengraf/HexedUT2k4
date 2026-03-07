@@ -11,6 +11,7 @@ var automated moComboBox co_PitchMode;
 var automated moCheckBox ch_DamageNumbers;
 var automated moComboBox co_DisplayMode;
 var automated moComboBox co_DisplayFont;
+var automated GUILabel l_PositionAnchor;
 var automated moFloatEdit fl_DisplayPosX;
 var automated moFloatEdit fl_DisplayPosY;
 var automated moComboBox co_DamagePoints;
@@ -40,8 +41,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     Sections[SECTION_DAMAGE_NUMBERS].Insert(ch_DamageNumbers);
     Sections[SECTION_DAMAGE_NUMBERS].Insert(co_DisplayMode);
     Sections[SECTION_DAMAGE_NUMBERS].Insert(co_DisplayFont);
-    Sections[SECTION_DAMAGE_NUMBERS].Insert(fl_DisplayPosX);
-    Sections[SECTION_DAMAGE_NUMBERS].Insert(fl_DisplayPosY);
+    Sections[SECTION_DAMAGE_NUMBERS].Insert(l_PositionAnchor);
     Sections[SECTION_DAMAGE_POINT_EDITOR].Insert(co_DamagePoints);
     Sections[SECTION_DAMAGE_POINT_EDITOR].Insert(nu_Value);
     Sections[SECTION_DAMAGE_POINT_EDITOR].Insert(sl_Pitch);
@@ -141,6 +141,7 @@ function DamageNumbersAfterChange()
     bDamageNumbersEnabled = Client.bAllowDamageNumbers && Client.HitEffects.bDamageNumbers;
     SetEnable(co_DisplayMode, bDamageNumbersEnabled);
     SetEnable(co_DisplayFont, bDamageNumbersEnabled);
+    SetEnable(l_PositionAnchor, bDamageNumbersEnabled);
     SetEnable(fl_DisplayPosX, bDamageNumbersEnabled);
     SetEnable(fl_DisplayPosY, bDamageNumbersEnabled);
     SetEnable(sl_Scale, bDamageNumbersEnabled);
@@ -261,6 +262,21 @@ function RefreshDamagePointEditorSection()
     sl_BlueColor.SetComponentValue(Client.HitEffects.GetDamagePoint(DPIndex).Color.B, true);
 }
 
+function bool PositionFloatEditsOnPreDraw(Canvas C)
+{
+    if (l_PositionAnchor.bInit)
+    {
+        l_PositionAnchor.bInit = Sections[SECTION_DAMAGE_NUMBERS].bInit;
+        fl_DisplayPosX.WinLeft = l_PositionAnchor.WinLeft + l_PositionAnchor.WinWidth * 0.4;
+        fl_DisplayPosX.WinTop = l_PositionAnchor.WinTop;
+        fl_DisplayPosX.WinWidth = l_PositionAnchor.WinWidth * 0.3 - 0.005;
+        fl_DisplayPosY.WinLeft = fl_DisplayPosX.WinLeft + fl_DisplayPosX.WinWidth + 0.01;
+        fl_DisplayPosY.WinTop = l_PositionAnchor.WinTop;
+        fl_DisplayPosY.WinWidth = fl_DisplayPosX.WinWidth;
+    }
+    return false;
+}
+
 function DrawPreview(Canvas C)
 {
     local float SavedOrgX;
@@ -347,7 +363,7 @@ defaultproperties
     Begin Object class=moComboBox Name=HitSoundNamesComboBox
         Caption="Sound"
         INIOption="HitSoundName"
-        ComponentWidth=0.65
+        ComponentWidth=0.64
         bReadOnly=true
         OnLoadINI=DefaultOnLoadINI
         OnChange=HitEffectsOnChange
@@ -358,7 +374,7 @@ defaultproperties
     Begin Object class=moSlider Name=HitSoundVolumeSlider
         Caption="Volume"
         INIOption="HitSoundVolume"
-        ComponentWidth=0.65
+        ComponentWidth=0.64
         MinValue=0.0
         MaxValue=1.0
         OnLoadINI=DefaultOnLoadINI
@@ -370,7 +386,7 @@ defaultproperties
     Begin Object class=moComboBox Name=PitchModeComboBox
         Caption="Pitch mode"
         INIOption="PitchMode"
-        ComponentWidth=0.65
+        ComponentWidth=0.64
         bReadOnly=true
         OnLoadINI=DefaultOnLoadINI
         OnChange=HitEffectsOnChange
@@ -390,7 +406,7 @@ defaultproperties
     Begin Object class=moComboBox Name=DisplayModeComboBox
         Caption="Mode"
         INIOption="DisplayMode"
-        ComponentWidth=0.65
+        ComponentWidth=0.64
         bReadOnly=true
         OnLoadINI=DefaultOnLoadINI
         OnChange=HitEffectsOnChange
@@ -401,7 +417,7 @@ defaultproperties
     Begin Object class=moComboBox Name=DisplayFontComboBox
         Caption="Font"
         INIOption="DisplayFontName"
-        ComponentWidth=0.65
+        ComponentWidth=0.64
         bReadOnly=true
         OnLoadINI=DefaultOnLoadINI
         OnChange=HitEffectsOnChange
@@ -409,13 +425,25 @@ defaultproperties
     End Object
     co_DisplayFont=DisplayFontComboBox
 
+    Begin Object class=GUILabel Name=PositionAnchorLabel
+        Caption="Position"
+        bStandardized=true
+        StandardHeight=0.03
+        StyleName="TextLabel"
+        bInit=true
+        bBoundToParent=true
+        bScaleToParent=true
+        OnPreDraw=PositionFloatEditsOnPreDraw
+    End Object
+    l_PositionAnchor=PositionAnchorLabel
+
     Begin Object class=moFloatEdit Name=PosXFloatEdit
-        Caption="X position"
+        Caption="X"
         INIOption="DisplayPosX"
         MinValue=0.0
         MaxValue=1.0
         Step=0.01
-        ComponentWidth=0.25
+        CaptionWidth=0.17
         OnLoadINI=DefaultOnLoadINI
         OnChange=HitEffectsOnChange
         TabOrder=7
@@ -423,12 +451,12 @@ defaultproperties
     fl_DisplayPosX=PosXFloatEdit
 
     Begin Object class=moFloatEdit Name=PosYFloatEdit
-        Caption="Y position"
+        Caption="Y"
         INIOption="DisplayPosY"
         MinValue=0.0
         MaxValue=1.0
         Step=0.01
-        ComponentWidth=0.25
+        CaptionWidth=0.17
         OnLoadINI=DefaultOnLoadINI
         OnChange=HitEffectsOnChange
         TabOrder=8
@@ -438,7 +466,7 @@ defaultproperties
     Begin Object class=moComboBox Name=DamagePointsComboBox
         Caption="Point"
         INIOption="@INTERNAL"
-        ComponentWidth=0.65
+        ComponentWidth=0.64
         bReadOnly=true
         OnLoadINI=DamagePointEditorOnLoadINI
         OnChange=DamagePointEditorOnChange
@@ -462,7 +490,7 @@ defaultproperties
     Begin Object class=moSlider Name=PitchSlider
         Caption="Pitch"
         INIOption="@INTERNAL"
-        ComponentWidth=0.65
+        ComponentWidth=0.64
         MinValue=0.0
         MaxValue=1.0
         OnLoadINI=DamagePointEditorOnLoadINI
@@ -484,7 +512,7 @@ defaultproperties
     Begin Object class=moSlider Name=ScaleSlider
         Caption="Scale"
         INIOption="@INTERNAL"
-        ComponentWidth=0.65
+        ComponentWidth=0.64
         MinValue=0.0
         MaxValue=1.0
         OnLoadINI=DamagePointEditorOnLoadINI
@@ -496,7 +524,7 @@ defaultproperties
     Begin Object class=moSlider Name=RedColorSlider
         Caption="Red"
         INIOption="@INTERNAL"
-        ComponentWidth=0.65
+        ComponentWidth=0.64
         MinValue=0
         MaxValue=255
         bIntSlider=true
@@ -509,7 +537,7 @@ defaultproperties
     Begin Object class=moSlider Name=GreenColorSlider
         Caption="Green"
         INIOption="@INTERNAL"
-        ComponentWidth=0.65
+        ComponentWidth=0.64
         MinValue=0
         MaxValue=255
         bIntSlider=true
@@ -522,7 +550,7 @@ defaultproperties
     Begin Object class=moSlider Name=BlueColorSlider
         Caption="Blue"
         INIOption="@INTERNAL"
-        ComponentWidth=0.65
+        ComponentWidth=0.64
         MinValue=0
         MaxValue=255
         bIntSlider=true
@@ -540,7 +568,7 @@ defaultproperties
     i_Preview=PreviewImage
 
     PanelCaption="Hit Effects"
-    PanelHint="Hit sounds and damage numbers"
+    PanelHint="Hit sound and damage number options"
     bInsertFront=true
     bDoubleColumn=true
     bFillPanelHeight=false

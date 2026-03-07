@@ -12,21 +12,24 @@ const MIN_VERSION = 4;
 const DAMAGE_CLUSTERING_INTERVAL = 0.02;
 
 var config bool bFirstRun;
-var config bool bReplaceMapVoteMenu;
+var config bool bMapVoteMenu;
 
 var bool bAllowHitSounds;
 var bool bAllowDamageNumbers;
-var bool bAllowSkinHighlight;
-var float SkinHighlightIntensity;
 var bool bAllowSpawnProtectionTimer;
 var bool bColoredDeathMessages;
-var float HealthLeechRatio;
-var int HealthLeechLimit;
+var bool bAllowSkinHighlight;
+var float SkinHighlightIntensity;
 var int BonusStartingHealth;
 var int BonusStartingShield;
 var int BonusStartingGrenades;
 var int BonusStartingAdrenaline;
 var int BonusAdrenalineOnSpawn;
+var bool bDisableSpeedCombo;
+var bool bDisableBerserkCombo;
+var bool bDisableBoosterCombo;
+var bool bDisableInvisibleCombo;
+var bool bDisableUDamage;
 var float MaxSpeedMultiplier;
 var float AirControlMultiplier;
 var float BaseJumpMultiplier;
@@ -36,11 +39,8 @@ var float DodgeMultiplier;
 var float DodgeSpeedMultiplier;
 var bool bDisableWallDodge;
 var bool bDisableDodgeJump;
-var bool bDisableSpeedCombo;
-var bool bDisableBerserkCombo;
-var bool bDisableBoosterCombo;
-var bool bDisableInvisibleCombo;
-var bool bDisableUDamage;
+var float HealthLeechRatio;
+var int HealthLeechLimit;
 
 var MutHexedUT HexedUT;
 var HxHitEffects HitEffects;
@@ -51,7 +51,7 @@ var private GUIController GUIController;
 var private DamageInfo Damage;
 var private array<HxUTClient> Clients;
 var private bool bInitialized;
-var private bool bReplaceMapVotingMenu;
+var private bool bReplaceMapVoteMenu;
 
 replication
 {
@@ -62,17 +62,20 @@ replication
     reliable if (Role == ROLE_Authority)
         bAllowHitSounds,
         bAllowDamageNumbers,
-        bAllowSkinHighlight,
-        SkinHighlightIntensity,
         bAllowSpawnProtectionTimer,
         bColoredDeathMessages,
-        HealthLeechRatio,
-        HealthLeechLimit,
+        bAllowSkinHighlight,
+        SkinHighlightIntensity,
         BonusStartingHealth,
         BonusStartingShield,
         BonusStartingGrenades,
         BonusStartingAdrenaline,
         BonusAdrenalineOnSpawn,
+        bDisableSpeedCombo,
+        bDisableBerserkCombo,
+        bDisableBoosterCombo,
+        bDisableInvisibleCombo,
+        bDisableUDamage,
         MaxSpeedMultiplier,
         AirControlMultiplier,
         BaseJumpMultiplier,
@@ -82,11 +85,8 @@ replication
         DodgeSpeedMultiplier,
         bDisableWallDodge,
         bDisableDodgeJump,
-        bDisableSpeedCombo,
-        bDisableBerserkCombo,
-        bDisableBoosterCombo,
-        bDisableInvisibleCombo,
-        bDisableUDamage;
+        HealthLeechRatio,
+        HealthLeechLimit;
 
     reliable if (Role < ROLE_Authority)
         RemoteSetProperty;
@@ -101,9 +101,10 @@ simulated event PreBeginPlay()
         {
             RecoverConfigs();
         }
-        class'HxGUIMenuServerPanel'.static.AddToMenu();
+        class'HxGUIMenuModifiersPanel'.static.AddToMenu();
         class'HxGUIMenuSkinHighlightPanel'.static.AddToMenu();
         class'HxGUIMenuHitEffectsPanel'.static.AddToMenu();
+        class'HxGUIMenuGeneralPanel'.static.AddToMenu();
     }
 }
 
@@ -115,9 +116,9 @@ simulated event Tick(float DeltaTime)
         {
             bInitialized = InitializeClient();
         }
-        else if (bReplaceMapVotingMenu)
+        else if (bReplaceMapVoteMenu)
         {
-            TryReplaceMapVotingMenu();
+            TryReplaceMapVoteMenu();
         }
         else if (Level.NetMode == NM_Client)
         {
@@ -171,9 +172,7 @@ simulated function bool InitializeClient()
     if (InitializePlayerController() && InitializeGUIController() && InitializeHUDOverlays())
     {
         Register(Self);
-        bReplaceMapVotingMenu = GUIController != None
-            && GUIController.MapVotingMenu != string(class'HxGUIVotingPage')
-            && !GUIController.SetPropertyText("CustomMapVotingMenu", string(class'HxGUIVotingPage'));
+        SetMapVoteMenu(bMapVoteMenu);
         return true;
     }
     return false;
@@ -261,9 +260,25 @@ simulated function bool ShouldDisableCombo(coerce string Name)
     return false;
 }
 
-simulated function TryReplaceMapVotingMenu()
+simulated function SetMapVoteMenu(bool bValue)
 {
-    if (GUIController.ActivePage != None && bReplaceMapVoteMenu)
+    bMapVoteMenu = bValue;
+    if (bMapVoteMenu)
+    {
+        bReplaceMapVoteMenu = GUIController != None
+            && GUIController.MapVotingMenu != string(class'HxGUIVotingPage')
+            && !GUIController.SetPropertyText("CustomMapVotingMenu", string(class'HxGUIVotingPage'));
+    }
+    else
+    {
+        bReplaceMapVoteMenu = false;
+        GUIController.SetPropertyText("CustomMapVotingMenu", "");
+    }
+}
+
+simulated function TryReplaceMapVoteMenu()
+{
+    if (GUIController.ActivePage != None)
     {
         if (GUIController.ActivePage.Class == class'MapVotingPage')
         {
@@ -293,17 +308,20 @@ function Update()
 {
     bAllowHitSounds = HexedUT.bAllowHitSounds;
     bAllowDamageNumbers = HexedUT.bAllowDamageNumbers;
-    bAllowSkinHighlight = HexedUT.bAllowSkinHighlight;
-    SkinHighlightIntensity = HexedUT.SkinHighlightIntensity;
     bAllowSpawnProtectionTimer = HexedUT.bAllowSpawnProtectionTimer;
     bColoredDeathMessages = HexedUT.bColoredDeathMessages;
-    HealthLeechRatio = HexedUT.HealthLeechRatio;
-    HealthLeechLimit = HexedUT.HealthLeechLimit;
+    bAllowSkinHighlight = HexedUT.bAllowSkinHighlight;
+    SkinHighlightIntensity = HexedUT.SkinHighlightIntensity;
     BonusStartingHealth = HexedUT.BonusStartingHealth;
     BonusStartingShield = HexedUT.BonusStartingShield;
     BonusStartingGrenades = HexedUT.BonusStartingGrenades;
     BonusStartingAdrenaline = HexedUT.BonusStartingAdrenaline;
     BonusAdrenalineOnSpawn = HexedUT.BonusAdrenalineOnSpawn;
+    bDisableSpeedCombo = HexedUT.bDisableSpeedCombo;
+    bDisableBerserkCombo = HexedUT.bDisableBerserkCombo;
+    bDisableBoosterCombo = HexedUT.bDisableBoosterCombo;
+    bDisableInvisibleCombo = HexedUT.bDisableInvisibleCombo;
+    bDisableUDamage = HexedUT.bDisableUDamage;
     MaxSpeedMultiplier = HexedUT.MaxSpeedMultiplier;
     AirControlMultiplier = HexedUT.AirControlMultiplier;
     BaseJumpMultiplier = HexedUT.BaseJumpMultiplier;
@@ -313,11 +331,8 @@ function Update()
     DodgeSpeedMultiplier = HexedUT.DodgeSpeedMultiplier;
     bDisableWallDodge = HexedUT.bDisableWallDodge;
     bDisableDodgeJump = HexedUT.bDisableDodgeJump;
-    bDisableSpeedCombo = HexedUT.bDisableSpeedCombo;
-    bDisableBerserkCombo = HexedUT.bDisableBerserkCombo;
-    bDisableBoosterCombo = HexedUT.bDisableBoosterCombo;
-    bDisableInvisibleCombo = HexedUT.bDisableInvisibleCombo;
-    bDisableUDamage = HexedUT.bDisableUDamage;
+    HealthLeechRatio = HexedUT.HealthLeechRatio;
+    HealthLeechLimit = HexedUT.HealthLeechLimit;
     NetUpdateTime = Level.TimeSeconds - 1;
 }
 
@@ -328,7 +343,7 @@ function RecoverConfigs()
     OldActor = class'HxConfig'.static.FindOldVersionActor(Self, Class, MIN_VERSION);
     if (OldActor != None)
     {
-        class'HxConfig'.static.CopyProperty(Self, OldActor, "bReplaceMapVoteMenu");
+        class'HxConfig'.static.CopyProperty(Self, OldActor, "bMapVoteMenu");
         OldActor.Destroy();
     }
     class'HxHitEffects'.static.StaticRecoverConfigs(Self);
@@ -435,7 +450,7 @@ static function HxUTClient GetClient(PlayerController PC)
 defaultproperties
 {
     bFirstRun=true
-    bReplaceMapVoteMenu=true
+    bMapVoteMenu=true
     RemoteRole=ROLE_SimulatedProxy
     bHidden=true
     bAlwaysRelevant=true

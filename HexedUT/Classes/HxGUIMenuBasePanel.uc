@@ -9,8 +9,8 @@ const BASE_WIN_TOP = 0.01;
 const OFFSET_HEIGHT = 0.045;
 const BASE_WIN_BOTTOM = 0.965;
 const COMPONENT_HEIGHT = 0.05;
-const HORIZONTAL_SPACING = 0.0085;
-const VERTICAL_SPACING = 0.0035;
+const VERTICAL_SPACING = 0.009;
+const HORIZONTAL_SPACING = 0.0036;
 
 var automated array<HxGUIFramedSection> Sections;
 var localized string PanelHint;
@@ -138,38 +138,42 @@ function InitSection(int i)
         {
             if (Sections[i].WinHeight > 0)
             {
-                Sections[i].WinHeight -= HORIZONTAL_SPACING;
+                Sections[i].WinHeight -= VERTICAL_SPACING;
             }
             Sections[i].WinTop =
-                Sections[i - 2].WinTop + Sections[i - 2].WinHeight + HORIZONTAL_SPACING;
+                Sections[i - 2].WinTop + Sections[i - 2].WinHeight + VERTICAL_SPACING;
         }
     }
     else
     {
         if (Sections[i].WinHeight > 0)
         {
-            Sections[i].WinHeight -= HORIZONTAL_SPACING;
+            Sections[i].WinHeight -= VERTICAL_SPACING;
         }
         Sections[i].WinTop =
-            Sections[i - 1].WinTop + Sections[i - 1].WinHeight + HORIZONTAL_SPACING;
+            Sections[i - 1].WinTop + Sections[i - 1].WinHeight + VERTICAL_SPACING;
     }
     if (bDoubleColumn)
     {
         if (i % 2 == 1)
         {
-            Sections[i].WinLeft = 0.5 + VERTICAL_SPACING;
-            Sections[i].WinWidth = 0.5 - VERTICAL_SPACING;
+            Sections[i].WinLeft = 0.5 + HORIZONTAL_SPACING;
+            Sections[i].WinWidth = 0.5 - HORIZONTAL_SPACING;
         }
         else if (i + 1 < Sections.Length
             && (Sections[i].ColumnCount() == 1 || Sections[i + 1] != None))
         {
-            Sections[i].WinWidth = 0.5 - VERTICAL_SPACING;
+            Sections[i].WinWidth = 0.5 - HORIZONTAL_SPACING;
         }
     }
     if (Sections[i].WinHeight <= 0)
     {
         Sections[i].WinHeight =
             ((Sections[i].Count() / Sections[i].ColumnCount()) + 1) * COMPONENT_HEIGHT;
+    }
+    else if (Sections[i].WinHeight ~= 1.0)
+    {
+        Sections[i].WinHeight -= OFFSET_HEIGHT;
     }
     else if (bDoubleColumn)
     {

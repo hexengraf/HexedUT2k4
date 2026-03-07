@@ -98,7 +98,7 @@ defaultproperties
 {
     Begin Object class=GUITabControl Name=MidGameMenuTC
         WinWidth=0.97
-        WinHeight=0.0465
+        WinHeight=0.0475
         WinLeft=0.01500
         WinTop=0.060215
         TabHeight=0.0375
@@ -117,9 +117,9 @@ defaultproperties
     bAllowedAsLast=true
     bScaleToParent=true
     WinWidth=0.75
-    WinHeight=0.85
+    WinHeight=0.80
     WinLeft=0.125
-    WinTop=0.05
+    WinTop=0.075
     bResizeWidthAllowed=false
     bResizeHeightAllowed=false
     bMoveAllowed=false
