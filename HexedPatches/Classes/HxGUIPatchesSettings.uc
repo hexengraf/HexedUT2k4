@@ -7,7 +7,7 @@ var automated moCheckBox ch_SmallCursor;
 var automated moCheckBox ch_FixedMouseSize;
 var automated moCheckBox ch_ScaleWithY;
 var automated moNumericEdit nu_OverrideFontSize;
-var automated moNumericEdit nu_FOV43;
+var automated moFloatEdit fl_HorPlusFOV;
 var automated moCheckBox ch_ReplaceHUDs;
 var automated moCheckBox ch_ScaleWeapons;
 var automated moNumericEdit nu_CustomNetSpeed;
@@ -23,7 +23,7 @@ var private bool bSmallCursor;
 var private bool bFixedMouseSize;
 var private bool bScaleWithY;
 var private int OverrideFontSize;
-var private int FOV43;
+var private float HorPlusFOV;
 var private bool bReplaceHUDs;
 var private bool bScaleWeapons;
 var private int CustomNetSpeed;
@@ -36,17 +36,16 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     PopulateHexedControllers(HxGUIController(MyController));
     Super.InitComponent(MyController, MyOwner);
 
-    i_BG1.ManageComponent(ch_SmallCursor);
     i_BG1.ManageComponent(ch_FixedMouseSize);
     i_BG1.ManageComponent(ch_ScaleWithY);
     i_BG1.ManageComponent(nu_OverrideFontSize);
-    i_BG1.ManageComponent(nu_FOV43);
 
+    i_BG2.ManageComponent(fl_HorPlusFOV);
+    i_BG2.ManageComponent(ch_SmallCursor);
     i_BG2.ManageComponent(ch_ReplaceHUDs);
     i_BG2.ManageComponent(ch_ScaleWeapons);
-
-    i_BG3.ManageComponent(nu_CustomNetSpeed);
-    i_BG3.ManageComponent(co_MasterServer);
+    i_BG2.ManageComponent(nu_CustomNetSpeed);
+    i_BG2.ManageComponent(co_MasterServer);
 
     for (i = 0; i < 2; ++i)
     {
@@ -54,8 +53,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     }
     if (GUIController.bOldUnrealPatch)
     {
-        ch_SmallCursor.DisableMe();
-        co_MasterServer.DisableMe();
+        i_BG2.DisableMe();
     }
 }
 
@@ -70,10 +68,6 @@ function InternalOnLoadINI(GUIComponent Sender, string s)
 {
     switch (Sender)
     {
-        case ch_SmallCursor:
-            bSmallCursor = GUIController.bSmallCursor;
-            ch_SmallCursor.SetComponentValue(bSmallCursor, true);
-            break;
         case ch_FixedMouseSize:
             bFixedMouseSize = GUIController.bFixedMouseSize;
             ch_FixedMouseSize.SetComponentValue(bFixedMouseSize, true);
@@ -86,10 +80,14 @@ function InternalOnLoadINI(GUIComponent Sender, string s)
             OverrideFontSize = class'HxGUIFont'.default.OverrideFontSize;
             nu_OverrideFontSize.SetComponentValue(OverrideFontSize, true);
             break;
-        case nu_FOV43:
-            FOV43 = class'HxAspectRatio'.static.ScaleFOV(
+        case fl_HorPlusFOV:
+            HorPlusFOV = class'HxAspectRatio'.static.ScaleFOV(
                 PlayerOwner().DefaultFOV, GUIController.GetCurrentAspectRatio(), 4/3);
-            nu_FOV43.SetComponentValue(FOV43, true);
+            fl_HorPlusFOV.SetComponentValue(HorPlusFOV, true);
+            break;
+        case ch_SmallCursor:
+            bSmallCursor = GUIController.bSmallCursor;
+            ch_SmallCursor.SetComponentValue(bSmallCursor, true);
             break;
         case ch_ReplaceHUDs:
             bReplaceHUDs = class'HxHUDController'.default.bReplaceHUDs;
@@ -147,11 +145,11 @@ function SaveSettings()
         bSave = false;
         class'HxGUIFont'.static.StaticSaveConfig();
     }
-    if (FOV43 != nu_FOV43.GetValue())
+    if (HorPlusFOV != fl_HorPlusFOV.GetValue())
     {
-        FOV43 = nu_FOV43.GetValue();
+        HorPlusFOV = fl_HorPlusFOV.GetValue();
         PlayerOwner().FOV(
-            class'HxAspectRatio'.static.GetScaledFOV(FOV43, GUIController.GetCurrentAspectRatio()));
+            class'HxAspectRatio'.static.GetScaledFOV(HorPlusFOV, GUIController.GetCurrentAspectRatio()));
     }
     if (HUDController.bReplaceHUDs != bReplaceHUDs)
     {
@@ -226,7 +224,7 @@ function InternalOnChange(GUIComponent Sender)
         case ch_ScaleWithY:
             bScaleWithY = ch_ScaleWithY.IsChecked();
             break;
-        case nu_FOV43:
+        case fl_HorPlusFOV:
             break;
         case nu_OverrideFontSize:
             OverrideFontSize = nu_OverrideFontSize.GetValue();
@@ -281,67 +279,47 @@ static function AddToSettings()
 
 defaultproperties
 {
-    Begin Object class=GUISectionBackground Name=TemplateDisplaySection
-        Caption="Display"
-        WinWidth=0.448633
-        WinHeight=0.308985
+    Begin Object class=GUISectionBackground Name=FixesSection
+        Caption="Fixes"
         WinLeft=0.031797
         WinTop=0.03
+        WinWidth=0.448633
+        WinHeight=0.2603739
         bRemapStack=false
     End Object
-    i_BG1=TemplateDisplaySection
+    i_BG1=FixesSection
 
-    Begin Object class=GUISectionBackground Name=TemplateHUDSection
-        Caption="HUD"
+    Begin Object class=GUISectionBackground Name=Legacy3369FixesSection
+        Caption="Legacy 3369 Fixes"
+        WinLeft=0.031797
+        WinTop=0.3003739
         WinWidth=0.448633
         WinHeight=0.38190167
-        WinLeft=0.031797
-        WinTop=0.348985
         bRemapStack=false
     End Object
-    i_BG2=TemplateHUDSection
+    i_BG2=Legacy3369FixesSection
 
-    Begin Object class=GUISectionBackground Name=TemplateNetworkSection
-        Caption="Network"
-        WinWidth=0.448633
-        WinHeight=0.23606834
-        WinLeft=0.031797
-        WinTop=0.74088667
-        bRemapStack=false
-    End Object
-    i_BG3=TemplateNetworkSection
-
-    Begin Object class=moCheckBox Name=TemplateSmallCursor
-        Caption="Small cursor"
-        Hint="Use a custom cursor to compensate the stupid scaling. Recommended for high resolutions."
-        INIOption="@Internal"
-        OnLoadINI=InternalOnLoadINI
-        OnChange=InternalOnChange
-        TabOrder=0
-    End Object
-    ch_SmallCursor=TemplateSmallCursor
-
-    Begin Object class=moCheckBox Name=TemplateFixedMouseSize
+    Begin Object class=moCheckBox Name=FixedMouseSizeCheckBox
         Caption="Fixed cursor size"
         Hint="Stop changing cursor size when it hovers a menu option."
         INIOption="@Internal"
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
-        TabOrder=1
+        TabOrder=0
     End Object
-    ch_FixedMouseSize=TemplateFixedMouseSize
+    ch_FixedMouseSize=FixedMouseSizeCheckBox
 
-    Begin Object class=moCheckBox Name=TemplateScaleWithY
+    Begin Object class=moCheckBox Name=ScaleWithYCheckBox
         Caption="Scale fonts with screen height"
         Hint="Scale fonts with the screen height instead of the screen width. Restart required."
         INIOption="@Internal"
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
-        TabOrder=2
+        TabOrder=1
     End Object
-    ch_ScaleWithY=TemplateScaleWithY
+    ch_ScaleWithY=ScaleWithYCheckBox
 
-    Begin Object class=moNumericEdit Name=TemplateOverrideFontSize
+    Begin Object class=moNumericEdit Name=OverrideFontSizeNumericEdit
         Caption="Override font scale"
         Hint="Override font scale (between 0 and 6). Use -1 for default scale. Restart required."
         INIOption="@Internal"
@@ -350,45 +328,56 @@ defaultproperties
         CaptionWidth=0.725
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
-        TabOrder=3
+        TabOrder=2
     End Object
-    nu_OverrideFontSize=TemplateOverrideFontSize
+    nu_OverrideFontSize=OverrideFontSizeNumericEdit
 
-    Begin Object class=moNumericEdit Name=TemplateFOV43
-        Caption="4:3 FOV"
-        Hint="Desired 4:3 FOV value. This value will be internally scaled for the current aspect ratio."
+    Begin Object class=moFloatEdit Name=HorPlusFOVFloatEdit
+        Caption="Hor+ FOV"
+        Hint="Desired Hor+ FOV value."
         INIOption="@Internal"
         MinValue=80
         MaxValue=140
+        Step=1
         CaptionWidth=0.725
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
         TabOrder=3
     End Object
-    nu_FOV43=TemplateFOV43
+    fl_HorPlusFOV=HorPlusFOVFloatEdit
 
-    Begin Object class=moCheckBox Name=TemplateReplaceHUDs
+    Begin Object class=moCheckBox Name=SmallCursorCheckBox
+        Caption="Small cursor"
+        Hint="Use a custom cursor to compensate the stupid scaling. Recommended for high resolutions."
+        INIOption="@Internal"
+        OnLoadINI=InternalOnLoadINI
+        OnChange=InternalOnChange
+        TabOrder=4
+    End Object
+    ch_SmallCursor=SmallCursorCheckBox
+
+    Begin Object class=moCheckBox Name=ReplaceHUDsCheckBox
         Caption="Replace HUDs"
         Hint="Replace HUDs to fix widescreen scaling."
         INIOption="@Internal"
         bSquare=true
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
-        TabOrder=4
+        TabOrder=5
     End Object
-    ch_ReplaceHUDs=TemplateReplaceHUDs
+    ch_ReplaceHUDs=ReplaceHUDsCheckBox
 
-    Begin Object class=moCheckBox Name=TemplateScaleWeapons
+    Begin Object class=moCheckBox Name=ScaleWeaponsCheckBox
         Caption="Scale weapons"
         Hint="Scale FOV of displayed weapon models when using replaced HUDs."
         INIOption="@Internal"
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
-        TabOrder=5
+        TabOrder=6
     End Object
-    ch_ScaleWeapons=TemplateScaleWeapons
+    ch_ScaleWeapons=ScaleWeaponsCheckBox
 
-    Begin Object class=moNumericEdit Name=TemplateCustomNetSpeed
+    Begin Object class=moNumericEdit Name=CustomNetSpeedNumericEdit
         Caption="Custom network speed"
         Hint="Custom network speed to use for both internet and LAN games (applied on every level change)."
         INIOption="@Internal"
@@ -398,11 +387,11 @@ defaultproperties
         CaptionWidth=0.725
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
-        TabOrder=12
+        TabOrder=7
     End Object
-    nu_CustomNetSpeed=TemplateCustomNetSpeed
+    nu_CustomNetSpeed=CustomNetSpeedNumericEdit
 
-    Begin Object class=moComboBox Name=TemplateMasterServer
+    Begin Object class=moComboBox Name=MasterServerComboBox
         Caption="Master server"
         Hint="Select your preferred master server. Restart required."
         INIOption="@Internal"
@@ -410,9 +399,9 @@ defaultproperties
         bReadOnly=true
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
-        TabOrder=13
+        TabOrder=8
     End Object
-    co_MasterServer=TemplateMasterServer
+    co_MasterServer=MasterServerComboBox
 
     WinTop=0.15
     WinLeft=0
@@ -420,6 +409,6 @@ defaultproperties
     WinHeight=0.74
     bAcceptsInput=false
 
-    PanelCaption="Patches"
-    PanelHint="Customize patches..."
+    PanelCaption="HexedPatches"
+    PanelHint="Customize HexedPatches..."
 }
