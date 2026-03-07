@@ -151,37 +151,43 @@ function SaveSettings()
         PlayerOwner().FOV(
             class'HxAspectRatio'.static.GetScaledFOV(HorPlusFOV, GUIController.GetCurrentAspectRatio()));
     }
-    if (HUDController.bReplaceHUDs != bReplaceHUDs)
+    if (HUDController != None)
     {
-        HUDController.SetReplaceHUDs(bReplaceHUDs);
-        bSave = true;
+        if (HUDController.bReplaceHUDs != bReplaceHUDs)
+        {
+            HUDController.SetReplaceHUDs(bReplaceHUDs);
+            bSave = true;
+        }
+        if (HUDController.bScaleWeapons != bScaleWeapons)
+        {
+            HUDController.SetScaleWeapons(bScaleWeapons);
+            bSave = true;
+        }
+        if (bSave)
+        {
+            bSave = false;
+            HUDController.SaveConfig();
+        }
     }
-    if (HUDController.bScaleWeapons != bScaleWeapons)
+    if (NETController != None)
     {
-        HUDController.SetScaleWeapons(bScaleWeapons);
-        bSave = true;
-    }
-    if (bSave)
-    {
-        bSave = false;
-        HUDController.SaveConfig();
-    }
-    if (NETController.CustomNetSpeed != CustomNetSpeed)
-    {
-        NETController.CustomNetSpeed = CustomNetSpeed;
-        NETController.UpdateCustomNetSpeed();
-        bSave = true;
-    }
-    if (NETController.MasterServer != MasterServer)
-    {
-        NETController.MasterServer = MasterServer;
-        NETController.UpdateMasterServer();
-        bSave = true;
-    }
-    if (bSave)
-    {
-        bSave = false;
-        NETController.SaveConfig();
+        if (NETController.CustomNetSpeed != CustomNetSpeed)
+        {
+            NETController.CustomNetSpeed = CustomNetSpeed;
+            NETController.UpdateCustomNetSpeed();
+            bSave = true;
+        }
+        if (NETController.MasterServer != MasterServer)
+        {
+            NETController.MasterServer = MasterServer;
+            NETController.UpdateMasterServer();
+            bSave = true;
+        }
+        if (bSave)
+        {
+            bSave = false;
+            NETController.SaveConfig();
+        }
     }
 }
 
@@ -248,7 +254,7 @@ function InternalOnChange(GUIComponent Sender)
 
 function UpdateHUDSection()
 {
-    if (HUDController.CheckConflictingPackages())
+    if (HUDController == None || HUDController.CheckConflictingPackages())
     {
         ch_ReplaceHUDs.DisableMe();
         ch_ScaleWeapons.DisableMe();

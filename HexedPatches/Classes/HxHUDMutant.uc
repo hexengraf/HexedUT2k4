@@ -4,9 +4,6 @@ class HxHUDMutant extends HudMutant;
 
 simulated function DrawHudPassA(Canvas C)
 {
-    if (!bOldUnrealPatch)
-    {
-        YRad = default.YRad * XYRatio;
-    }
+    YRad = default.YRad * XYRatio;
     Super.DrawHudPassA(C);
 }

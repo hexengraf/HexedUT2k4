@@ -13,14 +13,11 @@ struct HxMasterServerEntry
     var array<int> Ports;
 };
 
-const KEEP_ALIVE_TIME = "IpDrv.TcpNetDriver KeepAliveTime";
-
 var config int CustomNetSpeed;
 var config EHxMasterServer MasterServer;
 
 var HxMasterServerEntry MasterServerEntries[2];
 var bool bInitialized;
-var bool bOldUnrealPatch;
 
 event NotifyLevelChange()
 {
@@ -28,7 +25,6 @@ event NotifyLevelChange()
     if (!bInitialized && ViewportOwner.Actor != None)
     {
         bInitialized = true;
-        bOldUnrealPatch = int(ViewportOwner.Actor.Level.EngineVersion) > 3369;
         UpdateMasterServer();
     }
     UpdateCustomNetSpeed();
@@ -53,10 +49,6 @@ function UpdateMasterServer()
     local HxMasterServerEntry Entry;
     local int i;
 
-    if (bOldUnrealPatch)
-    {
-        return;
-    }
     Entry = MasterServerEntries[MasterServer];
     if (class'IpDrv.MasterServerLink'.default.MasterServerList.Length == 0
         || class'IpDrv.MasterServerLink'.default.MasterServerList[0].Address != Entry.Addresses[0])

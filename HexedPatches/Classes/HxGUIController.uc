@@ -13,11 +13,18 @@ event InitializeController()
 {
     Super.InitializeController();
     class'HxGUIPatchesSettings'.static.AddToSettings();
-    HUDController = HxHUDController(
-        Master.AddInteraction("HexedPatches.HxHUDController", ViewportOwner));
-    NETController = HxNETController(
-        Master.AddInteraction("HexedPatches.HxNETController", ViewportOwner));
     MapVotingMenu = string(class'HxGUIVotingPage');
+}
+
+function CreateControllers()
+{
+    if (!bOldUnrealPatch)
+    {
+        HUDController = HxHUDController(
+            Master.AddInteraction("HexedPatches.HxHUDController", ViewportOwner));
+        NETController = HxNETController(
+            Master.AddInteraction("HexedPatches.HxNETController", ViewportOwner));
+    }
 }
 
 function UpdateSettingsPage()
@@ -51,6 +58,7 @@ event NotifyLevelChange()
         bOldUnrealPatch = int(ViewportOwner.Actor.Level.EngineVersion) > 3369;
         SetSmallCursor(bSmallCursor);
         UpdateSettingsPage();
+        CreateControllers();
     }
     Super.NotifyLevelChange();
 }

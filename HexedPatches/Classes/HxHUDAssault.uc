@@ -8,21 +8,18 @@ simulated event PostBeginPlay()
 
     Super.PostBeginPlay();
 
-    if (!bOldUnrealPatch)
+    for (i = 0; i < 2; ++i)
     {
-        for (i = 0; i < 2; ++i)
-        {
-            RoundTimeBackground.Tints[i] = HudColorBlack;
-            RoundTimeBackground.Tints[i].A = 150;
-            ReinforceBackground.Tints[i] = HudColorBlack;
-            ReinforceBackground.Tints[i].A = 150;
-            VSBackground.Tints[i] = HudColorBlack;
-            VSBackground.Tints[i].A = 150;
-            TeleportBackground.Tints[i] = HudColorBlack;
-            TeleportBackground.Tints[i].A = 150;
-            ReinforcePulse.Tints[i] = HudColorHighLight;
-            TeleportPulse.Tints[i] = HudColorHighLight;
-        }
+        RoundTimeBackground.Tints[i] = HudColorBlack;
+        RoundTimeBackground.Tints[i].A = 150;
+        ReinforceBackground.Tints[i] = HudColorBlack;
+        ReinforceBackground.Tints[i].A = 150;
+        VSBackground.Tints[i] = HudColorBlack;
+        VSBackground.Tints[i].A = 150;
+        TeleportBackground.Tints[i] = HudColorBlack;
+        TeleportBackground.Tints[i].A = 150;
+        ReinforcePulse.Tints[i] = HudColorHighLight;
+        TeleportPulse.Tints[i] = HudColorHighLight;
     }
 }
 
@@ -83,11 +80,7 @@ simulated function ShowTeamScorePassA(Canvas C)
     local float PosY;
     local float DeltaY;
 
-    if (bOldUnrealPatch)
-    {
-        Super.ShowTeamScorePassA(C);
-    }
-    else if (ASGRI != None)
+    if (ASGRI != None)
     {
         DeltaY = 0.06 * XYRatio * HUDScale;
         if (ASGRI.RoundTimeLimit > 0)
