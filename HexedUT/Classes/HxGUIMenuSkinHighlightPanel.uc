@@ -23,12 +23,12 @@ var automated moSlider sl_ColorGreen;
 var automated moSlider sl_ColorBlue;
 var automated moCheckBox ch_AllowOnRandom;
 var automated GUILabel l_ButtonAnchor;
-var automated GUIButton b_NewColor;
-var automated GUIButton b_RenameColor;
-var automated GUIButton b_DeleteColor;
+var automated HxGUIFramedButton b_NewColor;
+var automated HxGUIFramedButton b_RenameColor;
+var automated HxGUIFramedButton b_DeleteColor;
 var automated GUIComboBox co_PreviewSkin;
 var automated GUIButton b_PreviewBox;
-var automated GUIButton b_ChangeModel;
+var automated HxGUIFramedButton b_ChangeModel;
 
 var localized string DisabledLabel;
 var localized string DefaultLabel;
@@ -440,11 +440,11 @@ function bool ColorEditorButtonsOnPreDraw(Canvas C)
         l_ButtonAnchor.bInit = Sections[SECTION_COLOR_EDITOR].bInit;
         b_NewColor.WinLeft = l_ButtonAnchor.WinLeft;
         b_NewColor.WinTop = l_ButtonAnchor.WinTop;
-        b_NewColor.WinWidth = l_ButtonAnchor.WinWidth / 3;
-        b_RenameColor.WinLeft = b_NewColor.WinLeft + b_NewColor.WinWidth;
+        b_NewColor.WinWidth = l_ButtonAnchor.WinWidth / 3 - 0.0025;
+        b_RenameColor.WinLeft = b_NewColor.WinLeft + b_NewColor.WinWidth + 0.005;
         b_RenameColor.WinTop = l_ButtonAnchor.WinTop;
         b_RenameColor.WinWidth = b_NewColor.WinWidth;
-        b_DeleteColor.WinLeft = b_RenameColor.WinLeft + b_RenameColor.WinWidth;
+        b_DeleteColor.WinLeft = b_RenameColor.WinLeft + b_RenameColor.WinWidth + 0.005;
         b_DeleteColor.WinTop = l_ButtonAnchor.WinTop;
         b_DeleteColor.WinWidth = b_NewColor.WinWidth;
     }
@@ -792,17 +792,17 @@ defaultproperties
     ch_AllowOnRandom=AllowOnRandomCheckBox
 
     Begin Object class=GUILabel Name=ButtonAnchorLabel
-        StandardHeight=0.035
+        StandardHeight=0.03
         bStandardized=true
         bInit=true
         OnPreDraw=ColorEditorButtonsOnPreDraw
     End Object
     l_ButtonAnchor=ButtonAnchorLabel
 
-    Begin Object Class=GUIButton Name=NewColorButton
+    Begin Object Class=HxGUIFramedButton Name=NewColorButton
         Caption="New"
         Hint="Add new color to the list of colors."
-        StandardHeight=0.035
+        StandardHeight=0.03
         bStandardized=true
         bRepeatClick=false
         OnClick=OnClickNewColor
@@ -810,10 +810,10 @@ defaultproperties
     End Object
     b_NewColor=NewColorButton
 
-    Begin Object Class=GUIButton Name=RenameColorButton
+    Begin Object Class=HxGUIFramedButton Name=RenameColorButton
         Caption="Rename"
         Hint="Rename current color."
-        StandardHeight=0.035
+        StandardHeight=0.03
         bStandardized=true
         bRepeatClick=false
         OnClick=OnClickRenameColor
@@ -821,10 +821,10 @@ defaultproperties
     End Object
     b_RenameColor=RenameColorButton
 
-    Begin Object Class=GUIButton Name=DeleteColorButton
+    Begin Object Class=HxGUIFramedButton Name=DeleteColorButton
         Caption="Delete"
         Hint="Delete current color from the list of colors."
-        StandardHeight=0.035
+        StandardHeight=0.03
         bStandardized=true
         bRepeatClick=false
         OnClick=OnClickDeleteColor
@@ -853,10 +853,10 @@ defaultproperties
     End Object
     b_PreviewBox=PreviewBoxButton
 
-    Begin Object class=GUIButton Name=ChangeModelButton
+    Begin Object class=HxGUIFramedButton Name=ChangeModelButton
         Caption="Change Preview Character"
         Hint="Select a different preview character."
-        StandardHeight=0.035
+        StandardHeight=0.03
         bStandardized=true
         bRepeatClick=false
         OnClick=OnClickChangeModel

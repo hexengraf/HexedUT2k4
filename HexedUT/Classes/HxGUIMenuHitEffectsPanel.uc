@@ -17,7 +17,7 @@ var automated moFloatEdit fl_DisplayPosY;
 var automated moComboBox co_DamagePoints;
 var automated moNumericEdit nu_Value;
 var automated moSlider sl_Pitch;
-var automated GUIButton b_PlaySound;
+var automated HxGUIFramedButton b_PlaySound;
 var automated HxGUIFramedImage i_Preview;
 var automated moSlider sl_Scale;
 var automated moSlider sl_RedColor;
@@ -499,10 +499,10 @@ defaultproperties
     End Object
     sl_Pitch=PitchSlider
 
-    Begin Object class=GUIButton Name=PlaySoundButton
+    Begin Object class=HxGUIFramedButton Name=PlaySoundButton
         Caption="Play sound"
         bStandardized=true
-        StandardHeight=0.035
+        StandardHeight=0.03
         OnClick=PlaySoundOnClick
         OnClickSound=CS_None
         TabOrder=13
