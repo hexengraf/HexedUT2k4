@@ -267,9 +267,9 @@ function bool PositionFloatEditsOnPreDraw(Canvas C)
     if (l_PositionAnchor.bInit)
     {
         l_PositionAnchor.bInit = Sections[SECTION_DAMAGE_NUMBERS].bInit;
-        fl_DisplayPosX.WinLeft = l_PositionAnchor.WinLeft + l_PositionAnchor.WinWidth * 0.4;
+        fl_DisplayPosX.WinLeft = l_PositionAnchor.WinLeft + l_PositionAnchor.WinWidth * 0.36;
         fl_DisplayPosX.WinTop = l_PositionAnchor.WinTop;
-        fl_DisplayPosX.WinWidth = l_PositionAnchor.WinWidth * 0.3 - 0.005;
+        fl_DisplayPosX.WinWidth = l_PositionAnchor.WinWidth * 0.32 - 0.005;
         fl_DisplayPosY.WinLeft = fl_DisplayPosX.WinLeft + fl_DisplayPosX.WinWidth + 0.01;
         fl_DisplayPosY.WinTop = l_PositionAnchor.WinTop;
         fl_DisplayPosY.WinWidth = fl_DisplayPosX.WinWidth;
