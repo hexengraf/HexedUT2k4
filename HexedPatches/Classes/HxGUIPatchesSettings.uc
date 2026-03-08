@@ -39,7 +39,6 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     i_BG1.ManageComponent(ch_FixedMouseSize);
     i_BG1.ManageComponent(ch_ScaleWithY);
     i_BG1.ManageComponent(nu_OverrideFontSize);
-
     i_BG2.ManageComponent(fl_HorPlusFOV);
     i_BG2.ManageComponent(ch_SmallCursor);
     i_BG2.ManageComponent(ch_ReplaceHUDs);
@@ -53,7 +52,13 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     }
     if (GUIController.bOldUnrealPatch)
     {
-        i_BG2.DisableMe();
+        i_BG2.SetVisibility(false);
+        fl_HorPlusFOV.DisableMe();
+        ch_SmallCursor.DisableMe();
+        ch_ReplaceHUDs.DisableMe();
+        ch_ScaleWeapons.DisableMe();
+        nu_CustomNetSpeed.DisableMe();
+        co_MasterServer.DisableMe();
     }
 }
 
