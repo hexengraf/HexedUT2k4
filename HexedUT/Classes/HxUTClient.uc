@@ -336,7 +336,7 @@ function Update()
     NetUpdateTime = Level.TimeSeconds - 1;
 }
 
-function RecoverConfigs()
+simulated function RecoverConfigs()
 {
     local Actor OldActor;
 
