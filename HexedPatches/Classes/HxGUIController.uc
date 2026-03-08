@@ -13,7 +13,6 @@ event InitializeController()
 {
     Super.InitializeController();
     class'HxGUIPatchesSettings'.static.AddToSettings();
-    MapVotingMenu = string(class'HxGUIVotingPage');
 }
 
 function CreateControllers()
