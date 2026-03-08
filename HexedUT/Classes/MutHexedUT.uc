@@ -54,21 +54,7 @@ event PreBeginPlay()
     {
         RecoverConfigs();
     }
-}
-
-event PostBeginPlay()
-{
-    Super.PostBeginPlay();
-    SpawnGameRules();
-}
-
-function SpawnGameRules()
-{
-    local HxUTGameRules GameRules;
-
-    GameRules = Spawn(class'HxUTGameRules');
-    GameRules.HexedUT = self;
-    Level.Game.AddGameModifier(GameRules);
+    Spawn(class'HxUTGameRules', Self);
 }
 
 function ModifyPlayer(Pawn Pawn)

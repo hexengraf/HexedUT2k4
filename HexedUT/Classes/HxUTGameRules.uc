@@ -1,6 +1,20 @@
 class HxUTGameRules extends GameRules;
 
-var MutHexedUT HexedUT;
+var private MutHexedUT HexedUT;
+
+event PreBeginPlay()
+{
+    Super.PreBeginPlay();
+    HexedUT = MutHexedUT(Owner);
+    if (HexedUT != None)
+    {
+        Level.Game.AddGameModifier(Self);
+    }
+    else
+    {
+        Destroy();
+    }
+}
 
 function int NetDamage(int Original,
                        int Damage,
