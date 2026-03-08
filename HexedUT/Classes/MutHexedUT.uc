@@ -31,6 +31,7 @@ var config bool bDisableDodgeJump;
 var config float HealthLeechRatio;
 var config int HealthLeechLimit;
 
+var private bool bInitialized;
 var private array<string> DisabledCombos;
 
 function Mutate(string Command, PlayerController Sender)
@@ -48,13 +49,25 @@ function Mutate(string Command, PlayerController Sender)
 event PreBeginPlay()
 {
     Super.PreBeginPlay();
-    ListDisableCombos();
-    ModifyDeathMessageClass();
     if (bFirstRun)
     {
         RecoverConfigs();
     }
-    Spawn(class'HxUTGameRules', Self);
+}
+
+event Tick(float DeltaTime)
+{
+    if (!bInitialized)
+    {
+        bInitialized = true;
+        ListDisableCombos();
+        ModifyDeathMessageClass();
+        Spawn(class'HxUTGameRules', Self);
+    }
+    else
+    {
+        Disable('Tick');
+    }
 }
 
 function ModifyPlayer(Pawn Pawn)
@@ -275,6 +288,7 @@ simulated function RecoverConfigs()
     SaveConfig();
 }
 
+// TODO: remove this in the next version (HxUTGameRules no longer spawned in PostBeginPlay)
 simulated function CleanUpOldGameRules(Actor OldActor)
 {
     local GameRules Rules;
