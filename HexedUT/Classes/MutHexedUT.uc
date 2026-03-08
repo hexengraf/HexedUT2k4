@@ -320,8 +320,8 @@ simulated function CleanUpOldGameRules(Actor OldActor)
 
 defaultproperties
 {
-    FriendlyName="HexedUT v4T2"
-    Description="A mutator for hit sounds, damage numbers, skin highlights, colored death messages, changing hidden game parameters, and more."
+    FriendlyName="HexedUT v4"
+    Description="A mutator for hit sounds, damage numbers, skin highlights, colored death messages, enhanced map vote menu, and more."
     bAddToServerPackages=true
     MutatorGroup="HexedUT"
 

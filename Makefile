@@ -19,14 +19,14 @@ project:=HexedUT2k4
 packages:=HexedUT HexedPatches HexedUTComp
 requiresint:=HexedUT HexedPatches HexedUTComp
 requirescompressed:=HexedUT HexedUTComp
-miscfiles:=README.md LICENSE
+miscfiles:=README.md LICENSE CHANGELOG.md
 
 .outdir:=build
 .versionfiles:=$(packages:%=$(.outdir)/%.make)
 
 -include $(.versionfiles)
 
-.projectversion:=v4T2
+.projectversion:=v4
 .packages:=$(foreach p,$(packages),$p$($p.version))
 .intpackages:=$(foreach p,$(requiresint),$p$($p.version))
 .compressedpackages:=$(foreach p,$(requirescompressed),$p$($p.version))

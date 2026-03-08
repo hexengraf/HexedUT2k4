@@ -1,3 +1,24 @@
+# v4.0
+
+This version moves the enhanced map vote menu and the spawn protection timer from HexedPatches to HexedUT, so now you can enable them from the server side.
+
+With this release, HexedUT is now capable of transferring the configuration from a previous version to the current one:
+* **Players**: when upgrading to a new version of HexedUT, keep the old version in you system folder to allow HexedUT to automatically copy your configuration to the new version.
+* **Server administrators**: when upgrading to a new version of HexedUT, add the previous version to your `ServerPackages` to allow players that don't have it locally installed to automatically copy their configuration to the new version.
+
+HexedUT changes:
+* Added enhanced map vote menu and spawn protection timer.
+* Added server-side option to disable spawn protection timer.
+* Increased the net priority and update frequency of skin highlights to fix desynchronization issues.
+* Reworked hit effects configuration variables to allow custom hit sounds and custom fonts.
+* Overhauled the options menu, moving server options to a separate menu.
+
+HexedPatches changes:
+* Removed enhanced map vote menu and spawn protection timer.
+* Reorganized HexedPatches settings into two sections: Fixes and Legacy 3369 Fixes.
+* Fully disabled HUD replacements on OldUnreal patched versions.
+* Removed validation of netspeed at every level change on OldUnreal patched versions.
+
 # v3.0
 
 First release aiming to be compatible wit OldUnreal patches!

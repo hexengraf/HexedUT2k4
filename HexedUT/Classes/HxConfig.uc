@@ -20,8 +20,7 @@ static function Object FindOldVersionObject(coerce string FullName,
     if (Divide(FullName, ".", PackageName, ClassName)
         && Divide(PackageName, "v", PackageName, VersionName))
     {
-        // TODO: remove Left call in final version
-        Version = int(Left(VersionName, 1));
+        Version = int(VersionName);
         while (Version > MinVersion)
         {
             --Version;
@@ -54,8 +53,7 @@ static function Actor FindOldVersionActor(Actor Owner,
     if (Divide(FullName, ".", PackageName, ClassName)
         && Divide(PackageName, "v", PackageName, VersionName))
     {
-        // TODO: remove Left call in final version
-        Version = int(Left(VersionName, 1));
+        Version = int(VersionName);
         while (Version > MinVersion)
         {
             --Version;
