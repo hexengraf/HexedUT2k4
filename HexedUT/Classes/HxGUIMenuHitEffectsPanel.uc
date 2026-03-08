@@ -17,7 +17,6 @@ var automated moFloatEdit fl_DisplayPosY;
 var automated moComboBox co_DamagePoints;
 var automated moNumericEdit nu_Value;
 var automated moSlider sl_Pitch;
-var automated HxGUIFramedButton b_PlaySound;
 var automated HxGUIFramedImage i_Preview;
 var automated moSlider sl_Scale;
 var automated moSlider sl_RedColor;
@@ -45,7 +44,6 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     Sections[SECTION_DAMAGE_POINT_EDITOR].Insert(co_DamagePoints);
     Sections[SECTION_DAMAGE_POINT_EDITOR].Insert(nu_Value);
     Sections[SECTION_DAMAGE_POINT_EDITOR].Insert(sl_Pitch);
-    Sections[SECTION_DAMAGE_POINT_EDITOR].Insert(b_PlaySound);
     Sections[SECTION_DAMAGE_POINT_EDITOR].Insert(sl_Scale);
     Sections[SECTION_DAMAGE_POINT_EDITOR].Insert(sl_RedColor);
     Sections[SECTION_DAMAGE_POINT_EDITOR].Insert(sl_GreenColor);
@@ -53,6 +51,8 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     Sections[SECTION_DAMAGE_POINT_EDITOR].Insert(i_Preview);
     PrependClassNameToINIOptions();
     PopulateComboBoxes();
+    sl_HitSoundVolume.MySlider.OnClickSound = CS_None;
+    sl_Pitch.MySlider.OnClickSound = CS_None;
 }
 
 function bool Initialize()
@@ -130,7 +130,6 @@ function HitSoundsAfterChange()
     SetEnable(co_HitSoundNames, bHitSoundsEnabled);
     SetEnable(sl_HitSoundVolume, bHitSoundsEnabled);
     SetEnable(co_PitchMode, bHitSoundsEnabled);
-    SetEnable(b_PlaySound, bHitSoundsEnabled);
     SetEnable(sl_Pitch, bHitSoundsEnabled);
     DamagePointEditorAfterChange(
         bHitSoundsEnabled || (Client.bAllowDamageNumbers && Client.HitEffects.bDamageNumbers));
@@ -205,6 +204,10 @@ function HitEffectsOnChange(GUIComponent Sender)
             {
                 co_HitSoundNames.LoadINI();
             }
+            break;
+        case sl_HitSoundVolume:
+            Client.HitEffects.PlayHitSoundPreview(DPIndex);
+            break;
         case ch_DamageNumbers:
             DamageNumbersAfterChange();
             break;
@@ -236,6 +239,7 @@ function DamagePointEditorOnChange(GUIComponent Sender)
             break;
         case sl_Pitch:
             Client.HitEffects.SetDamagePointPitch(DPIndex, sl_Pitch.GetValue());
+            Client.HitEffects.PlayHitSoundPreview(DPIndex);
             break;
         case sl_Scale:
             Client.HitEffects.SetDamagePointScale(DPIndex, sl_Scale.GetValue());
@@ -311,12 +315,6 @@ function DrawPreview(Canvas C)
     i_Preview.InternalOnRendered(C);
 }
 
-function bool PlaySoundOnClick(GUIComponent Sender)
-{
-    Client.HitEffects.PlayHitSoundPreview(DPIndex);
-    return true;
-}
-
 function PrependClassNameToINIOptions()
 {
     local string ClassName;
@@ -349,8 +347,8 @@ defaultproperties
         Caption="Damage Point Editor"
         WinHeight=0.6
         ColumnWidths=(0.5,0.5)
-        MaxItemsPerColumn=8
-        ExpandIndex=8
+        MaxItemsPerColumn=7
+        ExpandIndex=7
     End Object
 
     Begin Object class=moCheckBox Name=HitSoundsCheckBox
@@ -500,16 +498,6 @@ defaultproperties
         TabOrder=12
     End Object
     sl_Pitch=PitchSlider
-
-    Begin Object class=HxGUIFramedButton Name=PlaySoundButton
-        Caption="Play sound"
-        bStandardized=true
-        StandardHeight=0.03
-        OnClick=PlaySoundOnClick
-        OnClickSound=CS_None
-        TabOrder=13
-    End Object
-    b_PlaySound=PlaySoundButton
 
     Begin Object class=moSlider Name=ScaleSlider
         Caption="Scale"
