@@ -112,7 +112,8 @@ event Opened(GUIComponent Sender)
 
 function Refresh()
 {
-    Sections[SECTION_HIGHLIGHTS].SetHide(!Client.bAllowSkinHighlight, HIDE_DUE_DISABLE);
+    UpdatePreviewColor();
+    Sections[SECTION_HIGHLIGHTS].SetHide(!Client.bAllowSkinHighlight, HideDueDisable);
     Super.Refresh();
 }
 
@@ -428,9 +429,12 @@ function UpdatePreviewModelSkins()
 function UpdatePreviewColor()
 {
     class'HxSkinHighlight'.static.FindColor(co_EditColor.GetComponentValue(), PreviewEffect.Color);
-    PreviewEffect.Color.R = PreviewEffect.Color.R * Client.SkinHighlightIntensity;
-    PreviewEffect.Color.G = PreviewEffect.Color.G * Client.SkinHighlightIntensity;
-    PreviewEffect.Color.B = PreviewEffect.Color.B * Client.SkinHighlightIntensity;
+    if (Client != None)
+    {
+        PreviewEffect.Color.R = PreviewEffect.Color.R * Client.SkinHighlightIntensity;
+        PreviewEffect.Color.G = PreviewEffect.Color.G * Client.SkinHighlightIntensity;
+        PreviewEffect.Color.B = PreviewEffect.Color.B * Client.SkinHighlightIntensity;
+    }
 }
 
 function bool ColorEditorButtonsOnPreDraw(Canvas C)
@@ -600,14 +604,14 @@ defaultproperties
 {
     Begin Object class=HxGUIFramedSection Name=HighlightsSection
         Caption="Highlights"
-        WinHeight=0.40
+        WinHeight=0.44
         ColumnWidths=(0.5,0.5)
         MaxItemsPerColumn=5
     End Object
 
     Begin Object class=HxGUIFramedSection Name=ColorEditorSection
         Caption="Color Editor"
-        WinHeight=0.6
+        WinHeight=0.56
         ColumnWidths=(0.5,0.5)
         MaxItemsPerColumn=6
         ExpandIndex=7
@@ -885,5 +889,5 @@ defaultproperties
     TeamLabels(0)="Red Team"
     TeamLabels(1)="Blue Team"
     PreviewSkinVariation=-1
-    PreviewOffset=(X=350,Z=-3)
+    PreviewOffset=(X=425,Z=-3)
 }

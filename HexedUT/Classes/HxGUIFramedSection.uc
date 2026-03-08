@@ -20,7 +20,8 @@ var int MaxItemsPerColumn;
 var int ExpandIndex;
 
 var private array<GUIComponent> Grid;
-var private array<int> Indents;
+var private array<float> LeftIndents;
+var private array<float> RightIndents;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
@@ -54,7 +55,7 @@ function SetHide(bool bHide, optional string Reason)
     l_HideReason.SetVisibility(bHide);
 }
 
-function bool Insert(GUIComponent Component, optional int Indent)
+function bool Insert(GUIComponent Component, optional float LeftIndent, optional float RightIndent)
 {
     if (Component == None)
     {
@@ -63,7 +64,8 @@ function bool Insert(GUIComponent Component, optional int Indent)
     if (FindIndex(Component) == -1)
     {
         Grid[Grid.Length] = Component;
-        Indents[Indents.Length] = Indent;
+        LeftIndents[LeftIndents.Length] = LeftIndent;
+        RightIndents[RightIndents.Length] = RightIndent;
         return true;
     }
     return false;
@@ -182,7 +184,7 @@ function float AlignColumn(Canvas C, float Left, float Top, float Width, float H
     local int MaxLines;
     local float Spacing;
     local float Bottom;
-    local float Indent;
+    local float LeftIndent;
 
     MaxLines = GetMaxLines(Index);
     Spacing = GetLineSpacing(C, Index, MaxLines, Height);
@@ -196,9 +198,10 @@ function float AlignColumn(Canvas C, float Left, float Top, float Width, float H
     }
     while (Index < MaxLines && Top < Bottom)
     {
-        Indent = GetIndent(C, Index);
-        Grid[Index].WinLeft = Grid[Index].RelativeLeft(Left + Indent);
-        Grid[Index].WinWidth = Grid[Index].RelativeWidth(Width - Indent);
+        LeftIndent = GetLeftIndent(C, Index);
+        Grid[Index].WinLeft = Grid[Index].RelativeLeft(Left + LeftIndent);
+        Grid[Index].WinWidth = Grid[Index].RelativeWidth(
+            Width - LeftIndent - GetRightIndent(C, Index));
         Grid[Index].WinTop = Grid[Index].RelativeTop(Top + Spacing / 2);
         Top += Grid[Index].ActualHeight() + Spacing;
         ++Index;
@@ -246,9 +249,14 @@ function int GetMaxLines(optional int Index)
     return Grid.Length;
 }
 
-function float GetIndent(Canvas C, int Index)
+function float GetLeftIndent(Canvas C, int Index)
 {
-    return Indents[Index] * INDENT_SPACE * C.ClipY;
+    return LeftIndents[Index] * C.ClipY;
+}
+
+function float GetRightIndent(Canvas C, int Index)
+{
+    return RightIndents[Index] * C.ClipY;
 }
 
 function float ActualLineSpacing(Canvas C)

@@ -1,8 +1,8 @@
 class HxGUIMenuGeneralPanel extends HxGUIMenuBasePanel;
 
-const SECTION_SERVER_OPTIONS = 0;
+const SECTION_INTERFACE = 0;
 const SECTION_SERVER_STATUS = 1;
-const SECTION_CLIENT_OPTIONS = 2;
+const SECTION_SP_TIMER = 2;
 
 var automated moCheckBox ch_ReplaceMapVoteMenu;
 var automated moCheckBox ch_ShowSPTimer;
@@ -11,7 +11,7 @@ var automated moCheckBox ch_PulsingDigits;
 var automated GUILabel l_PositionAnchor;
 var automated moFloatEdit fl_PosX;
 var automated moFloatEdit fl_PosY;
-var automated array<GUIMenuOption> ServerOptions;
+var automated HxGUIFramedButton b_ServerMenu;
 var automated HxGUIScrollTextBox st_ServerStatus;
 
 var localized string VersionLabel;
@@ -22,22 +22,14 @@ var private Color ValueColor;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
-    local int i;
-
     super.InitComponent(MyController, MyOwner);
-    for (i = 0; i < ServerOptions.Length; ++i)
-    {
-        ServerOptions[i].OnLoadINI = ServerOptionOnLoadINI;
-        ServerOptions[i].OnChange = ServerOptionOnChange;
-        Sections[SECTION_SERVER_OPTIONS].Insert(
-            ServerOptions[i], int(i == ServerOptions.Length - 1));
-    }
+    Sections[SECTION_INTERFACE].Insert(ch_ReplaceMapVoteMenu);
+    sections[SECTION_SP_TIMER].Insert(ch_ShowSPTimer);
+    sections[SECTION_SP_TIMER].Insert(ch_UseHUDColor);
+    sections[SECTION_SP_TIMER].Insert(ch_PulsingDigits);
+    sections[SECTION_SP_TIMER].Insert(l_PositionAnchor);
     Sections[SECTION_SERVER_STATUS].Insert(st_ServerStatus);
-    Sections[SECTION_CLIENT_OPTIONS].Insert(ch_ReplaceMapVoteMenu);
-    sections[SECTION_CLIENT_OPTIONS].Insert(ch_ShowSPTimer);
-    sections[SECTION_CLIENT_OPTIONS].Insert(ch_UseHUDColor, 1);
-    sections[SECTION_CLIENT_OPTIONS].Insert(ch_PulsingDigits, 1);
-    sections[SECTION_CLIENT_OPTIONS].Insert(l_PositionAnchor, 1);
+    Sections[SECTION_SERVER_STATUS].Insert(b_ServerMenu, 0.015, 0.015);
     PrependClassNameToINIOptions();
 }
 
@@ -54,20 +46,12 @@ function bool Initialize()
 function Refresh()
 {
     Super.Refresh();
+    sections[SECTION_SP_TIMER].SetHide(!Client.bAllowSpawnProtectionTimer, HideDueDisable);
+    fl_PosX.SetVisibility(Client.bAllowSpawnProtectionTimer);
+    fl_PosY.SetVisibility(Client.bAllowSpawnProtectionTimer);
+    SetEnable(b_ServerMenu, IsAdmin());
     ServerStatusAfterChange();
-    SPTimerAfterChange(Client.bAllowSpawnProtectionTimer);
-    Sections[SECTION_SERVER_OPTIONS].SetHide(!IsAdmin(), HIDE_DUE_ADMIN);
-}
-
-function ServerOptionOnLoadINI(GUIComponent Sender, string s)
-{
-    local GUIMenuOption Option;
-
-    Option = GUIMenuOption(Sender);
-    if (Client != None && Option != None)
-    {
-        Option.SetComponentValue(Client.GetPropertyText(Option.INIOption));
-    }
+    SPTimerAfterChange();
 }
 
 function InterfaceOnChange(GUIComponent Sender)
@@ -92,33 +76,16 @@ function SPTimerOnChange(GUIComponent Sender)
         return;
     }
     DefaultOnChange(Sender, Client.SPTimer);
-    SPTimerAfterChange(Client.bAllowSpawnProtectionTimer);
+    SPTimerAfterChange();
 }
 
-function ServerOptionOnChange(GUIComponent Sender)
+function SPTimerAfterChange()
 {
-    local GUIMenuOption Option;
-
-    Option = GUIMenuOption(Sender);
-    if (Client != None && Option != None && IsAdmin())
-    {
-        Client.RemoteSetProperty(Option.INIOption, Option.GetComponentValue());
-    }
-    SPTimerAfterChange(moCheckBox(ServerOptions[2]).IsChecked());
-    ServerStatusAfterChange();
-}
-
-function SPTimerAfterChange(bool bIsAllowed)
-{
-    local bool bIsEnabled;
-
-    bIsEnabled = bIsAllowed && Client.SPTimer.bEnabled;
-    SetEnable(ch_ShowSPTimer, bIsAllowed);
-    SetEnable(ch_UseHUDColor, bIsEnabled);
-    SetEnable(ch_PulsingDigits, bIsEnabled);
-    SetEnable(l_PositionAnchor, bIsEnabled);
-    SetEnable(fl_PosX, bIsEnabled);
-    SetEnable(fl_PosY, bIsEnabled);
+    SetEnable(ch_UseHUDColor, Client.SPTimer.bEnabled);
+    SetEnable(ch_PulsingDigits, Client.SPTimer.bEnabled);
+    SetEnable(l_PositionAnchor, Client.SPTimer.bEnabled);
+    SetEnable(fl_PosX, Client.SPTimer.bEnabled);
+    SetEnable(fl_PosY, Client.SPTimer.bEnabled);
 }
 
 function ServerStatusAfterChange()
@@ -146,7 +113,7 @@ function bool PositionFloatEditsOnPreDraw(Canvas C)
 {
     if (l_PositionAnchor.bInit)
     {
-        l_PositionAnchor.bInit = Sections[SECTION_CLIENT_OPTIONS].bInit;
+        l_PositionAnchor.bInit = Sections[SECTION_SP_TIMER].bInit;
         fl_PosX.WinLeft = l_PositionAnchor.WinLeft + l_PositionAnchor.WinWidth * 0.36;
         fl_PosX.WinTop = l_PositionAnchor.WinTop;
         fl_PosX.WinWidth = l_PositionAnchor.WinWidth * 0.32 - 0.005;
@@ -155,6 +122,18 @@ function bool PositionFloatEditsOnPreDraw(Canvas C)
         fl_PosY.WinWidth = fl_PosX.WinWidth;
     }
     return false;
+}
+
+function bool ServerMenuOnClick(GUIComponent Sender)
+{
+    Controller.OpenMenu(string(class'HxGUIServerMenu'));
+    Controller.ActivePage.OnClose = ServerMenuOnClose;
+    return true;
+}
+
+function ServerMenuOnClose(optional bool bCancelled)
+{
+    Refresh();
 }
 
 function PrependClassNameToINIOptions()
@@ -171,36 +150,16 @@ function PrependClassNameToINIOptions()
     fl_PosY.INIOption = ClassName@fl_PosY.INIOption;
 }
 
-static function bool AddToMenu()
-{
-    local int i;
-    local int Order;
-
-    if (Super.AddToMenu())
-    {
-        Order = 1;
-        for (i = 0; i < default.ServerOptions.Length; ++i)
-        {
-            default.ServerOptions[i].TabOrder = Order++;
-            default.ServerOptions[i].Caption =
-                class'MutHexedUT'.default.PropertyInfoEntries[i].Caption;
-            default.ServerOptions[i].Hint = class'MutHexedUT'.default.PropertyInfoEntries[i].Hint;
-            default.ServerOptions[i].INIOption =
-                class'MutHexedUT'.default.PropertyInfoEntries[i].Name;
-        }
-        return true;
-    }
-    return false;
-}
-
 defaultproperties
 {
-    Begin Object class=HxGUIFramedSection Name=ServerOptionsSection
-        Caption="Server Options"
+    Begin Object class=HxGUIFramedSection Name=InterfaceSection
+        Caption="Interface"
+        WinHeight=0.625
     End Object
 
-    Begin Object class=HxGUIFramedSection Name=ClientOptionsSection
-        Caption="Client Options"
+    Begin Object class=HxGUIFramedSection Name=SPTimerSection
+        Caption="Spawn Protection Timer"
+        WinHeight=0.375
     End Object
 
     Begin Object class=HxGUIFramedSection Name=ServerStatusSection
@@ -208,31 +167,17 @@ defaultproperties
         LeftPadding=0
         TopPadding=0
         RightPadding=0
-        BottomPadding=0
         ExpandIndex=0
     End Object
 
-    Begin Object class=moCheckBox Name=AllowHitSoundsCheckBox
+    Begin Object class=HxGUIFramedButton Name=ServerMenuButton
+        Caption="Server Options"
+        bStandardized=true
+        StandardHeight=0.03
+        OnClick=ServerMenuOnClick
+        TabOrder=9
     End Object
-
-    Begin Object class=moCheckBox Name=AllowDamageNumbersCheckBox
-    End Object
-
-    Begin Object class=moCheckBox Name=AllowSpawnProtectionTimerCheckBox
-    End Object
-
-    Begin Object class=moCheckBox Name=ColoredDeathMessagesCheckBox
-    End Object
-
-    Begin Object class=moCheckBox Name=AllowSkinHighlightCheckBox
-    End Object
-
-    Begin Object class=moFloatEdit Name=SkinHighlightFactorFloatEdit
-        MinValue=0.0
-        MaxValue=1.0
-        Step=0.01
-        ComponentWidth=0.25
-    End Object
+    b_ServerMenu=ServerMenuButton
 
     Begin Object class=moCheckBox Name=ReplaceMapVoteMenuCheckBox
         Caption="Replace map vote menu"
@@ -316,9 +261,9 @@ defaultproperties
 
     Begin Object Class=HxGUIScrollTextBox Name=ServerStatusTextBox
         WinHeight=0.5
-        LeftPadding=0.02
+        LeftPadding=0.03
         TopPadding=0.005
-        RightPadding=0.02
+        RightPadding=0.03
         BottomPadding=0.005
         LineSpacing=0.01
         VertAlign=TXTA_Left
@@ -338,16 +283,10 @@ defaultproperties
     bInsertFront=true
     bDoubleColumn=true
     bFillPanelHeight=true
-    Sections(0)=ServerOptionsSection
+    Sections(0)=InterfaceSection
     Sections(1)=ServerStatusSection
-    Sections(2)=ClientOptionsSection
+    Sections(2)=SPTimerSection
     Sections(3)=None
-    ServerOptions(0)=AllowHitSoundsCheckBox
-    ServerOptions(1)=AllowDamageNumbersCheckBox
-    ServerOptions(2)=AllowSpawnProtectionTimerCheckBox
-    ServerOptions(3)=ColoredDeathMessagesCheckBox
-    ServerOptions(4)=AllowSkinHighlightCheckBox
-    ServerOptions(5)=SkinHighlightFactorFloatEdit
     VersionLabel="Version"
     NameColor=(R=255,G=255,B=255,A=255)
     ValueColor=(R=255,G=195,B=0,A=255)

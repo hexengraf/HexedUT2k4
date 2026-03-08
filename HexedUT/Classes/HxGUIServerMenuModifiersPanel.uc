@@ -1,9 +1,8 @@
-class HxGUIMenuModifiersPanel extends HxGUIMenuBasePanel;
+class HxGUIServerMenuModifiersPanel extends HxGUIBasePanel;
 
 const SECTION_STARTING_VALUES = 0;
 const SECTION_POWER_UPS = 2;
 const SECTION_MOVEMENT = 1;
-const SECTION_HEALTH_LEECH = 3;
 
 var automated array<GUIMenuOption> Options;
 
@@ -13,12 +12,16 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
     local int i;
 
-    super.InitComponent(MyController, MyOwner);
-    for (i = 0; i < Options.Length; ++i)
+    for (i = 8; i < class'MutHexedUT'.default.PropertyInfoEntries.Length; ++i)
     {
-        Options[i].OnLoadINI = ServerOptionOnLoadINI;
-        Options[i].OnChange = ServerOptionOnChange;
+        Options[i - 8].TabOrder = i - 8;
+        Options[i - 8].Caption = class'MutHexedUT'.default.PropertyInfoEntries[i].Caption;
+        Options[i - 8].Hint = class'MutHexedUT'.default.PropertyInfoEntries[i].Hint;
+        Options[i - 8].INIOption = class'MutHexedUT'.default.PropertyInfoEntries[i].Name;
+        Options[i - 8].OnLoadINI = ServerOptionOnLoadINI;
+        Options[i - 8].OnChange = ServerOptionOnChange;
     }
+    super.InitComponent(MyController, MyOwner);
     for (i = 0; i < 5; ++i)
     {
         Sections[SECTION_STARTING_VALUES].Insert(Options[i]);
@@ -30,10 +33,6 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     for (i = 10; i < 19; ++i)
     {
         Sections[SECTION_MOVEMENT].Insert(Options[i]);
-    }
-    for (i = 19; i < 21; ++i)
-    {
-        Sections[SECTION_HEALTH_LEECH].Insert(Options[i]);
     }
 }
 
@@ -49,8 +48,13 @@ function bool Initialize()
 
 function Refresh()
 {
+    local int i;
+
     Super.Refresh();
-    HideAllSections(!IsAdmin(), HIDE_DUE_ADMIN);
+    for (i = 0; i < Options.Length; ++i)
+    {
+        Options[i].LoadINI();
+    }
 }
 
 function ServerOptionOnLoadINI(GUIComponent Sender, string s)
@@ -75,27 +79,6 @@ function ServerOptionOnChange(GUIComponent C)
     }
 }
 
-static function bool AddToMenu()
-{
-    local int i;
-    local int Order;
-
-    if (Super.AddToMenu())
-    {
-        for (i = 6; i < class'MutHexedUT'.default.PropertyInfoEntries.Length; ++i)
-        {
-            default.Options[i - 6].TabOrder = Order++;
-            default.Options[i - 6].Caption =
-                class'MutHexedUT'.default.PropertyInfoEntries[i].Caption;
-            default.Options[i - 6].Hint = class'MutHexedUT'.default.PropertyInfoEntries[i].Hint;
-            default.Options[i - 6].INIOption =
-                class'MutHexedUT'.default.PropertyInfoEntries[i].Name;
-        }
-        return true;
-    }
-    return false;
-}
-
 defaultproperties
 {
     Begin Object class=HxGUIFramedSection Name=StartingValuesSection
@@ -110,26 +93,7 @@ defaultproperties
 
     Begin Object class=HxGUIFramedSection Name=MovementSection
         Caption="Movement"
-        WinHeight=0.77
-    End Object
-
-    Begin Object class=HxGUIFramedSection Name=HealthLeechSection
-        Caption="Health leech"
-        WinHeight=0.23
-    End Object
-
-    Begin Object class=moFloatEdit Name=HealthLeechRatioFloatEdit
-        MinValue=0.0
-        MaxValue=5.0
-        Step=0.01
-        ComponentWidth=0.25
-    End Object
-
-    Begin Object class=moNumericEdit Name=HealthLeechLimitNumericEdit
-        MinValue=0
-        MaxValue=199
-        Step=10
-        ComponentWidth=0.25
+        WinHeight=1.0
     End Object
 
     Begin Object class=moNumericEdit Name=BonusStartingHealthNumericEdit
@@ -237,15 +201,12 @@ defaultproperties
     Begin Object class=moCheckBox Name=DisableDodgeJumpCheckBox
     End Object
 
-    PanelCaption="Modifiers"
-    PanelHint="Game modifiers and custom behavior options (admin only)"
-    bInsertFront=true
     bDoubleColumn=true
     bFillPanelHeight=false
     Sections(0)=StartingValuesSection
     Sections(1)=MovementSection
     Sections(2)=PowerUpsSection
-    Sections(3)=HealthLeechSection
+    Sections(3)=None
     Options(0)=BonusStartingHealthNumericEdit
     Options(1)=BonusStartingShieldNumericEdit
     Options(2)=BonusStartingGrenadesNumericEdit
@@ -265,6 +226,4 @@ defaultproperties
     Options(16)=DodgeSpeedMultiplierFloatEdit
     Options(17)=DisableWallDodgeCheckBox
     Options(18)=DisableDodgeJumpCheckBox
-    Options(19)=HealthLeechRatioFloatEdit
-    Options(20)=HealthLeechLimitNumericEdit
 }

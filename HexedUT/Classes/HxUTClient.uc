@@ -20,6 +20,8 @@ var bool bAllowSpawnProtectionTimer;
 var bool bColoredDeathMessages;
 var bool bAllowSkinHighlight;
 var float SkinHighlightIntensity;
+var float HealthLeechRatio;
+var int HealthLeechLimit;
 var int BonusStartingHealth;
 var int BonusStartingShield;
 var int BonusStartingGrenades;
@@ -39,8 +41,6 @@ var float DodgeMultiplier;
 var float DodgeSpeedMultiplier;
 var bool bDisableWallDodge;
 var bool bDisableDodgeJump;
-var float HealthLeechRatio;
-var int HealthLeechLimit;
 
 var MutHexedUT HexedUT;
 var HxHitEffects HitEffects;
@@ -66,6 +66,8 @@ replication
         bColoredDeathMessages,
         bAllowSkinHighlight,
         SkinHighlightIntensity,
+        HealthLeechRatio,
+        HealthLeechLimit,
         BonusStartingHealth,
         BonusStartingShield,
         BonusStartingGrenades,
@@ -84,9 +86,7 @@ replication
         DodgeMultiplier,
         DodgeSpeedMultiplier,
         bDisableWallDodge,
-        bDisableDodgeJump,
-        HealthLeechRatio,
-        HealthLeechLimit;
+        bDisableDodgeJump;
 
     reliable if (Role < ROLE_Authority)
         RemoteSetProperty;
@@ -101,7 +101,6 @@ simulated event PreBeginPlay()
         {
             RecoverConfigs();
         }
-        class'HxGUIMenuModifiersPanel'.static.AddToMenu();
         class'HxGUIMenuSkinHighlightPanel'.static.AddToMenu();
         class'HxGUIMenuHitEffectsPanel'.static.AddToMenu();
         class'HxGUIMenuGeneralPanel'.static.AddToMenu();
@@ -312,6 +311,8 @@ function Update()
     bColoredDeathMessages = HexedUT.bColoredDeathMessages;
     bAllowSkinHighlight = HexedUT.bAllowSkinHighlight;
     SkinHighlightIntensity = HexedUT.SkinHighlightIntensity;
+    HealthLeechRatio = HexedUT.HealthLeechRatio;
+    HealthLeechLimit = HexedUT.HealthLeechLimit;
     BonusStartingHealth = HexedUT.BonusStartingHealth;
     BonusStartingShield = HexedUT.BonusStartingShield;
     BonusStartingGrenades = HexedUT.BonusStartingGrenades;
@@ -331,8 +332,6 @@ function Update()
     DodgeSpeedMultiplier = HexedUT.DodgeSpeedMultiplier;
     bDisableWallDodge = HexedUT.bDisableWallDodge;
     bDisableDodgeJump = HexedUT.bDisableDodgeJump;
-    HealthLeechRatio = HexedUT.HealthLeechRatio;
-    HealthLeechLimit = HexedUT.HealthLeechLimit;
     NetUpdateTime = Level.TimeSeconds - 1;
 }
 

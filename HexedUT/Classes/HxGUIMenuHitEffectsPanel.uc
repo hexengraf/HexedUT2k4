@@ -69,11 +69,13 @@ function Refresh()
 {
     HitSoundsAfterChange();
     DamageNumbersAfterChange();
-    Sections[SECTION_HIT_SOUNDS].SetHide(!Client.bAllowHitSounds, HIDE_DUE_DISABLE);
-    Sections[SECTION_DAMAGE_NUMBERS].SetHide(!Client.bAllowDamageNumbers, HIDE_DUE_DISABLE);
+    Sections[SECTION_HIT_SOUNDS].SetHide(!Client.bAllowHitSounds, HideDueDisable);
+    Sections[SECTION_DAMAGE_NUMBERS].SetHide(!Client.bAllowDamageNumbers, HideDueDisable);
+    fl_DisplayPosX.SetVisibility(Client.bAllowDamageNumbers);
+    fl_DisplayPosY.SetVisibility(Client.bAllowDamageNumbers);
     Sections[SECTION_DAMAGE_POINT_EDITOR].SetHide(
         !Client.bAllowHitSounds && !Client.bAllowDamageNumbers,
-        HIDE_DUE_DISABLE);
+        HideDueDisable);
     Super.Refresh();
 }
 
