@@ -7,19 +7,14 @@ struct HxGUIStyleEntry
 };
 
 var private array<HxGUIStyleEntry> Entries;
-var private bool bRegisteredAll;
 
 static function RegisterAll(GUIController Controller, optional bool bTemporary)
 {
     local int i;
 
-    if (!default.bRegisteredAll)
+    for (i = 0; i < default.Entries.Length; ++i)
     {
-        default.bRegisteredAll = true;
-        for (i = 0; i < default.Entries.Length; ++i)
-        {
-            Controller.RegisterStyle(default.Entries[i].StyleClass, bTemporary);
-        }
+        Controller.RegisterStyle(default.Entries[i].StyleClass, bTemporary);
     }
 }
 
@@ -33,5 +28,4 @@ defaultproperties
     Entries(5)=(StyleName="HxEditBox",StyleClass=class'HxSTYEditBox')
     Entries(6)=(StyleName="HxListHeader",StyleClass=class'HxSTYListHeader')
     Entries(7)=(StyleName="HxFlatButton",StyleClass=class'HxSTYFlatButton')
-    bRegisteredAll=false
 }
