@@ -4,6 +4,12 @@ var MutHexedUT HexedUT;
 
 var private float AccumulatedLeech;
 
+event PreBeginPlay()
+{
+    Super.PreBeginPlay();
+    HexedUT = MutHexedUT(Owner);
+}
+
 function UpdateHealthLeech(int Value, Pawn Inflictor)
 {
     local float HealthLeechValue;

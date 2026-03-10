@@ -390,28 +390,35 @@ static function bool IsEnemy(Pawn Injured, Pawn Inflictor)
     return TeamNum == 255 || TeamNum != Inflictor.GetTeamNum();
 }
 
-static function HxUTClient New(PlayerController PC, MutHexedUT HexedUT)
+static function HxUTClient SpawnClient(PlayerController PC, MutHexedUT HexedUT)
 {
     local HxUTClient Client;
 
-    Client = PC.Spawn(class'HxUTClient', PC);
-    Client.HexedUT = HexedUT;
-    default.Clients[default.Clients.Length] = Client;
-    Client.Update();
-    Client.InitializePlayerController();
+    if (PC != None && MessagingSpectator(PC) == None)
+    {
+        Client = PC.Spawn(class'HxUTClient', PC);
+        Client.HexedUT = HexedUT;
+        default.Clients[default.Clients.Length] = Client;
+        Client.Update();
+        Client.InitializePlayerController();
+    }
     return Client;
 }
 
-static function bool Delete(PlayerController PC)
+static function bool DestroyClient(PlayerController PC)
 {
     local int i;
 
-    for (i = 0; i < default.Clients.Length; ++i)
+    if (PC != None && MessagingSpectator(PC) == None)
     {
-        if (default.Clients[i].Owner == PC)
+        for (i = 0; i < default.Clients.Length; ++i)
         {
-            default.Clients.Remove(i, 1);
-            return true;
+            if (default.Clients[i].Owner == PC)
+            {
+                default.Clients[i].Destroy();
+                default.Clients.Remove(i, 1);
+                return true;
+            }
         }
     }
     return false;
@@ -451,9 +458,8 @@ defaultproperties
     bFirstRun=true
     bMapVoteMenu=true
     RemoteRole=ROLE_SimulatedProxy
-    bHidden=true
-    bAlwaysRelevant=true
-    bStatic=false
+    bOnlyRelevantToOwner=true
+    bAlwaysRelevant=false
     bSkipActorPropertyReplication=false
     bOnlyDirtyReplication=true
     NetUpdateFrequency=10

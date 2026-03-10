@@ -26,7 +26,7 @@ miscfiles:=README.md LICENSE CHANGELOG.md
 
 -include $(.versionfiles)
 
-.projectversion:=v4
+.projectversion:=v5T1
 .packages:=$(foreach p,$(packages),$p$($p.version))
 .intpackages:=$(foreach p,$(requiresint),$p$($p.version))
 .compressedpackages:=$(foreach p,$(requirescompressed),$p$($p.version))

@@ -112,10 +112,8 @@ function ModifyPlayer(Pawn Pawn)
 
 function NotifyLogout(Controller Exiting)
 {
-    if (PlayerController(Exiting) != None && MessagingSpectator(Exiting) == None)
-    {
-        class'HxUTClient'.static.Delete(PlayerController(Exiting));
-    }
+    class'HxUTClient'.static.DestroyClient(PlayerController(Exiting));
+    DestroyLinkedPRI(Exiting.PlayerReplicationInfo, class'HxUTPlayerInfo');
     Super.NotifyLogout(Exiting);
 }
 
@@ -146,27 +144,6 @@ function SpawnSkinHighlight(xPawn Pawn)
     }
 }
 
-function SpawnClient(PlayerController PC)
-{
-    local HxUTClient Client;
-
-    if (PC != None && MessagingSpectator(PC) == None)
-    {
-        Client = class'HxUTClient'.static.New(PC, Self);
-    }
-}
-
-function SpawnPlayerInfo(PlayerReplicationInfo PRI)
-{
-    local HxUTPlayerInfo Info;
-
-    if (MessagingSpectator(PRI.Owner) == None)
-    {
-        Info = HxUTPlayerInfo(SpawnLinkedPRI(PRI, class'HxUTPlayerInfo'));
-        Info.HexedUT = Self;
-    }
-}
-
 function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
 {
     if (Other.IsA('Combo'))
@@ -187,11 +164,11 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
     }
     else if (Other.IsA('PlayerReplicationInfo'))
     {
-        SpawnPlayerInfo(PlayerReplicationInfo(Other));
+        SpawnLinkedPRI(PlayerReplicationInfo(Other), class'HxUTPlayerInfo');
     }
     else if (Other.IsA('Controller'))
     {
-        SpawnClient(PlayerController(Other));
+        class'HxUTClient'.static.SpawnClient(PlayerController(Other), Self);
         Controller(Other).AwardAdrenaline(BonusStartingAdrenaline);
     }
     else if (Other.IsA('xPawn'))
@@ -320,7 +297,7 @@ simulated function CleanUpOldGameRules(Actor OldActor)
 
 defaultproperties
 {
-    FriendlyName="HexedUT v4"
+    FriendlyName="HexedUT v5T1"
     Description="A mutator for hit sounds, damage numbers, skin highlights, colored death messages, enhanced map vote menu, and more."
     bAddToServerPackages=true
     MutatorGroup="HexedUT"

@@ -78,14 +78,18 @@ function SetProperty(string PropertyName, String PropertyValue)
 
 function UpdateAfterPropertyChange(string PropertyName, String PropertyValue);
 
-static function LinkedReplicationInfo SpawnLinkedPRI(PlayerReplicationInfo PRI,
-                                                     class<LinkedReplicationInfo> LinkedPRIClass)
+function LinkedReplicationInfo SpawnLinkedPRI(PlayerReplicationInfo PRI,
+                                              class<LinkedReplicationInfo> LinkedPRIClass)
 {
     local LinkedReplicationInfo LinkedPRI;
 
+    if (MessagingSpectator(PRI.Owner) != None)
+    {
+        return LinkedPRI;
+    }
     if (PRI.CustomReplicationInfo == None)
     {
-        PRI.CustomReplicationInfo = PRI.Spawn(LinkedPRIClass, PRI);
+        PRI.CustomReplicationInfo = Self.Spawn(LinkedPRIClass, Self);
         PRI.NetUpdateTime = PRI.Level.TimeSeconds - 1;
         return PRI.CustomReplicationInfo;
     }
@@ -94,10 +98,42 @@ static function LinkedReplicationInfo SpawnLinkedPRI(PlayerReplicationInfo PRI,
     {
         LinkedPRI = LinkedPRI.NextReplicationInfo;
     }
-    LinkedPRI.NextReplicationInfo = PRI.Spawn(LinkedPRIClass, PRI);
+    LinkedPRI.NextReplicationInfo = Self.Spawn(LinkedPRIClass, Self);
     LinkedPRI.NetUpdateTime = PRI.Level.TimeSeconds - 1;
     LinkedPRI.NextReplicationInfo.NetUpdateTime = PRI.Level.TimeSeconds - 1;
     return LinkedPRI.NextReplicationInfo;
+}
+
+function bool DestroyLinkedPRI(PlayerReplicationInfo PRI,
+                               class<LinkedReplicationInfo> LinkedPRIClass)
+{
+    local LinkedReplicationInfo LinkedPRI;
+    local LinkedReplicationInfo NextLinkedPRI;
+
+    if (PRI == None || MessagingSpectator(PRI.Owner) != None || PRI.CustomReplicationInfo == None)
+    {
+        return false;
+    }
+    if (PRI.CustomReplicationInfo.Class == LinkedPRIClass)
+    {
+        NextLinkedPRI = PRI.CustomReplicationInfo.NextReplicationInfo;
+        PRI.CustomReplicationInfo.Destroy();
+        PRI.CustomReplicationInfo = NextLinkedPRI;
+        return true;
+    }
+    LinkedPRI = PRI.CustomReplicationInfo;
+    while (LinkedPRI.NextReplicationInfo != None)
+    {
+        if (LinkedPRI.NextReplicationInfo.Class == LinkedPRIClass)
+        {
+            NextLinkedPRI = LinkedPRI.NextReplicationInfo.NextReplicationInfo;
+            LinkedPRI.NextReplicationInfo.Destroy();
+            LinkedPRI.NextReplicationInfo = NextLinkedPRI;
+            return true;
+        }
+        LinkedPRI = LinkedPRI.NextReplicationInfo;
+    }
+    return false;
 }
 
 defaultproperties
