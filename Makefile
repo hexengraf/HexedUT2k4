@@ -36,7 +36,7 @@ miscfiles:=README.md LICENSE CHANGELOG.md
 .intfiles:=$(.intpackages:%=$(.outdir)/System/%.int)
 .compressedfiles:=$(.compressedpackages:%=$(.outdir)/%.u.uz2)
 .targets:=$(.ufiles) $(.intfiles)
-.winecmd:=WINEPREFIX=~/.ucc-prefix wine
+.winecmd:=WINEDEBUG=-all WINEPREFIX=~/.ucc-prefix wine
 .findsources=$(wildcard $1/Classes/*.uc) $(wildcard $1/Classes/Include/*.uci)
 
 $(foreach p,$(packages),$(if $($p.version),$(eval $p$($p.version).name:=$p)))
