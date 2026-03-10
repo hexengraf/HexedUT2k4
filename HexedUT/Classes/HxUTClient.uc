@@ -1,4 +1,4 @@
-class HxUTClient extends ReplicationInfo
+class HxUTClient extends HxClientReplicationInfo
     config(User);
 
 struct DamageInfo
@@ -49,7 +49,6 @@ var HxSpawnProtectionTimer SPTimer;
 var private PlayerController PC;
 var private GUIController GUIController;
 var private DamageInfo Damage;
-var private array<HxUTClient> Clients;
 var private bool bInitialized;
 var private bool bReplaceMapVoteMenu;
 
@@ -170,7 +169,6 @@ simulated function bool InitializeClient()
 {
     if (InitializePlayerController() && InitializeGUIController() && InitializeHUDOverlays())
     {
-        Register(Self);
         SetMapVoteMenu(bMapVoteMenu);
         return true;
     }
@@ -356,13 +354,13 @@ static function RegisterDamage(int Damage, Pawn Injured, Pawn Inflictor, class<D
     local PlayerController PC;
     local int i;
 
-    for (i = 0; i < default.Clients.Length; ++i)
+    for (i = 0; i < default.CRIs.Length; ++i)
     {
-        PC = PlayerController(default.Clients[i].Owner);
+        PC = PlayerController(default.CRIs[i].Owner);
         if (PC != None && PC.ViewTarget == Inflictor && Injured != Inflictor
             && IsEnemy(Injured, Inflictor))
         {
-            default.Clients[i].UpdateDamage(Damage, Injured, Inflictor, Type);
+            HxUTClient(default.CRIs[i]).UpdateDamage(Damage, Injured, Inflictor, Type);
         }
     }
 }
@@ -372,12 +370,12 @@ static function RegisterSpawn(Pawn Spawned)
     local PlayerController PC;
     local int i;
 
-    for (i = 0; i < default.Clients.Length; ++i)
+    for (i = 0; i < default.CRIs.Length; ++i)
     {
-        PC = PlayerController(default.Clients[i].Owner);
+        PC = PlayerController(default.CRIs[i].Owner);
         if (PC != None && PC.ViewTarget == Spawned)
         {
-            default.Clients[i].NotifySpawn(Spawned);
+            HxUTClient(default.CRIs[i]).NotifySpawn(Spawned);
         }
     }
 }
@@ -394,11 +392,10 @@ static function HxUTClient SpawnClient(PlayerController PC, MutHexedUT HexedUT)
 {
     local HxUTClient Client;
 
-    if (PC != None && MessagingSpectator(PC) == None)
+    Client = HxUTClient(SpawnClientReplicationInfo(PC));
+    if (Client != None)
     {
-        Client = PC.Spawn(class'HxUTClient', PC);
         Client.HexedUT = HexedUT;
-        default.Clients[default.Clients.Length] = Client;
         Client.Update();
         Client.InitializePlayerController();
     }
@@ -407,60 +404,16 @@ static function HxUTClient SpawnClient(PlayerController PC, MutHexedUT HexedUT)
 
 static function bool DestroyClient(PlayerController PC)
 {
-    local int i;
-
-    if (PC != None && MessagingSpectator(PC) == None)
-    {
-        for (i = 0; i < default.Clients.Length; ++i)
-        {
-            if (default.Clients[i].Owner == PC)
-            {
-                default.Clients[i].Destroy();
-                default.Clients.Remove(i, 1);
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
-static function bool Register(HxUTClient Client)
-{
-    local int i;
-
-    for (i = 0; i < default.Clients.Length; ++i)
-    {
-        if (default.Clients[i] == Client)
-        {
-            return false;
-        }
-    }
-    default.Clients[default.Clients.Length] = Client;
-    return true;
+    return DestroyClientReplicationInfo(PC);
 }
 
 static function HxUTClient GetClient(PlayerController PC)
 {
-    local int i;
-
-    for (i = 0; i < default.Clients.Length; ++i)
-    {
-        if (default.Clients[i].Owner == PC)
-        {
-            return default.Clients[i];
-        }
-    }
-    return None;
+    return HxUTClient(GetClientReplicationInfo(PC));
 }
 
 defaultproperties
 {
     bFirstRun=true
     bMapVoteMenu=true
-    RemoteRole=ROLE_SimulatedProxy
-    bOnlyRelevantToOwner=true
-    bAlwaysRelevant=false
-    bSkipActorPropertyReplication=false
-    bOnlyDirtyReplication=true
-    NetUpdateFrequency=10
 }
