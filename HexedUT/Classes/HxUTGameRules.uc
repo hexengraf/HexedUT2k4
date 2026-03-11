@@ -29,16 +29,10 @@ function int NetDamage(int Original,
         Damage = NextGameRules.NetDamage(
             Original, Damage, Injured, Inflictor, Location, Momentum, Type);
     }
-    if (Damage > 0 && Inflictor != None && Injured != None)
+    if (Damage > 0 && Inflictor != None && Injured != None
+        && Injured != Inflictor && IsEnemy(Injured, Inflictor))
     {
-        if (Injured != Inflictor && IsEnemy(Injured, Inflictor))
-        {
-           HexedUT.RegisterDamage(Damage, Injured, Inflictor, Type);
-        }
-        if (HexedUT.HealthLeechLimit != 0)
-        {
-            class'HxUTPlayerInfo'.static.RegisterDamage(Damage, Injured, Inflictor, Type);
-        }
+        HexedUT.RegisterDamage(Damage, Injured, Inflictor, Type);
     }
     return Damage;
 }

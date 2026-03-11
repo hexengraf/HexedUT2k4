@@ -243,6 +243,10 @@ function RegisterDamage(int Damage, Pawn Injured, Pawn Inflictor, class<DamageTy
             }
         }
     }
+    if (HealthLeechLimit != 0)
+    {
+        class'HxUTPlayerInfo'.static.RegisterDamage(Damage, Injured, Inflictor, Type);
+    }
 }
 
 function RegisterSpawn(Pawn Spawned)
