@@ -7,15 +7,27 @@ struct HxGUIStyleEntry
 };
 
 var private array<HxGUIStyleEntry> Entries;
+var private bool bRegistered;
 
-static function RegisterAll(GUIController Controller, optional bool bTemporary)
+static function RegisterStyles(GUIController Controller, optional bool bTemporary)
 {
     local int i;
 
-    for (i = 0; i < default.Entries.Length; ++i)
+    if (!default.bRegistered)
     {
-        Controller.RegisterStyle(default.Entries[i].StyleClass, bTemporary);
+        for (i = 0; i < default.Entries.Length; ++i)
+        {
+            Controller.RegisterStyle(default.Entries[i].StyleClass, bTemporary);
+        }
+        default.bRegistered = true;
     }
+}
+
+static function NotifyLevelChange()
+{
+    // GUIController calls PurgeObjectReferences() on level change,
+    // completely nuking custom styles, so we need to re-register every level.
+    default.bRegistered = false;
 }
 
 defaultproperties

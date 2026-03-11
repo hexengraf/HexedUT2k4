@@ -14,7 +14,7 @@ var int PanelCount;
 
 function InitComponent(GUIController MyController, GUIComponent MyComponent)
 {
-    class'HxGUIStyleManager'.static.RegisterAll(MyController);
+    class'HxGUIStyleManager'.static.RegisterStyles(MyController);
     Super.InitComponent(MyController, MyComponent);
     t_WindowTitle.bUseTextHeight = true;
     t_WindowTitle.FontScale = FNS_Small;
@@ -47,6 +47,7 @@ function AdjustWindowSize(coerce float X, coerce float Y)
 
 event bool NotifyLevelChange()
 {
+    class'HxGUIStyleManager'.static.NotifyLevelChange();
     bPersistent = false;
     LevelChanged();
     return true;
