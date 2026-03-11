@@ -1,6 +1,5 @@
 class HxSpawnProtectionTimer extends HudOverlay
-    config(User)
-    notplaceable;
+    config(User);
 
 #exec texture Import File=Textures\HxSpawnProtectionTimer.tga Name=HxSPTimerIcon Mips=Off Alpha=1
 
