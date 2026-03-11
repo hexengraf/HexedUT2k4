@@ -11,6 +11,7 @@ var config float PosX;
 var config float PosY;
 var config Color DefaultColor;
 
+var private Pawn Pawn;
 var private HudBase.DigitSet Digits;
 var private HudBase.NumericWidget Counter;
 var private HudBase.SpriteWidget Icon;
@@ -27,6 +28,7 @@ state Setup
     {
         if (HudBase(Owner).PawnOwner != None)
         {
+            Pawn = HudBase(Owner).PawnOwner;
             GoToState('Active');
         }
     }
@@ -36,11 +38,9 @@ state Active
 {
     simulated Event Tick(float DeltaTime)
     {
-        local xPawn Pawn;
 
         Counter.Value = Ceil(Duration - (Level.TimeSeconds - Timestamp));
-        Pawn = xPawn(HudBase(Owner).PawnOwner);
-        if (Counter.Value <= 0 || Pawn == None
+        if (Counter.Value <= 0 || Pawn != HudBase(Owner).PawnOwner
             || Pawn.OverlayTimer == 0 || Pawn.OverlayTimer > Duration)
         {
             Counter.Value = 0;
