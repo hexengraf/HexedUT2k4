@@ -1,4 +1,4 @@
-class HxGUIMenuBasePanel extends HxGUIBasePanel;
+class HxGUIMenuPanel extends HxGUIBasePanel;
 
 var localized string PanelHint;
 var bool bInsertFront;

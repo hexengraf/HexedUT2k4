@@ -1,4 +1,4 @@
-class HxGUIMenuGeneralPanel extends HxGUIMenuBasePanel;
+class HxGUIMenuGeneralPanel extends HxGUIMenuPanel;
 
 const SECTION_INTERFACE = 0;
 const SECTION_SERVER_STATUS = 1;
