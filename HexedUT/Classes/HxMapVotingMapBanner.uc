@@ -1,4 +1,4 @@
-class HxGUIVotingMapBanner extends HxGUIFramedImage;
+class HxMapVotingMapBanner extends HxGUIFramedImage;
 
 var automated GUILabel l_Header;
 var automated HxGUIFramedImage fi_Preview;

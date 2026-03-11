@@ -1,11 +1,11 @@
-class HxGUIVotingMapListBox extends HxGUIVotingBaseListBox;
+class HxMapVotingMapListBox extends HxMapVotingBaseListBox;
 
 var localized string CaseSensitiveLabels[2];
 var private bool bCaseSensitive;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
-    DefaultListClass = string(class'HxGUIVotingMapList');
+    DefaultListClass = string(class'HxMapVotingMapList');
     Super.InitComponent(MyController, MyOwner);
     SearchBar.ed_Columns[0].EditBox.ToolTip.ExpirationSeconds = 5;
     SearchBar.ed_Columns[1].EditBox.ToolTip.ExpirationSeconds = 10;
@@ -14,39 +14,39 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     SearchBar.ed_Columns[0].ContextMenu.OnSelect = OnSelectCaseSensitive;
 }
 
-function SetFilter(HxMapVoteFilter Filter)
+function SetFilter(HxMapVotingFilter Filter)
 {
-    HxGUIVotingMapList(MyBaseList).SetFilter(Filter);
+    HxMapVotingMapList(MyBaseList).SetFilter(Filter);
 }
 
 function SetPrefix(string Prefix)
 {
-    HxGUIVotingMapList(MyBaseList).SetPrefix(Prefix);
+    HxMapVotingMapList(MyBaseList).SetPrefix(Prefix);
 }
 
 function SetMapSource(int Source)
 {
-    HxGUIVotingMapList(MyBaseList).SetMapSource(Source);
+    HxMapVotingMapList(MyBaseList).SetMapSource(Source);
 }
 
 function OnChangeNameSearch(GUIComponent Sender)
 {
-    HxGUIVotingMapList(MyBaseList).SearchName(GUIEditBox(Sender).GetText(), bCaseSensitive);
+    HxMapVotingMapList(MyBaseList).SearchName(GUIEditBox(Sender).GetText(), bCaseSensitive);
 }
 
 function OnChangePlayersSearch(GUIComponent Sender)
 {
-    HxGUIVotingMapList(MyBaseList).SearchPlayers(GUIEditBox(Sender).GetText());
+    HxMapVotingMapList(MyBaseList).SearchPlayers(GUIEditBox(Sender).GetText());
 }
 
 function OnChangePlayedSearch(GUIComponent Sender)
 {
-    HxGUIVotingMapList(MyBaseList).SearchPlayed(GUIEditBox(Sender).GetText());
+    HxMapVotingMapList(MyBaseList).SearchPlayed(GUIEditBox(Sender).GetText());
 }
 
 function OnChangeRecentSearch(GUIComponent Sender)
 {
-    HxGUIVotingMapList(MyBaseList).SearchRecent(GUIEditBox(Sender).GetText());
+    HxMapVotingMapList(MyBaseList).SearchRecent(GUIEditBox(Sender).GetText());
 }
 
 function OnSelectCaseSensitive(GUIContextMenu Sender, int Index)
@@ -86,7 +86,7 @@ defaultproperties
         OnChange=OnChangePlayedSearch
     End Object
 
-    Begin Object Class=HxGUIVotingSearchBar Name=HxSearchBar
+    Begin Object Class=HxMapVotingSearchBar Name=HxSearchBar
         WinLeft=0
         WinWidth=1
         FirstColumn=2
@@ -98,7 +98,7 @@ defaultproperties
 
     HeaderColumnPerc(3)=0.25
     HeaderColumnPerc(4)=0.25
-    // DefaultListClass="HexedPatches.HxGUIVotingMapList"
+    // DefaultListClass="HexedPatches.HxMapVotingMapList"
     CaseSensitiveLabels(0)="Enable Case-Sensitive Search"
     CaseSensitiveLabels(1)="Disable Case-Sensitive Search"
 }

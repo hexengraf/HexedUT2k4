@@ -1,4 +1,4 @@
-class HxGUIVotingVoteList extends HxGUIVotingBaseList;
+class HxMapVotingVoteList extends HxMapVotingBaseList;
 
 function PopulateList()
 {

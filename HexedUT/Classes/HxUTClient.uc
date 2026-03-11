@@ -260,8 +260,8 @@ simulated function SetMapVoteMenu(bool bValue)
     if (bMapVoteMenu)
     {
         bReplaceMapVoteMenu = GUIController != None
-            && GUIController.MapVotingMenu != string(class'HxGUIVotingPage')
-            && !GUIController.SetPropertyText("CustomMapVotingMenu", string(class'HxGUIVotingPage'));
+            && GUIController.MapVotingMenu != string(class'HxMapVotingPage')
+            && !GUIController.SetPropertyText("CustomMapVotingMenu", string(class'HxMapVotingPage'));
         if (bReplaceMapVoteMenu)
         {
             Enable('Tick');
@@ -280,14 +280,14 @@ simulated function TryReplaceMapVoteMenu()
     {
         if (GUIController.ActivePage.Class == class'MapVotingPage')
         {
-            GUIController.ReplaceMenu(string(class'HxGUIVotingPage'));
+            GUIController.ReplaceMenu(string(class'HxMapVotingPage'));
         }
         else if (GUIController.ActivePage.ParentPage != None
                  && GUIController.ActivePage.ParentPage.Class == class'MapVotingPage')
         {
             if (GUIController.CloseMenu(true))
             {
-                GUIController.ReplaceMenu(string(class'HxGUIVotingPage'));
+                GUIController.ReplaceMenu(string(class'HxMapVotingPage'));
             }
         }
     }

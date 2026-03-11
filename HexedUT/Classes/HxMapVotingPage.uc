@@ -1,23 +1,23 @@
-class HxGUIVotingPage extends MapVotingPage;
+class HxMapVotingPage extends MapVotingPage;
 
 const VERT_SPACING = 0.009;
 const MED_FONT_SPACING = 1.44;
 
-var automated HxGUIVotingVoteListBox lb_VoteList;
+var automated HxMapVotingVoteListBox lb_VoteList;
 var automated GUIImage i_VoteListBorder;
 var automated moComboBox co_MapSource;
-var automated HxGUIVotingMapListBox lb_MapList;
+var automated HxMapVotingMapListBox lb_MapList;
 var automated GUILabel l_RetrievingMapList;
-var automated HxGUIVotingMapBanner MapBanner;
+var automated HxMapVotingMapBanner MapBanner;
 var automated HxGUIFramedButton fb_Random;
 var automated HxGUIFramedButton fb_Vote;
-var automated HxGUIVotingChatBox ChatBox;
+var automated HxMapVotingChatBox ChatBox;
 
 var localized string LoadingText;
 var localized string RetrievingMapListText;
 
-var HxMapVoteFilterManager FilterManager;
-var HxMapVoteFilter ActiveFilter;
+var HxMapVotingFilterManager FilterManager;
+var HxMapVotingFilter ActiveFilter;
 var int SelectedGameType;
 var int SelectedMap;
 
@@ -25,7 +25,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
     class'HxGUIStyleManager'.static.RegisterStyles(MyController);
     Super.InitComponent(MyController, MyOwner);
-    FilterManager = new(Self) class'HxMapVoteFilterManager';
+    FilterManager = new(Self) class'HxMapVotingFilterManager';
     ActiveFilter = FilterManager.GetFilter();
     lb_MapList.SetFilter(ActiveFilter);
     lb_MapList.OnTagUpdated = lb_VoteList.UpdateMapTag;
@@ -248,7 +248,7 @@ function OnChangeSelectedMap(GUIComponent Sender)
 {
     local int NewSelectedMap;
 
-    NewSelectedMap = HxGUIVotingBaseListBox(Sender).GetMapIndex();
+    NewSelectedMap = HxMapVotingBaseListBox(Sender).GetMapIndex();
     if (NewSelectedMap > -1)
     {
         switch (Sender)
@@ -263,7 +263,7 @@ function OnChangeSelectedMap(GUIComponent Sender)
                 break;
         }
         SelectedMap = NewSelectedMap;
-        MapBanner.SetMap(HxGUIVotingBaseListBox(Sender).GetMapName());
+        MapBanner.SetMap(HxMapVotingBaseListBox(Sender).GetMapName());
     }
 }
 
@@ -316,7 +316,7 @@ function LevelChanged()
 
 defaultproperties
 {
-    Begin Object Class=HxGUIVotingVoteListBox Name=VoteListBox
+    Begin Object Class=HxMapVotingVoteListBox Name=VoteListBox
         WinLeft=0.0135
         WinTop=0.04
         WinWidth=0.605
@@ -362,7 +362,7 @@ defaultproperties
     End Object
     co_MapSource=MapSourceComboBox
 
-    Begin Object Class=HxGUIVotingMapListBox Name=MapListBox
+    Begin Object Class=HxMapVotingMapListBox Name=MapListBox
         WinLeft=0.0135
         WinTop=0.32
         WinWidth=0.605
@@ -392,7 +392,7 @@ defaultproperties
     End Object
     l_RetrievingMapList=RetrievingMapListLabel
 
-    Begin Object Class=HxGUIVotingMapBanner Name=VotingMapBanner
+    Begin Object Class=HxMapVotingMapBanner Name=VotingMapBanner
         WinLeft=0.624
         WinTop=0.04
         WinWidth=0.3625
@@ -428,7 +428,7 @@ defaultproperties
     End Object
     fb_Vote=VoteButton
 
-    Begin Object Class=HxGUIVotingChatBox Name=VotingChatBox
+    Begin Object Class=HxMapVotingChatBox Name=VotingChatBox
         WinLeft=0.624
         WinTop=0.7497
         WinWidth=0.3625

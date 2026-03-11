@@ -1,4 +1,4 @@
-class HxGUIVotingChatBox extends HxGUIFramedImage;
+class HxMapVotingChatBox extends HxGUIFramedImage;
 
 enum EHxChatChannel
 {

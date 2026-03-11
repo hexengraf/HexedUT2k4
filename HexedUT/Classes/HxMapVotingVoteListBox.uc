@@ -1,25 +1,25 @@
-class HxGUIVotingVoteListBox extends HxGUIVotingBaseListBox
+class HxMapVotingVoteListBox extends HxMapVotingBaseListBox
     DependsOn(HxFavorites);
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
-    DefaultListClass = string(class'HxGUIVotingVoteList');
+    DefaultListClass = string(class'HxMapVotingVoteList');
     Super.InitComponent(MyController, MyOwner);
 }
 
 function UpdatedVoteCount(int UpdatedIndex, bool bRemoved)
 {
-    HxGUIVotingVoteList(MyBaseList).UpdatedVoteCount(UpdatedIndex, bRemoved);
+    HxMapVotingVoteList(MyBaseList).UpdatedVoteCount(UpdatedIndex, bRemoved);
 }
 
 function int GetGameTypeIndex()
 {
-    return HxGUIVotingVoteList(MyBaseList).GetGameTypeIndex();
+    return HxMapVotingVoteList(MyBaseList).GetGameTypeIndex();
 }
 
 defaultproperties
 {
     HeaderColumnPerc(3)=0.49
     HeaderColumnPerc(4)=0.1
-    // DefaultListClass="HexedPatches.HxGUIVotingVoteList"
+    // DefaultListClass="HexedPatches.HxMapVotingVoteList"
 }

@@ -1,11 +1,11 @@
-class HxMapVoteFilterManager extends Object;
+class HxMapVotingFilterManager extends Object;
 
 var localized string PredefinedFilterName;
 
-var HxMapVoteFilter DefaultFilter;
-var array<HxMapVoteFilter> LoadedFilters;
+var HxMapVotingFilter DefaultFilter;
+var array<HxMapVotingFilter> LoadedFilters;
 
-function HxMapVoteFilter GetFilter(optional string FilterName)
+function HxMapVotingFilter GetFilter(optional string FilterName)
 {
     local int i;
 
@@ -22,12 +22,12 @@ function HxMapVoteFilter GetFilter(optional string FilterName)
     }
     if (DefaultFilter == None)
     {
-        DefaultFilter = new(Self) class'HxMapVoteFilter';
+        DefaultFilter = new(Self) class'HxMapVotingFilter';
     }
     return DefaultFilter;
 }
 
-function HxMapVoteFilter NewFilter(optional string FilterName)
+function HxMapVotingFilter NewFilter(optional string FilterName)
 {
     local int i;
 
@@ -36,14 +36,14 @@ function HxMapVoteFilter NewFilter(optional string FilterName)
         FilterName = PredefinedFilterName$"#"$LoadedFilters.Length;
     }
     i = LoadedFilters.Length;
-    LoadedFilters[i] = new(Self, Repl(FilterName, " ", Chr(27))) class'HxMapVoteFilter';
+    LoadedFilters[i] = new(Self, Repl(FilterName, " ", Chr(27))) class'HxMapVotingFilter';
     LoadedFilters[i].Name = FilterName;
     return LoadedFilters[i];
 }
 
 static function array<string> GetFilterNames()
 {
-    return GetPerObjectNames("HxMapVoteFilters", "HxMapVoteFilter");
+    return GetPerObjectNames("HxMapVotingFilters", "HxMapVotingFilter");
 }
 
 defaultproperties

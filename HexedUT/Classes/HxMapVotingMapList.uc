@@ -1,6 +1,6 @@
-class HxGUIVotingMapList extends HxGUIVotingBaseList;
+class HxMapVotingMapList extends HxMapVotingBaseList;
 
-var private HxMapVoteFilter ActiveFilter;
+var private HxMapVotingFilter ActiveFilter;
 
 function PopulateList()
 {
@@ -15,7 +15,7 @@ function PopulateList()
     }
 }
 
-function SetFilter(HxMapVoteFilter Filter)
+function SetFilter(HxMapVotingFilter Filter)
 {
     ActiveFilter = Filter;
     Refresh();

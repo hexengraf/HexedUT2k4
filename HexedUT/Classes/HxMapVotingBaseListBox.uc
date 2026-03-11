@@ -1,4 +1,4 @@
-class HxGUIVotingBaseListBox extends GUIMultiColumnListBox
+class HxMapVotingBaseListBox extends GUIMultiColumnListBox
     abstract
     DependsOn(HxFavorites);
 
@@ -6,8 +6,8 @@ class HxGUIVotingBaseListBox extends GUIMultiColumnListBox
 #exec texture Import File=Textures\HxTriangleIcon.tga Name=HxTriangleIcon Mips=Off Alpha=1
 
 var automated HxGUIFramedImage fi_Background;
-var automated HxGUIVotingBaseList MyBaseList;
-var automated HxGUIVotingSearchBar SearchBar;
+var automated HxMapVotingBaseList MyBaseList;
+var automated HxMapVotingSearchBar SearchBar;
 
 var float ScrollbarWidth;
 var float FrameThickness;
@@ -21,7 +21,7 @@ delegate bool NotifyVote(GUIComponent Sender);
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
     Super.InitComponent(MyController, MyOwner);
-    MyBaseList = HxGUIVotingBaseList(List);
+    MyBaseList = HxMapVotingBaseList(List);
     MyBaseList.FrameThickness = FrameThickness;
     MyBaseList.OnTagUpdated = InternalOnTagUpdated;
     MyBaseList.OnChange = OnChangeList;
@@ -124,7 +124,7 @@ function bool InternalOnPreDraw(Canvas C)
 
 function bool InternalOnKeyEvent(out byte Key, out byte KeyState, float Delta)
 {
-    if (EInputKey(Key) == IK_Enter && HxGUIVotingPage(PageOwner) != None)
+    if (EInputKey(Key) == IK_Enter && HxMapVotingPage(PageOwner) != None)
     {
         NotifyVote(Self);
         return true;

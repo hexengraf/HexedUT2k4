@@ -1,5 +1,5 @@
-class HxMapVoteFilter extends Object
-    config(HxMapVoteFilters)
+class HxMapVotingFilter extends Object
+    config(HxMapVotingFilters)
     PerObjectConfig
     DependsOn(HxFavorites);
 

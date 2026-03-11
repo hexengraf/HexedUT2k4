@@ -1,4 +1,4 @@
-class HxGUIVotingBaseList extends GUIMultiColumnList
+class HxMapVotingBaseList extends GUIMultiColumnList
     abstract
     DependsOn(HxFavorites);
 
@@ -20,7 +20,7 @@ var localized string DislikedMapsLabel;
 var protected bool bReInit;
 var protected VotingReplicationInfo VRI;
 var protected HxGUIVertScrollBar HxScrollbar;
-var protected HxGUIVotingSearchBar SearchBar;
+var protected HxMapVotingSearchBar SearchBar;
 var protected float MyItemHeight;
 var protected int MyItemsPerPage;
 var protected array<int> MapIndices;
@@ -45,7 +45,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
     Super.InitComponent(MyController, MyOwner);
     HxScrollbar = HxGUIVertScrollBar(MyScrollBar);
-    SearchBar = HxGUIVotingBaseListBox(MenuOwner).SearchBar;
+    SearchBar = HxMapVotingBaseListBox(MenuOwner).SearchBar;
     ContextMenu.AddItem(AddToLabel@LikedMapsLabel);
     ContextMenu.AddItem(AddToLabel@DislikedMapsLabel);
     DefaultStyle = Style;
