@@ -1,4 +1,4 @@
-class HxMapVotingSearchBar extends HxGUIFramedImage;
+class HxGUIMultiColumnListSearchBar extends HxGUIFramedImage;
 
 var automated GUILabel l_Search;
 var automated array<HxGUIFramedEditBox> ed_Columns;

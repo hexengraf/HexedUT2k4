@@ -16,37 +16,37 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 
 function SetFilter(HxMapVotingFilter Filter)
 {
-    HxMapVotingMapList(MyBaseList).SetFilter(Filter);
+    HxMapVotingMapList(List).SetFilter(Filter);
 }
 
 function SetPrefix(string Prefix)
 {
-    HxMapVotingMapList(MyBaseList).SetPrefix(Prefix);
+    HxMapVotingMapList(List).SetPrefix(Prefix);
 }
 
 function SetMapSource(int Source)
 {
-    HxMapVotingMapList(MyBaseList).SetMapSource(Source);
+    HxMapVotingMapList(List).SetMapSource(Source);
 }
 
 function OnChangeNameSearch(GUIComponent Sender)
 {
-    HxMapVotingMapList(MyBaseList).SearchName(GUIEditBox(Sender).GetText(), bCaseSensitive);
+    HxMapVotingMapList(List).SearchName(GUIEditBox(Sender).GetText(), bCaseSensitive);
 }
 
 function OnChangePlayersSearch(GUIComponent Sender)
 {
-    HxMapVotingMapList(MyBaseList).SearchPlayers(GUIEditBox(Sender).GetText());
+    HxMapVotingMapList(List).SearchPlayers(GUIEditBox(Sender).GetText());
 }
 
 function OnChangePlayedSearch(GUIComponent Sender)
 {
-    HxMapVotingMapList(MyBaseList).SearchPlayed(GUIEditBox(Sender).GetText());
+    HxMapVotingMapList(List).SearchPlayed(GUIEditBox(Sender).GetText());
 }
 
 function OnChangeRecentSearch(GUIComponent Sender)
 {
-    HxMapVotingMapList(MyBaseList).SearchRecent(GUIEditBox(Sender).GetText());
+    HxMapVotingMapList(List).SearchRecent(GUIEditBox(Sender).GetText());
 }
 
 function OnSelectCaseSensitive(GUIContextMenu Sender, int Index)
@@ -86,7 +86,7 @@ defaultproperties
         OnChange=OnChangePlayedSearch
     End Object
 
-    Begin Object Class=HxMapVotingSearchBar Name=HxSearchBar
+    Begin Object Class=HxGUIMultiColumnListSearchBar Name=HxSearchBar
         WinLeft=0
         WinWidth=1
         FirstColumn=2

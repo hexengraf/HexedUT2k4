@@ -9,12 +9,12 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 
 function UpdatedVoteCount(int UpdatedIndex, bool bRemoved)
 {
-    HxMapVotingVoteList(MyBaseList).UpdatedVoteCount(UpdatedIndex, bRemoved);
+    HxMapVotingVoteList(List).UpdatedVoteCount(UpdatedIndex, bRemoved);
 }
 
 function int GetGameTypeIndex()
 {
-    return HxMapVotingVoteList(MyBaseList).GetGameTypeIndex();
+    return HxMapVotingVoteList(List).GetGameTypeIndex();
 }
 
 defaultproperties

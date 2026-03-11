@@ -71,9 +71,9 @@ function DrawRow(Canvas C, int Row, float X, float Y, float W, float H)
     local VotingHandler.MapVoteMapList Entry;
     local CacheManager.MapRecord Record;
 
+    Super.DrawRow(C, Row, X, Y, W, H);
     Entry = VRI.MapList[GetSortedMapIndex(Row)];
     Record = class'CacheManager'.static.GetMapRecord(Entry.MapName);
-
     GetCellLeftWidth(3, X, W);
     Style.DrawText(
         C, MenuState, X, Y, W, H, TXTA_Left,

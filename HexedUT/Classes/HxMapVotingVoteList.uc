@@ -49,6 +49,7 @@ function DrawRow(Canvas C, int Row, float X, float Y, float W, float H)
 {
     local VotingHandler.MapVoteScore Entry;
 
+    Super.DrawRow(C, Row, X, Y, W, H);
     Entry = VRI.MapVoteCount[SortData[Row].SortItem];
     GetCellLeftWidth(3, X, W);
     Style.DrawText(
