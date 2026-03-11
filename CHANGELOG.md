@@ -6,7 +6,7 @@ HexedUT changes:
 * Fixed server status and buttons in the configuration menu missing text after a map change.
 * Fixed map vote menu's chat not showing new messages after being closed and reopened.
 * Fixed spawn protection timer not resetting after changing view target in spectator mode.
-* Fixed heath leech applying to friendly fire.
+* Fixed health leech applying to friendly fire.
 * Fixed lingering replication channels after a player disconnects.
 * Fixed small memory leak client-side over multiple matches.
 * Moved a bunch of generic code to HexedSRC and added it as dependency.
