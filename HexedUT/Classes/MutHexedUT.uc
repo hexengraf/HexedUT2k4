@@ -38,7 +38,7 @@ function Mutate(string Command, PlayerController Sender)
 {
     if (Command ~= "HexedUT")
     {
-        Sender.ClientOpenMenu(string(MenuClass));
+        OpenMenu(Sender);
     }
     else
     {
@@ -102,17 +102,13 @@ function ModifyPlayer(Pawn Pawn)
             AR.AddAmmo(BonusStartingGrenades, 1);
         }
         Pawn.Controller.AwardAdrenaline(BonusAdrenalineOnSpawn);
-        if (bAllowSpawnProtectionTimer)
-        {
-            class'HxUTClient'.static.RegisterSpawn(Pawn);
-        }
+        RegisterSpawn(Pawn);
     }
     Super.ModifyPlayer(Pawn);
 }
 
 function NotifyLogout(Controller Exiting)
 {
-    class'HxUTClient'.static.DestroyClient(PlayerController(Exiting));
     DestroyLinkedPRI(Exiting.PlayerReplicationInfo, class'HxUTPlayerInfo');
     Super.NotifyLogout(Exiting);
 }
@@ -168,14 +164,13 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
     }
     else if (Other.IsA('Controller'))
     {
-        class'HxUTClient'.static.SpawnClient(PlayerController(Other), Self);
         Controller(Other).AwardAdrenaline(BonusStartingAdrenaline);
     }
     else if (Other.IsA('xPawn'))
     {
         SpawnSkinHighlight(xPawn(Other));
     }
-    return true;
+    return Super.CheckReplacement(Other, bSuperRelevant);
 }
 
 function string RecommendCombo(string ComboName)
@@ -223,29 +218,52 @@ function ListDisableCombos()
     }
 }
 
-function UpdateAfterPropertyChange(string PropertyName, String PropertyValue)
+function PropertyChanged(string PropertyName, String PropertyValue)
 {
-    local HxUTClient Client;
-    local Controller C;
-
     if (PropertyName == "bColoredDeathMessages")
     {
         ModifyDeathMessageClass();
     }
-    for (C = Level.ControllerList; C != None; C = C.NextController)
+    Super.PropertyChanged(PropertyName, PropertyValue);
+}
+
+function RegisterDamage(int Damage, Pawn Injured, Pawn Inflictor, class<DamageType> Type)
+{
+    local PlayerController PC;
+    local int i;
+
+    if (bAllowHitSounds || bAllowDamageNumbers)
     {
-        if (PlayerController(C) != None)
+        for (i = 0; i < CRIs.Length; ++i)
         {
-            Client = class'HxUTClient'.static.GetClient(PlayerController(C));
-        }
-        if (Client != None)
-        {
-            Client.Update();
+            PC = PlayerController(CRIs[i].Owner);
+            if (PC != None && PC.ViewTarget == Inflictor)
+            {
+                HxUTClient(CRIs[i]).UpdateDamage(Damage, Injured, Inflictor, Type);
+            }
         }
     }
 }
 
-simulated function RecoverConfigs()
+function RegisterSpawn(Pawn Spawned)
+{
+    local PlayerController PC;
+    local int i;
+
+    if (bAllowSpawnProtectionTimer)
+    {
+        for (i = 0; i < CRIs.Length; ++i)
+        {
+            PC = PlayerController(CRIs[i].Owner);
+            if (PC != None && PC.ViewTarget == Spawned)
+            {
+                HxUTClient(CRIs[i]).NotifySpawn(Spawned);
+            }
+        }
+    }
+}
+
+function RecoverConfigs()
 {
     local Actor OldActor;
     local int Version;
@@ -266,7 +284,7 @@ simulated function RecoverConfigs()
 }
 
 // TODO: remove this in the next version (HxUTGameRules no longer spawned in PostBeginPlay)
-simulated function CleanUpOldGameRules(Actor OldActor)
+function CleanUpOldGameRules(Actor OldActor)
 {
     local GameRules Rules;
     local GameRules PrevRules;
@@ -301,6 +319,7 @@ defaultproperties
     Description="A mutator for hit sounds, damage numbers, skin highlights, colored death messages, enhanced map vote menu, and more."
     bAddToServerPackages=true
     MutatorGroup="HexedUT"
+    CRIClass=class'HxUTClient'
 
     PropertyInfoEntries(0)=(Name="bAllowHitSounds",Caption="Allow hit sound effects",Hint="Allow clients to enable/disable hit sound effects.",PIType="Check")
     PropertyInfoEntries(1)=(Name="bAllowDamageNumbers",Caption="Allow damage number effects",Hint="Allow clients to enable/disable damage number effects.",PIType="Check")

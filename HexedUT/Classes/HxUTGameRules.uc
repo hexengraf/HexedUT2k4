@@ -31,9 +31,9 @@ function int NetDamage(int Original,
     }
     if (Damage > 0 && Inflictor != None && Injured != None)
     {
-        if (HexedUT.bAllowHitSounds || HexedUT.bAllowDamageNumbers)
+        if (Injured != Inflictor && IsEnemy(Injured, Inflictor))
         {
-           class'HxUTClient'.static.RegisterDamage(Damage, Injured, Inflictor, Type);
+           HexedUT.RegisterDamage(Damage, Injured, Inflictor, Type);
         }
         if (HexedUT.HealthLeechLimit != 0)
         {
@@ -50,6 +50,14 @@ function ScoreKill(Controller Killer, Controller Killed)
         class'HxUTPlayerInfo'.static.RegisterKill(Killer, Killed);
     }
     Super.ScoreKill(Killer, Killed);
+}
+
+static function bool IsEnemy(Pawn Injured, Pawn Inflictor)
+{
+    local int TeamNum;
+
+    TeamNum = Injured.GetTeamNum();
+    return TeamNum == 255 || TeamNum != Inflictor.GetTeamNum();
 }
 
 defaultproperties

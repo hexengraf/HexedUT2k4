@@ -1,75 +1,42 @@
 class HxClientReplicationInfo extends ReplicationInfo
     abstract;
 
-var protected array<HxClientReplicationInfo> CRIs;
+var HxMutator MutatorOwner;
+var protected class<FloatingWindow> MenuClass;
 
-simulated event PreBeginPlay()
+replication
 {
-    if (Level.NetMode == NM_Client)
-    {
-        RegisterOnClient(Self);
-    }
-    Super.PreBeginPlay();
+    reliable if (Role == ROLE_Authority)
+        ClientOpenMenu;
+
+    reliable if (Role < ROLE_Authority)
+        RemoteSetProperty;
 }
 
-static function HxClientReplicationInfo SpawnClientReplicationInfo(PlayerController PC)
-{
-    local HxClientReplicationInfo CRI;
+function UpdateAll();
+function UpdateProperty(string PropertyName, String PropertyValue);
 
-    if (PC != None && MessagingSpectator(PC) == None)
+simulated function ClientOpenMenu()
+{
+    local PlayerController PC;
+
+    PC = Level.GetLocalPlayerController();
+    if (PC != None)
     {
-        CRI = PC.Spawn(default.Class, PC);
-        default.CRIs[default.CRIs.Length] = CRI;
+        PC.ClientOpenMenu(string(MenuClass));
     }
-    return CRI;
 }
 
-static function bool DestroyClientReplicationInfo(PlayerController PC)
+function RemoteSetProperty(string PropertyName, string PropertyValue)
 {
-    local int i;
+    local PlayerController PC;
 
-    if (PC != None && MessagingSpectator(PC) == None)
+    PC = PlayerController(Owner);
+    if ((Level.NetMode == NM_Standalone || PC.PlayerReplicationInfo.bAdmin)
+        && GetPropertyText(PropertyName) != PropertyValue)
     {
-        for (i = 0; i < default.CRIs.Length; ++i)
-        {
-            if (default.CRIs[i].Owner == PC)
-            {
-                default.CRIs[i].Destroy();
-                default.CRIs.Remove(i, 1);
-                return true;
-            }
-        }
+        MutatorOwner.SetProperty(PropertyName, PropertyValue);
     }
-    return false;
-}
-
-static function HxClientReplicationInfo GetClientReplicationInfo(PlayerController PC)
-{
-    local int i;
-
-    for (i = 0; i < default.CRIs.Length; ++i)
-    {
-        if (default.CRIs[i].Owner == PC)
-        {
-            return default.CRIs[i];
-        }
-    }
-    return None;
-}
-
-static function bool RegisterOnClient(HxClientReplicationInfo CRI)
-{
-    local int i;
-
-    for (i = 0; i < default.CRIs.Length; ++i)
-    {
-        if (default.CRIs[i] == CRI)
-        {
-            return false;
-        }
-    }
-    default.CRIs[default.CRIs.Length] = CRI;
-    return true;
 }
 
 defaultproperties
@@ -80,4 +47,5 @@ defaultproperties
     bSkipActorPropertyReplication=false
     bOnlyDirtyReplication=true
     NetUpdateFrequency=10
+    MenuClass=class'HxGUIMenu'
 }

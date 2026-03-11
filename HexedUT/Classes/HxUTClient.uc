@@ -42,7 +42,6 @@ var float DodgeSpeedMultiplier;
 var bool bDisableWallDodge;
 var bool bDisableDodgeJump;
 
-var MutHexedUT HexedUT;
 var HxHitEffects HitEffects;
 var HxSpawnProtectionTimer SPTimer;
 
@@ -86,9 +85,6 @@ replication
         DodgeSpeedMultiplier,
         bDisableWallDodge,
         bDisableDodgeJump;
-
-    reliable if (Role < ROLE_Authority)
-        RemoteSetProperty;
 }
 
 simulated event PreBeginPlay()
@@ -104,6 +100,7 @@ simulated event PreBeginPlay()
         class'HxGUIMenuHitEffectsPanel'.static.AddToMenu();
         class'HxGUIMenuGeneralPanel'.static.AddToMenu();
     }
+    InitializePlayerController();
 }
 
 simulated event Tick(float DeltaTime)
@@ -292,17 +289,11 @@ simulated function TryReplaceMapVoteMenu()
     }
 }
 
-function RemoteSetProperty(string PropertyName, string PropertyValue)
+function UpdateAll()
 {
-    if ((Level.NetMode == NM_Standalone || PC.PlayerReplicationInfo.bAdmin)
-        && GetPropertyText(PropertyName) != PropertyValue)
-    {
-        HexedUT.SetProperty(PropertyName, PropertyValue);
-    }
-}
+    local MutHexedUT HexedUT;
 
-function Update()
-{
+    HexedUT = MutHexedUT(MutatorOwner);
     bAllowHitSounds = HexedUT.bAllowHitSounds;
     bAllowDamageNumbers = HexedUT.bAllowDamageNumbers;
     bAllowSpawnProtectionTimer = HexedUT.bAllowSpawnProtectionTimer;
@@ -333,6 +324,11 @@ function Update()
     NetUpdateTime = Level.TimeSeconds - 1;
 }
 
+function UpdateProperty(string PropertyName, String PropertyValue)
+{
+    UpdateAll();
+}
+
 simulated function RecoverConfigs()
 {
     local Actor OldActor;
@@ -349,67 +345,18 @@ simulated function RecoverConfigs()
     SaveConfig();
 }
 
-static function RegisterDamage(int Damage, Pawn Injured, Pawn Inflictor, class<DamageType> Type)
-{
-    local PlayerController PC;
-    local int i;
-
-    for (i = 0; i < default.CRIs.Length; ++i)
-    {
-        PC = PlayerController(default.CRIs[i].Owner);
-        if (PC != None && PC.ViewTarget == Inflictor && Injured != Inflictor
-            && IsEnemy(Injured, Inflictor))
-        {
-            HxUTClient(default.CRIs[i]).UpdateDamage(Damage, Injured, Inflictor, Type);
-        }
-    }
-}
-
-static function RegisterSpawn(Pawn Spawned)
-{
-    local PlayerController PC;
-    local int i;
-
-    for (i = 0; i < default.CRIs.Length; ++i)
-    {
-        PC = PlayerController(default.CRIs[i].Owner);
-        if (PC != None && PC.ViewTarget == Spawned)
-        {
-            HxUTClient(default.CRIs[i]).NotifySpawn(Spawned);
-        }
-    }
-}
-
-static function bool IsEnemy(Pawn Injured, Pawn Inflictor)
-{
-    local int TeamNum;
-
-    TeamNum = Injured.GetTeamNum();
-    return TeamNum == 255 || TeamNum != Inflictor.GetTeamNum();
-}
-
-static function HxUTClient SpawnClient(PlayerController PC, MutHexedUT HexedUT)
+static function HxUTClient GetClient(PlayerController PC)
 {
     local HxUTClient Client;
 
-    Client = HxUTClient(SpawnClientReplicationInfo(PC));
-    if (Client != None)
+    ForEach PC.DynamicActors(class'HxUTClient', Client)
     {
-        Client.HexedUT = HexedUT;
-        Client.Update();
-        Client.InitializePlayerController();
+        if (Client.Owner == PC)
+        {
+            return Client;
+        }
     }
-    return Client;
-}
-
-static function bool DestroyClient(PlayerController PC)
-{
-    return DestroyClientReplicationInfo(PC);
-}
-
-static function HxUTClient GetClient(PlayerController PC)
-{
-    return HxUTClient(GetClientReplicationInfo(PC));
+    return None;
 }
 
 defaultproperties

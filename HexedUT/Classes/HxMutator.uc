@@ -12,19 +12,32 @@ struct PropertyInfoEntry
     var bool bAdvanced;
 };
 
-var class<FloatingWindow> MenuClass;
 var localized string MutatorGroup;
 var array<PropertyInfoEntry> PropertyInfoEntries;
+
+var protected class<HxClientReplicationInfo> CRIClass;
+var protected array<HxClientReplicationInfo> CRIs;
 
 function Mutate(string Command, PlayerController Sender)
 {
     if (Command ~= "HexedMenu")
     {
-        Sender.ClientOpenMenu(string(MenuClass));
+        OpenMenu(Sender);
     }
     else
     {
         Super.Mutate(Command, Sender);
+    }
+}
+
+function OpenMenu(PlayerController Sender)
+{
+    local HxClientReplicationInfo CRI;
+
+    CRI = GetClientReplicationInfo(Sender);
+    if (CRI != None)
+    {
+        CRI.ClientOpenMenu();
     }
 }
 
@@ -69,14 +82,65 @@ static simulated function int GetPropertyIndex(string PropertyName)
     return -1;
 }
 
-function SetProperty(string PropertyName, String PropertyValue)
+function SetProperty(string PropertyName, string PropertyValue)
 {
     SetPropertyText(PropertyName, PropertyValue);
-    UpdateAfterPropertyChange(PropertyName, PropertyValue);
+    PropertyChanged(PropertyName, PropertyValue);
     SaveConfig();
 }
 
-function UpdateAfterPropertyChange(string PropertyName, String PropertyValue);
+function PropertyChanged(string PropertyName, string PropertyValue)
+{
+    local int i;
+
+    for (i = 0; i < CRIs.Length; ++i)
+    {
+        CRIs[i].UpdateProperty(PropertyName, PropertyValue);
+    }
+}
+
+function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
+{
+    local HxClientReplicationInfo CRI;
+
+    if (Other.IsA('PlayerController') && !Other.IsA('MessagingSpectator'))
+    {
+        CRI = Other.Spawn(CRIClass, Other);
+        CRI.MutatorOwner = Self;
+        CRI.UpdateAll();
+        CRIs[CRIs.Length] = CRI;
+    }
+    return true;
+}
+
+function NotifyLogout(Controller Exiting)
+{
+    local int i;
+
+    for (i = 0; i < CRIs.Length; ++i)
+    {
+        if (CRIs[i].Owner == Exiting)
+        {
+            CRIs[i].Destroy();
+            CRIs.Remove(i, 1);
+        }
+    }
+    Super.NotifyLogout(Exiting);
+}
+
+function HxClientReplicationInfo GetClientReplicationInfo(PlayerController PC)
+{
+    local int i;
+
+    for (i = 0; i < CRIs.Length; ++i)
+    {
+        if (CRIs[i].Owner == PC)
+        {
+            return CRIs[i];
+        }
+    }
+    return None;
+}
 
 function LinkedReplicationInfo SpawnLinkedPRI(PlayerReplicationInfo PRI,
                                               class<LinkedReplicationInfo> LinkedPRIClass)
@@ -138,6 +202,5 @@ function bool DestroyLinkedPRI(PlayerReplicationInfo PRI,
 
 defaultproperties
 {
-    MenuClass=class'HxGUIMenu'
     MutatorGroup="HexedMutator"
 }
