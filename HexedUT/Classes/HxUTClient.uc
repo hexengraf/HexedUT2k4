@@ -262,6 +262,10 @@ simulated function SetMapVoteMenu(bool bValue)
         bReplaceMapVoteMenu = GUIController != None
             && GUIController.MapVotingMenu != string(class'HxGUIVotingPage')
             && !GUIController.SetPropertyText("CustomMapVotingMenu", string(class'HxGUIVotingPage'));
+        if (bReplaceMapVoteMenu)
+        {
+            Enable('Tick');
+        }
     }
     else
     {
