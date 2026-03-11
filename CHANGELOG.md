@@ -1,3 +1,24 @@
+# v5.0
+
+No new features, only ironing out bugs that slipped into v4 and restoring HexedSRC as shared resources package.
+
+HexedUT changes:
+* Fixed server status and buttons in the configuration menu missing text after a map change.
+* Fixed map vote menu's chat not showing new messages after being closed and reopened.
+* Fixed spawn protection timer not resetting after changing view target in spectator mode.
+* Fixed heath leech applying to friendly fire.
+* Fixed lingering replication channels after a player disconnects.
+* Fixed small memory leak client-side over multiple matches.
+* Moved a bunch of generic code to HexedSRC and added it as dependency.
+
+HexedUTComp changes:
+* Fixed new eye height algorithm interfering with landing viewshake and unintendedly disabling further viewshakes and weapon bob.
+  * Keep in mind: landing viewshake offsets the aim, so you might want to disable it for better aiming.
+* Reworked new net weapons to be independent of xPawn replacement.
+* Removed unneeded replication channels.
+* Fixed lingering replication channels after a player disconnects.
+* Swapped HexedUT with HexedSRC as dependency.
+
 # v4.0
 
 This version moves the enhanced map vote menu and the spawn protection timer from HexedPatches to HexedUT, so now you can enable them from the server side.
