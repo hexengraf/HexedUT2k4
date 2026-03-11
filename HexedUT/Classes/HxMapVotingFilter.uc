@@ -1,7 +1,6 @@
-class HxMapVotingFilter extends Object
+class HxMapVotingFilter extends HxPatternMatch
     config(HxMapVotingFilters)
-    PerObjectConfig
-    DependsOn(HxFavorites);
+    PerObjectConfig;
 
 enum EHxMapSource
 {
@@ -10,42 +9,12 @@ enum EHxMapSource
     HX_MAP_SOURCE_Custom,
 };
 
-enum EHxOperation
-{
-    HX_OPERATION_DontCare,
-    HX_OPERATION_LessThan,
-    HX_OPERATION_GreaterThan,
-    HX_OPERATION_EqualTo,
-    HX_OPERATION_EqualTo_Implicit,
-};
-
-struct HxPseudoRegex
-{
-    var bool bEnabled;
-    var bool bCaseSensitive;
-    var string Prefix;
-    var string Suffix;
-    var array<string> Parts;
-};
-
-struct HxValueConstraint
-{
-    var EHxOperation Operation;
-    var int Value;
-};
-
-struct HxRangeConstraint
-{
-    var HxValueConstraint Min;
-    var HxValueConstraint Max;
-};
-
 struct HxSearchBar
 {
-    var HxPseudoRegex Name;
-    var HxRangeConstraint Players;
-    var HxValueConstraint Played;
-    var HxValueConstraint Recent;
+    var HxStringPattern Name;
+    var HxRangePattern Players;
+    var HxValuePattern Played;
+    var HxValuePattern Recent;
 };
 
 var config string Name;
@@ -58,9 +27,9 @@ function bool Match(VotingHandler.MapVoteMapList Entry)
 {
     return SourceMatch(Entry.MapName)
         && PrefixMatch(Entry.MapName)
-        && RegexMatch(Entry.MapName, SearchBar.Name)
-        && ValueMatch(Entry.PlayCount, SearchBar.Played)
-        && ValueMatch(Entry.Sequence, SearchBar.Recent)
+        && StringPatternMatch(Entry.MapName, SearchBar.Name)
+        && ValuePatternMatch(Entry.PlayCount, SearchBar.Played)
+        && ValuePatternMatch(Entry.Sequence, SearchBar.Recent)
         && CacheRecordMatch(Entry.MapName);
 }
 
@@ -69,7 +38,7 @@ function bool CacheRecordMatch(string MapName)
     local CacheManager.MapRecord Record;
 
     Record = class'CacheManager'.static.GetMapRecord(MapName);
-    return RangeMatch(Record.PlayerCountMin, Record.PlayerCountMax, SearchBar.Players);
+    return RangePatternMatch(Record.PlayerCountMin, Record.PlayerCountMax, SearchBar.Players);
 }
 
 function bool SourceMatch(string MapName)
@@ -102,22 +71,22 @@ function bool PrefixMatch(string MapName)
 
 function SearchName(string SearchTerm, optional bool bCaseSensitive)
 {
-    SearchBar.Name = ParseRegex(SearchTerm, bCaseSensitive);
+    SearchBar.Name = ParseStringPattern(SearchTerm, bCaseSensitive);
 }
 
 function SearchPlayers(string SearchTerm)
 {
-    SearchBar.Players = ParseRangeConstraint(SearchTerm);
+    SearchBar.Players = ParseRangePattern(SearchTerm);
 }
 
 function SearchPlayed(string SearchTerm)
 {
-    SearchBar.Played = ParseValueConstraint(SearchTerm);
+    SearchBar.Played = ParseValuePattern(SearchTerm);
 }
 
 function SearchRecent(string SearchTerm)
 {
-    SearchBar.Recent = ParseValueConstraint(SearchTerm);
+    SearchBar.Recent = ParseValuePattern(SearchTerm);
 }
 
 function SetPrefix(string Prefix)
@@ -129,201 +98,6 @@ function SetPrefix(string Prefix)
 function SetMapSource(int Source)
 {
     MapSource = EHxMapSource(Source);
-}
-
-static function HxPseudoRegex ParseRegex(string SearchTerm, optional bool bCaseSensitive)
-{
-    local HxPseudoRegex Regex;
-    local int Length;
-    local int i;
-
-    Regex.bCaseSensitive = bCaseSensitive;
-
-    if (SearchTerm == "")
-    {
-        return Regex;
-    }
-    if (!bCaseSensitive)
-    {
-        SearchTerm = Caps(SearchTerm);
-    }
-    Split(SearchTerm, "*", Regex.Parts);
-    if (StrCmp(Regex.Parts[0], "^", 1) == 0)
-    {
-        if (Len(Regex.Parts[0]) > 1)
-        {
-            Regex.Prefix = Mid(Regex.Parts[0], 1);
-        }
-        Regex.Parts.Remove(0, 1);
-    }
-    if (Regex.Parts.Length > 0)
-    {
-        i = Regex.Parts.Length - 1;
-        if (Right(Regex.Parts[i], 1) == "$")
-        {
-            Length = Len(Regex.Parts[i]);
-            if (Length > 1)
-            {
-                Regex.Suffix = Left(Regex.Parts[i], Length - 1);
-            }
-            Regex.Parts.Remove(i, 1);
-        }
-    }
-    i = 0;
-    while (i < Regex.Parts.Length)
-    {
-        if (Regex.Parts[i] == "")
-        {
-            Regex.Parts.Remove(i, 1);
-        }
-        else
-        {
-            ++i;
-        }
-    }
-    Regex.bEnabled = Regex.Parts.Length > 0 || Regex.Prefix != "" || Regex.Suffix != "";
-    return Regex;
-}
-
-static function HxRangeConstraint ParseRangeConstraint(string SearchTerm)
-{
-    local HxRangeConstraint Constraint;
-    local string Min;
-    local string Max;
-
-    ReplaceText(SearchTerm, " ", "");
-    if (SearchTerm == "")
-    {
-        return Constraint;
-    }
-    if (Divide(SearchTerm, "-", Min, Max))
-    {
-        Constraint.Min = ParseValueConstraint(Min);
-        Constraint.Max = ParseValueConstraint(Max);
-    }
-    else
-    {
-        Constraint.Min = ParseValueConstraint(SearchTerm);
-        if (Constraint.Min.Operation == HX_OPERATION_EqualTo_Implicit)
-        {
-            Constraint.Max.Operation = HX_OPERATION_GreaterThan;
-            Constraint.Max.Value = Constraint.Min.Value - 1;
-            Constraint.Min.Operation = HX_OPERATION_LessThan;
-            Constraint.Min.Value = Constraint.Min.Value + 1;
-        }
-        else
-        {
-            Constraint.Max = Constraint.Min;
-        }
-    }
-    return Constraint;
-}
-
-static function HxValueConstraint ParseValueConstraint(string SearchTerm)
-{
-    local HxValueConstraint Constraint;
-
-    Constraint.Operation = ParseOperation(SearchTerm);
-    if (SearchTerm != "")
-    {
-        Constraint.Value = int(SearchTerm);
-    }
-    return Constraint;
-}
-
-static function EHxOperation ParseOperation(out string SearchTerm)
-{
-    local string Operation;
-
-    ReplaceText(SearchTerm, " ", "");
-    if (SearchTerm == "" || InStr(SearchTerm, "*") > -1)
-    {
-        return HX_OPERATION_DontCare;
-    }
-    Operation = Left(SearchTerm, 1);
-    if (Operation == "<")
-    {
-        SearchTerm = Right(SearchTerm, Len(SearchTerm) - 1);
-        return HX_OPERATION_LessThan;
-    }
-    if (Operation == ">")
-    {
-        SearchTerm = Right(SearchTerm, Len(SearchTerm) - 1);
-        return HX_OPERATION_GreaterThan;
-    }
-    if (Operation == "=")
-    {
-        SearchTerm = Right(SearchTerm, Len(SearchTerm) - 1);
-        return HX_OPERATION_EqualTo;
-    }
-    return HX_OPERATION_EqualTo_Implicit;
-}
-
-static function bool RegexMatch(string Text, HxPseudoRegex Regex)
-{
-    local int Position;
-    local int Size;
-    local int i;
-
-    if (!Regex.bEnabled)
-    {
-        return true;
-    }
-    if (!Regex.bCaseSensitive)
-    {
-        Text = Caps(Text);
-    }
-    if (Regex.Prefix != "")
-    {
-        Size = Len(Regex.Prefix);
-        if (StrCmp(Text, Regex.Prefix, Size, Regex.bCaseSensitive) != 0)
-        {
-            return false;
-        }
-        Text = Mid(Text, Size);
-    }
-    for (i = 0; i < Regex.Parts.Length; ++i)
-    {
-        Position = InStr(Text, Regex.Parts[i]);
-        if (Position < 0)
-        {
-            return false;
-        }
-        Text = Mid(Text, Position + Len(Regex.Parts[i]));
-    }
-    if (Regex.Suffix != "")
-    {
-        Size = Len(Regex.Suffix);
-        if (StrCmp(Right(Text, Size), Regex.Suffix, Size, Regex.bCaseSensitive) != 0)
-        {
-            return false;
-        }
-    }
-    return true;
-}
-
-function bool RangeMatch(int Min, int Max, HxRangeConstraint Constraint)
-{
-    return ValueMatch(Min, Constraint.Min) && ValueMatch(Max, Constraint.Max);
-}
-
-function bool ValueMatch(int Value, HxValueConstraint Constraint)
-{
-    switch (Constraint.Operation)
-    {
-        case HX_OPERATION_DontCare:
-            return true;
-        case HX_OPERATION_LessThan:
-            return Value < Constraint.Value;
-        case HX_OPERATION_GreaterThan:
-            return Value > Constraint.Value;
-        case HX_OPERATION_EqualTo:
-        case HX_OPERATION_EqualTo_Implicit:
-            return Value == Constraint.Value;
-        default:
-            break;
-    }
-    return true;
 }
 
 defaultproperties
