@@ -314,7 +314,8 @@ function LevelChanged()
     Super.LevelChanged();
 }
 
-defaultproperties {
+defaultproperties
+{
     Begin Object Class=HxGUIVotingVoteListBox Name=VoteListBox
         WinLeft=0.0135
         WinTop=0.04
