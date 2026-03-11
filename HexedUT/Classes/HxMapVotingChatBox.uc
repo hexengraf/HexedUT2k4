@@ -31,15 +31,9 @@ var private bool bIgnoreChange;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
-    local ExtendedConsole Console;
     local int i;
 
     Super.InitComponent(MyController, MyOwner);
-    Console = ExtendedConsole(Controller.ViewportOwner.Console);
-    if (Console != None)
-    {
-        Console.OnChatMessage = ReceiveChat;
-    }
     lb_Chat.MyScrollText.SetContent("");
     lb_Chat.MyScrollText.FontScale = FNS_Small;
     for (i = 0; i < CHAT_CHANNEL_COUNT; ++i)
@@ -48,6 +42,18 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
         CIH[i].Index = 0;
     }
     SetInputType(HX_CHAT_CHANNEL_Say);
+}
+
+event Opened(GUIComponent Sender)
+{
+    local ExtendedConsole Console;
+
+    Super.Opened(Sender);
+    Console = ExtendedConsole(Controller.ViewportOwner.Console);
+    if (Console != None)
+    {
+        Console.OnChatMessage = ReceiveChat;
+    }
 }
 
 function bool OnSendChat(string Text)
