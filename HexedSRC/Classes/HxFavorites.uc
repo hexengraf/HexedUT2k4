@@ -2,9 +2,6 @@ class HxFavorites extends HxConfig
     abstract
     config(User);
 
-#exec texture Import File=Textures\HxStarIcon.tga Name=HxStarIcon Mips=Off Alpha=1
-#exec texture Import File=Textures\HxBlockIcon.tga Name=HxBlockIcon Mips=Off Alpha=1
-
 enum EHxTag
 {
     HX_TAG_Like,

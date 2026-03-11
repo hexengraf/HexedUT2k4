@@ -2,9 +2,6 @@ class HxMapVotingBaseListBox extends GUIMultiColumnListBox
     abstract
     DependsOn(HxFavorites);
 
-#exec texture Import File=Textures\HxClockIcon.tga Name=HxClockIcon Mips=Off Alpha=1
-#exec texture Import File=Textures\HxTriangleIcon.tga Name=HxTriangleIcon Mips=Off Alpha=1
-
 var automated HxGUIFramedImage fi_Background;
 var automated HxMapVotingBaseList MyBaseList;
 var automated HxMapVotingSearchBar SearchBar;
