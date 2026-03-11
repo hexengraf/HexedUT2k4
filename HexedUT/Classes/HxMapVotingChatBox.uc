@@ -303,7 +303,7 @@ defaultproperties
     End Object
     ed_Input=ChatInputBox
 
-    ImageSources(0)=(Color=(R=28,G=47,B=96,A=255),Style=ISTY_Stretched,RenderWeight=0.1)
+    ImageSources(0)=(Color=(R=24,G=14,B=51,A=164),Style=ISTY_Stretched,RenderWeight=0.1)
     MaxChatHistory=256
     MaxInputHistory=128
     MessageColor=(R=236,G=236,B=236)
