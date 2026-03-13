@@ -187,7 +187,7 @@ defaultproperties
         WinWidth=1
         WinHeight=1
         RenderWeight=0.1
-        ImageSources(0)=(Color=(R=24,G=41,B=104,A=164),Style=ISTY_Stretched)
+        ImageSources(0)=(Image=Material'HxBlueGradient',Color=(R=255,G=255,B=255,A=164),Style=ISTY_Scaled,bSubImage=true,X1=0,Y1=127,X2=4,Y2=129)
         bScaleToParent=true
         bBoundToParent=true
     End Object

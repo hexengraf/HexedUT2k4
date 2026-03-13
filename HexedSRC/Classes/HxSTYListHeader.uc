@@ -12,7 +12,7 @@ defaultproperties
 
     ImgColors(0)=(R=28,G=47,B=96,A=255)
     ImgColors(1)=(R=28,G=47,B=96,A=255)
-    ImgColors(2)=(R=28,G=80,B=164,A=255)
-    ImgColors(3)=(R=28,G=80,B=164,A=255)
+    ImgColors(2)=(R=29,G=78,B=146,A=255)
+    ImgColors(3)=(R=29,G=78,B=146,A=255)
     ImgColors(4)=(R=28,G=47,B=96,A=255)
 }

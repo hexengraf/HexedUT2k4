@@ -269,7 +269,7 @@ defaultproperties
         VertAlign=TXTA_Center
         TextColor=(R=255,G=210,B=0,A=255)
         BackColor=(R=28,G=47,B=96,A=255)
-        bTransparent=false
+        bTransparent=true
         RenderWeight=1
         bScaleToParent=true
         bBoundToParent=true
@@ -282,7 +282,6 @@ defaultproperties
     PlayersLabel="players"
     AuthorLabel="Author"
 
-    ImageSources(0)=(Color=(R=128,G=128,B=255,A=255),Style=ISTY_Stretched)
-    ImageSources(1)=(Image=Material'2K4Menus.BKRenders.bgndTile',Color=(R=255,G=255,B=255,A=200),Style=ISTY_Stretched,bSubImage=true,X1=0,Y1=704,X2=4,Y2=256)
+    ImageSources(0)=(Image=Material'HxBlueGradient',Color=(R=255,G=255,B=255,A=164),Style=ISTY_Scaled,bSubImage=true,X1=0,Y1=255,X2=4,Y2=1)
     OnPreDrawInit=AlignComponents
 }
