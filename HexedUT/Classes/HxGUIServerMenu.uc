@@ -1,8 +1,8 @@
-class HxGUIServerMenu extends HxGUIBaseMenu;
+class HxGUIServerMenu extends HxGUIMenu;
 
 function InitComponent(GUIController MyController, GUIComponent MyComponent)
 {
-    TabControl.WinHeight = 0.0575;
+    t_TabControl.WinHeight = 0.0575;
     Super.InitComponent(MyController, MyComponent);
 }
 

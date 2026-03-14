@@ -3,6 +3,7 @@ class HxMapVotingPage extends MapVotingPage;
 const VERT_SPACING = 0.009;
 const MED_FONT_SPACING = 1.44;
 
+var automated GUIBorder b_Background;
 var automated HxMapVotingVoteListBox lb_VoteList;
 var automated GUIImage i_VoteListBorder;
 var automated moComboBox co_MapSource;
@@ -16,23 +17,52 @@ var automated HxMapVotingChatBox ChatBox;
 var localized string LoadingText;
 var localized string RetrievingMapListText;
 
-var HxMapVotingFilterManager FilterManager;
-var HxMapVotingFilter ActiveFilter;
-var int SelectedGameType;
-var int SelectedMap;
+var private HxMapVotingFilterManager FilterManager;
+var private HxMapVotingFilter ActiveFilter;
+var private int SelectedGameType;
+var private int SelectedMap;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
     class'HxGUIStyleManager'.static.RegisterStyles(MyController);
-    Super.InitComponent(MyController, MyOwner);
+    Super(PopupPageBase).InitComponent(MyController, MyOwner);
     FilterManager = new(Self) class'HxMapVotingFilterManager';
     ActiveFilter = FilterManager.GetFilter();
     lb_MapList.SetFilter(ActiveFilter);
     lb_MapList.OnTagUpdated = lb_VoteList.UpdateMapTag;
     lb_VoteList.OnTagUpdated = lb_MapList.UpdateMapTag;
+    SetupWindowHeader();
+    Unpause();
     AdjustWindowSize(Controller.ResX, Controller.ResY);
     PopulateLocalLists();
     ShowInitialState();
+}
+
+function SetupWindowHeader()
+{
+    t_WindowTitle.SetCaption(WindowName);
+    if (bMoveAllowed)
+    {
+        t_WindowTitle.bAcceptsInput = True;
+        t_WindowTitle.MouseCursorIndex = HeaderMouseCursorIndex;
+    }
+    b_ExitButton = HxGUIHeader(t_WindowTitle).b_Close;
+    b_ExitButton.OnClick = XButtonClicked;
+    b_ExitButton.FocusInstead = t_WindowTitle;
+}
+
+function Unpause()
+{
+    local PlayerController PC;
+
+    PC = PlayerOwner();
+    if(PC != None)
+    {
+        if (PC.Level.Pauser != None)
+        {
+            PC.SetPause(false);
+        }
+    }
 }
 
 function InternalOnOpen()
@@ -316,6 +346,25 @@ function LevelChanged()
 
 defaultproperties
 {
+     Begin Object Class=HxGUIHeader Name=WindowTitleHeader
+        OnMousePressed=FloatingWindow.FloatingMousePressed
+        OnMouseRelease=FloatingWindow.FloatingMouseRelease
+     End Object
+     t_WindowTitle=HxGUIHeader'HxGUIFloatingWindow.WindowTitleHeader'
+
+    Begin Object Class=GUIBorder Name=BackgroundBorder
+        WinLeft=0
+        WinTop=0
+        WinWidth=1
+        WinHeight=1
+        RenderWeight=0.000001
+        StyleName="HxMenuBackground"
+        bScaleToParent=true
+        bBoundToParent=true
+    End Object
+    b_Background=BackgroundBorder
+    i_FrameBG=None
+
     Begin Object Class=HxMapVotingVoteListBox Name=VoteListBox
         WinLeft=0.0135
         WinTop=0.04

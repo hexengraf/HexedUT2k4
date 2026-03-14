@@ -9,7 +9,7 @@ var Color FrameColor;
 var float FrameThickness;
 var bool bHideFrame;
 
-var array<GUIComponent> AlignedComponents;
+var protected array<GUIComponent> AlignedComponents;
 
 delegate bool OnPreDrawInit(Canvas C)
 {
@@ -76,24 +76,20 @@ function AlignToFrame(Canvas C)
 
 function DrawFrame(Canvas C)
 {
-    local float Thickness;
-    local float Width;
-    local float Height;
+    local float Offset;
 
-    Thickness = ActualFrameThickness(C);
-    Width = ActualWidth();
-    Height = ActualHeight() - (2 * Thickness);
-
+    Offset = ActualFrameThickness(C);
     C.DrawColor = FrameColor;
     C.Style = 5;
-    C.SetPos(ActualLeft(), ActualTop());
-    C.DrawTileStretched(FrameMaterial, Width, Thickness);
-    C.SetPos(C.CurX, C.CurY + Thickness);
-    C.DrawTileStretched(FrameMaterial, Thickness, Height);
-    C.SetPos(C.CurX + Width - Thickness, C.CurY);
-    C.DrawTileStretched(FrameMaterial, Thickness, Height);
-    C.SetPos(C.CurX - Width + Thickness, C.CurY + Height);
-    C.DrawTileStretched(FrameMaterial, Width, Thickness);
+    class'HxGUIStyles'.static.DrawFrame(
+        C,
+        FrameMaterial,
+        MenuState,
+        ActualLeft(),
+        ActualTop(),
+        ActualWidth(),
+        ActualHeight() - (2 * Offset),
+        Offset);
 }
 
 function float ActualFrameThickness(Canvas C)
@@ -107,26 +103,7 @@ static function bool GetFontSize(GUIComponent Comp,
                                  optional out float Width,
                                  optional out float Height)
 {
-    local Font OldFont;
-
-    if (Text == "")
-    {
-        Text = "q|W";
-    }
-    if (Comp.Style != None)
-    {
-        Comp.Style.TextSize(C, Comp.MenuState, Text, Width, Height, Comp.FontScale);
-        return true;
-    }
-    if (GUILabel(Comp) != None)
-    {
-        OldFont = C.Font;
-        C.Font = Comp.Controller.GetMenuFont(GUILabel(Comp).TextFont).GetFont(C.SizeX);
-        C.TextSize(Text, Width, Height);
-        C.Font = OldFont;
-        return true;
-    }
-    return false;
+    return class'HxGUIStyles'.static.GetFontSize(Comp, C, Text, Width, Height);
 }
 
 defaultproperties
@@ -136,6 +113,8 @@ defaultproperties
     FrameColor=(R=113,G=159,B=205,A=255)
     FrameThickness=0.001
     bHideFrame=false
+    bScaleToParent=true
+    bBoundToParent=true
     OnPreDraw=InternalOnPreDraw
     OnRendered=InternalOnRendered
 }

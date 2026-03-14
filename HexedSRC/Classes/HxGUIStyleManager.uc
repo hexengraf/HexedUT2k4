@@ -1,4 +1,5 @@
-class HxGUIStyleManager extends Object;
+class HxGUIStyleManager extends Object
+    abstract;
 
 struct HxGUIStyleEntry
 {
@@ -40,4 +41,7 @@ defaultproperties
     Entries(5)=(StyleName="HxEditBox",StyleClass=class'HxSTYEditBox')
     Entries(6)=(StyleName="HxListHeader",StyleClass=class'HxSTYListHeader')
     Entries(7)=(StyleName="HxFlatButton",StyleClass=class'HxSTYFlatButton')
+    Entries(8)=(StyleName="HxCloseButton",StyleClass=class'HxSTYCloseButton')
+    Entries(9)=(StyleName="HxMenuHeader",StyleClass=class'HxSTYMenuHeader')
+    Entries(10)=(StyleName="HxMenuBackground",StyleClass=class'HxSTYMenuBackground')
 }

@@ -158,7 +158,7 @@ function ShrinkToFit(Canvas C, int FirstColumn)
     }
     for (i = FirstColumn + 1; i < InitColumnPerc.Length; ++i)
     {
-        class'HxGUIFramedMultiComponent'.static.GetFontSize(Header, C, ColumnHeadings[i], Width);
+        class'HxGUIStyles'.static.GetFontSize(Header, C, ColumnHeadings[i], Width);
         InitColumnPerc[i] = FMax(0.1, (Width + (4 * CellSpacing)) / OwnerWidth);
         InitColumnPerc[FirstColumn] -= InitColumnPerc[i];
     }
