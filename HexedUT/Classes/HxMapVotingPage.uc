@@ -103,6 +103,13 @@ function bool InternalOnKeyEvent(out byte Key, out byte State, float Delta)
                     lb_MapList.SetFocus(None);
                 }
             }
+            else if (MapBanner.lb_Information.IsInBounds())
+            {
+                if (!MapBanner.lb_Information.bHasFocus)
+                {
+                    MapBanner.lb_Information.SetFocus(None);
+                }
+            }
             else if (MapBanner.lb_Description.IsInBounds())
             {
                 if (!MapBanner.lb_Description.bHasFocus)
@@ -334,6 +341,7 @@ function AlignRightSideComponents(Canvas C)
 event Free()
 {
     local VotingReplicationInfo VRI;
+
     VRI = MVRI;
     Super.Free();
     MVRI = VRI;
