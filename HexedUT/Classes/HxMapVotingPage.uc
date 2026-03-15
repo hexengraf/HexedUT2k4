@@ -375,8 +375,8 @@ defaultproperties
     i_FrameBG=None
 
     Begin Object Class=HxMapVotingVoteListBox Name=VoteListBox
-        WinLeft=0.0135
-        WinTop=0.04
+        WinLeft=0.01
+        WinTop=0.045
         WinWidth=0.605
         WinHeight=0.224
         bScaleToParent=true
@@ -391,8 +391,8 @@ defaultproperties
     Begin Object class=moComboBox Name=GameTypeComboBox
         Caption="Game Type:"
         Hint="Select game type to show."
-        WinLeft=0.0135
-        WinTop=0.2735
+        WinLeft=0.01
+        WinTop=0.2785
         WinWidth=0.4293
         WinHeight=0.0375
         CaptionWidth=0.001
@@ -407,8 +407,8 @@ defaultproperties
     Begin Object class=moComboBox Name=MapSourceComboBox
         Caption="Source:"
         Hint="Select map sources to show."
-        WinLeft=0.4483
-        WinTop=0.2735
+        WinLeft=0.4448
+        WinTop=0.2785
         WinWidth=0.1702
         WinHeight=0.0375
         CaptionWidth=0.001
@@ -421,10 +421,10 @@ defaultproperties
     co_MapSource=MapSourceComboBox
 
     Begin Object Class=HxMapVotingMapListBox Name=MapListBox
-        WinLeft=0.0135
-        WinTop=0.32
+        WinLeft=0.01
+        WinTop=0.325
         WinWidth=0.605
-        WinHeight=0.6497
+        WinHeight=0.657
         bScaleToParent=true
         bBoundToParent=true
         FontScale=FNS_Small
@@ -435,10 +435,10 @@ defaultproperties
     lb_MapList=MapListBox
 
     Begin Object Class=GUILabel Name=RetrievingMapListLabel
-        WinLeft=0.0135
+        WinLeft=0.01
         WinTop=0.32
         WinWidth=0.605
-        WinHeight=0.6497
+        WinHeight=0.657
         TextFont="MediumFont"
         TextAlign=TXTA_Center
         VertAlign=TXTA_Center
@@ -451,9 +451,9 @@ defaultproperties
     l_RetrievingMapList=RetrievingMapListLabel
 
     Begin Object Class=HxMapVotingMapBanner Name=VotingMapBanner
-        WinLeft=0.624
-        WinTop=0.04
-        WinWidth=0.3625
+        WinLeft=0.6205
+        WinTop=0.045
+        WinWidth=0.3695
         WinHeight=0.7
         bBoundToParent=true
         bScaleToParent=true
@@ -463,8 +463,8 @@ defaultproperties
     Begin Object Class=GUIButton Name=RandomButton
         Caption="Select Random"
         Hint="Select a random map from the map list (or vote list if focused and non-empty)."
-        WinLeft=0.624
-        WinWidth=0.1785
+        WinLeft=0.6205
+        WinWidth=0.182
         StyleName="HxSquareButton"
         bNeverFocus=true
         bRepeatClick=true
@@ -478,7 +478,7 @@ defaultproperties
         Caption="Submit Vote"
         Hint="Vote for the currently selected map."
         WinLeft=0.808
-        WinWidth=0.1785
+        WinWidth=0.182
         StyleName="HxSquareButton"
         bNeverFocus=true
         bRepeatClick=false
@@ -489,9 +489,9 @@ defaultproperties
     b_Vote=VoteButton
 
     Begin Object Class=HxMapVotingChatBox Name=VotingChatBox
-        WinLeft=0.624
-        WinTop=0.7497
-        WinWidth=0.3625
+        WinLeft=0.6205
+        WinTop=0.762
+        WinWidth=0.3695
         WinHeight=0.22
         bBoundToParent=true
         bScaleToParent=true
