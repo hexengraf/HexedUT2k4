@@ -16,7 +16,7 @@ struct HxChatInputHistory
 
 var automated GUIScrollTextBox lb_Chat;
 var automated GUIButton b_Channel;
-var automated HxGUIFramedEditBox ed_Input;
+var automated GUIEditBox ed_Input;
 
 var Color MessageColor;
 var Color MessageFallbackColor;
@@ -291,7 +291,7 @@ defaultproperties
     End Object
     b_Channel=ChannelButton
 
-    Begin Object class=HxGUIFramedEditBox Name=ChatInputBox
+    Begin Object class=GUIEditBox Name=ChatInputBox
         Hint="Switch channel by typing /s, /t or /c followed by a space."
         StyleName="HxEditBox"
         FontScale=FNS_Small

@@ -1,4 +1,4 @@
-class HxSTYEditBox extends GUI2Styles;
+class HxSTYEditBox extends HxGUIStyles;
 
 event Initialize()
 {
@@ -41,6 +41,4 @@ defaultproperties
     FontColors(1)=(R=255,G=255,B=255,A=255)
     FontColors(2)=(R=255,G=255,B=255,A=255)
     FontColors(3)=(R=255,G=255,B=255,A=255)
-
-    BorderOffsets(0)=5
 }

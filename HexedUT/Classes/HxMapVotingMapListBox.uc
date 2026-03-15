@@ -7,9 +7,9 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
     DefaultListClass = string(class'HxMapVotingMapList');
     Super.InitComponent(MyController, MyOwner);
-    SearchBar.ed_Columns[0].EditBox.ToolTip.ExpirationSeconds = 5;
-    SearchBar.ed_Columns[1].EditBox.ToolTip.ExpirationSeconds = 10;
-    SearchBar.ed_Columns[2].EditBox.ToolTip.ExpirationSeconds = 6;
+    SearchBar.ed_Columns[0].ToolTip.ExpirationSeconds = 5;
+    SearchBar.ed_Columns[1].ToolTip.ExpirationSeconds = 10;
+    SearchBar.ed_Columns[2].ToolTip.ExpirationSeconds = 6;
     SearchBar.ed_Columns[0].ContextMenu.AddItem(CaseSensitiveLabels[0]);
     SearchBar.ed_Columns[0].ContextMenu.OnSelect = OnSelectCaseSensitive;
 }
@@ -61,28 +61,34 @@ defaultproperties
     Begin Object Class=GUIContextMenu Name=CaseSensitiveContextMenu
     End Object
 
-    Begin Object class=HxGUIFramedEditBox Name=NameSearch
+    Begin Object class=GUIEditBox Name=NameSearch
         Hint="Search by map name. * matches anything. ^ and $ matches begin and end of name."
-        TabOrder=0
+        StyleName="HxEditBox"
+        FontScale=FNS_Small
         bBoundToParent=true
         bScaleToParent=true
+        TabOrder=0
         ContextMenu=CaseSensitiveContextMenu
         OnChange=OnChangeNameSearch
     End Object
 
-    Begin Object class=HxGUIFramedEditBox Name=PlayersSearch
+    Begin Object class=GUIEditBox Name=PlayersSearch
         Hint="Search by player count. One number shows maps that support it. Two numbers separated by - shows min-max player counts. * matches anything. > or < or = followed by a number matches with comparison."
-        TabOrder=2
+        StyleName="HxEditBox"
+        FontScale=FNS_Small
         bBoundToParent=true
         bScaleToParent=true
+        TabOrder=1
         OnChange=OnChangePlayersSearch
     End Object
 
-    Begin Object class=HxGUIFramedEditBox Name=PlayedSearch
+    Begin Object class=GUIEditBox Name=PlayedSearch
         Hint="Search by played count. * matches anything. > or < or = followed by a number matches with comparison."
-        TabOrder=3
+        StyleName="HxEditBox"
+        FontScale=FNS_Small
         bBoundToParent=true
         bScaleToParent=true
+        TabOrder=2
         OnChange=OnChangePlayedSearch
     End Object
 

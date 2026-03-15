@@ -1,7 +1,7 @@
 class HxGUIMultiColumnListSearchBar extends HxGUIFramedImage;
 
 var automated GUILabel l_Search;
-var automated array<HxGUIFramedEditBox> ed_Columns;
+var automated array<GUIEditBox> ed_Columns;
 
 var int FirstColumn;
 
