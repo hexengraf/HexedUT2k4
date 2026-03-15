@@ -2,7 +2,7 @@ class HxSTYCloseButton extends STY2CloseButton;
 
 defaultproperties
 {
-	KeyName="HxCloseButton"
+    KeyName="HxCloseButton"
 
     ImgStyle(0)=ISTY_Scaled
     ImgStyle(1)=ISTY_Scaled

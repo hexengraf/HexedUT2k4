@@ -2,7 +2,7 @@ class HxSTYMenuHeader extends HxGUIStyles;
 
 defaultproperties
 {
-	KeyName="HxMenuHeader"
+    KeyName="HxMenuHeader"
 
     FontNames(0)="UT2DefaultFont"
     FontNames(1)="UT2DefaultFont"

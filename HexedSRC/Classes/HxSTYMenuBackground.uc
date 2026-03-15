@@ -2,7 +2,7 @@ class HxSTYMenuBackground extends HxGUIStyles;
 
 defaultproperties
 {
-	KeyName="HxMenuBackground"
+    KeyName="HxMenuBackground"
 
     Images(0)=Material'engine.WhiteSquareTexture'
     Images(1)=Material'engine.WhiteSquareTexture'

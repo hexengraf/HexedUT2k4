@@ -297,7 +297,7 @@ function CleanUpOldGameRules(Actor OldActor)
 
     if (Divide(string(OldActor.Class), ".", PackageName, ClassName))
     {
-	    for (Rules = Level.Game.GameRulesModifiers; Rules != None; Rules = Rules.NextGameRules)
+        for (Rules = Level.Game.GameRulesModifiers; Rules != None; Rules = Rules.NextGameRules)
         {
             if (StrCmp(PackageName, string(Rules.Class), Len(PackageName)) == 0)
             {
