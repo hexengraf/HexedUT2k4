@@ -1,6 +1,8 @@
 class HxGUIHeader extends GUIHeader;
 
-var automated HxGUIFramedImage fi_Background;
+const MIN_HEIGHT = 0.025;
+const FONT_SPACING = 1.2;
+
 var automated GUIButton b_Close;
 
 function ResolutionChanged(int ResX, int ResY)
@@ -15,8 +17,7 @@ function bool InternalOnPreDraw(Canvas C)
 
     if (bInit)
     {
-        class'HxGUIStyles'.static.GetFontSize(Self, C,,, Height);
-        Height = FMax(Height * 1.2, C.ClipY * 0.022);
+        Height = GetDesiredHeight(C);
         WinHeight = RelativeHeight(Height);
         b_Close.WinTop = Round(0.003 * C.ClipY);
         b_Close.WinHeight = (Height - 2 * b_Close.WinTop) / Height;
@@ -27,6 +28,14 @@ function bool InternalOnPreDraw(Canvas C)
         return true;
     }
     return false;
+}
+
+function float GetDesiredHeight(Canvas C)
+{
+    local float Height;
+
+    class'HxGUIStyles'.static.GetFontSize(Self, C,,, Height);
+    return FMax(Height * FONT_SPACING, C.ClipY * MIN_HEIGHT);
 }
 
 defaultproperties
