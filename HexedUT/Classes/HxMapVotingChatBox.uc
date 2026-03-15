@@ -15,7 +15,7 @@ struct HxChatInputHistory
 };
 
 var automated GUIScrollTextBox lb_Chat;
-var automated HxGUIFramedButton fb_Channel;
+var automated GUIButton b_Channel;
 var automated HxGUIFramedEditBox ed_Input;
 
 var Color MessageColor;
@@ -219,16 +219,16 @@ function bool AlignComponents(Canvas C)
     local float Thickness;
 
     Thickness = ActualFrameThickness(C) / ActualHeight();
-    fb_Channel.Style.TextSize(
-        C, fb_Channel.MenuState, ChatChannels[1], XL, YL, fb_Channel.FontScale);
-    fb_Channel.WinHeight = fb_Channel.RelativeHeight(YL * 1.5);
-    fb_Channel.WinWidth = fb_Channel.RelativeWidth(XL * 1.2);
-    fb_Channel.WinTop = 1.0 - fb_Channel.WinHeight;
-    ed_Input.WinLeft = fb_Channel.WinWidth - Thickness;
-    ed_Input.WinTop = fb_Channel.WinTop;
+    b_Channel.Style.TextSize(
+        C, b_Channel.MenuState, ChatChannels[1], XL, YL, b_Channel.FontScale);
+    b_Channel.WinHeight = b_Channel.RelativeHeight(YL * 1.5);
+    b_Channel.WinWidth = b_Channel.RelativeWidth(XL * 1.2);
+    b_Channel.WinTop = 1.0 - b_Channel.WinHeight;
+    ed_Input.WinLeft = b_Channel.WinWidth - Thickness;
+    ed_Input.WinTop = b_Channel.WinTop;
     ed_Input.WinWidth = 1.0 - ed_Input.WinLeft;
-    ed_Input.WinHeight = fb_Channel.WinHeight;
-    lb_Chat.WinHeight = fb_Channel.WinTop + Thickness;
+    ed_Input.WinHeight = b_Channel.WinHeight;
+    lb_Chat.WinHeight = b_Channel.WinTop + Thickness;
     return false;
 }
 
@@ -242,7 +242,7 @@ function SetInputSilent(string Text)
 function SetInputType(EHxChatChannel Channel)
 {
     ActiveChannel = Channel;
-    fb_Channel.SetCaption(ChatChannels[ActiveChannel]);
+    b_Channel.Caption = ChatChannels[ActiveChannel];
 }
 
 static function bool IsMessageSent(PlayerController Controller)
@@ -278,17 +278,18 @@ defaultproperties
     End Object
     lb_Chat=ChatScrollBox
 
-    Begin Object Class=HxGUIFramedButton Name=ChannelButton
+    Begin Object Class=GUIButton Name=ChannelButton
         Hint="Click to cycle between channels."
         WinLeft=0
         FontScale=FNS_Small
         bNeverFocus=true
+        StyleName="HxSquareButton"
         bRepeatClick=false
         bBoundToParent=true
         bScaleToParent=true
         OnClick=OnClickInput
     End Object
-    fb_Channel=ChannelButton
+    b_Channel=ChannelButton
 
     Begin Object class=HxGUIFramedEditBox Name=ChatInputBox
         Hint="Switch channel by typing /s, /t or /c followed by a space."

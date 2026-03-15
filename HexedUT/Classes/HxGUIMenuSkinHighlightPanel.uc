@@ -23,12 +23,12 @@ var automated moSlider sl_ColorGreen;
 var automated moSlider sl_ColorBlue;
 var automated moCheckBox ch_AllowOnRandom;
 var automated GUILabel l_ButtonAnchor;
-var automated HxGUIFramedButton b_NewColor;
-var automated HxGUIFramedButton b_RenameColor;
-var automated HxGUIFramedButton b_DeleteColor;
+var automated GUIButton b_NewColor;
+var automated GUIButton b_RenameColor;
+var automated GUIButton b_DeleteColor;
 var automated GUIComboBox co_PreviewSkin;
 var automated GUIButton b_PreviewBox;
-var automated HxGUIFramedButton b_ChangeModel;
+var automated GUIButton b_ChangeModel;
 
 var localized string DisabledLabel;
 var localized string DefaultLabel;
@@ -803,33 +803,36 @@ defaultproperties
     End Object
     l_ButtonAnchor=ButtonAnchorLabel
 
-    Begin Object Class=HxGUIFramedButton Name=NewColorButton
+    Begin Object Class=GUIButton Name=NewColorButton
         Caption="New"
         Hint="Add new color to the list of colors."
         StandardHeight=0.03
         bStandardized=true
+        StyleName="HxSquareButton"
         bRepeatClick=false
         OnClick=OnClickNewColor
         TabOrder=15
     End Object
     b_NewColor=NewColorButton
 
-    Begin Object Class=HxGUIFramedButton Name=RenameColorButton
+    Begin Object Class=GUIButton Name=RenameColorButton
         Caption="Rename"
         Hint="Rename current color."
         StandardHeight=0.03
         bStandardized=true
+        StyleName="HxSquareButton"
         bRepeatClick=false
         OnClick=OnClickRenameColor
         TabOrder=16
     End Object
     b_RenameColor=RenameColorButton
 
-    Begin Object Class=HxGUIFramedButton Name=DeleteColorButton
+    Begin Object Class=GUIButton Name=DeleteColorButton
         Caption="Delete"
         Hint="Delete current color from the list of colors."
         StandardHeight=0.03
         bStandardized=true
+        StyleName="HxSquareButton"
         bRepeatClick=false
         OnClick=OnClickDeleteColor
         TabOrder=17
@@ -840,6 +843,7 @@ defaultproperties
         Hint="Select skin variation to be used on the preview."
         StandardHeight=0.03
         bStandardized=true
+        StyleName="HxSquareButton"
         bReadOnly=true
         OnChange=PreviewSkinOnChange
         TabOrder=18
@@ -857,11 +861,12 @@ defaultproperties
     End Object
     b_PreviewBox=PreviewBoxButton
 
-    Begin Object class=HxGUIFramedButton Name=ChangeModelButton
+    Begin Object class=GUIButton Name=ChangeModelButton
         Caption="Change Preview Character"
         Hint="Select a different preview character."
         StandardHeight=0.03
         bStandardized=true
+        StyleName="HxSquareButton"
         bRepeatClick=false
         OnClick=OnClickChangeModel
         TabOrder=19

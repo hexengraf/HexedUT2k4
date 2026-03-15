@@ -10,8 +10,8 @@ var automated moComboBox co_MapSource;
 var automated HxMapVotingMapListBox lb_MapList;
 var automated GUILabel l_RetrievingMapList;
 var automated HxMapVotingMapBanner MapBanner;
-var automated HxGUIFramedButton fb_Random;
-var automated HxGUIFramedButton fb_Vote;
+var automated GUIButton b_Random;
+var automated GUIButton b_Vote;
 var automated HxMapVotingChatBox ChatBox;
 
 var localized string LoadingText;
@@ -323,11 +323,12 @@ function AdjustWindowSize(coerce float X, coerce float Y)
 
 function AlignRightSideComponents(Canvas C)
 {
-    fb_Random.WinHeight = fb_Random.RelativeHeight(fb_Random.GetFontHeight(C) * MED_FONT_SPACING);
-    fb_Random.WinTop = ChatBox.WinTop - VERT_SPACING - fb_Random.WinHeight;
-    fb_Vote.WinTop = fb_Random.WinTop;
-    fb_Vote.WinHeight = fb_Random.WinHeight;
-    MapBanner.WinHeight = fb_Random.WinTop - VERT_SPACING - MapBanner.WinTop;
+    class'HxGUIStyles'.static.GetFontSize(b_Random, C,,, b_Random.WinHeight);
+    b_Random.WinHeight = b_Random.RelativeHeight(b_Random.WinHeight * MED_FONT_SPACING);
+    b_Random.WinTop = ChatBox.WinTop - VERT_SPACING - b_Random.WinHeight;
+    b_Vote.WinTop = b_Random.WinTop;
+    b_Vote.WinHeight = b_Random.WinHeight;
+    MapBanner.WinHeight = b_Random.WinTop - VERT_SPACING - MapBanner.WinTop;
 }
 
 event Free()
@@ -451,31 +452,33 @@ defaultproperties
     End Object
     MapBanner=VotingMapBanner
 
-    Begin Object Class=HxGUIFramedButton Name=RandomButton
+    Begin Object Class=GUIButton Name=RandomButton
         Caption="Select Random"
         Hint="Select a random map from the map list (or vote list if focused and non-empty)."
         WinLeft=0.624
         WinWidth=0.1785
+        StyleName="HxSquareButton"
         bNeverFocus=true
         bRepeatClick=true
         bBoundToParent=true
         bScaleToParent=true
         OnClick=OnClickSelectRandom
     End Object
-    fb_Random=RandomButton
+    b_Random=RandomButton
 
-    Begin Object Class=HxGUIFramedButton Name=VoteButton
+    Begin Object Class=GUIButton Name=VoteButton
         Caption="Submit Vote"
         Hint="Vote for the currently selected map."
         WinLeft=0.808
         WinWidth=0.1785
+        StyleName="HxSquareButton"
         bNeverFocus=true
         bRepeatClick=false
         bBoundToParent=true
         bScaleToParent=true
         OnClick=OnClickSubmitVote
     End Object
-    fb_Vote=VoteButton
+    b_Vote=VoteButton
 
     Begin Object Class=HxMapVotingChatBox Name=VotingChatBox
         WinLeft=0.624

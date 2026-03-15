@@ -1,4 +1,4 @@
-class HxSTYFlatButton extends GUI2Styles;
+class HxSTYSquareButton extends HxGUIStyles;
 
 event Initialize()
 {
@@ -17,7 +17,7 @@ event Initialize()
 
 defaultproperties
 {
-    KeyName="HxFlatButton"
+    KeyName="HxSquareButton"
 
     FontNames(0)="HxSmallerFont"
     FontNames(1)="HxSmallerFont"

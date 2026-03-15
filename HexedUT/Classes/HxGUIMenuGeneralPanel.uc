@@ -11,7 +11,7 @@ var automated moCheckBox ch_PulsingDigits;
 var automated GUILabel l_PositionAnchor;
 var automated moFloatEdit fl_PosX;
 var automated moFloatEdit fl_PosY;
-var automated HxGUIFramedButton b_ServerMenu;
+var automated GUIButton b_ServerMenu;
 var automated HxGUIScrollTextBox st_ServerStatus;
 
 var localized string VersionLabel;
@@ -170,10 +170,11 @@ defaultproperties
         ExpandIndex=0
     End Object
 
-    Begin Object class=HxGUIFramedButton Name=ServerMenuButton
+    Begin Object class=GUIButton Name=ServerMenuButton
         Caption="Server Options"
         bStandardized=true
         StandardHeight=0.03
+        StyleName="HxSquareButton"
         OnClick=ServerMenuOnClick
         TabOrder=9
     End Object

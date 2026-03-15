@@ -40,7 +40,7 @@ defaultproperties
     Entries(4)=(StyleName="HxScrollZone",StyleClass=class'HxSTYScrollZone')
     Entries(5)=(StyleName="HxEditBox",StyleClass=class'HxSTYEditBox')
     Entries(6)=(StyleName="HxListHeader",StyleClass=class'HxSTYListHeader')
-    Entries(7)=(StyleName="HxFlatButton",StyleClass=class'HxSTYFlatButton')
+    Entries(7)=(StyleName="HxSquareButton",StyleClass=class'HxSTYSquareButton')
     Entries(8)=(StyleName="HxCloseButton",StyleClass=class'HxSTYCloseButton')
     Entries(9)=(StyleName="HxMenuHeader",StyleClass=class'HxSTYMenuHeader')
     Entries(10)=(StyleName="HxMenuBackground",StyleClass=class'HxSTYMenuBackground')
