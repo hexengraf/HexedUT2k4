@@ -1,4 +1,4 @@
-class HxGUIServerMenuModifiersPanel extends HxGUIBasePanel;
+class HxGUIServerMenuModifiersPanel extends HxGUIMenuPanel;
 
 const SECTION_STARTING_VALUES = 0;
 const SECTION_POWER_UPS = 2;

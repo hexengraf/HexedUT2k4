@@ -1,4 +1,4 @@
-class HxGUIServerMenuGeneralPanel extends HxGUIBasePanel;
+class HxGUIServerMenuGeneralPanel extends HxGUIMenuPanel;
 
 const SECTION_HIT_EFFECTS = 0;
 const SECTION_SKIN_HIGHLIGHT = 1;
