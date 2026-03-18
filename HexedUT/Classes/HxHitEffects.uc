@@ -76,6 +76,8 @@ var config array<string> FontNames;
 var config array<string> CustomHitSounds;
 
 var private PlayerController PC;
+var private bool bAllowHitSounds;
+var private bool bAllowDamageNumbers;
 var private HxDamagePoint DamagePoints[5];
 var private Sound BuiltInHitSounds[5];
 var private array<HxDisplayWidget> Widgets;
@@ -343,7 +345,7 @@ simulated function DrawPreview(Canvas C, int i)
     C.DrawText(DamagePoints[i].Value);
 }
 
-simulated function Update(int Damage, bool bAllowHitSounds, bool bAllowDamageNumbers)
+simulated function Update(int Damage)
 {
     if (bAllowHitSounds && bHitSounds)
     {
@@ -536,6 +538,12 @@ simulated function SetDamagePointColorB(int Index, byte B)
     UpdateDamagePointConfig(Index);
 }
 
+simulated function SetServerProperties(coerce bool bAllowHS, coerce bool bAllowDN)
+{
+    bAllowHitSounds = bAllowHS;
+    bAllowDamageNumbers = bAllowDN;
+}
+
 simulated function UpdateDamagePointConfig(int Index)
 {
     switch (Index)
@@ -581,6 +589,16 @@ simulated function bool IsHitSoundChanged()
 simulated function bool IsFontChanged()
 {
     return LoadedFont == None || !(string(LoadedFont) ~= DisplayFontName);
+}
+
+simulated function bool IsHitSoundsEnabled()
+{
+    return bAllowHitSounds && bHitSounds;
+}
+
+simulated function bool IsDamageNumbersEnabled()
+{
+    return bAllowDamageNumbers && bDamageNumbers;
 }
 
 simulated function RecoverConfigs()

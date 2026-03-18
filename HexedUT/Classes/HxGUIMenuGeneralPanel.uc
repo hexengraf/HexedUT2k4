@@ -45,11 +45,14 @@ function bool Initialize()
 
 function Refresh()
 {
+    local bool bAllowSPTimer;
+
     Super.Refresh();
-    sections[SECTION_SP_TIMER].SetHide(!Client.bAllowSpawnProtectionTimer, HideDueDisable);
-    fl_PosX.SetVisibility(Client.bAllowSpawnProtectionTimer);
-    fl_PosY.SetVisibility(Client.bAllowSpawnProtectionTimer);
-    SetEnable(b_ServerMenu, IsAdmin());
+    bAllowSPTimer = bool(Client.GetProperty("bAllowSpawnProtectionTimer"));
+    sections[SECTION_SP_TIMER].SetHide(!bAllowSPTimer, HideDueDisable);
+    fl_PosX.SetVisibility(bAllowSPTimer);
+    fl_PosY.SetVisibility(bAllowSPTimer);
+    // SetEnable(b_ServerMenu, IsAdmin());
     ServerStatusAfterChange();
     SPTimerAfterChange();
 }
@@ -90,8 +93,6 @@ function SPTimerAfterChange()
 
 function ServerStatusAfterChange()
 {
-    local string Name;
-    local string Value;
     local string NameColorCode;
     local string ValueColorCode;
     local int i;
@@ -100,12 +101,11 @@ function ServerStatusAfterChange()
     ValueColorCode = MakeColorCode(ValueColor);
     st_ServerStatus.SetContent(
         NameColorCode$VersionLabel$":"@ValueColorCode$class'MutHexedUT'.default.FriendlyName);
-    for (i = 0; i < class'MutHexedUT'.default.PropertyInfoEntries.Length; ++i)
+    for (i = 0; i < Client.ServerInfo.Settings.Length; ++i)
     {
-        Name = NameColorCode$class'MutHexedUT'.default.PropertyInfoEntries[i].Caption;
-        Value = ValueColorCode$Client.GetPropertyText(
-            class'MutHexedUT'.default.PropertyInfoEntries[i].Name);
-        st_ServerStatus.AddText(Name$":"@Value);
+        st_ServerStatus.AddText(
+            NameColorCode$Client.ServerInfo.Settings[i].DisplayName$":"
+            @ValueColorCode$Client.ServerInfo.Settings[i].Value);
     }
 }
 

@@ -14,34 +14,6 @@ const DAMAGE_CLUSTERING_INTERVAL = 0.02;
 var config bool bFirstRun;
 var config bool bMapVoteMenu;
 
-var bool bAllowHitSounds;
-var bool bAllowDamageNumbers;
-var bool bAllowSpawnProtectionTimer;
-var bool bColoredDeathMessages;
-var bool bAllowSkinHighlight;
-var float SkinHighlightIntensity;
-var float HealthLeechRatio;
-var int HealthLeechLimit;
-var int BonusStartingHealth;
-var int BonusStartingShield;
-var int BonusStartingGrenades;
-var int BonusStartingAdrenaline;
-var int BonusAdrenalineOnSpawn;
-var bool bDisableSpeedCombo;
-var bool bDisableBerserkCombo;
-var bool bDisableBoosterCombo;
-var bool bDisableInvisibleCombo;
-var bool bDisableUDamage;
-var float MaxSpeedMultiplier;
-var float AirControlMultiplier;
-var float BaseJumpMultiplier;
-var float MultiJumpMultiplier;
-var int BonusMultiJumps;
-var float DodgeMultiplier;
-var float DodgeSpeedMultiplier;
-var bool bDisableWallDodge;
-var bool bDisableDodgeJump;
-
 var HxHitEffects HitEffects;
 var HxSpawnProtectionTimer SPTimer;
 
@@ -56,35 +28,6 @@ replication
     reliable if (Role == ROLE_Authority)
         ClientUpdateHitEffects,
         ClientNotifySpawn;
-
-    reliable if (Role == ROLE_Authority)
-        bAllowHitSounds,
-        bAllowDamageNumbers,
-        bAllowSpawnProtectionTimer,
-        bColoredDeathMessages,
-        bAllowSkinHighlight,
-        SkinHighlightIntensity,
-        HealthLeechRatio,
-        HealthLeechLimit,
-        BonusStartingHealth,
-        BonusStartingShield,
-        BonusStartingGrenades,
-        BonusStartingAdrenaline,
-        BonusAdrenalineOnSpawn,
-        bDisableSpeedCombo,
-        bDisableBerserkCombo,
-        bDisableBoosterCombo,
-        bDisableInvisibleCombo,
-        bDisableUDamage,
-        MaxSpeedMultiplier,
-        AirControlMultiplier,
-        BaseJumpMultiplier,
-        MultiJumpMultiplier,
-        BonusMultiJumps,
-        DodgeMultiplier,
-        DodgeSpeedMultiplier,
-        bDisableWallDodge,
-        bDisableDodgeJump;
 }
 
 simulated event PreBeginPlay()
@@ -105,6 +48,7 @@ simulated event PreBeginPlay()
 
 simulated event Tick(float DeltaTime)
 {
+    Super.Tick(DeltaTime);
     if (Level.NetMode != NM_DedicatedServer)
     {
         if (!bInitialized)
@@ -114,10 +58,6 @@ simulated event Tick(float DeltaTime)
         else if (bReplaceMapVoteMenu)
         {
             TryReplaceMapVoteMenu();
-        }
-        else if (Level.NetMode == NM_Client)
-        {
-            Disable('Tick');
         }
     }
     ServerTick(DeltaTime);
@@ -142,7 +82,7 @@ simulated function ClientUpdateHitEffects(int Damage)
 {
     if (Level.NetMode != NM_DedicatedServer && HitEffects != None)
     {
-        HitEffects.Update(Damage, bAllowHitSounds, bAllowDamageNumbers);
+        HitEffects.Update(Damage);
     }
 }
 
@@ -201,6 +141,7 @@ simulated function bool InitializeHUDOverlays()
         {
             HitEffects = PC.myHUD.Spawn(class'HxHitEffects', PC.myHUD);
             PC.myHUD.AddHudOverlay(HitEffects);
+            ConfigureHitEffects();
         }
         if (SPTimer == None)
         {
@@ -234,24 +175,29 @@ simulated function ModifyPlayerCombos(xPlayer Other)
 
 simulated function bool ShouldDisableCombo(coerce string Name)
 {
-
     if (Name ~= "XGame.ComboSpeed")
     {
-        return bDisableSpeedCombo;
+        return bool(GetProperty("bDisableSpeedCombo"));
     }
     if (Name ~= "XGame.ComboBerserk")
     {
-        return bDisableBerserkCombo;
+        return bool(GetProperty("bDisableBerserkCombo"));
     }
     if (Name ~= "XGame.ComboDefensive")
     {
-        return bDisableBoosterCombo;
+        return bool(GetProperty("bDisableBoosterCombo"));
     }
     if (Name ~= "XGame.ComboInvis")
     {
-        return bDisableInvisibleCombo;
+        return bool(GetProperty("bDisableInvisibleCombo"));
     }
     return false;
+}
+
+simulated function ConfigureHitEffects()
+{
+    HitEffects.SetServerProperties(
+        GetProperty("bAllowHitSounds"), GetProperty("bAllowDamageNumbers"));
 }
 
 simulated function SetMapVoteMenu(bool bValue)
@@ -293,44 +239,24 @@ simulated function TryReplaceMapVoteMenu()
     }
 }
 
-function UpdateAll()
+simulated function ServerInfoReady()
 {
-    local MutHexedUT HexedUT;
-
-    HexedUT = MutHexedUT(MutatorOwner);
-    bAllowHitSounds = HexedUT.bAllowHitSounds;
-    bAllowDamageNumbers = HexedUT.bAllowDamageNumbers;
-    bAllowSpawnProtectionTimer = HexedUT.bAllowSpawnProtectionTimer;
-    bColoredDeathMessages = HexedUT.bColoredDeathMessages;
-    bAllowSkinHighlight = HexedUT.bAllowSkinHighlight;
-    SkinHighlightIntensity = HexedUT.SkinHighlightIntensity;
-    HealthLeechRatio = HexedUT.HealthLeechRatio;
-    HealthLeechLimit = HexedUT.HealthLeechLimit;
-    BonusStartingHealth = HexedUT.BonusStartingHealth;
-    BonusStartingShield = HexedUT.BonusStartingShield;
-    BonusStartingGrenades = HexedUT.BonusStartingGrenades;
-    BonusStartingAdrenaline = HexedUT.BonusStartingAdrenaline;
-    BonusAdrenalineOnSpawn = HexedUT.BonusAdrenalineOnSpawn;
-    bDisableSpeedCombo = HexedUT.bDisableSpeedCombo;
-    bDisableBerserkCombo = HexedUT.bDisableBerserkCombo;
-    bDisableBoosterCombo = HexedUT.bDisableBoosterCombo;
-    bDisableInvisibleCombo = HexedUT.bDisableInvisibleCombo;
-    bDisableUDamage = HexedUT.bDisableUDamage;
-    MaxSpeedMultiplier = HexedUT.MaxSpeedMultiplier;
-    AirControlMultiplier = HexedUT.AirControlMultiplier;
-    BaseJumpMultiplier = HexedUT.BaseJumpMultiplier;
-    MultiJumpMultiplier = HexedUT.MultiJumpMultiplier;
-    BonusMultiJumps = HexedUT.BonusMultiJumps;
-    DodgeMultiplier = HexedUT.DodgeMultiplier;
-    DodgeSpeedMultiplier = HexedUT.DodgeSpeedMultiplier;
-    bDisableWallDodge = HexedUT.bDisableWallDodge;
-    bDisableDodgeJump = HexedUT.bDisableDodgeJump;
-    NetUpdateTime = Level.TimeSeconds - 1;
+    if (PC != None)
+    {
+        ModifyPlayerCombos(xPlayer(PC));
+    }
+    if (HitEffects != None)
+    {
+        ConfigureHitEffects();
+    }
 }
 
-function UpdateProperty(string PropertyName, String PropertyValue)
+simulated function PropertyChanged(int Index, string OldValue)
 {
-    UpdateAll();
+    if (HitEffects != None)
+    {
+        ConfigureHitEffects();
+    }
 }
 
 simulated function RecoverConfigs()
@@ -365,6 +291,7 @@ static function HxUTClient GetClient(PlayerController PC)
 
 defaultproperties
 {
+    MutatorClass=class'MutHexedUT'
     bFirstRun=true
     bMapVoteMenu=true
 }

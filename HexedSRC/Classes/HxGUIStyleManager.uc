@@ -44,4 +44,5 @@ defaultproperties
     Entries(8)=(StyleName="HxCloseButton",StyleClass=class'HxSTYCloseButton')
     Entries(9)=(StyleName="HxMenuHeader",StyleClass=class'HxSTYMenuHeader')
     Entries(10)=(StyleName="HxMenuBackground",StyleClass=class'HxSTYMenuBackground')
+    Entries(11)=(StyleName="HxOptionList",StyleClass=class'HxSTYOptionList')
 }

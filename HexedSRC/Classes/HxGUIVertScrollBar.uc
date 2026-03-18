@@ -1,5 +1,6 @@
 class HxGUIVertScrollBar extends GUIVertScrollBar;
 
+var string ScrollZoneStyleName;
 var float ForceRelativeWidth;
 var float TopOffset;
 var float RightOffset;
@@ -45,6 +46,14 @@ function ZoneClick(float Delta)
     PositionChanged(CurPos);
 }
 
+function InternalOnCreateComponent(GUIComponent NewComponent, GUIComponent Sender)
+{
+    if (NewComponent.IsA('GUIVertScrollZone'))
+    {
+        NewComponent.StyleName = ScrollZoneStyleName;
+    }
+}
+
 defaultproperties
 {
     Begin Object Class=GUIVertScrollZone Name=NewScrollZone
@@ -64,6 +73,7 @@ defaultproperties
         OnMousePressed=GripPressed
     End Object
 
+    ScrollZoneStyleName="HxScrollZone"
     ForceRelativeWidth=0
     TopOffset=0
     RightOffset=0
@@ -73,4 +83,5 @@ defaultproperties
     MyIncreaseButton=NewDownBut
     MyGripButton=NewGrip
     OnPreDraw=InternalOnPreDraw
+    OnCreateComponent=InternalOnCreateComponent
 }

@@ -59,7 +59,10 @@ function float DrawFrames(Canvas C,
         Offset = Round(C.ClipY * Frames[i].Thickness);
         TotalOffset += Offset;
         Height -= 2 * Offset;
-        DrawFrame(C, Frames[i].Material, MenuState, Left, Top, Width, Height, Offset);
+        if (Frames[i].Material != None)
+        {
+            DrawFrame(C, Frames[i].Material, MenuState, Left, Top, Width, Height, Offset);
+        }
         Left += Offset;
         Top += Offset;
         Width -= 2 * Offset;

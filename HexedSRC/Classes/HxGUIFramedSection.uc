@@ -16,6 +16,7 @@ var float LineSpacing;
 var float ColumnSpacing;
 var bool bAutoSpacing;
 var bool bShrinkToFit;
+var bool bNoHeader;
 var int MaxItemsPerColumn;
 var int ExpandIndex;
 
@@ -26,6 +27,8 @@ var private array<float> RightIndents;
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
     Super.InitComponent(MyController, MyOwner);
+    HeaderBar.SetVisibility(!bNoHeader);
+    l_Header.SetVisibility(!bNoHeader);
     l_Header.Caption = Caption;
     bInit = true;
 }
@@ -35,8 +38,11 @@ event SetVisibility(bool bIsVisible)
     local int i;
 
     Super.SetVisibility(bIsVisible);
-    HeaderBar.SetVisibility(bIsVisible);
-    l_Header.SetVisibility(bIsVisible);
+    if (!bNoHeader)
+    {
+        HeaderBar.SetVisibility(bIsVisible);
+        l_Header.SetVisibility(bIsVisible);
+    }
     for (i = 0; i < Grid.Length; ++i)
     {
         Grid[i].SetVisibility(bIsVisible);
@@ -125,10 +131,14 @@ function bool OnPreDrawInit(Canvas C)
     return false;
 }
 
-function float AlignHeader(Canvas C, float ActualTop, float Height)
+function float AlignHeader(Canvas C, float Top, float Height)
 {
+    if (bNoHeader)
+    {
+        return ActualTop() + Top;
+    }
     GetFontSize(l_Header, C,,, l_Header.WinHeight);
-    l_Header.WinTop = (ActualTop - HeaderBar.ActualFrameThickness(C)) / Height;
+    l_Header.WinTop = (Top - HeaderBar.ActualFrameThickness(C)) / Height;
     l_Header.WinWidth = ActualWidth();
     l_Header.WinHeight *= MED_FONT_SPACING;
     HeaderBar.WinTop = l_Header.WinTop;

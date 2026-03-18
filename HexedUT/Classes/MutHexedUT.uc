@@ -218,13 +218,12 @@ function ListDisableCombos()
     }
 }
 
-function PropertyChanged(string PropertyName, String PropertyValue)
+function PropertyChanged(int Index, string OldValue)
 {
-    if (PropertyName == "bColoredDeathMessages")
+    if (Properties[Index].Name == "bColoredDeathMessages")
     {
         ModifyDeathMessageClass();
     }
-    Super.PropertyChanged(PropertyName, PropertyValue);
 }
 
 function RegisterDamage(int Damage, Pawn Injured, Pawn Inflictor, class<DamageType> Type)
@@ -276,9 +275,9 @@ function RecoverConfigs()
     OldActor = class'HxConfig'.static.FindOldVersionActor(Self, Class, MIN_VERSION, Version);
     if (OldActor != None)
     {
-        for (i = 0; i < PropertyInfoEntries.Length; ++i)
+        for (i = 0; i < Properties.Length; ++i)
         {
-            class'HxConfig'.static.CopyProperty(Self, OldActor, PropertyInfoEntries[i].Name);
+            class'HxConfig'.static.CopyProperty(Self, OldActor, Properties[i].Name);
         }
         CleanUpOldGameRules(OldActor);
         OldActor.Destroy();
@@ -325,37 +324,37 @@ defaultproperties
     MutatorGroup="HexedUT"
     CRIClass=class'HxUTClient'
 
-    PropertyInfoEntries(0)=(Name="bAllowHitSounds",Caption="Allow hit sound effects",Hint="Allow clients to enable/disable hit sound effects.",PIType="Check")
-    PropertyInfoEntries(1)=(Name="bAllowDamageNumbers",Caption="Allow damage number effects",Hint="Allow clients to enable/disable damage number effects.",PIType="Check")
-    PropertyInfoEntries(2)=(Name="bAllowSpawnProtectionTimer",Caption="Allow spawn protection timer",Hint="Allow clients to enable/disable the spawn protection timer.",PIType="Check")
-    PropertyInfoEntries(3)=(Name="bColoredDeathMessages",Caption="Colored death messages",Hint="Use team colors in death messages (blue = killer and red = victim if no teams).",PIType="Check")
-    PropertyInfoEntries(4)=(Name="bAllowSkinHighlight",Caption="Allow skin highlight",Hint="Allow clients to enable/disable skin highlights.",PIType="Check")
-    PropertyInfoEntries(5)=(Name="SkinHighlightIntensity",Caption="Skin highlight intensity",Hint="Factor to multiply RGB values (between 0.0 and 1.0).",PIType="Text",PIExtras="8;0.0:1.0")
+    Properties(0)=(Name="bAllowHitSounds",Section="Hit Effects",Caption="Allow hit sound effects",Hint="Allow clients to enable/disable hit sound effects.",PIType="Check")
+    Properties(1)=(Name="bAllowDamageNumbers",Section="Hit Effects",Caption="Allow damage number effects",Hint="Allow clients to enable/disable damage number effects.",PIType="Check")
+    Properties(2)=(Name="bAllowSpawnProtectionTimer",Section="Interface",Caption="Allow spawn protection timer",Hint="Allow clients to enable/disable the spawn protection timer.",PIType="Check")
+    Properties(3)=(Name="bColoredDeathMessages",Section="Interface",Caption="Colored death messages",Hint="Use team colors in death messages (blue = killer and red = victim if no teams).",PIType="Check")
+    Properties(4)=(Name="bAllowSkinHighlight",Section="Skin Highlights",Caption="Allow skin highlight",Hint="Allow clients to enable/disable skin highlights.",PIType="Check")
+    Properties(5)=(Name="SkinHighlightIntensity",Section="Skin Highlights",Caption="Skin highlight intensity",Hint="Factor to multiply RGB values (between 0.0 and 1.0).",PIType="Text",PIExtras="8;0.0:1.0",bAdvanced=true)
 
-    PropertyInfoEntries(6)=(Name="HealthLeechRatio",Caption="Health leech ratio",Hint="Ratio to leech health from damage dealt (between 0.0 and 5.0).",PIType="Text",PIExtras="8;0.0:5.0")
-    PropertyInfoEntries(7)=(Name="HealthLeechLimit",Caption="Health leech limit",Hint="Limit up to how much health can be filled with leech (between 0 and 199).",PIType="Text",PIExtras="8;0:199")
+    Properties(6)=(Name="HealthLeechRatio",Section="Health Leech",Caption="Health leech ratio",Hint="Ratio to leech health from damage dealt (between 0.0 and 5.0).",PIType="Text",PIExtras="8;0.0:5.0",bAdvanced=true)
+    Properties(7)=(Name="HealthLeechLimit",Section="Health Leech",Caption="Health leech limit",Hint="Limit up to how much health can be filled with leech (between 0 and 199).",PIType="Text",PIExtras="8;0:199",bAdvanced=true)
 
-    PropertyInfoEntries(8)=(Name="BonusStartingHealth",Caption="Bonus health",Hint="Bonus to add to starting health (between -99 and 99). Applied on spawn.",PIType="Text",PIExtras="8;-99:99")
-    PropertyInfoEntries(9)=(Name="BonusStartingShield",Caption="Bonus shield",Hint="Bonus to add to Starting shield (between 0 and 150). Applied on spawn.",PIType="Text",PIExtras="8;0:150")
-    PropertyInfoEntries(10)=(Name="BonusStartingGrenades",Caption="Bonus AR grenades",Hint="Bonus to add to starting number of AR grenades (between -4 and 99). Applied on spawn.",PIType="Text",PIExtras="8;-4:99")
-    PropertyInfoEntries(11)=(Name="BonusStartingAdrenaline",Caption="Bonus adrenaline",Hint="Bonus to add to starting adrenaline (between 0 and 100). Applied on restart/map change.",PIType="Text",PIExtras="8;0:100")
-    PropertyInfoEntries(12)=(Name="BonusAdrenalineOnSpawn",Caption="Bonus adrenaline on spawn",Hint="Bonus to add to adrenaline on spawn (between -100 and 100). Applied on spawn.",PIType="Text",PIExtras="8;-100:100")
+    Properties(8)=(Name="BonusStartingHealth",Section="Starting Values",Caption="Bonus health",Hint="Bonus to add to starting health (between -99 and 99). Applied on spawn.",PIType="Text",PIExtras="8;-99:99",bAdvanced=true)
+    Properties(9)=(Name="BonusStartingShield",Section="Starting Values",Caption="Bonus shield",Hint="Bonus to add to Starting shield (between 0 and 150). Applied on spawn.",PIType="Text",PIExtras="8;0:150",bAdvanced=true)
+    Properties(10)=(Name="BonusStartingGrenades",Section="Starting Values",Caption="Bonus AR grenades",Hint="Bonus to add to starting number of AR grenades (between -4 and 99). Applied on spawn.",PIType="Text",PIExtras="8;-4:99",bAdvanced=true)
+    Properties(11)=(Name="BonusStartingAdrenaline",Section="Starting Values",Caption="Bonus adrenaline",Hint="Bonus to add to starting adrenaline (between 0 and 100). Applied on restart/map change.",PIType="Text",PIExtras="8;0:100",bAdvanced=true)
+    Properties(12)=(Name="BonusAdrenalineOnSpawn",Section="Starting Values",Caption="Bonus adrenaline on spawn",Hint="Bonus to add to adrenaline on spawn (between -100 and 100). Applied on spawn.",PIType="Text",PIExtras="8;-100:100",bAdvanced=true)
 
-    PropertyInfoEntries(13)=(Name="bDisableSpeedCombo",Caption="Disable speed combo",Hint="Disable speed adrenaline combo (up, up, up, up). Applied on restart/map change.",PIType="Check")
-    PropertyInfoEntries(14)=(Name="bDisableBerserkCombo",Caption="Disable berserk combo",Hint="Disable berserk adrenaline combo (up, up, down, down). Applied on restart/map change.",PIType="Check")
-    PropertyInfoEntries(15)=(Name="bDisableBoosterCombo",Caption="Disable booster combo",Hint="Disable booster combo (down, down, down, down). Applied on restart/map change.",PIType="Check")
-    PropertyInfoEntries(16)=(Name="bDisableInvisibleCombo",Caption="Disable invisible combo",Hint="Disable invisible combo (right, right, left, left). Applied on restart/map change.",PIType="Check")
-    PropertyInfoEntries(17)=(Name="bDisableUDamage",Caption="Disable UDamage",Hint="Disable UDamage packs on the maps. Applied on restart/map change.",PIType="Check")
+    Properties(13)=(Name="bDisableSpeedCombo",Section="Power-Ups",Caption="Disable speed combo",Hint="Disable speed adrenaline combo (up, up, up, up). Applied on restart/map change.",PIType="Check",bAdvanced=true)
+    Properties(14)=(Name="bDisableBerserkCombo",Section="Power-Ups",Caption="Disable berserk combo",Hint="Disable berserk adrenaline combo (up, up, down, down). Applied on restart/map change.",PIType="Check",bAdvanced=true)
+    Properties(15)=(Name="bDisableBoosterCombo",Section="Power-Ups",Caption="Disable booster combo",Hint="Disable booster combo (down, down, down, down). Applied on restart/map change.",PIType="Check",bAdvanced=true)
+    Properties(16)=(Name="bDisableInvisibleCombo",Section="Power-Ups",Caption="Disable invisible combo",Hint="Disable invisible combo (right, right, left, left). Applied on restart/map change.",PIType="Check",bAdvanced=true)
+    Properties(17)=(Name="bDisableUDamage",Section="Power-Ups",Caption="Disable UDamage",Hint="Disable UDamage packs on the maps. Applied on restart/map change.",PIType="Check",bAdvanced=true)
 
-    PropertyInfoEntries(18)=(Name="MaxSpeedMultiplier",Caption="Speed multiplier",Hint="Coefficient to multiply maximum movement speed (between -100.0 and 100.0). Applied on spawn.",PIType="Text",PIExtras="8;-100.0:100.0")
-    PropertyInfoEntries(19)=(Name="AirControlMultiplier",Caption="Air control multiplier",Hint="Coefficient to multiply air control (between -10.0 and 10.0). Applied on spawn.",PIType="Text",PIExtras="8;-10.0:10.0")
-    PropertyInfoEntries(20)=(Name="BaseJumpMultiplier",Caption="Base jump multiplier",Hint="Coefficient to multiply base jump acceleration (between -10.0 and 10.0). Applied on spawn.",PIType="Text",PIExtras="8;-10.0:10.0")
-    PropertyInfoEntries(21)=(Name="MultiJumpMultiplier",Caption="Multi-jump multiplier",Hint="Coefficient to multiply multi-jump acceleration boost (between -100.0 and 100.0). Applied on spawn.",PIType="Text",PIExtras="8;-100.0:100.0")
-    PropertyInfoEntries(22)=(Name="BonusMultiJumps",Caption="Bonus multi-jumps",Hint="Bonus to add to base amount of multi-jumps (between -1 and 99). Applied on spawn.",PIType="Text",PIExtras="8;-1:99")
-    PropertyInfoEntries(23)=(Name="DodgeMultiplier",Caption="Dodge multiplier",Hint="Coefficient to multiply dodge acceleration (Z-axis, between -10.0 and 10.0). Applied on spawn.",PIType="Text",PIExtras="8;-10.0:10.0")
-    PropertyInfoEntries(24)=(Name="DodgeSpeedMultiplier",Caption="Dodge speed multiplier",Hint="Coefficient to multiply dodge speed factor (between -10.0 and 10.0). Applied on spawn.",PIType="Text",PIExtras="8;-10.0:10.0")
-    PropertyInfoEntries(25)=(Name="bDisableWallDodge",Caption="Disable wall dodge",Hint="Disable wall dodge (UT Classic). Applied on spawn.",PIType="Check")
-    PropertyInfoEntries(26)=(Name="bDisableDodgeJump",Caption="Disable dodge jump",Hint="Disable dodge jump (UT Classic). Applied on spawn.",PIType="Check")
+    Properties(18)=(Name="MaxSpeedMultiplier",Section="Movement",Caption="Speed multiplier",Hint="Coefficient to multiply maximum movement speed (between -100.0 and 100.0). Applied on spawn.",PIType="Text",PIExtras="8;-100.0:100.0",bAdvanced=true)
+    Properties(19)=(Name="AirControlMultiplier",Section="Movement",Caption="Air control multiplier",Hint="Coefficient to multiply air control (between -10.0 and 10.0). Applied on spawn.",PIType="Text",PIExtras="8;-10.0:10.0",bAdvanced=true)
+    Properties(20)=(Name="BaseJumpMultiplier",Section="Movement",Caption="Base jump multiplier",Hint="Coefficient to multiply base jump acceleration (between -10.0 and 10.0). Applied on spawn.",PIType="Text",PIExtras="8;-10.0:10.0",bAdvanced=true)
+    Properties(21)=(Name="MultiJumpMultiplier",Section="Movement",Caption="Multi-jump multiplier",Hint="Coefficient to multiply multi-jump acceleration boost (between -100.0 and 100.0). Applied on spawn.",PIType="Text",PIExtras="8;-100.0:100.0",bAdvanced=true)
+    Properties(22)=(Name="BonusMultiJumps",Section="Movement",Caption="Bonus multi-jumps",Hint="Bonus to add to base amount of multi-jumps (between -1 and 99). Applied on spawn.",PIType="Text",PIExtras="8;-1:99",bAdvanced=true)
+    Properties(23)=(Name="DodgeMultiplier",Section="Movement",Caption="Dodge multiplier",Hint="Coefficient to multiply dodge acceleration (Z-axis, between -10.0 and 10.0). Applied on spawn.",PIType="Text",PIExtras="8;-10.0:10.0",bAdvanced=true)
+    Properties(24)=(Name="DodgeSpeedMultiplier",Section="Movement",Caption="Dodge speed multiplier",Hint="Coefficient to multiply dodge speed factor (between -10.0 and 10.0). Applied on spawn.",PIType="Text",PIExtras="8;-10.0:10.0",bAdvanced=true)
+    Properties(25)=(Name="bDisableWallDodge",Section="Movement",Caption="Disable wall dodge",Hint="Disable wall dodge (UT Classic). Applied on spawn.",PIType="Check",bAdvanced=true)
+    Properties(26)=(Name="bDisableDodgeJump",Section="Movement",Caption="Disable dodge jump",Hint="Disable dodge jump (UT Classic). Applied on spawn.",PIType="Check",bAdvanced=true)
 
     bFirstRun=true
     // Config variables

@@ -113,7 +113,8 @@ event Opened(GUIComponent Sender)
 function Refresh()
 {
     UpdatePreviewColor();
-    Sections[SECTION_HIGHLIGHTS].SetHide(!Client.bAllowSkinHighlight, HideDueDisable);
+    Sections[SECTION_HIGHLIGHTS].SetHide(
+        !bool(Client.GetProperty("bAllowSkinHighlight")), HideDueDisable);
     Super.Refresh();
 }
 
@@ -428,13 +429,16 @@ function UpdatePreviewModelSkins()
 
 function UpdatePreviewColor()
 {
-    class'HxSkinHighlight'.static.FindColor(co_EditColor.GetComponentValue(), PreviewEffect.Color);
+    local float ColorMultiplier;
+
     if (Client != None)
     {
-        PreviewEffect.Color.R = PreviewEffect.Color.R * Client.SkinHighlightIntensity;
-        PreviewEffect.Color.G = PreviewEffect.Color.G * Client.SkinHighlightIntensity;
-        PreviewEffect.Color.B = PreviewEffect.Color.B * Client.SkinHighlightIntensity;
+        ColorMultiplier = float(Client.GetProperty("SkinHighlightIntensity"));
     }
+    class'HxSkinHighlight'.static.FindColor(co_EditColor.GetComponentValue(), PreviewEffect.Color);
+    PreviewEffect.Color.R = PreviewEffect.Color.R * ColorMultiplier;
+    PreviewEffect.Color.G = PreviewEffect.Color.G * ColorMultiplier;
+    PreviewEffect.Color.B = PreviewEffect.Color.B * ColorMultiplier;
 }
 
 function bool ColorEditorButtonsOnPreDraw(Canvas C)

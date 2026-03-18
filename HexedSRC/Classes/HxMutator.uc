@@ -1,9 +1,10 @@
 class HxMutator extends Mutator
     abstract;
 
-struct PropertyInfoEntry
+struct HxProperty
 {
     var string Name;
+    var localized string Section;
     var localized string Caption;
     var localized string Hint;
     var string PIType;
@@ -12,11 +13,13 @@ struct PropertyInfoEntry
     var bool bAdvanced;
 };
 
-var localized string MutatorGroup;
-var array<PropertyInfoEntry> PropertyInfoEntries;
+var const localized string MutatorGroup;
+var const array<HxProperty> Properties;
 
-var protected class<HxClientReplicationInfo> CRIClass;
+var protected const class<HxClientReplicationInfo> CRIClass;
 var protected array<HxClientReplicationInfo> CRIs;
+
+function PropertyChanged(int Index, string OldValue);
 
 function Mutate(string Command, PlayerController Sender)
 {
@@ -44,15 +47,23 @@ function OpenMenu(PlayerController Sender)
 static function FillPlayInfo(PlayInfo PlayInfo)
 {
     local int i;
-    local PropertyInfoEntry Entry;
+    local HxProperty Prop;
 
     super.FillPlayInfo(PlayInfo);
 
-    for (i = 0; i < default.PropertyInfoEntries.Length; ++i)
+    for (i = 0; i < default.Properties.Length; ++i)
     {
-        Entry = default.PropertyInfoEntries[i];
+        Prop = default.Properties[i];
         PlayInfo.AddSetting(
-            default.MutatorGroup, Entry.Name, Entry.Caption, 0, 1, Entry.PIType, Entry.PIExtras);
+            default.MutatorGroup,
+            Prop.Name,
+            Prop.Caption,
+            0,
+            i,
+            Prop.PIType,
+            Prop.PIExtras,,
+            Prop.bMultiPlayerOnly,
+            Prop.bAdvanced);
     }
 }
 
@@ -63,7 +74,7 @@ static event string GetDescriptionText(string PropertyName)
     i = GetPropertyIndex(PropertyName);
     if (i >= 0)
     {
-        return default.PropertyInfoEntries[i].Hint;
+        return default.Properties[i].Hint;
     }
     return Super.GetDescriptionText(PropertyName);
 }
@@ -72,9 +83,9 @@ static simulated function int GetPropertyIndex(string PropertyName)
 {
     local int i;
 
-    for (i = 0; i < default.PropertyInfoEntries.Length; ++i)
+    for (i = 0; i < default.Properties.Length; ++i)
     {
-        if (PropertyName == default.PropertyInfoEntries[i].Name)
+        if (PropertyName == default.Properties[i].Name)
         {
             return i;
         }
@@ -82,21 +93,20 @@ static simulated function int GetPropertyIndex(string PropertyName)
     return -1;
 }
 
-function SetProperty(string PropertyName, string PropertyValue)
+function SetProperty(int Index, string Value)
 {
-    SetPropertyText(PropertyName, PropertyValue);
-    PropertyChanged(PropertyName, PropertyValue);
-    SaveConfig();
-}
-
-function PropertyChanged(string PropertyName, string PropertyValue)
-{
+    local string OldValue;
     local int i;
 
+    OldValue = GetPropertyText(Properties[Index].Name);
+    SetPropertyText(Properties[Index].Name, Value);
     for (i = 0; i < CRIs.Length; ++i)
     {
-        CRIs[i].UpdateProperty(PropertyName, PropertyValue);
+        CRIs[i].SetProperty(Index, Value);
+        CRIs[i].ClientSetProperty(Index, Value);
     }
+    PropertyChanged(Index, OldValue);
+    SaveConfig();
 }
 
 function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
@@ -107,7 +117,7 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
     {
         CRI = Other.Spawn(CRIClass, Other);
         CRI.MutatorOwner = Self;
-        CRI.UpdateAll();
+        CRI.NetUpdateTime = Level.TimeSeconds - 1;
         CRIs[CRIs.Length] = CRI;
     }
     return true;
