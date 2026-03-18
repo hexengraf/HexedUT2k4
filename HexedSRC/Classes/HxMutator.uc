@@ -1,20 +1,20 @@
 class HxMutator extends Mutator
     abstract;
 
-struct HxProperty
+struct HxMutatorProperty
 {
-    var string Name;
-    var localized string Section;
-    var localized string Caption;
-    var localized string Hint;
-    var string PIType;
-    var string PIExtras;
-    var bool bMultiplayerOnly;
-    var bool bAdvanced;
+    var const string Name;
+    var const localized string Section;
+    var const localized string Caption;
+    var const localized string Hint;
+    var const string Type;
+    var const string Data;
+    var const bool bMPOnly;
+    var const bool bAdvanced;
 };
 
 var const localized string MutatorGroup;
-var const array<HxProperty> Properties;
+var const array<HxMutatorProperty> Properties;
 
 var protected const class<HxClientReplicationInfo> CRIClass;
 var protected array<HxClientReplicationInfo> CRIs;
@@ -25,7 +25,7 @@ function Mutate(string Command, PlayerController Sender)
 {
     if (Command ~= "HexedMenu")
     {
-        OpenMenu(Sender);
+        OpenHexedMenu(Sender);
     }
     else
     {
@@ -33,21 +33,21 @@ function Mutate(string Command, PlayerController Sender)
     }
 }
 
-function OpenMenu(PlayerController Sender)
+function OpenHexedMenu(PlayerController Sender)
 {
     local HxClientReplicationInfo CRI;
 
     CRI = GetClientReplicationInfo(Sender);
     if (CRI != None)
     {
-        CRI.ClientOpenMenu();
+        CRI.ClientOpenHexedMenu();
     }
 }
 
 static function FillPlayInfo(PlayInfo PlayInfo)
 {
+    local HxMutatorProperty Prop;
     local int i;
-    local HxProperty Prop;
 
     super.FillPlayInfo(PlayInfo);
 
@@ -60,9 +60,9 @@ static function FillPlayInfo(PlayInfo PlayInfo)
             Prop.Caption,
             0,
             i,
-            Prop.PIType,
-            Prop.PIExtras,,
-            Prop.bMultiPlayerOnly,
+            Prop.Type,
+            Prop.Data,,
+            Prop.bMPOnly,
             Prop.bAdvanced);
     }
 }
@@ -102,8 +102,7 @@ function SetProperty(int Index, string Value)
     SetPropertyText(Properties[Index].Name, Value);
     for (i = 0; i < CRIs.Length; ++i)
     {
-        CRIs[i].SetProperty(Index, Value);
-        CRIs[i].ClientSetProperty(Index, Value);
+        CRIs[i].SetServerProperty(Index, Value);
     }
     PropertyChanged(Index, OldValue);
     SaveConfig();

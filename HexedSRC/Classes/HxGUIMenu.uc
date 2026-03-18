@@ -1,72 +1,70 @@
 class HxGUIMenu extends HxGUIFloatingWindow;
 
-struct HxPanelInfo
-{
-    var class<UT2K4TabPanel> PanelClass;
-    var localized string Caption;
-    var localized string Hint;
-    var bool bInsertFront;
-};
-
 var automated GUITabControl t_TabControl;
 
-var protected array<HxPanelInfo> Panels;
-var protected int PanelCount;
+var HxClientManager ClientManager;
+var private array<HxClientReplicationInfo> CRIs;
+var private array<HxGUIMenuPanel> PanelClasses;
+var private array<GUITabPanel> Panels;
 
 function InitComponent(GUIController MyController, GUIComponent MyComponent)
 {
     Super.InitComponent(MyController, MyComponent);
     t_WindowTitle.DockedTabs = t_TabControl;
     t_WindowTitle.DockAlign = PGA_Top;
-    PopulateTabControl();
+    ForEach PlayerOwner().DynamicActors(class'HxClientManager', ClientManager) break;
 }
 
 event Opened(GUIComponent Sender)
 {
-    PopulateTabControl();
+    UpdateTabControl();
     Super.Opened(Sender);
 }
 
-function PopulateTabControl()
+function UpdateTabControl()
 {
     local int i;
 
-    for (i = PanelCount; i < default.Panels.Length; ++i)
+    for (i = CRIs.Length; i < ClientManager.CRIs.Length; ++i)
     {
-        if (default.Panels[i].bInsertFront)
+        CRIs[i] = ClientManager.CRIs[i];
+        AddPanels(CRIs[i]);
+    }
+}
+
+function AddPanels(HxClientReplicationInfo CRI)
+{
+    local int Position;
+    local int i;
+
+    for (i = 0; i < CRI.PanelClasses.Length; ++i)
+    {
+        if (CRI.PanelClasses[i].default.bInsertFront)
         {
-            t_TabControl.InsertTab(
-                0,
-                default.Panels[i].Caption,
-                string(default.Panels[i].PanelClass),
-                ,
-                default.Panels[i].Hint,
-                true);
+            Position = 0;
         }
         else
         {
-            t_TabControl.AddTab(
-                default.Panels[i].Caption,
-                string(default.Panels[i].PanelClass),
-                ,
-                default.Panels[i].Hint);
+            Position = Panels.Length;
         }
+        Panels.Insert(Position, 1);
+        Panels[Position] = t_TabControl.InsertTab(
+            Position,
+            CRI.PanelClasses[i].default.PanelCaption,
+            string(CRI.PanelClasses[i]),,
+            CRI.PanelClasses[i].default.PanelHint,
+            true);
     }
-    PanelCount = default.Panels.Length;
 }
 
-static function AddPanel(class<UT2K4TabPanel> PanelClass,
-                         string Caption,
-                         string Hint,
-                         optional bool bInsertFront)
+function Refresh()
 {
-    local HxPanelInfo Panel;
+    local int i;
 
-    Panel.PanelClass = PanelClass;
-    Panel.Caption = Caption;
-    Panel.Hint = Hint;
-    Panel.bInsertFront = bInsertFront;
-    default.Panels[default.Panels.Length] = Panel;
+    for (i = 0; i < Panels.Length; ++i)
+    {
+        Panels[i].Refresh();
+    }
 }
 
 defaultproperties
@@ -85,6 +83,5 @@ defaultproperties
     End Object
     t_TabControl=TabControl
 
-    WindowName="HexedUT"
-    PanelCount=0
+    WindowName="HexedMenu"
 }

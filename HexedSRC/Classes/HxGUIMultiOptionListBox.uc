@@ -3,14 +3,46 @@ class HxGUIMultiOptionListBox extends GUIMultiOptionListBox;
 var float ComponentWidth;
 var float ScrollbarWidth;
 
-var PlayInfo Info;
-var array<byte> OptionModified;
+var private HxClientReplicationInfo CRI;
+var private PlayInfo Info;
+var private array<byte> OptionModified;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
     DefaultListClass = string(class'HxGUIMultiOptionList');
     Super.InitComponent(MyController, MyOwner);
     MyScrollBar.WinWidth = ScrollbarWidth;
+}
+
+function PopulateWithCRI(HxClientReplicationInfo NewCRI)
+{
+    local GUIMenuOption Option;
+    local string HeaderCaption;
+    local int i;
+
+    List.Clear();
+    CRI = NewCRI;
+    for (i = 0; i <CRI.Properties.Length; ++i)
+    {
+        if ((!Controller.bExpertMode && CRI.Properties[i].bAdvanced)
+            || (CRI.Properties[i].Dependency != ""
+                && !bool(CRI.GetServerProperty(CRI.Properties[i].Dependency))))
+        {
+            continue;
+        }
+        if (CRI.Properties[i].Section != HeaderCaption)
+        {
+            AddHeader(CRI.Properties[i].Section);
+            HeaderCaption = CRI.Properties[i].Section;
+        }
+        Option = AddCRIOption(CRI.Properties[i]);
+        if (Option != None)
+        {
+            Option.Tag = i;
+        }
+    }
+    bInit = true;
+    Refresh();
 }
 
 function PopulateWithPlayInfo(PlayInfo NewInfo)
@@ -84,7 +116,7 @@ function AddHeader(string Caption)
     }
 }
 
-function GUIMenuOption AddPlayInfoOption(PlayInfo.PlayInfoData Data)
+function GUIMenuOption AddCRIOption(HxClientReplicationInfo.HxClientProperty Prop)
 {
     local GUIMenuOption Option;
     local array<string> Range;
@@ -94,44 +126,93 @@ function GUIMenuOption AddPlayInfoOption(PlayInfo.PlayInfoData Data)
 
     bTemp = Controller.bCurMenuInitialized;
     Controller.bCurMenuInitialized = false;
-    switch (Data.RenderType)
+    switch (Prop.Type)
     {
         case PIT_Check:
-            Option = List.AddItem("XInterface.moCheckbox",, Data.DisplayName);
+            Option = List.AddItem("XInterface.moCheckbox",, Prop.Caption);
             break;
         case PIT_Select:
-            Option = AddComboBox(Data.DisplayName, Data.Data);
+            Option = AddComboBox(Prop.Caption, Prop.Data);
             break;
         case PIT_Text:
-            if (!Divide(Data.Data, ";", Width, Op))
+            if (!Divide(Prop.Data, ";", Width, Op))
             {
-                Width = Data.Data;
+                Width = Prop.Data;
             }
             Split(Op, ":", Range);
             if (Range.Length > 1)
             {
                 if (InStr(Range[0], ".") != -1)
                 {
-                    Option = AddFloatEdit(Data.DisplayName, float(Range[0]), float(Range[1]));
+                    Option = AddFloatEdit(Prop.Caption, float(Range[0]), float(Range[1]));
                 }
                 else
                 {
-                    Option = AddNumericEdit(Data.DisplayName, int(Range[0]), int(Range[1]));
+                    Option = AddNumericEdit(Prop.Caption, int(Range[0]), int(Range[1]));
                 }
-            }
-            else if (Data.ArrayDim != -1)
-            {
-                Option = AddButton(Data.DisplayName);
             }
             else
             {
-                Option = AddEditBox(Data.DisplayName, Width);
+                Option = AddEditBox(Prop.Caption, Width);
             }
             break;
     }
     if (Option != None)
     {
-        Option.SetHint(Data.Description);
+        Option.SetHint(Prop.Hint);
+    }
+    Controller.bCurMenuInitialized = bTemp;
+    return Option;
+}
+
+function GUIMenuOption AddPlayInfoOption(PlayInfo.PlayInfoData PID)
+{
+    local GUIMenuOption Option;
+    local array<string> Range;
+    local string Width;
+    local string Op;
+    local bool bTemp;
+
+    bTemp = Controller.bCurMenuInitialized;
+    Controller.bCurMenuInitialized = false;
+    switch (PID.RenderType)
+    {
+        case PIT_Check:
+            Option = List.AddItem("XInterface.moCheckbox",, PID.DisplayName);
+            break;
+        case PIT_Select:
+            Option = AddComboBox(PID.DisplayName, PID.Data);
+            break;
+        case PIT_Text:
+            if (!Divide(PID.Data, ";", Width, Op))
+            {
+                Width = PID.Data;
+            }
+            Split(Op, ":", Range);
+            if (Range.Length > 1)
+            {
+                if (InStr(Range[0], ".") != -1)
+                {
+                    Option = AddFloatEdit(PID.DisplayName, float(Range[0]), float(Range[1]));
+                }
+                else
+                {
+                    Option = AddNumericEdit(PID.DisplayName, int(Range[0]), int(Range[1]));
+                }
+            }
+            else if (PID.ArrayDim != -1)
+            {
+                Option = AddButton(PID.DisplayName);
+            }
+            else
+            {
+                Option = AddEditBox(PID.DisplayName, Width);
+            }
+            break;
+    }
+    if (Option != None)
+    {
+        Option.SetHint(PID.Description);
     }
     Controller.bCurMenuInitialized = bTemp;
     return Option;
@@ -265,9 +346,16 @@ function ArrayPageClosed(optional bool bCancelled)
 
 function ListLoadINI(GUIComponent Sender, string s)
 {
-    if (GUIMenuOption(Sender) != None && Sender.Tag > -1)
+    if (Sender.Tag > -1)
     {
-        GUIMenuOption(Sender).SetComponentValue(Info.Settings[Sender.Tag].Value);
+        if (Info != None)
+        {
+            GUIMenuOption(Sender).SetComponentValue(Info.Settings[Sender.Tag].Value);
+        }
+        else if (CRI != None)
+        {
+            GUIMenuOption(Sender).SetComponentValue(CRI.GetProperty(Sender.Tag));
+        }
     }
 }
 
@@ -283,7 +371,14 @@ function OptionOnChange(GUIComponent Sender)
 {
     if (Sender.Tag > -1)
     {
-        OptionModified[Sender.Tag] = 1;
+        if (Info != None)
+        {
+            OptionModified[Sender.Tag] = 1;
+        }
+        else if (CRI != None)
+        {
+            CRI.SetProperty(Sender.Tag, GUIMenuOption(Sender).GetComponentValue());
+        }
     }
 }
 

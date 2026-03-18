@@ -114,7 +114,7 @@ function Refresh()
 {
     UpdatePreviewColor();
     Sections[SECTION_HIGHLIGHTS].SetHide(
-        !bool(Client.GetProperty("bAllowSkinHighlight")), HideDueDisable);
+        !bool(Client.GetServerProperty("bAllowSkinHighlight")), HideDueDisable);
     Super.Refresh();
 }
 
@@ -433,7 +433,7 @@ function UpdatePreviewColor()
 
     if (Client != None)
     {
-        ColorMultiplier = float(Client.GetProperty("SkinHighlightIntensity"));
+        ColorMultiplier = float(Client.GetServerProperty("SkinHighlightIntensity"));
     }
     class'HxSkinHighlight'.static.FindColor(co_EditColor.GetComponentValue(), PreviewEffect.Color);
     PreviewEffect.Color.R = PreviewEffect.Color.R * ColorMultiplier;

@@ -24,7 +24,6 @@ var private int SelectedMap;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
-    class'HxGUIStyleManager'.static.RegisterStyles(MyController);
     Super(PopupPageBase).InitComponent(MyController, MyOwner);
     FilterManager = new(Self) class'HxMapVotingFilterManager';
     ActiveFilter = FilterManager.GetFilter();

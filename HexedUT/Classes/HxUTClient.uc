@@ -1,7 +1,7 @@
 class HxUTClient extends HxClientReplicationInfo
     config(User);
 
-struct DamageInfo
+struct HxDamageInfo
 {
     var int Value;
     var float Timestamp;
@@ -18,10 +18,8 @@ var HxHitEffects HitEffects;
 var HxSpawnProtectionTimer SPTimer;
 
 var private PlayerController PC;
-var private GUIController GUIController;
-var private DamageInfo Damage;
+var private HxDamageInfo Damage;
 var private bool bInitialized;
-var private bool bReplaceMapVoteMenu;
 
 replication
 {
@@ -39,9 +37,10 @@ simulated event PreBeginPlay()
         {
             RecoverConfigs();
         }
-        class'HxGUIMenuSkinHighlightPanel'.static.AddToMenu();
-        class'HxGUIMenuHitEffectsPanel'.static.AddToMenu();
-        class'HxGUIMenuGeneralPanel'.static.AddToMenu();
+        if (bMapVoteMenu)
+        {
+            Manager.SetCustomMapVoteMenu(string(class'HxMapVotingPage'));
+        }
     }
     InitializePlayerController();
 }
@@ -53,11 +52,7 @@ simulated event Tick(float DeltaTime)
     {
         if (!bInitialized)
         {
-            bInitialized = InitializeClient();
-        }
-        else if (bReplaceMapVoteMenu)
-        {
-            TryReplaceMapVoteMenu();
+            bInitialized = InitializePlayerController() && InitializeHUDOverlays();
         }
     }
     ServerTick(DeltaTime);
@@ -102,16 +97,6 @@ simulated function ClientNotifySpawn(float SpawnProtectionTime)
     }
 }
 
-simulated function bool InitializeClient()
-{
-    if (InitializePlayerController() && InitializeGUIController() && InitializeHUDOverlays())
-    {
-        SetMapVoteMenu(bMapVoteMenu);
-        return true;
-    }
-    return false;
-}
-
 simulated function bool InitializePlayerController()
 {
     if (PC == None)
@@ -121,16 +106,6 @@ simulated function bool InitializePlayerController()
         return PC != None;
     }
     return true;
-}
-
-simulated function bool InitializeGUIController()
-{
-    if (PC.Player != None)
-    {
-        GUIController = GUIController(PC.Player.GUIController);
-        return true;
-    }
-    return false;
 }
 
 simulated function bool InitializeHUDOverlays()
@@ -177,19 +152,19 @@ simulated function bool ShouldDisableCombo(coerce string Name)
 {
     if (Name ~= "XGame.ComboSpeed")
     {
-        return bool(GetProperty("bDisableSpeedCombo"));
+        return bool(GetServerProperty("bDisableSpeedCombo"));
     }
     if (Name ~= "XGame.ComboBerserk")
     {
-        return bool(GetProperty("bDisableBerserkCombo"));
+        return bool(GetServerProperty("bDisableBerserkCombo"));
     }
     if (Name ~= "XGame.ComboDefensive")
     {
-        return bool(GetProperty("bDisableBoosterCombo"));
+        return bool(GetServerProperty("bDisableBoosterCombo"));
     }
     if (Name ~= "XGame.ComboInvis")
     {
-        return bool(GetProperty("bDisableInvisibleCombo"));
+        return bool(GetServerProperty("bDisableInvisibleCombo"));
     }
     return false;
 }
@@ -197,46 +172,7 @@ simulated function bool ShouldDisableCombo(coerce string Name)
 simulated function ConfigureHitEffects()
 {
     HitEffects.SetServerProperties(
-        GetProperty("bAllowHitSounds"), GetProperty("bAllowDamageNumbers"));
-}
-
-simulated function SetMapVoteMenu(bool bValue)
-{
-    bMapVoteMenu = bValue;
-    if (bMapVoteMenu)
-    {
-        bReplaceMapVoteMenu = GUIController != None
-            && GUIController.MapVotingMenu != string(class'HxMapVotingPage')
-            && !GUIController.SetPropertyText("CustomMapVotingMenu", string(class'HxMapVotingPage'));
-        if (bReplaceMapVoteMenu)
-        {
-            Enable('Tick');
-        }
-    }
-    else
-    {
-        bReplaceMapVoteMenu = false;
-        GUIController.SetPropertyText("CustomMapVotingMenu", "");
-    }
-}
-
-simulated function TryReplaceMapVoteMenu()
-{
-    if (GUIController.ActivePage != None)
-    {
-        if (GUIController.ActivePage.Class == class'MapVotingPage')
-        {
-            GUIController.ReplaceMenu(string(class'HxMapVotingPage'));
-        }
-        else if (GUIController.ActivePage.ParentPage != None
-                 && GUIController.ActivePage.ParentPage.Class == class'MapVotingPage')
-        {
-            if (GUIController.CloseMenu(true))
-            {
-                GUIController.ReplaceMenu(string(class'HxMapVotingPage'));
-            }
-        }
-    }
+        GetServerProperty("bAllowHitSounds"), GetServerProperty("bAllowDamageNumbers"));
 }
 
 simulated function ServerInfoReady()
@@ -251,11 +187,81 @@ simulated function ServerInfoReady()
     }
 }
 
-simulated function PropertyChanged(int Index, string OldValue)
+simulated function ServerPropertyChanged(int Index, string OldValue)
 {
     if (HitEffects != None)
     {
         ConfigureHitEffects();
+    }
+}
+
+simulated function string GetProperty(int Index)
+{
+    if (Index == 0)
+    {
+        return string(bMapVoteMenu);
+    }
+    if (Index >= Properties.Length)
+    {
+        return "";
+    }
+    if (SPTimer != None)
+    {
+        return SPTimer.GetPropertyText(Properties[Index].Name);
+    }
+    switch (Index)
+    {
+        case 1:
+            return string(class'HxSpawnProtectionTimer'.default.bEnabled);
+        case 2:
+            return string(class'HxSpawnProtectionTimer'.default.bUseHUDColor);
+        case 3:
+            return string(class'HxSpawnProtectionTimer'.default.bPulsingDigits);
+        case 4:
+            return string(class'HxSpawnProtectionTimer'.default.PosX);
+        case 5:
+            return string(class'HxSpawnProtectionTimer'.default.PosY);
+    }
+    return "";
+}
+
+simulated function SetProperty(int Index, string Value)
+{
+    if (Index == 0)
+    {
+        bMapVoteMenu = bool(Value);
+        Manager.SetCustomMapVoteMenu(string(class'HxMapVotingPage'), !bMapVoteMenu);
+        SaveConfig();
+    }
+    else if (Index < Properties.Length)
+    {
+        if (SPTimer != None)
+        {
+            SPTimer.SetPropertyText(Properties[Index].Name, Value);
+            SPTimer.SaveConfig();
+        }
+        else
+        {
+            switch (Index)
+            {
+                case 1:
+                    class'HxSpawnProtectionTimer'.default.bEnabled = bool(Value);
+                    break;
+                case 2:
+                    class'HxSpawnProtectionTimer'.default.bUseHUDColor = bool(Value);
+                    break;
+                case 3:
+                    class'HxSpawnProtectionTimer'.default.bPulsingDigits = bool(Value);
+                    break;
+                case 4:
+                    class'HxSpawnProtectionTimer'.default.PosX = float(Value);
+                    break;
+                case 5:
+                    class'HxSpawnProtectionTimer'.default.PosY = float(Value);
+                    break;
+            }
+            class'HxSpawnProtectionTimer'.static.StaticSaveConfig();
+        }
     }
 }
 
@@ -294,4 +300,14 @@ defaultproperties
     MutatorClass=class'MutHexedUT'
     bFirstRun=true
     bMapVoteMenu=true
+
+    Properties(0)=(Name="bMapVoteMenu",Section="Voting",Caption="Replace map vote menu",Hint="Replace the default map vote menu.",Type=PIT_Check)
+    Properties(1)=(Name="bEnabled",Section="Spawn Protection Timer",Caption="Enable spawn protection timer",Hint="Show timer indicating remaining spawn protection duration.",Type=PIT_Check,Dependency="bAllowSpawnProtectionTimer")
+    Properties(2)=(Name="bUseHUDColor",Section="Spawn Protection Timer",Caption="Use HUD's color",Hint="Use the same color as the HUD for the timer's icon.",Type=PIT_Check,Dependency="bAllowSpawnProtectionTimer",bAdvanced=true)
+    Properties(3)=(Name="bPulsingDigits",Section="Spawn Protection Timer",Caption="Use pulsing digits",Hint="Use pulsing digits for the timer.",Type=PIT_Check,Dependency="bAllowSpawnProtectionTimer",bAdvanced=true)
+    Properties(4)=(Name="PosX",Section="Spawn Protection Timer",Caption="X position",Hint="Adjust X position.",Type=PIT_Text,Data="8;0.0:1.0",Step=0.01,Dependency="bAllowSpawnProtectionTimer",bAdvanced=true)
+    Properties(5)=(Name="PosY",Section="Spawn Protection Timer",Caption="Y position",Hint="Adjust Y position.",Type=PIT_Text,Data="8;0.0:1.0",Step=0.01,Dependency="bAllowSpawnProtectionTimer",bAdvanced=true)
+    PanelClasses(0)=class'HxGUIMenuSkinHighlightPanel'
+    PanelClasses(1)=class'HxGUIMenuHitEffectsPanel'
+    PanelClasses(2)=class'HxGUIMenuGeneralPanel'
 }

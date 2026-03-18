@@ -13,7 +13,6 @@ function InitComponent(GUIController MyController, GUIComponent MyComponent)
     Section.Insert(ch_Advanced);
     Client = class'HxUTClient'.static.GetClient(PlayerOwner());
     lb_Options.PopulateWithPlayInfo(Client.ServerInfo);
-    ch_Advanced.Checked(MyController.bExpertMode);
 }
 
 event Opened(GUIComponent Sender)
@@ -23,6 +22,7 @@ event Opened(GUIComponent Sender)
     {
         SetTimer(0.1, true);
     }
+    ch_Advanced.Checked(Controller.bExpertMode);
     lb_Options.Refresh();
 }
 
@@ -48,7 +48,7 @@ event Closed(GUIComponent Sender, bool bCancelled)
                 if (lb_Options.IsModified(lb_Options.List.Elements[i].Tag))
                 {
                     lb_Options.ResetModified(lb_Options.List.Elements[i].Tag);
-                    Client.ServerSetProperty(
+                    Client.ServerUpdateProperty(
                         lb_Options.List.Elements[i].Tag,
                         lb_Options.List.Elements[i].GetComponentValue());
                 }
@@ -110,8 +110,6 @@ defaultproperties
         RenderWeight=0.9
         bVisibleWhenEmpty=True
         NumColumns=1
-        bBoundToParent=True
-        bScaleToParent=True
         TabOrder=1
     End Object
     lb_Options=ConfigListBox
@@ -119,11 +117,6 @@ defaultproperties
     Begin Object Class=moCheckBox Name=AdvancedCheckBox
         Caption="View Advanced Options"
         Hint="Toggles whether advanced properties are displayed"
-        WinLeft=0.025
-        WinTop=0.911982
-        WinWidth=0.95
-        WinHeight=0.040000
-        RenderWeight=1.0
         TabOrder=2
         OnChange=InternalOnChange
     End Object

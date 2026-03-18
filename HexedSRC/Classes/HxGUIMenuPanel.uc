@@ -292,18 +292,6 @@ function bool IsAdmin()
             || (PC.PlayerReplicationInfo != None && PC.PlayerReplicationInfo.bAdmin));
 }
 
-static function bool AddToMenu()
-{
-    if (!default.bPanelAdded)
-    {
-        default.bPanelAdded = true;
-        class'HxGUIMenu'.static.AddPanel(
-            default.Class, default.PanelCaption, default.PanelHint, default.bInsertFront);
-        return true;
-    }
-    return false;
-}
-
 defaultproperties
 {
     HideDueInit="Initializing..."

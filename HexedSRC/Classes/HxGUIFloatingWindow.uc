@@ -4,7 +4,6 @@ var automated GUIBorder b_Background;
 
 function InitComponent(GUIController MyController, GUIComponent MyComponent)
 {
-    class'HxGUIStyleManager'.static.RegisterStyles(MyController);
     Super(PopupPageBase).InitComponent(MyController, MyComponent);
     SetupWindowHeader();
     AdjustWindowSize(Controller.ResX, Controller.ResY);
@@ -40,7 +39,6 @@ function AdjustWindowSize(coerce float X, coerce float Y)
 
 event bool NotifyLevelChange()
 {
-    class'HxGUIStyleManager'.static.NotifyLevelChange();
     bPersistent = false;
     LevelChanged();
     return true;

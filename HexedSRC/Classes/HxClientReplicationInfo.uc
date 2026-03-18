@@ -1,35 +1,59 @@
 class HxClientReplicationInfo extends ReplicationInfo
-    abstract;
+    abstract
+    DependsOn(PlayInfo);
+
+struct HxClientProperty
+{
+    var const string Name;
+    var const localized string Section;
+    var const localized string Caption;
+    var const localized string Hint;
+    var const PlayInfo.EPlayInfoType Type;
+    var const string Data;
+    var const float Step;
+    var const string Dependency;
+    var const bool bAdvanced;
+};
 
 const PARALLEL_REQUESTS = 16;
 
+var const array<HxClientProperty> Properties;
+var array<class<HxGUIMenuPanel> > PanelClasses;
+var const protected class<HxMutator> MutatorClass;
+
 var HxMutator MutatorOwner;
 var PlayInfo ServerInfo;
-var protected class<HxMutator> MutatorClass;
-var protected class<FloatingWindow> MenuClass;
+
+var protected HxClientManager Manager;
 var private int PropertyIndex;
 var private int ReceivedCount;
 
 replication
 {
     reliable if (Role == ROLE_Authority)
-        ClientReceiveProperty,
-        ClientSetProperty,
-        ClientOpenMenu;
+        ClientReceiveServerProperty,
+        ClientUpdateServerProperty,
+        ClientOpenHexedMenu;
 
     reliable if (Role < ROLE_Authority)
         ServerRequestProperty,
-        ServerSetProperty;
+        ServerUpdateProperty;
 }
 
+simulated function string GetProperty(int Index);
+simulated function SetProperty(int Index, string Value);
 simulated function ServerInfoReady();
-simulated function PropertyChanged(int Index, string OldValue);
+simulated function ServerPropertyChanged(int Index, string OldValue);
 
 simulated event PreBeginPlay()
 {
     Super.PreBeginPlay();
     ServerInfo = new(None) class'PlayInfo';
     MutatorClass.static.FillPlayInfo(ServerInfo);
+    if (Level.NetMode != NM_DedicatedServer)
+    {
+        Manager = class'HxClientManager'.static.Register(Self);
+    }
     SetupServer();
 }
 
@@ -50,16 +74,13 @@ simulated event Tick(float DeltaTime)
     }
 }
 
-simulated function SetProperty(int Index, string Value)
+function SetServerProperty(int Index, string Value)
 {
-    local string OldValue;
-
-    OldValue = ServerInfo.Settings[Index].Value;
+    ClientUpdateServerProperty(Index, Value);
     ServerInfo.StoreSetting(Index, Value);
-    PropertyChanged(Index, OldValue);
 }
 
-function ServerSetProperty(int Index, string Value)
+function ServerUpdateProperty(int Index, string Value)
 {
     if (IsAdmin() && ServerInfo.Settings[Index].Value != Value)
     {
@@ -71,16 +92,11 @@ function ServerRequestProperty(int Index)
 {
     if (Index < ServerInfo.Settings.Length)
     {
-        ClientReceiveProperty(Index, ServerInfo.Settings[Index].Value);
+        ClientReceiveServerProperty(Index, ServerInfo.Settings[Index].Value);
     }
 }
 
-function bool IsAdmin()
-{
-    return Level.NetMode == NM_Standalone || PlayerController(Owner).PlayerReplicationInfo.bAdmin;
-}
-
-simulated function string GetPropertyByIndex(int Index)
+simulated function string GetServerPropertyByIndex(int Index)
 {
     if (Index < ServerInfo.Settings.Length)
     {
@@ -89,9 +105,9 @@ simulated function string GetPropertyByIndex(int Index)
     return "";
 }
 
-simulated function string GetProperty(string Name)
+simulated function string GetServerProperty(string Name)
 {
-    return GetPropertyByIndex(ServerInfo.FindIndex(Name));
+    return GetServerPropertyByIndex(ServerInfo.FindIndex(Name));
 }
 
 simulated function RequestServerInfo()
@@ -107,35 +123,43 @@ simulated function RequestServerInfo()
     PropertyIndex = Limit;
 }
 
-simulated function bool IsServerInfoReady()
-{
-    return ReceivedCount == ServerInfo.Settings.Length;
-}
-
-simulated function ClientReceiveProperty(int Index, string Value)
+simulated function ClientReceiveServerProperty(int Index, string Value)
 {
     ServerInfo.StoreSetting(Index, Value);
     ++ReceivedCount;
     if (IsServerInfoReady())
     {
         ServerInfoReady();
+        Manager.NotifyServerInfoChanged(Self);
     }
 }
 
-simulated function ClientSetProperty(int Index, string Value)
+simulated function ClientUpdateServerProperty(int Index, string Value)
 {
-    SetProperty(Index, Value);
+    local string OldValue;
+
+    OldValue = ServerInfo.Settings[Index].Value;
+    ServerInfo.StoreSetting(Index, Value);
+    ServerPropertyChanged(Index, OldValue);
+    Manager.NotifyServerInfoChanged(Self);
 }
 
-simulated function ClientOpenMenu()
+simulated function ClientOpenHexedMenu()
 {
-    local PlayerController PC;
+    Manager.OpenHexedMenu(Self);
+}
 
-    PC = Level.GetLocalPlayerController();
-    if (PC != None)
-    {
-        PC.ClientOpenMenu(string(MenuClass));
-    }
+simulated function bool IsAdmin()
+{
+    return Level.NetMode == NM_Standalone
+        || (PlayerController(Owner) != None
+            && PlayerController(Owner).PlayerReplicationInfo != None
+            && PlayerController(Owner).PlayerReplicationInfo.bAdmin);
+}
+
+simulated function bool IsServerInfoReady()
+{
+    return ReceivedCount == ServerInfo.Settings.Length;
 }
 
 defaultproperties
@@ -146,5 +170,4 @@ defaultproperties
     bSkipActorPropertyReplication=false
     bOnlyDirtyReplication=true
     NetUpdateFrequency=10
-    MenuClass=class'HxGUIMenu'
 }

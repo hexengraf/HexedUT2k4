@@ -72,8 +72,8 @@ function Refresh()
 
     HitSoundsAfterChange();
     DamageNumbersAfterChange();
-    bAllowHitSounds = bool(Client.GetProperty("bAllowHitSounds"));
-    bAllowDamageNumbers = bool(Client.GetProperty("bAllowDamageNumbers"));
+    bAllowHitSounds = bool(Client.GetServerProperty("bAllowHitSounds"));
+    bAllowDamageNumbers = bool(Client.GetServerProperty("bAllowDamageNumbers"));
     Sections[SECTION_HIT_SOUNDS].SetHide(!bAllowHitSounds, HideDueDisable);
     Sections[SECTION_DAMAGE_NUMBERS].SetHide(!bAllowDamageNumbers, HideDueDisable);
     fl_DisplayPosX.SetVisibility(bAllowDamageNumbers);
