@@ -104,7 +104,7 @@ function Refresh()
 {
     if (Client == None)
     {
-        Client = class'HxUTClient'.static.GetClient(PlayerOwner());
+        Client = HxUTClient(ClientManager.Find(class'HxUTClient'));
     }
     if (Client != None)
     {

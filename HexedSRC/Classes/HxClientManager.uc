@@ -146,6 +146,20 @@ simulated function RegisterCRI(HxClientReplicationInfo CRI)
     RefreshHexedMenu();
 }
 
+simulated function HxClientReplicationInfo Find(class<HxClientReplicationInfo> CRIClass)
+{
+    local int i;
+
+    for (i = 0; i < CRIs.Length; ++i)
+    {
+        if (CRIs[i].Class == CRIClass)
+        {
+            return CRIs[i];
+        }
+    }
+    return None;
+}
+
 static function HxClientManager Register(HxClientReplicationInfo CRI)
 {
     local HxClientManager Manager;

@@ -281,20 +281,6 @@ simulated function RecoverConfigs()
     SaveConfig();
 }
 
-static function HxUTClient GetClient(PlayerController PC)
-{
-    local HxUTClient Client;
-
-    ForEach PC.DynamicActors(class'HxUTClient', Client)
-    {
-        if (Client.Owner == PC)
-        {
-            return Client;
-        }
-    }
-    return None;
-}
-
 defaultproperties
 {
     bFirstRun=true
