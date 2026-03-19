@@ -2,34 +2,33 @@ class HxGUIMenuPanel extends MidGamePanel
     abstract;
 
 const BASE_WIN_TOP = 0.01;
-const BASE_HEIGHT = 0.955;
-const BASE_WIN_BOTTOM = 0.965;
+const BASE_HEIGHT = 0.962;
+const BASE_WIN_BOTTOM = 0.972;
 const COMPONENT_HEIGHT = 0.05;
 const SPACING = 0.007;
 
 var automated array<HxGUIFramedSection> Sections;
 var localized string PanelHint;
-var localized string HideDueInit;
 var localized string HideDueDisable;
-var localized string HideDueAdmin;
 
 var array<float> SectionHeights;
 var bool bDoubleColumn;
 var bool bFillPanelHeight;
 var bool bInsertFront;
 
+var HxClientManager ClientManager;
 var private float VerticalSpacing;
 var private float HorizontalSpacing;
 var private automated array<GUILabel> HideMessages;
 var private bool bPanelAdded;
 
-function bool Initialize();
-
-function InitComponent(GUIController MyController, GUIComponent MyOwner)
+function ShowPanel(bool bShow)
 {
-    super.InitComponent(MyController, MyOwner);
-    HideAllSections(true, HideDueInit);
-    bInit = true;
+    Super.ShowPanel(bShow);
+    if (bShow)
+    {
+        Refresh();
+    }
 }
 
 function bool InternalOnPreDraw(Canvas C)
@@ -45,34 +44,6 @@ function bool InternalOnPreDraw(Canvas C)
         bInit = false;
     }
     return false;
-}
-
-function ShowPanel(bool bShow)
-{
-    Super.ShowPanel(bShow);
-
-    if (bShow)
-    {
-        if (Initialize())
-        {
-            HideAllSections(false);
-            Refresh();
-        }
-        else
-        {
-            SetTimer(0.1, true);
-        }
-    }
-}
-
-event Timer()
-{
-    if (Initialize())
-    {
-        HideAllSections(false);
-        Refresh();
-        KillTimer();
-    }
 }
 
 function DefaultOnLoadINI(GUIComponent Sender, string s)
@@ -294,10 +265,7 @@ function bool IsAdmin()
 
 defaultproperties
 {
-    HideDueInit="Initializing..."
     HideDueDisable="Feature disabled on this server"
-    HideDueAdmin="Requires administrator privileges"
-    Sections(0)=None
     bDoubleColumn=false
     bFillPanelHeight=true
     OnPreDraw=InternalOnPreDraw

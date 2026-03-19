@@ -140,7 +140,7 @@ function float AlignHeader(Canvas C, float Top, float Height)
     GetFontSize(l_Header, C,,, l_Header.WinHeight);
     l_Header.WinTop = (Top - HeaderBar.ActualFrameThickness(C)) / Height;
     l_Header.WinWidth = ActualWidth();
-    l_Header.WinHeight *= MED_FONT_SPACING;
+    l_Header.WinHeight *= LARGE_FONT_SPACING;
     HeaderBar.WinTop = l_Header.WinTop;
     HeaderBar.WinWidth = l_Header.WinWidth;
     HeaderBar.WinHeight = l_Header.WinHeight;

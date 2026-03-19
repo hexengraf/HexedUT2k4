@@ -17,9 +17,10 @@ struct HxClientProperty
 
 const PARALLEL_REQUESTS = 16;
 
+var const class<HxMutator> MutatorClass;
 var const array<HxClientProperty> Properties;
-var array<class<HxGUIMenuPanel> > PanelClasses;
-var const protected class<HxMutator> MutatorClass;
+var const array<class<HxGUIMenuPanel> > PanelClasses;
+var const byte Order;
 
 var HxMutator MutatorOwner;
 var PlayInfo ServerInfo;
@@ -170,4 +171,5 @@ defaultproperties
     bSkipActorPropertyReplication=false
     bOnlyDirtyReplication=true
     NetUpdateFrequency=10
+    Order=255
 }

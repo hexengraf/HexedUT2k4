@@ -14,6 +14,7 @@ struct HxGUIImageSource
     var int Y2;
 };
 
+const LARGE_FONT_SPACING = 1.55;
 const MED_FONT_SPACING = 1.44;
 const SMALL_FONT_SPACING = 1.2;
 

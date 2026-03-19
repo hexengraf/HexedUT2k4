@@ -4,58 +4,59 @@ var automated HxGUIFramedSection Section;
 var automated HxGUIMultiOptionListBox lb_Options;
 var automated moCheckBox ch_Advanced;
 
-var private HxUTClient Client;
+var HxClientManager ClientManager;
 
 function InitComponent(GUIController MyController, GUIComponent MyComponent)
 {
     Super.InitComponent(MyController, MyComponent);
     Section.Insert(lb_Options);
-    Section.Insert(ch_Advanced);
-    Client = class'HxUTClient'.static.GetClient(PlayerOwner());
-    lb_Options.PopulateWithPlayInfo(Client.ServerInfo);
+    Section.Insert(ch_Advanced, 0.015, 0.015);
+    ForEach PlayerOwner().DynamicActors(class'HxClientManager', ClientManager) break;
 }
 
 event Opened(GUIComponent Sender)
 {
     Super.Opened(Sender);
-    if (!Client.IsServerInfoReady())
-    {
-        SetTimer(0.1, true);
-    }
     ch_Advanced.Checked(Controller.bExpertMode);
-    lb_Options.Refresh();
-}
-
-event Timer()
-{
-    if (Client.IsServerInfoReady())
-    {
-        KillTimer();
-    }
-    lb_Options.Refresh();
+    Refresh();
 }
 
 event Closed(GUIComponent Sender, bool bCancelled)
 {
+    local int FirstIndex;
     local int i;
 
-    if (Client != None && Client.IsServerInfoReady() && IsAdmin())
+    if (IsAdmin())
     {
-        for (i = 0; i < lb_Options.List.Elements.Length; ++i)
+        for (i = 0; i < ClientManager.CRIs.Length; ++i)
         {
-            if (lb_Options.List.Elements[i].Tag > -1)
-            {
-                if (lb_Options.IsModified(lb_Options.List.Elements[i].Tag))
-                {
-                    lb_Options.ResetModified(lb_Options.List.Elements[i].Tag);
-                    Client.ServerUpdateProperty(
-                        lb_Options.List.Elements[i].Tag,
-                        lb_Options.List.Elements[i].GetComponentValue());
-                }
-            }
+            FirstIndex = UpdateProperties(ClientManager.CRIs[i], FirstIndex);
         }
     }
     Super.Closed(Sender, bCancelled);
+}
+
+function int UpdateProperties(HxClientReplicationInfo CRI, int FirstIndex)
+{
+    local int Limit;
+    local int i;
+
+    Limit = Min(lb_Options.Options.Length, FirstIndex + CRI.ServerInfo.Settings.Length);
+    for (i = FirstIndex; i < Limit; ++i)
+    {
+        if (lb_Options.IsModified(i))
+        {
+            lb_Options.ResetModified(i);
+            CRI.ServerUpdateProperty(
+                lb_Options.Options[i].Tag - FirstIndex, lb_Options.Options[i].GetComponentValue());
+        }
+    }
+    return Limit;
+}
+
+function Refresh()
+{
+    lb_Options.PopulateWithCRIs(ClientManager.CRIs);
 }
 
 function bool InternalOnKeyEvent(out byte Key, out byte State, float Delta)
@@ -67,7 +68,10 @@ function bool InternalOnKeyEvent(out byte Key, out byte State, float Delta)
     {
         case IK_MouseWheelUp:
         case IK_MouseWheelDown:
-            lb_Options.SetFocus(None);
+            if (!lb_Options.bHasFocus)
+            {
+                lb_Options.SetFocus(None);
+            }
             break;
     }
     return false;
@@ -79,7 +83,7 @@ function InternalOnChange(GUIComponent Sender)
     {
         Controller.bExpertMode = ch_Advanced.IsChecked();
         Controller.SaveConfig();
-        lb_Options.PopulateWithPlayInfo(Client.ServerInfo);
+        Refresh();
     }
 }
 
@@ -96,19 +100,21 @@ function bool IsAdmin()
 defaultproperties
 {
     Begin Object class=HxGUIFramedSection Name=ConfigListSection
-        WinLeft=0.025
+        WinLeft=0.03
         WinTop=0.06
-        WinWidth=0.95
+        WinWidth=0.94
         WinHeight=0.91
-        TopPadding=0.019
+        LeftPadding=0
+        TopPadding=0
+        RightPadding=0
         bNoHeader=true
         ExpandIndex=0
     End Object
     Section=ConfigListSection
 
     Begin Object Class=HxGUIMultiOptionListBox Name=ConfigListBox
-        RenderWeight=0.9
-        bVisibleWhenEmpty=True
+        bVisibleWhenEmpty=true
+        bUseServerInfo=true
         NumColumns=1
         TabOrder=1
     End Object
@@ -122,10 +128,10 @@ defaultproperties
     End Object
     ch_Advanced=AdvancedCheckBox
 
-    WindowName="HexedUT - Server Options"
-    WinWidth=0.45
+    WindowName="HexedMenu - Server Options"
+    WinWidth=0.41
     WinHeight=0.65
-    WinLeft=0.275
+    WinLeft=0.295
     WinTop=0.15
     OnKeyEvent=InternalOnKeyEvent
 }

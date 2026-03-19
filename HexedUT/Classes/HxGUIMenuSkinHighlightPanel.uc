@@ -91,16 +91,6 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     }
 }
 
-function bool Initialize()
-{
-    if (Client != None)
-    {
-        return true;
-    }
-    Client = class'HxUTClient'.static.GetClient(PlayerOwner());
-    return Client != None;
-}
-
 event Opened(GUIComponent Sender)
 {
     if (PreviewModel != None)
@@ -112,9 +102,16 @@ event Opened(GUIComponent Sender)
 
 function Refresh()
 {
-    UpdatePreviewColor();
-    Sections[SECTION_HIGHLIGHTS].SetHide(
-        !bool(Client.GetServerProperty("bAllowSkinHighlight")), HideDueDisable);
+    if (Client == None)
+    {
+        Client = class'HxUTClient'.static.GetClient(PlayerOwner());
+    }
+    if (Client != None)
+    {
+        UpdatePreviewColor();
+        Sections[SECTION_HIGHLIGHTS].SetHide(
+            !bool(Client.GetServerProperty("bAllowSkinHighlight")), HideDueDisable);
+    }
     Super.Refresh();
 }
 

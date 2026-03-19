@@ -297,10 +297,10 @@ static function HxUTClient GetClient(PlayerController PC)
 
 defaultproperties
 {
-    MutatorClass=class'MutHexedUT'
     bFirstRun=true
     bMapVoteMenu=true
 
+    MutatorClass=class'MutHexedUT'
     Properties(0)=(Name="bMapVoteMenu",Section="Voting",Caption="Replace map vote menu",Hint="Replace the default map vote menu.",Type=PIT_Check)
     Properties(1)=(Name="bEnabled",Section="Spawn Protection Timer",Caption="Enable spawn protection timer",Hint="Show timer indicating remaining spawn protection duration.",Type=PIT_Check,Dependency="bAllowSpawnProtectionTimer")
     Properties(2)=(Name="bUseHUDColor",Section="Spawn Protection Timer",Caption="Use HUD's color",Hint="Use the same color as the HUD for the timer's icon.",Type=PIT_Check,Dependency="bAllowSpawnProtectionTimer",bAdvanced=true)
@@ -309,5 +309,5 @@ defaultproperties
     Properties(5)=(Name="PosY",Section="Spawn Protection Timer",Caption="Y position",Hint="Adjust Y position.",Type=PIT_Text,Data="8;0.0:1.0",Step=0.01,Dependency="bAllowSpawnProtectionTimer",bAdvanced=true)
     PanelClasses(0)=class'HxGUIMenuSkinHighlightPanel'
     PanelClasses(1)=class'HxGUIMenuHitEffectsPanel'
-    PanelClasses(2)=class'HxGUIMenuGeneralPanel'
+    Order=0
 }

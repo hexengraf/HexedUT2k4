@@ -55,31 +55,28 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     sl_Pitch.MySlider.OnClickSound = CS_None;
 }
 
-function bool Initialize()
-{
-    if (Client != None)
-    {
-        return Client.HitEffects != None;
-    }
-    Client = class'HxUTClient'.static.GetClient(PlayerOwner());
-    return Client != None && Client.HitEffects != None;
-}
-
 function Refresh()
 {
     local bool bAllowHitSounds;
     local bool bAllowDamageNumbers;
 
-    HitSoundsAfterChange();
-    DamageNumbersAfterChange();
-    bAllowHitSounds = bool(Client.GetServerProperty("bAllowHitSounds"));
-    bAllowDamageNumbers = bool(Client.GetServerProperty("bAllowDamageNumbers"));
-    Sections[SECTION_HIT_SOUNDS].SetHide(!bAllowHitSounds, HideDueDisable);
-    Sections[SECTION_DAMAGE_NUMBERS].SetHide(!bAllowDamageNumbers, HideDueDisable);
-    fl_DisplayPosX.SetVisibility(bAllowDamageNumbers);
-    fl_DisplayPosY.SetVisibility(bAllowDamageNumbers);
-    Sections[SECTION_DAMAGE_POINT_EDITOR].SetHide(
-        !bAllowHitSounds && !bAllowDamageNumbers, HideDueDisable);
+    if (Client == None)
+    {
+        Client = class'HxUTClient'.static.GetClient(PlayerOwner());
+    }
+    if (Client != None)
+    {
+        HitSoundsAfterChange();
+        DamageNumbersAfterChange();
+        bAllowHitSounds = bool(Client.GetServerProperty("bAllowHitSounds"));
+        bAllowDamageNumbers = bool(Client.GetServerProperty("bAllowDamageNumbers"));
+        Sections[SECTION_HIT_SOUNDS].SetHide(!bAllowHitSounds, HideDueDisable);
+        Sections[SECTION_DAMAGE_NUMBERS].SetHide(!bAllowDamageNumbers, HideDueDisable);
+        fl_DisplayPosX.SetVisibility(bAllowDamageNumbers);
+        fl_DisplayPosY.SetVisibility(bAllowDamageNumbers);
+        Sections[SECTION_DAMAGE_POINT_EDITOR].SetHide(
+            !bAllowHitSounds && !bAllowDamageNumbers, HideDueDisable);
+    }
     Super.Refresh();
 }
 

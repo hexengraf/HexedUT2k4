@@ -1,10 +1,6 @@
 class HxGUIMultiOptionListHeader extends GUIListHeader;
 
-function InitComponent(GUIController MyController, GUIComponent MyOwner)
-{
-    Super.InitComponent(MyController, MyOwner);
-    MyLabel.bTransparent = false;
-}
+var string SectionCaption;
 
 defaultproperties
 {
@@ -12,5 +8,7 @@ defaultproperties
     LabelStyleName="HxOptionList"
     StyleName="HxOptionList"
     FontScale=FNS_Medium
-    Tag=-1
+    bStandardized=true
+    StandardHeight=0.0325
+    Tag=-7
 }

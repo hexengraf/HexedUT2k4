@@ -2,9 +2,13 @@ class HxGUIMultiOptionListBox extends GUIMultiOptionListBox;
 
 var float ComponentWidth;
 var float ScrollbarWidth;
+var bool bUseServerInfo;
+var bool bShowSections;
+var bool bStatusOnly;
 
-var private HxClientReplicationInfo CRI;
-var private PlayInfo Info;
+var array<GUIMenuOption> Options;
+var private array<HxClientReplicationInfo> CRIs;
+var private array<PlayInfo> PIs;
 var private array<byte> OptionModified;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
@@ -14,14 +18,60 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     MyScrollBar.WinWidth = ScrollbarWidth;
 }
 
-function PopulateWithCRI(HxClientReplicationInfo NewCRI)
+function InitBaseList(GUIListBase LocalList)
 {
-    local GUIMenuOption Option;
-    local string HeaderCaption;
+    Super.InitBaseList(LocalList);
+    List.OnClickSound = CS_None;
+}
+
+function PopulateWithCRIs(array<HxClientReplicationInfo> NewCRIs)
+{
     local int i;
 
-    List.Clear();
-    CRI = NewCRI;
+    Clear();
+    for (i = 0; i < NewCRIs.Length; ++i)
+    {
+        if (bUseServerInfo)
+        {
+            ProcessPI(NewCRIs[i].ServerInfo);
+        }
+        else
+        {
+            ProcessCRI(NewCRIs[i]);
+        }
+    }
+    Refresh();
+}
+
+function PopulateWithCRI(HxClientReplicationInfo NewCRI)
+{
+    Clear();
+    if (bUseServerInfo)
+    {
+        ProcessPI(NewCRI.ServerInfo);
+    }
+    else
+    {
+        ProcessCRI(NewCRI);
+    }
+    Refresh();
+}
+
+function ProcessCRI(HxClientReplicationInfo CRI)
+{
+    local GUIMenuOption Option;
+    local string SectionCaption;
+    local bool bSavedCurMenuInitialized;
+    local int i;
+
+    CRIs[CRIs.Length] = CRI;
+    if (CRI.Properties.Length == 0)
+    {
+        return;
+    }
+    bSavedCurMenuInitialized = Controller.bCurMenuInitialized;
+    Controller.bCurMenuInitialized = false;
+    AddSection(CRI.MutatorClass.default.FriendlyName);
     for (i = 0; i <CRI.Properties.Length; ++i)
     {
         if ((!Controller.bExpertMode && CRI.Properties[i].bAdvanced)
@@ -30,63 +80,79 @@ function PopulateWithCRI(HxClientReplicationInfo NewCRI)
         {
             continue;
         }
-        if (CRI.Properties[i].Section != HeaderCaption)
+        if (CRI.Properties[i].Section != SectionCaption)
         {
-            AddHeader(CRI.Properties[i].Section);
-            HeaderCaption = CRI.Properties[i].Section;
+            AddSubSection(CRI.Properties[i].Section);
+            SectionCaption = CRI.Properties[i].Section;
         }
         Option = AddCRIOption(CRI.Properties[i]);
         if (Option != None)
         {
-            Option.Tag = i;
+            Option.Tag = Options.Length;
+            Options[Options.Length] = Option;
         }
     }
-    bInit = true;
-    Refresh();
+    Controller.bCurMenuInitialized = bSavedCurMenuInitialized;
 }
 
-function PopulateWithPlayInfo(PlayInfo NewInfo)
+function ProcessPI(PlayInfo PI)
 {
     local class<HxMutator> MutatorClass;
     local GUIMenuOption Option;
     local string HeaderCaption;
+    local string SectionCaption;
+    local bool bSavedCurMenuInitialized;
     local int i;
 
-    List.Clear();
-    OptionModified.Length = 0;
-    Info = NewInfo;
-    if (Info.InfoClasses.Length == 1)
+    PIs[PIs.Length] = PI;
+    if (PI.Settings.Length == 0)
     {
-        MutatorClass = class<HxMutator>(Info.InfoClasses[0]);
+        return;
     }
-    for (i = 0; i < Info.Settings.Length; ++i)
+    bSavedCurMenuInitialized = Controller.bCurMenuInitialized;
+    Controller.bCurMenuInitialized = false;
+    for (i = 0; i < PI.Settings.Length; ++i)
     {
-        if (!Controller.bExpertMode && Info.Settings[i].bAdvanced)
+        if (!Controller.bExpertMode && PI.Settings[i].bAdvanced)
         {
             continue;
         }
-        if (MutatorClass != None)
+        MutatorClass = class<HxMutator>(PI.Settings[i].ClassFrom);
+        if (bShowSections && MutatorClass != None)
         {
-            if (MutatorClass.default.Properties[i].Section != HeaderCaption)
+            if (MutatorClass.default.FriendlyName != HeaderCaption)
             {
-                AddHeader(MutatorClass.default.Properties[i].Section);
-                HeaderCaption = MutatorClass.default.Properties[i].Section;
+                AddSection(MutatorClass.default.FriendlyName);
+                HeaderCaption = MutatorClass.default.FriendlyName;
+            }
+            if (MutatorClass.default.Properties[i].Section != SectionCaption)
+            {
+                AddSubSection(MutatorClass.default.Properties[i].Section);
+                SectionCaption = MutatorClass.default.Properties[i].Section;
             }
         }
-        else if (Info.Settings[i].Grouping != HeaderCaption)
+        else if (PI.Settings[i].Grouping != HeaderCaption)
         {
-            AddHeader(Info.Settings[i].Grouping);
-            HeaderCaption = Info.Settings[i].Grouping;
+            AddSubSection(PI.Settings[i].Grouping);
+            HeaderCaption = PI.Settings[i].Grouping;
         }
-        Option = AddPlayInfoOption(Info.Settings[i]);
+        if (bStatusOnly)
+        {
+            Option = List.AddItem(
+                string(class'HxGUIMultiOptionListLabel'),, PI.Settings[i].DisplayName);
+        }
+        else
+        {
+            Option = AddPIOption(PI.Settings[i]);
+        }
         if (Option != None)
         {
-            Option.Tag = i;
+            Option.Tag = Options.Length;
+            Options[Options.Length] = Option;
+            OptionModified[OptionModified.Length] = 0;
         }
     }
-    OptionModified.Length = Info.Settings.Length;
-    bInit = true;
-    Refresh();
+    Controller.bCurMenuInitialized = bSavedCurMenuInitialized;
 }
 
 function Refresh()
@@ -99,33 +165,13 @@ function Refresh()
     }
 }
 
-function AddHeader(string Caption)
-{
-    local int FillerCount;
-    local int i;
-
-    FillerCount = List.Elements.Length % NumColumns;
-    while (FillerCount-- > 0)
-    {
-        List.AddItem("XInterface.GUIListSpacer");
-    }
-    List.AddItem(string(class'HxGUIMultiOptionListHeader'),, Caption);
-    for (i = 1; i < NumColumns; ++i)
-    {
-        List.AddItem(string(class'HxGUIMultiOptionListHeader'));
-    }
-}
-
 function GUIMenuOption AddCRIOption(HxClientReplicationInfo.HxClientProperty Prop)
 {
     local GUIMenuOption Option;
     local array<string> Range;
     local string Width;
     local string Op;
-    local bool bTemp;
 
-    bTemp = Controller.bCurMenuInitialized;
-    Controller.bCurMenuInitialized = false;
     switch (Prop.Type)
     {
         case PIT_Check:
@@ -140,20 +186,17 @@ function GUIMenuOption AddCRIOption(HxClientReplicationInfo.HxClientProperty Pro
                 Width = Prop.Data;
             }
             Split(Op, ":", Range);
-            if (Range.Length > 1)
+            if (Range.Length < 2)
             {
-                if (InStr(Range[0], ".") != -1)
-                {
-                    Option = AddFloatEdit(Prop.Caption, float(Range[0]), float(Range[1]));
-                }
-                else
-                {
-                    Option = AddNumericEdit(Prop.Caption, int(Range[0]), int(Range[1]));
-                }
+                Option = AddEditBox(Prop.Caption, Width);
+            }
+            else if (InStr(Range[0], ".") != -1)
+            {
+                Option = AddFloatEdit(Prop.Caption, float(Range[0]), float(Range[1]), Prop.Step);
             }
             else
             {
-                Option = AddEditBox(Prop.Caption, Width);
+                Option = AddNumericEdit(Prop.Caption, int(Range[0]), int(Range[1]), Prop.Step);
             }
             break;
     }
@@ -161,20 +204,16 @@ function GUIMenuOption AddCRIOption(HxClientReplicationInfo.HxClientProperty Pro
     {
         Option.SetHint(Prop.Hint);
     }
-    Controller.bCurMenuInitialized = bTemp;
     return Option;
 }
 
-function GUIMenuOption AddPlayInfoOption(PlayInfo.PlayInfoData PID)
+function GUIMenuOption AddPIOption(PlayInfo.PlayInfoData PID)
 {
     local GUIMenuOption Option;
     local array<string> Range;
     local string Width;
     local string Op;
-    local bool bTemp;
 
-    bTemp = Controller.bCurMenuInitialized;
-    Controller.bCurMenuInitialized = false;
     switch (PID.RenderType)
     {
         case PIT_Check:
@@ -214,11 +253,51 @@ function GUIMenuOption AddPlayInfoOption(PlayInfo.PlayInfoData PID)
     {
         Option.SetHint(PID.Description);
     }
-    Controller.bCurMenuInitialized = bTemp;
     return Option;
 }
 
-function GUIMenuOption AddFloatEdit(string Caption, float Min, float Max)
+function HxGUIMultiOptionListHeader AddSection(string Caption)
+{
+    local HxGUIMultiOptionListHeader Header;
+
+    Header = AddHeader("");
+    Header.SectionCaption = Caption;
+    return Header;
+}
+
+function HxGUIMultiOptionListHeader AddSubSection(string Caption)
+{
+    local HxGUIMultiOptionListHeader Header;
+
+    Header = AddHeader(Caption);
+    Header.StandardHeight = 0.03;
+    Header.Tag = -6;
+    return Header;
+}
+
+function HxGUIMultiOptionListHeader AddHeader(string Caption)
+{
+    local HxGUIMultiOptionListHeader Header;
+    local GUIMenuOption HeaderFiller;
+    local int FillerCount;
+    local int i;
+
+    FillerCount = List.Elements.Length % NumColumns;
+    while (FillerCount-- > 0)
+    {
+        List.AddItem("XInterface.GUIListSpacer");
+    }
+    Header = HxGUIMultiOptionListHeader(
+        List.AddItem(string(class'HxGUIMultiOptionListHeader'),, Caption));
+    for (i = 1; i < NumColumns; ++i)
+    {
+        HeaderFiller = List.AddItem(string(class'HxGUIMultiOptionListHeader'));
+        HeaderFiller.Tag = -1;
+    }
+    return Header;
+}
+
+function GUIMenuOption AddFloatEdit(string Caption, float Min, float Max, optional float Step)
 {
     local moFloatEdit Option;
 
@@ -226,20 +305,28 @@ function GUIMenuOption AddFloatEdit(string Caption, float Min, float Max)
     if (Option != None)
     {
         Option.ComponentWidth = ComponentWidth;
-        Option.Setup(Min, Max, Option.MyNumericEdit.Step);
+        if (Step ~= 0)
+        {
+            Step = Option.MyNumericEdit.Step;
+        }
+        Option.Setup(Min, Max, Step);
     }
     return Option;
 }
 
-function GUIMenuOption AddNumericEdit(string Caption, int Min, int Max)
+function GUIMenuOption AddNumericEdit(string Caption, int Min, int Max,  optional int Step)
 {
     local moNumericEdit Option;
 
     Option = moNumericEdit(List.AddItem("XInterface.moNumericEdit",, Caption));
     if (Option != None)
     {
+        if (Step == 0)
+        {
+            Step = Option.MyNumericEdit.Step;
+        }
         Option.ComponentWidth = ComponentWidth;
-        Option.Setup(Min, Max, Option.MyNumericEdit.Step);
+        Option.Setup(Min, Max, Step);
     }
     return Option;
 }
@@ -299,6 +386,7 @@ function GUIMenuOption AddComboBox(string Caption, string Data)
 
 function ArrayPropClicked(GUIComponent Sender)
 {
+    local PlayInfo PI;
     local GUIArrayPropPage ArrayPage;
     local string ArrayMenu;
     local int i;
@@ -308,7 +396,12 @@ function ArrayPropClicked(GUIComponent Sender)
     {
         return;
     }
-    if (Info.Settings[i].ArrayDim > 1)
+    PI = FindPI(i);
+    if (PI == None)
+    {
+        return;
+    }
+    if (PI.Settings[i].ArrayDim > 1)
     {
         ArrayMenu = Controller.ArrayPropertyMenu;
     }
@@ -316,10 +409,10 @@ function ArrayPropClicked(GUIComponent Sender)
     {
         ArrayMenu = Controller.DynArrayPropertyMenu;
     }
-    if (Controller.OpenMenu(ArrayMenu, Info.Settings[i].DisplayName, Info.Settings[i].Value))
+    if (Controller.OpenMenu(ArrayMenu, PI.Settings[i].DisplayName, PI.Settings[i].Value))
     {
         ArrayPage = GUIArrayPropPage(Controller.ActivePage);
-        ArrayPage.Item = Info.Settings[i];
+        ArrayPage.Item = PI.Settings[i];
         ArrayPage.OnClose = ArrayPageClosed;
         ArrayPage.SetOwner(Sender);
     }
@@ -348,14 +441,40 @@ function ListLoadINI(GUIComponent Sender, string s)
 {
     if (Sender.Tag > -1)
     {
-        if (Info != None)
+        if (PIs.Length > 0)
         {
-            GUIMenuOption(Sender).SetComponentValue(Info.Settings[Sender.Tag].Value);
+            LoadFromPI(GUIMenuOption(Sender));
         }
-        else if (CRI != None)
+        else if (CRIs.Length > 0)
         {
-            GUIMenuOption(Sender).SetComponentValue(CRI.GetProperty(Sender.Tag));
+            LoadFromCRI(GUIMenuOption(Sender));
         }
+    }
+}
+
+function LoadFromCRI(GUIMenuOption Sender)
+{
+    local HxClientReplicationInfo CRI;
+    local int Index;
+
+    Index = Sender.Tag;
+    CRI = FindCRI(Index);
+    if (CRI != None)
+    {
+        Sender.SetComponentValue(CRI.GetProperty(Index));
+    }
+}
+
+function LoadFromPI(GUIMenuOption Sender)
+{
+    local PlayInfo PI;
+    local int Index;
+
+    Index = Sender.Tag;
+    PI = FindPI(Index);
+    if (PI != None)
+    {
+        Sender.SetComponentValue(PI.Settings[Index].Value);
     }
 }
 
@@ -363,23 +482,69 @@ function ListCreateComponent(GUIMenuOption NewComp, GUIMultiOptionList Sender)
 {
     NewComp.LabelJustification = TXTA_Left;
     NewComp.ComponentJustification = TXTA_Right;
-    NewComp.OnChange = OptionOnChange;
+    if (PIs.Length > 0)
+    {
+        NewComp.OnChange = OptionOnChangePI;
+    }
+    else if (CRIs.Length > 0)
+    {
+        NewComp.OnChange = OptionOnChangeCRI;
+    }
     Super.ListCreateComponent(NewComp, Sender);
 }
 
-function OptionOnChange(GUIComponent Sender)
+function OptionOnChangeCRI(GUIComponent Sender)
+{
+    local HxClientReplicationInfo CRI;
+    local int Index;
+
+    if (Sender.Tag > -1)
+    {
+        Index = Sender.Tag;
+        CRI = FindCRI(Index);
+        if (CRI != None)
+        {
+            CRI.SetProperty(Index, GUIMenuOption(Sender).GetComponentValue());
+        }
+    }
+}
+
+function OptionOnChangePI(GUIComponent Sender)
 {
     if (Sender.Tag > -1)
     {
-        if (Info != None)
-        {
-            OptionModified[Sender.Tag] = 1;
-        }
-        else if (CRI != None)
-        {
-            CRI.SetProperty(Sender.Tag, GUIMenuOption(Sender).GetComponentValue());
-        }
+        OptionModified[Sender.Tag] = 1;
     }
+}
+
+function HxClientReplicationInfo FindCRI(out int FullTag)
+{
+    local int i;
+
+    for (i = 0; i < CRIs.Length; ++i)
+    {
+        if (FullTag < CRIs[i].Properties.Length)
+        {
+            return CRIs[i];
+        }
+        FullTag -= CRIs[i].Properties.Length;
+    }
+    return None;
+}
+
+function PlayInfo FindPI(out int FullTag)
+{
+    local int i;
+
+    for (i = 0; i < PIs.Length; ++i)
+    {
+        if (FullTag < PIs[i].Settings.Length)
+        {
+            return PIs[i];
+        }
+        FullTag -= PIs[i].Settings.Length;
+    }
+    return None;
 }
 
 function bool IsModified(int Index)
@@ -392,6 +557,21 @@ function ResetModified(int Index)
     OptionModified[Index] = 0;
 }
 
+function Clear()
+{
+    Options.Remove(0, Options.Length);
+    CRIs.Remove(0, CRIs.Length);
+    PIs.Remove(0, PIs.Length);
+    OptionModified.Remove(0, OptionModified.Length);
+    List.Clear();
+}
+
+function LevelChanged()
+{
+    Clear();
+    Super.LevelChanged();
+}
+
 defaultproperties
 {
     Begin Object Class=HxGUIVertScrollBar Name=HxScrollbar
@@ -402,5 +582,6 @@ defaultproperties
 
     StyleName="HxOptionList"
     ComponentWidth=0.25
-    ScrollbarWidth=0.03
+    ScrollbarWidth=0.027
+    bShowSections=true
 }

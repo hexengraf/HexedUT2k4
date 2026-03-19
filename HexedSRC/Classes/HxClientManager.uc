@@ -103,13 +103,20 @@ simulated function OpenHexedMenu(HxClientReplicationInfo Sender)
 
 simulated function RefreshHexedMenu(optional bool bUpdateTabControl)
 {
-    if (GC != None && GC.ActivePage != None && GC.ActivePage.IsA('HxGUIMenu'))
+    if (GC != None)
     {
-        if (bUpdateTabControl)
+        if (HxGUIMenu(GC.ActivePage) != None)
         {
-            HxGUIMenu(GC.ActivePage).UpdateTabControl();
+            if (bUpdateTabControl)
+            {
+                HxGUIMenu(GC.ActivePage).UpdateTabControl();
+            }
+            HxGUIMenu(GC.ActivePage).Refresh();
         }
-        HxGUIMenu(GC.ActivePage).Refresh();
+        else if (HxGUIServerMenu(GC.ActivePage) != None)
+        {
+            HxGUIServerMenu(GC.ActivePage).Refresh();
+        }
     }
 }
 
@@ -123,6 +130,22 @@ simulated function RegisterStyles()
     }
 }
 
+simulated function RegisterCRI(HxClientReplicationInfo CRI)
+{
+    local int i;
+
+    for (i = 0; i < CRIs.Length; ++i)
+    {
+        if (CRI.Order < CRIs[i].Order)
+        {
+            break;
+        }
+    }
+    CRIs.Insert(i, 1);
+    CRIs[i] = CRI;
+    RefreshHexedMenu();
+}
+
 static function HxClientManager Register(HxClientReplicationInfo CRI)
 {
     local HxClientManager Manager;
@@ -132,14 +155,13 @@ static function HxClientManager Register(HxClientReplicationInfo CRI)
     {
         Manager = CRI.Spawn(class'HxClientManager', CRI.Level);
     }
-    Manager.CRIs[Manager.CRIs.Length] = CRI;
-    Manager.RefreshHexedMenu();
+    Manager.RegisterCRI(CRI);
     return Manager;
 }
 
 defaultproperties
 {
-	RemoteRole=ROLE_None
+    RemoteRole=ROLE_None
 
     HexedMenuClass=class'HxGUIMenu'
     CustomStyleClasses(0)=class'HxSTYSmallList'

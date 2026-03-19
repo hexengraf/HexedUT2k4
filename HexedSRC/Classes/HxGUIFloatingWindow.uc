@@ -74,9 +74,9 @@ defaultproperties
     bMoveAllowed=false
     bPersistent=true
     bScaleToParent=true
-    WinLeft=0.125
+    WinLeft=0.1
     WinTop=0.1
-    WinWidth=0.75
+    WinWidth=0.8
     WinHeight=0.75
     InactiveFadeColor=(R=64,G=64,B=64,A=255)
 }
