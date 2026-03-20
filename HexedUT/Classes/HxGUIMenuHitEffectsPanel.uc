@@ -29,6 +29,9 @@ var localized string DamagePointNames[5];
 
 var private HxUTClient Client;
 var private int DPIndex;
+var private bool bAllowHitSounds;
+var private bool bAllowDamageNumbers;
+var private bool bDamageNumbersEnabled;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
@@ -57,19 +60,16 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 
 function Refresh()
 {
-    local bool bAllowHitSounds;
-    local bool bAllowDamageNumbers;
-
     if (Client == None)
     {
         Client = HxUTClient(ClientManager.Find(class'HxUTClient'));
     }
     if (Client != None)
     {
-        HitSoundsAfterChange();
-        DamageNumbersAfterChange();
         bAllowHitSounds = bool(Client.GetServerProperty("bAllowHitSounds"));
         bAllowDamageNumbers = bool(Client.GetServerProperty("bAllowDamageNumbers"));
+        HitSoundsAfterChange();
+        DamageNumbersAfterChange();
         Sections[SECTION_HIT_SOUNDS].SetHide(!bAllowHitSounds, HideDueDisable);
         Sections[SECTION_DAMAGE_NUMBERS].SetHide(!bAllowDamageNumbers, HideDueDisable);
         fl_DisplayPosX.SetVisibility(bAllowDamageNumbers);
@@ -127,19 +127,18 @@ function HitSoundsAfterChange()
 {
     local bool bHitSoundsEnabled;
 
-    bHitSoundsEnabled = Client.HitEffects.IsHitSoundsEnabled();
+    bHitSoundsEnabled = bAllowHitSounds && ch_HitSounds.IsChecked();
     SetEnable(co_HitSoundNames, bHitSoundsEnabled);
     SetEnable(sl_HitSoundVolume, bHitSoundsEnabled);
     SetEnable(co_PitchMode, bHitSoundsEnabled);
     SetEnable(sl_Pitch, bHitSoundsEnabled);
-    DamagePointEditorAfterChange(bHitSoundsEnabled || Client.HitEffects.IsDamageNumbersEnabled());
+    DamagePointEditorAfterChange(
+        bHitSoundsEnabled || bAllowDamageNumbers && ch_DamageNumbers.IsChecked());
 }
 
 function DamageNumbersAfterChange()
 {
-    local bool bDamageNumbersEnabled;
-
-    bDamageNumbersEnabled = Client.HitEffects.IsDamageNumbersEnabled();
+    bDamageNumbersEnabled = bAllowDamageNumbers && ch_DamageNumbers.IsChecked();
     SetEnable(co_DisplayMode, bDamageNumbersEnabled);
     SetEnable(co_DisplayFont, bDamageNumbersEnabled);
     SetEnable(l_PositionAnchor, bDamageNumbersEnabled);
@@ -149,7 +148,8 @@ function DamageNumbersAfterChange()
     SetEnable(sl_RedColor, bDamageNumbersEnabled);
     SetEnable(sl_GreenColor, bDamageNumbersEnabled);
     SetEnable(sl_BlueColor, bDamageNumbersEnabled);
-    DamagePointEditorAfterChange(bDamageNumbersEnabled || Client.HitEffects.IsHitSoundsEnabled());
+    DamagePointEditorAfterChange(
+        bDamageNumbersEnabled || bAllowHitSounds && ch_HitSounds.IsChecked());
 }
 
 function DamagePointEditorAfterChange(bool bAnyEffectEnabled)
@@ -291,7 +291,7 @@ function DrawPreview(Canvas C)
     local float SavedFontScaleX;
     local float SavedFontScaleY;
 
-    if (Client != None && Client.HitEffects.IsDamageNumbersEnabled())
+    if (Client != None && Client.HitEffects != None && bDamageNumbersEnabled)
     {
         SavedOrgX = C.OrgX;
         SavedOrgY = C.OrgY;

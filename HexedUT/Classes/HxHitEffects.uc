@@ -591,16 +591,6 @@ simulated function bool IsFontChanged()
     return LoadedFont == None || !(string(LoadedFont) ~= DisplayFontName);
 }
 
-simulated function bool IsHitSoundsEnabled()
-{
-    return bAllowHitSounds && bHitSounds;
-}
-
-simulated function bool IsDamageNumbersEnabled()
-{
-    return bAllowDamageNumbers && bDamageNumbers;
-}
-
 simulated function RecoverConfigs()
 {
     local Actor OldActor;
