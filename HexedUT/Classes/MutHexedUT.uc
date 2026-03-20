@@ -1,6 +1,6 @@
 class MutHexedUT extends HxMutator;
 
-const MIN_VERSION = 3;
+const MIN_VERSION = 4;
 
 var config bool bFirstRun;
 var config bool bAllowHitSounds;
@@ -279,41 +279,10 @@ function RecoverConfigs()
         {
             class'HxConfig'.static.CopyProperty(Self, OldActor, Properties[i].Name);
         }
-        CleanUpOldGameRules(OldActor);
         OldActor.Destroy();
     }
     bFirstRun = false;
     SaveConfig();
-}
-
-// TODO: remove this in the next version (HxUTGameRules no longer spawned in PostBeginPlay)
-function CleanUpOldGameRules(Actor OldActor)
-{
-    local GameRules Rules;
-    local GameRules PrevRules;
-    local string PackageName;
-    local string ClassName;
-
-    if (Divide(string(OldActor.Class), ".", PackageName, ClassName))
-    {
-        for (Rules = Level.Game.GameRulesModifiers; Rules != None; Rules = Rules.NextGameRules)
-        {
-            if (StrCmp(PackageName, string(Rules.Class), Len(PackageName)) == 0)
-            {
-                if (PrevRules != None)
-                {
-                    PrevRules.NextGameRules = Rules.NextGameRules;
-                }
-                else
-                {
-                    Level.Game.GameRulesModifiers = Rules.NextGameRules;
-                }
-                Rules.Destroy();
-                break;
-            }
-            PrevRules = Rules;
-        }
-    }
 }
 
 defaultproperties
