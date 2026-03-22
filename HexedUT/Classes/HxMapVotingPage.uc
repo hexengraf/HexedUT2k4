@@ -9,10 +9,10 @@ var automated GUIImage i_VoteListBorder;
 var automated moComboBox co_MapSource;
 var automated HxMapVotingMapListBox lb_MapList;
 var automated GUILabel l_RetrievingMapList;
-var automated HxMapVotingMapBanner MapBanner;
+var automated HxGUIMapPreviewBanner MapBanner;
 var automated GUIButton b_Random;
 var automated GUIButton b_Vote;
-var automated HxMapVotingChatBox ChatBox;
+var automated HxGUIChatBox ChatBox;
 
 var localized string LoadingText;
 var localized string RetrievingMapListText;
@@ -446,7 +446,7 @@ defaultproperties
     End Object
     l_RetrievingMapList=RetrievingMapListLabel
 
-    Begin Object Class=HxMapVotingMapBanner Name=VotingMapBanner
+    Begin Object Class=HxGUIMapPreviewBanner Name=VotingMapBanner
         WinLeft=0.6205
         WinTop=0.045
         WinWidth=0.3695
@@ -484,7 +484,7 @@ defaultproperties
     End Object
     b_Vote=VoteButton
 
-    Begin Object Class=HxMapVotingChatBox Name=VotingChatBox
+    Begin Object Class=HxGUIChatBox Name=VotingChatBox
         WinLeft=0.6205
         WinTop=0.762
         WinWidth=0.3695
