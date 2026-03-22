@@ -123,5 +123,6 @@ defaultproperties
     ColumnHeadingHints(3)="Click to sort by number of recommended players."
     ColumnHeadingHints(4)="Click to sort by number of times the map has been played."
 
-    SortColumn=2
+    SortColumn=1
+    PreviousSortColumn=2
 }

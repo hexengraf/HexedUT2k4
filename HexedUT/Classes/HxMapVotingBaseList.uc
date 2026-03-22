@@ -33,30 +33,39 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 function SetVRI(VotingReplicationInfo V)
 {
     VRI = V;
-    Refresh();
+    if (VRI != None)
+    {
+        if (PreviousSortColumn != -1)
+        {
+            SortColumn = PreviousSortColumn;
+            SortDescending = bPreviousSortDescending;
+        }
+        Clear();
+        PopulateList();
+        Sort();
+        if (PreviousSortColumn != -1)
+        {
+            SortColumn = default.SortColumn;
+            SortDescending = default.SortDescending;
+            OnSortChanged();
+        }
+    }
 }
 
 function bool Refresh()
 {
-    if (VRI == None)
+    if (VRI != None)
     {
-        return false;
-    }
-    if (Index > -1)
-    {
-        LastMapSelected = GetMapName();
-    }
-    Clear();
-    PopulateList();
-    if (CurrentSortOrder.Length == 0)
-    {
-        Sort();
-    }
-    else
-    {
+        if (Index > -1)
+        {
+            LastMapSelected = GetMapName();
+        }
+        Clear();
+        PopulateList();
         SortList();
+        return SetIndexByMapName(LastMapSelected);
     }
-    return SetIndexByMapName(LastMapSelected);
+    return false;
 }
 
 function AddMap(int MapIndex)
@@ -203,7 +212,6 @@ function Clear()
         LastMapSelected = "";
         CurrentSortOrder.Remove(0, CurrentSortOrder.Length);
         PreviousSortOrder.Remove(0, PreviousSortOrder.Length);
-        PreviousSortColumn = -1;
     }
     Super.Clear();
 }
@@ -341,6 +349,15 @@ function UpdateMapTag(int MapIndex, HxFavorites.EHxTag NewTag)
             UpdatedItem(i);
         }
     }
+}
+
+function LevelChanged()
+{
+    default.SortColumn = SortColumn;
+    default.SortDescending = SortDescending;
+    default.PreviousSortColumn = PreviousSortColumn;
+    default.bPreviousSortDescending = bPreviousSortDescending;
+    Super.LevelChanged();
 }
 
 defaultproperties

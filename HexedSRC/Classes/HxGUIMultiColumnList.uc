@@ -18,6 +18,7 @@ var protected float MyItemHeight;
 var protected int MyItemsPerPage;
 
 var int PreviousSortColumn;
+var bool bPreviousSortDescending;
 var private GUIStyles DefaultStyle;
 
 function bool Refresh();

@@ -339,15 +339,12 @@ function AlignRightSideComponents(Canvas C)
 
 event Free()
 {
-    local VotingReplicationInfo VRI;
-
-    VRI = MVRI;
-    Super.Free();
-    MVRI = VRI;
+    Super(GUIPage).Free();
 }
 
 function LevelChanged()
 {
+    bPersistent = false;
     ShowInitialState();
     Super.LevelChanged();
 }

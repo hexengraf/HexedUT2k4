@@ -152,6 +152,7 @@ function OnRenderedHeader(Canvas C)
 function OnMousePressedHeader(GUIComponent Sender, bool bRepeat)
 {
     HxGUIMultiColumnList(List).PreviousSortColumn = List.SortColumn;
+    HxGUIMultiColumnList(List).bPreviousSortDescending = List.SortDescending;
 }
 
 function bool OnCapturedMouseMoveHeader(float deltaX, float deltaY)
