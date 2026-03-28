@@ -321,7 +321,7 @@ function OnSelectMapTag(GUIContextMenu Sender, int Option)
 
     if (Index > -1)
     {
-        T = EHxTag(Option * 2);
+        T = EHxTag(1 + Option * 2);
         if (MapTags[SortData[Index].SortItem] == T)
         {
             T = HX_TAG_None;

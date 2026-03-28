@@ -4,6 +4,7 @@ class HxFavorites extends HxConfig
 
 enum EHxTag
 {
+    HX_TAG_Any,
     HX_TAG_Like,
     HX_TAG_None,
     HX_TAG_Dislike,
