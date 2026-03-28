@@ -15,7 +15,7 @@ var protected bool bReInit;
 var protected HxGUIVertScrollBar HxScrollbar;
 var protected HxGUIMultiColumnListSearchBar SearchBar;
 var protected float MyItemHeight;
-var protected int MyItemsPerPage;
+var protected float MyItemsPerPage;
 
 var int PreviousSortColumn;
 var bool bPreviousSortDescending;
@@ -47,7 +47,7 @@ function float GetSpacedItemHeight(Canvas C)
     MyItemHeight = YL + Round(LineSpacing * C.ClipY);
     if (bAutoSpacing)
     {
-        MyItemsPerPage = WinHeight / MyItemHeight;
+        MyItemsPerPage = int(WinHeight / MyItemHeight);
         MyItemHeight = YL + FMax(0, int((WinHeight - (MyItemsPerPage * YL)) / MyItemsPerPage));
     }
     MyItemsPerPage = WinHeight / MyItemHeight;
