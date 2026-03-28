@@ -44,6 +44,18 @@ event bool NotifyLevelChange()
     return true;
 }
 
+function SetEnable(GUIComponent Comp, bool bEnable)
+{
+    if (bEnable)
+    {
+        EnableComponent(Comp);
+    }
+    else
+    {
+        DisableComponent(Comp);
+    }
+}
+
 defaultproperties
 {
      Begin Object Class=HxGUIHeader Name=WindowTitleHeader
