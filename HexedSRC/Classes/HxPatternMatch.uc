@@ -31,6 +31,12 @@ struct HxRangePattern
     var HxValuePattern Max;
 };
 
+enum EHxFilterMode
+{
+    HX_FILTER_MODE_Include,
+    HX_FILTER_MODE_Exclude,
+};
+
 static function HxStringPattern ParseStringPattern(string SearchTerm, optional bool bCaseSensitive)
 {
     local HxStringPattern Pattern;
