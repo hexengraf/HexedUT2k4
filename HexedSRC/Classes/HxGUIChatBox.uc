@@ -171,10 +171,8 @@ function bool OnKeyEventInput(out byte Key, out byte State, float Delta)
                 return true;
             }
             break;
-        default:
-            break;
     }
-    return false;
+    return ed_Input.InternalOnKeyEvent(Key, State, Delta);
 }
 
 function OnChangeInput(GUIComponent Sender)
