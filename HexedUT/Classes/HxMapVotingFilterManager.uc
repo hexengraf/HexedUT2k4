@@ -1,52 +1,181 @@
 class HxMapVotingFilterManager extends Object;
 
-var localized string PredefinedFilterName;
+const MAX_MAP_FILTERS = 1024;
 
-var HxMapVotingFilter DefaultFilter;
-var array<HxMapVotingFilter> LoadedFilters;
+var localized string DefaultFilterTitle;
+var localized string OfficialMapsFilterTitle;
+var localized string CustomMapsFilterTitle;
 
-function HxMapVotingFilter GetFilter(optional string FilterName)
+var private array<HxMapVotingFilter> LoadedFilters;
+var private HxMapVotingFilter ActiveFilter;
+
+event Created()
 {
+    local array<string> Names;
     local int i;
 
-    if (FilterName != "")
+    CreateDefaultFilter();
+    Names = GetPerObjectNames("HexedFilters", "HxMapVotingFilter", MAX_MAP_FILTERS);
+    if (Names.Length == 0)
     {
-        for (i = 0; i < LoadedFilters.Length; ++i)
-        {
-            if (LoadedFilters[i].Name ~= FilterName)
-            {
-                return LoadedFilters[i];
-            }
-        }
-        return NewFilter(FilterName);
+        CreateSourceFilters();
     }
-    if (DefaultFilter == None)
+    for (i = 0; i < Names.Length; ++i)
     {
-        DefaultFilter = new(Self) class'HxMapVotingFilter';
+        LoadedFilters[i + 1] = new(None, Names[i]) class'HxMapVotingFilter';
+        LoadedFilters[i + 1].Title = Repl(Names[i], Chr(27), " ");
     }
-    return DefaultFilter;
 }
 
-function HxMapVotingFilter NewFilter(optional string FilterName)
+function CreateDefaultFilter()
+{
+    LoadedFilters.Insert(0, 1);
+    LoadedFilters[0] = new(None) class'HxMapVotingFilter';
+    LoadedFilters[0].Title = DefaultFilterTitle;
+}
+
+function CreateSourceFilters()
+{
+    LoadedFilters.Insert(1, 1);
+    LoadedFilters[1] = new(
+        None, Repl(OfficialMapsFilterTitle, " ", Chr(27))) class'HxMapVotingFilter';
+    LoadedFilters[1].Title = OfficialMapsFilterTitle;
+    LoadedFilters[1].MapSource = HX_MAP_SOURCE_Official;
+    LoadedFilters[1].SaveConfig();
+    LoadedFilters[1].ParseConfig();
+    LoadedFilters.Insert(2, 1);
+    LoadedFilters[2] = new(
+        None, Repl(CustomMapsFilterTitle, " ", Chr(27))) class'HxMapVotingFilter';
+    LoadedFilters[2].Title = CustomMapsFilterTitle;
+    LoadedFilters[2].MapSource = HX_MAP_SOURCE_Custom;
+    LoadedFilters[2].SaveConfig();
+    LoadedFilters[2].ParseConfig();
+}
+
+function HxMapVotingFilter GetActiveFilter()
+{
+    if (ActiveFilter == None)
+    {
+        ActiveFilter = LoadedFilters[0];
+    }
+    return ActiveFilter;
+}
+
+function HxMapVotingFilter SwitchActiveFilter(coerce int Index)
+{
+    if (IsValidIndex(Index))
+    {
+        if (ActiveFilter != None && ActiveFilter != LoadedFilters[Index])
+        {
+            LoadedFilters[Index].CopySearchRules(ActiveFilter);
+        }
+        ActiveFilter = LoadedFilters[Index];
+    }
+    return ActiveFilter;
+}
+
+function HxMapVotingFilter GetFilter(optional coerce int Index)
+{
+    if (IsValidIndex(Index))
+    {
+        return LoadedFilters[Index];
+    }
+    return None;
+}
+
+function HxMapVotingFilter NewFilter(string FilterName)
+{
+    local HxMapVotingFilter Filter;
+
+    if (!IsValidFilterName(FilterName))
+    {
+        return None;
+    }
+    Filter = new(None, Repl(FilterName, " ", Chr(27))) class'HxMapVotingFilter';
+    Filter.Title = FilterName;
+    LoadedFilters[LoadedFilters.Length] = Filter;
+    Filter.SaveConfig();
+    return Filter;
+}
+
+function HxMapVotingFilter RenameFilter(coerce int Index, string NewName)
+{
+    local HxMapVotingFilter Filter;
+
+    if (IsValidIndex(Index))
+    {
+        Filter = new(None, Repl(NewName, " ", Chr(27))) class'HxMapVotingFilter';
+        Filter.Title = NewName;
+        Filter.CopyConfig(LoadedFilters[Index]);
+        Filter.SaveConfig();
+        LoadedFilters[Index].ClearConfig();
+        LoadedFilters[Index] = Filter;
+        return Filter;
+    }
+    return None;
+}
+
+function bool DeleteFilter(coerce int Index)
+{
+    if (IsValidIndex(Index))
+    {
+        if (ActiveFilter == LoadedFilters[Index])
+        {
+            LoadedFilters[0].CopySearchRules(ActiveFilter);
+            ActiveFilter = LoadedFilters[0];
+        }
+        LoadedFilters[Index].ClearConfig();
+        LoadedFilters.Remove(Index, 1);
+        return true;
+    }
+    return false;
+}
+
+function bool IsValidIndex(int Index)
+{
+    return Index > -1 && Index < LoadedFilters.Length;
+}
+
+function bool IsValidFilterName(string FilterName)
 {
     local int i;
 
     if (FilterName == "")
     {
-        FilterName = PredefinedFilterName$"#"$LoadedFilters.Length;
+        return false;
     }
-    i = LoadedFilters.Length;
-    LoadedFilters[i] = new(Self, Repl(FilterName, " ", Chr(27))) class'HxMapVotingFilter';
-    LoadedFilters[i].Name = FilterName;
-    return LoadedFilters[i];
+    for (i = 0; i < LoadedFilters.Length; ++i)
+    {
+        if (LoadedFilters[i].Title ~= FilterName)
+        {
+            return false;
+        }
+    }
+    return true;
 }
 
-static function array<string> GetFilterNames()
+function PopulateComboBox(moComboBox ComboBox, optional bool bSkipDefault)
 {
-    return GetPerObjectNames("HxMapVotingFilters", "HxMapVotingFilter");
+    local int Start;
+    local int i;
+
+    if (bSkipDefault)
+    {
+        Start = 1;
+    }
+    else
+    {
+        Start = 0;
+    }
+    for (i = Start; i < LoadedFilters.Length; ++i)
+    {
+        ComboBox.AddItem(LoadedFilters[i].Title,, string(i));
+    }
 }
 
 defaultproperties
 {
-    PredefinedFilterName="Filter"
+    DefaultFilterTitle="All Maps"
+    OfficialMapsFilterTitle="Official Maps"
+    CustomMapsFilterTitle="Custom Maps"
 }

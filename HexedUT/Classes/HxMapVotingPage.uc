@@ -6,7 +6,8 @@ const MED_FONT_SPACING = 1.44;
 var automated GUIBorder b_Background;
 var automated HxMapVotingVoteListBox lb_VoteList;
 var automated GUIImage i_VoteListBorder;
-var automated moComboBox co_MapSource;
+var automated moComboBox co_MapFilter;
+var automated GUIButton b_ManageFilters;
 var automated HxMapVotingMapListBox lb_MapList;
 var automated GUILabel l_RetrievingMapList;
 var automated HxGUIMapPreviewBanner MapBanner;
@@ -17,23 +18,20 @@ var automated HxGUIChatBox ChatBox;
 var localized string LoadingText;
 var localized string RetrievingMapListText;
 
-var private HxMapVotingFilterManager FilterManager;
-var private HxMapVotingFilter ActiveFilter;
+var HxMapVotingFilterManager FilterManager;
 var private int SelectedGameType;
 var private int SelectedMap;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
     Super(PopupPageBase).InitComponent(MyController, MyOwner);
-    FilterManager = new(Self) class'HxMapVotingFilterManager';
-    ActiveFilter = FilterManager.GetFilter();
-    lb_MapList.SetFilter(ActiveFilter);
+    FilterManager = new() class'HxMapVotingFilterManager';
     lb_MapList.OnTagUpdated = lb_VoteList.UpdateMapTag;
     lb_VoteList.OnTagUpdated = lb_MapList.UpdateMapTag;
     SetupWindowHeader();
     Unpause();
     AdjustWindowSize(Controller.ResX, Controller.ResY);
-    PopulateLocalLists();
+    UpdateMapFilter();
     ShowInitialState();
 }
 
@@ -79,7 +77,7 @@ function bool InternalOnKeyEvent(out byte Key, out byte State, float Delta)
 {
     local Interactions.EInputAction Action;
 
-    if (co_GameType.MyComboBox.List.bHasFocus || co_MapSource.MyComboBox.List.bHasFocus)
+    if (co_GameType.MyComboBox.List.bHasFocus || co_MapFilter.MyComboBox.List.bHasFocus)
     {
         return false;
     }
@@ -162,8 +160,11 @@ function ShowInitialState()
     MapBanner.SetMap("");
     lb_VoteList.DisableMe();
     co_GameType.DisableMe();
-    co_MapSource.DisableMe();
+    co_MapFilter.DisableMe();
+    b_ManageFilters.DisableMe();
     lb_MapList.DisableMe();
+    b_Random.DisableMe();
+    b_Vote.DisableMe();
     l_RetrievingMapList.SetVisibility(false);
 }
 
@@ -180,8 +181,11 @@ function ShowReadyState()
     t_WindowTitle.Caption = WindowName@"("$lmsgMode[MVRI.Mode]$")";
     lb_VoteList.EnableMe();
     co_GameType.EnableMe();
-    co_MapSource.EnableMe();
+    co_MapFilter.EnableMe();
+    b_ManageFilters.EnableMe();
     lb_MapList.EnableMe();
+    b_Random.EnableMe();
+    b_Vote.EnableMe();
     l_RetrievingMapList.SetVisibility(false);
     PopulateGameTypeList();
     lb_MapList.SetVRI(MVRI);
@@ -216,15 +220,15 @@ function PopulateGameTypeList()
     co_GameType.SetIndex(SelectedGameType);
 }
 
-function PopulateLocalLists()
+function UpdateMapFilter()
 {
-    local int i;
+    local int Index;
 
-    for (i = 0; i < 3; ++i)
-    {
-        co_MapSource.AddItem(Mid(GetEnum(enum'EHxMapSource', i), 14));
-    }
-    co_MapSource.SetIndex(0);
+    Index = Max(0, co_MapFilter.GetIndex());
+    co_MapFilter.ResetComponent();
+    FilterManager.PopulateComboBox(co_MapFilter);
+    co_MapFilter.SilentSetIndex(Min(Index, co_MapFilter.ItemCount() - 1));
+    lb_MapList.SetFilter(FilterManager.SwitchActiveFilter(co_MapFilter.GetComponentValue()));
 }
 
 function UpdateMapVoteCount(int UpdatedIndex, bool bRemoved)
@@ -275,9 +279,24 @@ function bool OnClickSelectRandom(GUIComponent Sender)
     return true;
 }
 
-function OnChangeMapSource(GUIComponent Sender)
+function bool OnClickManageFilters(GUIComponent Sender)
 {
-    lb_MapList.SetMapSource(co_MapSource.GetIndex());
+    if (Controller.OpenMenu(string(class'HxMapVotingFilterPage')))
+    {
+        Controller.ActivePage.OnClose = OnCloseFilterPage;
+    }
+    return true;
+}
+
+function OnCloseFilterPage(optional bool bCancelled)
+{
+    UpdateMapFilter();
+}
+
+function OnChangeMapFilter(GUIComponent Sender)
+{
+    lb_MapList.SetFilter(
+        FilterManager.SwitchActiveFilter(GUIMenuOption(Sender).GetComponentValue()));
 }
 
 function OnChangeSelectedMap(GUIComponent Sender)
@@ -351,11 +370,11 @@ function LevelChanged()
 
 defaultproperties
 {
-     Begin Object Class=HxGUIHeader Name=WindowTitleHeader
+    Begin Object Class=HxGUIHeader Name=WindowTitleHeader
         OnMousePressed=FloatingWindow.FloatingMousePressed
         OnMouseRelease=FloatingWindow.FloatingMouseRelease
-     End Object
-     t_WindowTitle=HxGUIHeader'HxGUIFloatingWindow.WindowTitleHeader'
+    End Object
+    t_WindowTitle=HxGUIHeader'HxGUIFloatingWindow.WindowTitleHeader'
 
     Begin Object Class=GUIBorder Name=BackgroundBorder
         WinLeft=0
@@ -385,13 +404,13 @@ defaultproperties
     lb_VoteList=VoteListBox
 
     Begin Object class=moComboBox Name=GameTypeComboBox
-        Caption="Game Type:"
+        Caption="Game Type"
         Hint="Select game type to show."
         WinLeft=0.01
         WinTop=0.2785
-        WinWidth=0.4293
+        WinWidth=0.605
         WinHeight=0.0375
-        CaptionWidth=0.001
+        CaptionWidth=0.176
         bReadOnly=true
         bScaleToParent=true
         bBoundToParent=true
@@ -400,27 +419,43 @@ defaultproperties
     End Object
     co_GameType=GameTypeComboBox
 
-    Begin Object class=moComboBox Name=MapSourceComboBox
-        Caption="Source:"
-        Hint="Select map sources to show."
+    Begin Object class=moComboBox Name=MapFilterComboBox
+        Caption="Map Filter"
+        Hint="Select map filter to apply."
+        WinLeft=0.01
+        WinTop=0.3255
+        WinWidth=0.4293
+        WinHeight=0.0375
+        CaptionWidth=0.248
+        bReadOnly=true
+        bScaleToParent=true
+        bBoundToParent=true
+        OnChange=OnChangeMapFilter
+        TabOrder=1
+    End Object
+    co_MapFilter=MapFilterComboBox
+
+    Begin Object Class=GUIButton Name=ManageFiltersButton
+        Caption="Manage Filters"
+        Hint="Manage map filters."
         WinLeft=0.4448
-        WinTop=0.2785
+        WinTop=0.3255
         WinWidth=0.1702
         WinHeight=0.0375
-        CaptionWidth=0.001
-        bReadOnly=true
+        StyleName="HxSquareButton"
+        bNeverFocus=true
+        bRepeatClick=true
         bBoundToParent=true
         bScaleToParent=true
-        OnChange=OnChangeMapSource
-        TabOrder=2
+        OnClick=OnClickManageFilters
     End Object
-    co_MapSource=MapSourceComboBox
+    b_ManageFilters=ManageFiltersButton
 
     Begin Object Class=HxMapVotingMapListBox Name=MapListBox
         WinLeft=0.01
-        WinTop=0.325
+        WinTop=0.372
         WinWidth=0.605
-        WinHeight=0.657
+        WinHeight=0.61
         bScaleToParent=true
         bBoundToParent=true
         FontScale=FNS_Small
@@ -432,9 +467,9 @@ defaultproperties
 
     Begin Object Class=GUILabel Name=RetrievingMapListLabel
         WinLeft=0.01
-        WinTop=0.32
+        WinTop=0.372
         WinWidth=0.605
-        WinHeight=0.657
+        WinHeight=0.61
         TextFont="MediumFont"
         TextAlign=TXTA_Center
         VertAlign=TXTA_Center
@@ -499,7 +534,7 @@ defaultproperties
     WinWidth=0.96
     OnKeyEvent=InternalOnKeyEvent
 
-    WindowName="HexedUT - Map Voting"
+    WindowName="Map Voting"
     lb_VoteCountListBox=None
     lb_MapListBox=None
     i_MapCountListBackground=None

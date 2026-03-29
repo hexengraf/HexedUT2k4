@@ -68,10 +68,10 @@ function bool Refresh()
     return false;
 }
 
-function AddMap(int MapIndex)
+function AddMap(int MapIndex, HxFavorites.EHxTag Tag)
 {
     MapIndices[MapIndices.Length] = MapIndex;
-    MapTags[MapTags.Length] = class'HxMapFavorites'.static.GetMapTag(VRI.MapList[MapIndex].MapName);
+    MapTags[MapTags.Length] = Tag;
     AddedItem();
 }
 

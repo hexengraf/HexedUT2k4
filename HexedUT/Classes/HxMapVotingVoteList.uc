@@ -2,23 +2,30 @@ class HxMapVotingVoteList extends HxMapVotingBaseList;
 
 function PopulateList()
 {
+    local HxFavorites.EHxTag MapTag;
     local int i;
 
     for (i = 0; i < VRI.MapVoteCount.Length; ++i)
     {
-        AddMap(VRI.MapVoteCount[i].MapIndex);
+        MapTag = class'HxMapFavorites'.static.GetMapTag(
+            VRI.MapList[VRI.MapVoteCount[i].MapIndex].MapName);
+        AddMap(VRI.MapVoteCount[i].MapIndex, MapTag);
     }
 }
 
 function UpdatedVoteCount(int UpdatedIndex, bool bRemoved)
 {
+    local HxFavorites.EHxTag MapTag;
+
     if (bRemoved)
     {
         RemoveMap(UpdatedIndex);
     }
     else if (UpdatedIndex >= ItemCount)
     {
-        AddMap(VRI.MapVoteCount[UpdatedIndex].MapIndex);
+        MapTag = class'HxMapFavorites'.static.GetMapTag(
+            VRI.MapList[VRI.MapVoteCount[UpdatedIndex].MapIndex].MapName);
+        AddMap(VRI.MapVoteCount[UpdatedIndex].MapIndex, MapTag);
     }
     else
     {

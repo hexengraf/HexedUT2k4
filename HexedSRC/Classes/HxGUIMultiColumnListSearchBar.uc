@@ -114,7 +114,7 @@ function Clear()
 defaultproperties
 {
     Begin Object class=GUILabel Name=SearchLabel
-        Caption="Find:"
+        Caption="Find"
         WinLeft=0
         WinTop=0
         WinHeight=1

@@ -1,5 +1,5 @@
 class HxMapVotingFilter extends HxPatternMatch
-    config(HxMapVotingFilters)
+    config(HexedFilters)
     PerObjectConfig;
 
 enum EHxMapSource
@@ -9,41 +9,105 @@ enum EHxMapSource
     HX_MAP_SOURCE_Custom,
 };
 
-struct HxSearchBar
+struct HxMapFilterRules
+{
+    var HxStringPattern Name;
+    var HxStringPattern Author;
+    var HxRangePattern Players;
+    var HxValuePattern Played;
+    var EHxMapSource Source;
+    var HxFavorites.EHxTag Tag;
+};
+
+struct HxMapSearchRules
 {
     var HxStringPattern Name;
     var HxRangePattern Players;
     var HxValuePattern Played;
-    var HxValuePattern Recent;
 };
 
-var config string Name;
+var config string MapName;
+var config string AuthorName;
+var config string NumPlayers;
+var config string TimesPlayed;
+var config EHxMapSource MapSource;
+var config HxFavorites.EHxTag MapTag;
+var config HxPatternMatch.EHxFilterMode FilterListMode;
+var config array<string> FilterList;
 
-var EHxMapSource MapSource;
-var array<string> Prefixes;
-var HxSearchBar SearchBar;
+var string Title;
+var private HxMapFilterRules Rules;
+var private HxMapSearchRules SearchRules;
+var private bool bExplicitList;
 
-function bool Match(VotingHandler.MapVoteMapList Entry)
+event Created()
 {
-    return SourceMatch(Entry.MapName)
-        && PrefixMatch(Entry.MapName)
-        && StringPatternMatch(Entry.MapName, SearchBar.Name)
-        && ValuePatternMatch(Entry.PlayCount, SearchBar.Played)
-        && ValuePatternMatch(Entry.Sequence, SearchBar.Recent)
-        && CacheRecordMatch(Entry.MapName);
+    ParseConfig();
 }
 
-function bool CacheRecordMatch(string MapName)
+function ParseConfig()
+{
+    Rules.Name = ParseStringPattern(MapName);
+    Rules.Author = ParseStringPattern(AuthorName);
+    Rules.Players = ParseRangePattern(NumPlayers);
+    Rules.Played = ParseValuePattern(TimesPlayed);
+    Rules.Source = MapSource;
+    Rules.Tag = MapTag;
+    bExplicitList = IsExplicitList();
+}
+
+function CopyConfig(HxMapVotingFilter From)
+{
+    MapName = From.MapName;
+    AuthorName = From.AuthorName;
+    NumPlayers = From.NumPlayers;
+    TimesPlayed = From.TimesPlayed;
+    MapSource = From.MapSource;
+    MapTag = From.MapTag;
+    FilterListMode = From.FilterListMode;
+    FilterList = From.FilterList;
+}
+
+function CopySearchRules(HxMapVotingFilter From)
+{
+    SearchRules = From.SearchRules;
+}
+
+function bool Match(VotingHandler.MapVoteMapList Entry, HxFavorites.EHxTag Tag)
 {
     local CacheManager.MapRecord Record;
+    local int i;
 
-    Record = class'CacheManager'.static.GetMapRecord(MapName);
-    return RangePatternMatch(Record.PlayerCountMin, Record.PlayerCountMax, SearchBar.Players);
+    Record = class'CacheManager'.static.GetMapRecord(Entry.MapName);
+    if (!StringPatternMatch(Entry.MapName, SearchRules.Name)
+        || !RangePatternMatch(Record.PlayerCountMin, Record.PlayerCountMax, SearchRules.Players)
+        || !ValuePatternMatch(Entry.PlayCount, SearchRules.Played))
+    {
+        return false;
+    }
+    for (i = 0; i < FilterList.Length; ++i)
+    {
+        if (FilterList[i] ~= Entry.MapName)
+        {
+            return FilterListMode == HX_FILTER_MODE_Include;
+        }
+        if (bExplicitList && FilterListMode == HX_FILTER_MODE_Exclude)
+        {
+            return true;
+        }
+    }
+    return !bExplicitList
+        && StringPatternMatch(Entry.MapName, Rules.Name)
+        && StringPatternMatch(Record.Author, Rules.Author)
+        && RangePatternMatch(Record.PlayerCountMin, Record.PlayerCountMax, Rules.Players)
+        && ValuePatternMatch(Entry.PlayCount, Rules.Played)
+        && SourceMatch(Entry.MapName, Rules.Source)
+        && Rules.Tag == HX_TAG_Any || Rules.Tag == Tag;
 }
 
-function bool SourceMatch(string MapName)
+function bool SourceMatch(string MapName, EHxMapSource Source)
 {
-    switch (MapSource)
+    switch (Source)
     {
         case HX_MAP_SOURCE_Any:
             return true;
@@ -55,53 +119,38 @@ function bool SourceMatch(string MapName)
     return true;
 }
 
-function bool PrefixMatch(string MapName)
+function SearchName(string SearchTerm)
 {
-    local int i;
-
-    for (i = 0; i < Prefixes.Length; ++i)
-    {
-        if (StrCmp(MapName, Prefixes[i], len(Prefixes[i])) == 0)
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-function SearchName(string SearchTerm, optional bool bCaseSensitive)
-{
-    SearchBar.Name = ParseStringPattern(SearchTerm, bCaseSensitive);
+    SearchRules.Name = ParseStringPattern(SearchTerm);
 }
 
 function SearchPlayers(string SearchTerm)
 {
-    SearchBar.Players = ParseRangePattern(SearchTerm);
+    SearchRules.Players = ParseRangePattern(SearchTerm);
 }
 
 function SearchPlayed(string SearchTerm)
 {
-    SearchBar.Played = ParseValuePattern(SearchTerm);
+    SearchRules.Played = ParseValuePattern(SearchTerm);
 }
 
-function SearchRecent(string SearchTerm)
+function bool IsExplicitList()
 {
-    SearchBar.Recent = ParseValuePattern(SearchTerm);
-}
-
-function SetPrefix(string Prefix)
-{
-    Prefixes.Length = 0;
-    Split(Prefix, ",", Prefixes);
-}
-
-function SetMapSource(int Source)
-{
-    MapSource = EHxMapSource(Source);
+    return FilterList.Length > 0
+        && MapName == ""
+        && AuthorName == ""
+        && NumPlayers == ""
+        && TimesPlayed == ""
+        && MapSource == HX_MAP_SOURCE_Any
+        && MapTag == HX_TAG_Any;
 }
 
 defaultproperties
 {
-    Name="None"
+    MapName=""
+    AuthorName=""
+    NumPlayers=""
+    TimesPlayed=""
     MapSource=HX_MAP_SOURCE_Any
+    MapTag=HX_TAG_Any
 }

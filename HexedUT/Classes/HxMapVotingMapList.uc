@@ -1,18 +1,35 @@
 class HxMapVotingMapList extends HxMapVotingBaseList;
 
 var private HxMapVotingFilter ActiveFilter;
+var private array<string> Prefixes;
 
 function PopulateList()
 {
+    local HxFavorites.EHxTag MapTag;
     local int i;
 
     for (i = 0; i < VRI.MapList.Length; ++i)
     {
-        if (ActiveFilter.Match(VRI.MapList[i]))
+        MapTag = class'HxMapFavorites'.static.GetMapTag(VRI.MapList[i].MapName);
+        if (PrefixMatch(VRI.MapList[i].MapName) && ActiveFilter.Match(VRI.MapList[i], MapTag))
         {
-            AddMap(i);
+            AddMap(i, MapTag);
         }
     }
+}
+
+function bool PrefixMatch(string MapName)
+{
+    local int i;
+
+    for (i = 0; i < Prefixes.Length; ++i)
+    {
+        if (StrCmp(MapName, Prefixes[i], len(Prefixes[i])) == 0)
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 function SetFilter(HxMapVotingFilter Filter)
@@ -23,19 +40,14 @@ function SetFilter(HxMapVotingFilter Filter)
 
 function SetPrefix(string Prefix)
 {
-    ActiveFilter.SetPrefix(Prefix);
+    Prefixes.Length = 0;
+    Split(Prefix, ",", Prefixes);
     Refresh();
 }
 
-function SetMapSource(int Source)
+function SearchName(string SearchTerm)
 {
-    ActiveFilter.SetMapSource(Source);
-    Refresh();
-}
-
-function SearchName(string SearchTerm, optional bool bCaseSensitive)
-{
-    ActiveFilter.SearchName(SearchTerm, bCaseSensitive);
+    ActiveFilter.SearchName(SearchTerm);
     Refresh();
 }
 
@@ -48,12 +60,6 @@ function SearchPlayers(string SearchTerm)
 function SearchPlayed(string SearchTerm)
 {
     ActiveFilter.SearchPlayed(SearchTerm);
-    Refresh();
-}
-
-function SearchRecent(string SearchTerm)
-{
-    ActiveFilter.SearchRecent(SearchTerm);
     Refresh();
 }
 
@@ -121,7 +127,7 @@ defaultproperties
     ColumnHeadings(3)="Players"
     ColumnHeadings(4)="Played"
     ColumnHeadingHints(3)="Click to sort by number of recommended players."
-    ColumnHeadingHints(4)="Click to sort by number of times the map has been played."
+    ColumnHeadingHints(4)="Click to sort by number of times played."
 
     SortColumn=1
     PreviousSortColumn=2

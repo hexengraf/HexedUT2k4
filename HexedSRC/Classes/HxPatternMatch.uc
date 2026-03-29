@@ -37,6 +37,10 @@ enum EHxFilterMode
     HX_FILTER_MODE_Exclude,
 };
 
+var localized string StringPatternMatchHint;
+var localized string ValuePatternMatchHint;
+var localized string RangePatternMatchHint;
+
 static function HxStringPattern ParseStringPattern(string SearchTerm, optional bool bCaseSensitive)
 {
     local HxStringPattern Pattern;
@@ -233,4 +237,7 @@ function bool ValuePatternMatch(int Value, HxValuePattern Pattern)
 
 defaultproperties
 {
+    StringPatternMatchHint="Use * to match anything, ^ and $ to match begin and end of the name."
+    ValuePatternMatchHint="Use * to match anything, > or < or = followed by a number to match with comparison."
+    RangePatternMatchHint="Use single number to match ranges that contain it. Use two numbers (M and N) separated by a dash to match the exact range M - N. Use * to allow any number, and > or < or = followed by a number to match with comparison."
 }
