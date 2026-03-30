@@ -126,6 +126,6 @@ defaultproperties
     ScreenHeights(2)=960
     ScreenHeights(3)=1024
     ScreenHeights(4)=1440
-    ScreenHeights(5)=1600
+    ScreenHeights(5)=2048
     ScreenHeights(6)=2160
 }
