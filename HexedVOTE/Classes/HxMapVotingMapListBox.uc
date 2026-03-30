@@ -17,7 +17,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
         SearchBar.ed_Columns[2].Hint@class'HxPatternMatch'.default.ValuePatternMatchHint);
 }
 
-function SetFilter(HxMapVotingFilter Filter)
+function SetFilter(HxMapFilter Filter)
 {
     HxMapVotingMapList(List).SetFilter(Filter);
 }

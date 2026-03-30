@@ -18,14 +18,15 @@ var automated HxGUIChatBox ChatBox;
 var localized string LoadingText;
 var localized string RetrievingMapListText;
 
-var HxMapVotingFilterManager FilterManager;
+var HxMapFilterManager FilterManager;
 var private int SelectedGameType;
 var private int SelectedMap;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
+    WindowName = class'MutHexedVOTE'.default.FriendlyName@"-"@default.WindowName;
     Super(PopupPageBase).InitComponent(MyController, MyOwner);
-    FilterManager = new() class'HxMapVotingFilterManager';
+    FilterManager = new() class'HxMapFilterManager';
     lb_MapList.OnTagUpdated = lb_VoteList.UpdateMapTag;
     lb_VoteList.OnTagUpdated = lb_MapList.UpdateMapTag;
     SetupWindowHeader();
@@ -281,7 +282,7 @@ function bool OnClickSelectRandom(GUIComponent Sender)
 
 function bool OnClickManageFilters(GUIComponent Sender)
 {
-    if (Controller.OpenMenu(string(class'HxMapVotingFilterPage')))
+    if (Controller.OpenMenu(string(class'HxMapFilterPage')))
     {
         Controller.ActivePage.OnClose = OnCloseFilterPage;
     }

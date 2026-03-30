@@ -1,4 +1,4 @@
-class HxMapVotingFilterPage extends HxGUIFloatingWindow
+class HxMapFilterPage extends HxGUIFloatingWindow
     DependsOn(CacheManager);
 
 const SECTION_RULES = 0;
@@ -35,8 +35,8 @@ var localized string InvalidNamePrefix;
 var localized string InvalidNameSuffix;
 var localized string MapListModeNames[2];
 
-var private HxMapVotingFilterManager FilterManager;
-var private HxMapVotingFilter SelectedFilter;
+var private HxMapFilterManager FilterManager;
+var private HxMapFilter SelectedFilter;
 var private string Properties[7];
 var private array<CacheManager.GameRecord> GameTypes;
 
@@ -44,6 +44,7 @@ function InitComponent(GUIController MyController, GUIComponent MyComponent)
 {
     local int i;
 
+    WindowName = class'MutHexedVOTE'.default.FriendlyName@"-"@default.WindowName;
     Super.InitComponent(MyController, MyComponent);
     for (i = 0; i < ArrayCount(RuleOptions); ++i)
     {

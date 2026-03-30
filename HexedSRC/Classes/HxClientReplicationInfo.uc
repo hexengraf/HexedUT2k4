@@ -41,8 +41,16 @@ replication
         ServerUpdateProperty;
 }
 
-simulated function string GetProperty(int Index);
-simulated function SetProperty(int Index, string Value);
+simulated function string GetProperty(int Index)
+{
+    return "";
+}
+
+simulated function SetProperty(int Index, string Value)
+{
+
+}
+
 simulated function ServerInfoReady();
 simulated function ServerPropertyChanged(int Index, string OldValue);
 

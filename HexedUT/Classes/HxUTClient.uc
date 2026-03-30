@@ -12,7 +12,6 @@ const MIN_VERSION = 4;
 const DAMAGE_CLUSTERING_INTERVAL = 0.02;
 
 var config bool bFirstRun;
-var config bool bMapVoteMenu;
 
 var HxHitEffects HitEffects;
 var HxSpawnProtectionTimer SPTimer;
@@ -36,10 +35,6 @@ simulated event PreBeginPlay()
         if (bFirstRun)
         {
             RecoverConfigs();
-        }
-        if (bMapVoteMenu)
-        {
-            Manager.SetCustomMapVoteMenu(string(class'HxMapVotingPage'));
         }
     }
     InitializePlayerController();
@@ -197,10 +192,6 @@ simulated function ServerPropertyChanged(int Index, string OldValue)
 
 simulated function string GetProperty(int Index)
 {
-    if (Index == 0)
-    {
-        return string(bMapVoteMenu);
-    }
     if (Index >= Properties.Length)
     {
         return "";
@@ -211,15 +202,15 @@ simulated function string GetProperty(int Index)
     }
     switch (Index)
     {
-        case 1:
+        case 0:
             return string(class'HxSpawnProtectionTimer'.default.bEnabled);
-        case 2:
+        case 1:
             return string(class'HxSpawnProtectionTimer'.default.bUseHUDColor);
-        case 3:
+        case 2:
             return string(class'HxSpawnProtectionTimer'.default.bPulsingDigits);
-        case 4:
+        case 3:
             return string(class'HxSpawnProtectionTimer'.default.PosX);
-        case 5:
+        case 4:
             return string(class'HxSpawnProtectionTimer'.default.PosY);
     }
     return "";
@@ -227,13 +218,7 @@ simulated function string GetProperty(int Index)
 
 simulated function SetProperty(int Index, string Value)
 {
-    if (Index == 0)
-    {
-        bMapVoteMenu = bool(Value);
-        Manager.SetCustomMapVoteMenu(string(class'HxMapVotingPage'), !bMapVoteMenu);
-        SaveConfig();
-    }
-    else if (Index < Properties.Length)
+    if (Index < Properties.Length)
     {
         if (SPTimer != None)
         {
@@ -244,19 +229,19 @@ simulated function SetProperty(int Index, string Value)
         {
             switch (Index)
             {
-                case 1:
+                case 0:
                     class'HxSpawnProtectionTimer'.default.bEnabled = bool(Value);
                     break;
-                case 2:
+                case 1:
                     class'HxSpawnProtectionTimer'.default.bUseHUDColor = bool(Value);
                     break;
-                case 3:
+                case 2:
                     class'HxSpawnProtectionTimer'.default.bPulsingDigits = bool(Value);
                     break;
-                case 4:
+                case 3:
                     class'HxSpawnProtectionTimer'.default.PosX = float(Value);
                     break;
-                case 5:
+                case 4:
                     class'HxSpawnProtectionTimer'.default.PosY = float(Value);
                     break;
             }
@@ -267,14 +252,6 @@ simulated function SetProperty(int Index, string Value)
 
 simulated function RecoverConfigs()
 {
-    local Actor OldActor;
-
-    OldActor = class'HxConfig'.static.FindOldVersionActor(Self, Class, MIN_VERSION);
-    if (OldActor != None)
-    {
-        class'HxConfig'.static.CopyProperty(Self, OldActor, "bMapVoteMenu");
-        OldActor.Destroy();
-    }
     class'HxHitEffects'.static.StaticRecoverConfigs(Self);
     class'HxSkinHighlight'.static.StaticRecoverConfigs(Self);
     bFirstRun = false;
@@ -284,15 +261,12 @@ simulated function RecoverConfigs()
 defaultproperties
 {
     bFirstRun=true
-    bMapVoteMenu=true
-
     MutatorClass=class'MutHexedUT'
-    Properties(0)=(Name="bMapVoteMenu",Section="Voting",Caption="Replace map vote menu",Hint="Replace the default map vote menu.",Type=PIT_Check)
-    Properties(1)=(Name="bEnabled",Section="Spawn Protection Timer",Caption="Enable spawn protection timer",Hint="Show timer indicating remaining spawn protection duration.",Type=PIT_Check,Dependency="bAllowSpawnProtectionTimer")
-    Properties(2)=(Name="bUseHUDColor",Section="Spawn Protection Timer",Caption="Use HUD's color",Hint="Use the same color as the HUD for the timer's icon.",Type=PIT_Check,Dependency="bAllowSpawnProtectionTimer",bAdvanced=true)
-    Properties(3)=(Name="bPulsingDigits",Section="Spawn Protection Timer",Caption="Use pulsing digits",Hint="Use pulsing digits for the timer.",Type=PIT_Check,Dependency="bAllowSpawnProtectionTimer",bAdvanced=true)
-    Properties(4)=(Name="PosX",Section="Spawn Protection Timer",Caption="X position",Hint="Adjust X position.",Type=PIT_Text,Data="8;0.0:1.0",Step=0.01,Dependency="bAllowSpawnProtectionTimer",bAdvanced=true)
-    Properties(5)=(Name="PosY",Section="Spawn Protection Timer",Caption="Y position",Hint="Adjust Y position.",Type=PIT_Text,Data="8;0.0:1.0",Step=0.01,Dependency="bAllowSpawnProtectionTimer",bAdvanced=true)
+    Properties(0)=(Name="bEnabled",Section="Spawn Protection Timer",Caption="Enable spawn protection timer",Hint="Show timer indicating remaining spawn protection duration.",Type=PIT_Check,Dependency="bAllowSpawnProtectionTimer")
+    Properties(1)=(Name="bUseHUDColor",Section="Spawn Protection Timer",Caption="Use HUD's color",Hint="Use the same color as the HUD for the timer's icon.",Type=PIT_Check,Dependency="bAllowSpawnProtectionTimer",bAdvanced=true)
+    Properties(2)=(Name="bPulsingDigits",Section="Spawn Protection Timer",Caption="Use pulsing digits",Hint="Use pulsing digits for the timer.",Type=PIT_Check,Dependency="bAllowSpawnProtectionTimer",bAdvanced=true)
+    Properties(3)=(Name="PosX",Section="Spawn Protection Timer",Caption="X position",Hint="Adjust X position.",Type=PIT_Text,Data="8;0.0:1.0",Step=0.01,Dependency="bAllowSpawnProtectionTimer",bAdvanced=true)
+    Properties(4)=(Name="PosY",Section="Spawn Protection Timer",Caption="Y position",Hint="Adjust Y position.",Type=PIT_Text,Data="8;0.0:1.0",Step=0.01,Dependency="bAllowSpawnProtectionTimer",bAdvanced=true)
     PanelClasses(0)=class'HxGUIMenuSkinHighlightPanel'
     PanelClasses(1)=class'HxGUIMenuHitEffectsPanel'
     Order=0

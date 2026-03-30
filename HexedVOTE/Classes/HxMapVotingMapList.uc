@@ -1,6 +1,6 @@
 class HxMapVotingMapList extends HxMapVotingBaseList;
 
-var private HxMapVotingFilter ActiveFilter;
+var private HxMapFilter ActiveFilter;
 var private array<string> Prefixes;
 
 function PopulateList()
@@ -32,7 +32,7 @@ function bool PrefixMatch(string MapName)
     return false;
 }
 
-function SetFilter(HxMapVotingFilter Filter)
+function SetFilter(HxMapFilter Filter)
 {
     ActiveFilter = Filter;
     Refresh();

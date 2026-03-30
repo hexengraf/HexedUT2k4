@@ -2,7 +2,8 @@
 class HxMapFavorites extends HxFavorites
     config(User);
 
-const MIN_VERSION = 4;
+const MIN_VERSION = 6;
+const COMPAT_MIN_VERSION = 4;
 
 struct HxMapTag
 {
@@ -74,7 +75,7 @@ static function StaticRecoverConfigs()
     OldObject = FindOldVersionObject(default.Class, MIN_VERSION);
     if (OldObject == None)
     {
-        OldObject = FindHexedPatchesFavorites();
+        OldObject = FindOldVersionObject("HexedUTv6.HxMapFavorites", COMPAT_MIN_VERSION);
     }
     if (OldObject != None)
     {
@@ -86,18 +87,6 @@ static function StaticRecoverConfigs()
     NewObject.SaveConfig();
     NewObject = None;
     OldObject = None;
-}
-
-static function Object FindHexedPatchesFavorites()
-{
-    local class<Object> OldClass;
-
-    OldClass = class<Object>(DynamicLoadObject("HexedPatches.HxFavorites", class'Class', true));
-    if (OldClass != None)
-    {
-        return new() OldClass;
-    }
-    return None;
 }
 
 defaultproperties

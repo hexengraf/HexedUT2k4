@@ -1,4 +1,4 @@
-class HxMapVotingFilter extends HxPatternMatch
+class HxMapFilter extends HxPatternMatch
     config(HexedFilters)
     PerObjectConfig;
 
@@ -56,7 +56,7 @@ function ParseConfig()
     bExplicitList = IsExplicitList();
 }
 
-function CopyConfig(HxMapVotingFilter From)
+function CopyConfig(HxMapFilter From)
 {
     MapName = From.MapName;
     AuthorName = From.AuthorName;
@@ -68,7 +68,7 @@ function CopyConfig(HxMapVotingFilter From)
     FilterList = From.FilterList;
 }
 
-function CopySearchRules(HxMapVotingFilter From)
+function CopySearchRules(HxMapFilter From)
 {
     SearchRules = From.SearchRules;
 }
