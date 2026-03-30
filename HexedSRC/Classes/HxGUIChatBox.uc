@@ -214,18 +214,18 @@ function bool AlignComponents(Canvas C)
 {
     local float XL;
     local float YL;
+    local float Height;
     local float Thickness;
 
-    Thickness = ActualFrameThickness(C) / ActualHeight();
+    Height = ActualHeight();
+    Thickness = ActualFrameThickness(C) / Height;
     b_Channel.Style.TextSize(
         C, b_Channel.MenuState, ChatChannels[1], XL, YL, b_Channel.FontScale);
-    b_Channel.WinHeight = b_Channel.RelativeHeight(YL * 1.5);
     b_Channel.WinWidth = b_Channel.RelativeWidth(XL * 1.2);
-    b_Channel.WinTop = 1.0 - b_Channel.WinHeight;
+    b_Channel.WinTop = 1.0 - (b_Channel.ActualHeight() / Height);
     ed_Input.WinLeft = b_Channel.WinWidth - Thickness;
     ed_Input.WinTop = b_Channel.WinTop;
     ed_Input.WinWidth = 1.0 - ed_Input.WinLeft;
-    ed_Input.WinHeight = b_Channel.WinHeight;
     lb_Chat.WinHeight = b_Channel.WinTop + Thickness;
     return false;
 }
@@ -277,8 +277,10 @@ defaultproperties
     lb_Chat=ChatScrollBox
 
     Begin Object Class=GUIButton Name=ChannelButton
-        Hint="Click to cycle between channels."
+        Hint="Click to cycle between console and chat channels."
         WinLeft=0
+        StandardHeight=0.027
+        bStandardized=true
         FontScale=FNS_Small
         bNeverFocus=true
         StyleName="HxSquareButton"
@@ -292,9 +294,10 @@ defaultproperties
     Begin Object class=GUIEditBox Name=ChatInputBox
         Hint="Switch channel by typing /s, /t or /c followed by a space."
         StyleName="HxEditBox"
+        StandardHeight=0.027
+        bStandardized=true
         FontScale=FNS_Small
         TabOrder=0
-        bStandardized=false
         bBoundToParent=true
         bScaleToParent=true
         OnKeyEvent=OnKeyEventInput

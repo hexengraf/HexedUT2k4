@@ -399,7 +399,8 @@ defaultproperties
         WinLeft=0.01
         WinTop=0.2785
         WinWidth=0.605
-        WinHeight=0.0375
+        StandardHeight=0.0325
+        bStandardized=true
         CaptionWidth=0.176
         bReadOnly=true
         bScaleToParent=true
@@ -413,9 +414,10 @@ defaultproperties
         Caption="Map Filter"
         Hint="Select map filter to apply."
         WinLeft=0.01
-        WinTop=0.3255
+        WinTop=0.328625
         WinWidth=0.4293
-        WinHeight=0.0375
+        StandardHeight=0.0325
+        bStandardized=true
         CaptionWidth=0.248
         bReadOnly=true
         bScaleToParent=true
@@ -429,9 +431,10 @@ defaultproperties
         Caption="Manage Filters"
         Hint="Manage map filters."
         WinLeft=0.4448
-        WinTop=0.3255
+        WinTop=0.328625
         WinWidth=0.1702
-        WinHeight=0.0375
+        StandardHeight=0.0325
+        bStandardized=true
         StyleName="HxSquareButton"
         bNeverFocus=true
         bRepeatClick=true
@@ -443,9 +446,9 @@ defaultproperties
 
     Begin Object Class=HxMapVotingMapListBox Name=MapListBox
         WinLeft=0.01
-        WinTop=0.372
+        WinTop=0.37825
         WinWidth=0.605
-        WinHeight=0.61
+        WinHeight=0.60375
         bScaleToParent=true
         bBoundToParent=true
         FontScale=FNS_Small
@@ -457,9 +460,9 @@ defaultproperties
 
     Begin Object Class=GUILabel Name=RetrievingMapListLabel
         WinLeft=0.01
-        WinTop=0.372
+        WinTop=0.37825
         WinWidth=0.605
-        WinHeight=0.61
+        WinHeight=0.60375
         TextFont="MediumFont"
         TextAlign=TXTA_Center
         VertAlign=TXTA_Center
@@ -475,7 +478,7 @@ defaultproperties
         WinLeft=0.6205
         WinTop=0.045
         WinWidth=0.3695
-        WinHeight=0.659
+        WinHeight=0.658375
         bBoundToParent=true
         bScaleToParent=true
     End Object
@@ -485,8 +488,10 @@ defaultproperties
         Caption="Select Random"
         Hint="Select a random map from the map list (or vote list if focused and non-empty)."
         WinLeft=0.6205
-        WinTop=0.713
+        WinTop=0.712375
         WinWidth=0.182
+        StandardHeight=0.0325
+        bStandardized=true
         StyleName="HxSquareButton"
         bNeverFocus=true
         bRepeatClick=true
@@ -500,8 +505,10 @@ defaultproperties
         Caption="Submit Vote"
         Hint="Vote for the currently selected map."
         WinLeft=0.808
-        WinTop=0.713
+        WinTop=0.712375
         WinWidth=0.182
+        StandardHeight=0.0325
+        bStandardized=true
         StyleName="HxSquareButton"
         bNeverFocus=true
         bRepeatClick=false

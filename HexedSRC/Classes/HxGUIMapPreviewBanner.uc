@@ -7,6 +7,7 @@ var automated HxGUIScrollTextBox lb_Information;
 var automated HxGUIScrollTextBox lb_Description;
 var automated GUILabel l_NoInformation;
 
+var float StandardHeaderHeight;
 var float MaxPreviewWidth;
 var localized string NoMapLabel;
 var localized string NoInfoLabel;
@@ -141,8 +142,7 @@ function AlignNoInformationLabel()
 
 function float AlignHeader(Canvas C)
 {
-    GetFontSize(l_Header, C,,, l_Header.WinHeight);
-    l_Header.WinHeight = l_Header.RelativeHeight(l_Header.WinHeight * MED_FONT_SPACING);
+    l_Header.WinHeight = l_Header.RelativeHeight(Round(C.ClipY * StandardHeaderHeight));
     return l_Header.WinHeight;
 }
 
@@ -276,6 +276,7 @@ defaultproperties
     End Object
     l_NoInformation=NoInformationLabel
 
+    StandardHeaderHeight=0.0325
     MaxPreviewWidth=0.94
     NoMapLabel="No Map Selected"
     NoInfoLabel="Map Information Unavailable"

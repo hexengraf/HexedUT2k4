@@ -77,6 +77,8 @@ defaultproperties
     Begin Object Class=HxGUIMultiColumnListSearchBar Name=HxSearchBar
         WinLeft=0
         WinWidth=1
+        StandardHeight=0.027
+        bStandardized=true
         FirstColumn=2
         ed_Columns=(NameSearch,PlayersSearch,PlayedSearch)
         bBoundToParent=true

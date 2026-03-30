@@ -28,17 +28,10 @@ function bool InternalOnPreDraw(Canvas C)
     bInit = bInit || GUIMultiColumnListBox(MenuOwner).Header.MenuState == MSAT_Pressed;
     if (bInit)
     {
-        UpdateHeight(C);
         ResizeSearchLabel(C);
     }
     ResizeEditBoxes(C);
     return Super.InternalOnPreDraw(C);
-}
-
-function UpdateHeight(Canvas C)
-{
-    GetFontSize(l_Search, C,,, WinHeight);
-    WinHeight = RelativeHeight(WinHeight * 1.5);
 }
 
 function ResizeSearchLabel(Canvas C)

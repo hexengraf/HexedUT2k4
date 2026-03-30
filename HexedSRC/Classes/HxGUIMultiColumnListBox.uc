@@ -4,6 +4,7 @@ class HxGUIMultiColumnListBox extends GUIMultiColumnListBox
 var automated HxGUIFramedImage fi_Background;
 var automated HxGUIMultiColumnListSearchBar SearchBar;
 
+var float StandardHeaderHeight;
 var float ScrollbarWidth;
 var float FrameThickness;
 
@@ -66,7 +67,6 @@ function bool InternalOnPreDraw(Canvas C)
     {
         if (SearchBar != None)
         {
-            SearchBar.UpdateHeight(C);
             SearchBar.WinTop = SearchBar.RelativeHeight(ActualHeight() - SearchBar.ActualHeight());
             HxGUIVertScrollBar(MyScrollBar).BottomOffset = SearchBar.ActualHeight() / C.ClipY;
         }
@@ -115,7 +115,7 @@ function bool OnHoverHeader(GUIComponent Sender)
 
 function bool OnPreDrawHeader(Canvas C)
 {
-    Header.WinHeight *= 1.2;
+    Header.WinHeight = Round(C.ClipY * StandardHeaderHeight);
     return true;
 }
 
@@ -199,6 +199,7 @@ defaultproperties
     End Object
     MyScrollBar=NewTheScrollbar
 
+    StandardHeaderHeight=0.0325
     ScrollbarWidth=0.017
     FrameThickness=0.001
     StyleName="HxSmallList"
