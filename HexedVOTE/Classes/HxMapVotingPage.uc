@@ -333,7 +333,6 @@ function bool FloatingPreDraw(Canvas C)
     if (bInit)
     {
         AdjustWindowSize(C.ClipX, C.ClipY);
-        AlignRightSideComponents(C);
     }
     return Super.FloatingPreDraw(C);
 }
@@ -345,16 +344,6 @@ function AdjustWindowSize(coerce float X, coerce float Y)
     Coefficient = (4.0 / 3.0) / (X / Y);
     WinWidth = default.WinWidth * Coefficient;
     WinLeft = default.WinLeft + ((default.WinWidth - WinWidth) / 2);
-}
-
-function AlignRightSideComponents(Canvas C)
-{
-    class'HxGUIStyles'.static.GetFontSize(b_Random, C,,, b_Random.WinHeight);
-    b_Random.WinHeight = b_Random.RelativeHeight(b_Random.WinHeight * MED_FONT_SPACING);
-    b_Random.WinTop = ChatBox.WinTop - VERT_SPACING - b_Random.WinHeight;
-    b_Vote.WinTop = b_Random.WinTop;
-    b_Vote.WinHeight = b_Random.WinHeight;
-    MapBanner.WinHeight = b_Random.WinTop - VERT_SPACING - MapBanner.WinTop;
 }
 
 event Free()
@@ -482,20 +471,21 @@ defaultproperties
     End Object
     l_RetrievingMapList=RetrievingMapListLabel
 
-    Begin Object Class=HxGUIMapPreviewBanner Name=VotingMapBanner
+    Begin Object Class=HxGUIMapPreviewBanner Name=MapPreviewBanner
         WinLeft=0.6205
         WinTop=0.045
         WinWidth=0.3695
-        WinHeight=0.7
+        WinHeight=0.659
         bBoundToParent=true
         bScaleToParent=true
     End Object
-    MapBanner=VotingMapBanner
+    MapBanner=MapPreviewBanner
 
     Begin Object Class=GUIButton Name=RandomButton
         Caption="Select Random"
         Hint="Select a random map from the map list (or vote list if focused and non-empty)."
         WinLeft=0.6205
+        WinTop=0.713
         WinWidth=0.182
         StyleName="HxSquareButton"
         bNeverFocus=true
@@ -510,6 +500,7 @@ defaultproperties
         Caption="Submit Vote"
         Hint="Vote for the currently selected map."
         WinLeft=0.808
+        WinTop=0.713
         WinWidth=0.182
         StyleName="HxSquareButton"
         bNeverFocus=true
