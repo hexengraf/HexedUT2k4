@@ -29,6 +29,8 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     FilterManager = new() class'HxMapFilterManager';
     lb_MapList.OnTagUpdated = lb_VoteList.UpdateMapTag;
     lb_VoteList.OnTagUpdated = lb_MapList.UpdateMapTag;
+    class'HxGUIStyles'.static.ApplyComboBoxStyle(Controller, co_GameType);
+    class'HxGUIStyles'.static.ApplyComboBoxStyle(Controller, co_MapFilter);
     SetupWindowHeader();
     Unpause();
     AdjustWindowSize(Controller.ResX, Controller.ResY);
@@ -383,7 +385,7 @@ defaultproperties
         WinLeft=0.01
         WinTop=0.045
         WinWidth=0.605
-        WinHeight=0.224
+        WinHeight=0.22
         bScaleToParent=true
         bBoundToParent=true
         FontScale=FNS_Small
@@ -396,12 +398,13 @@ defaultproperties
     Begin Object class=moComboBox Name=GameTypeComboBox
         Caption="Game Type"
         Hint="Select game type to show."
-        WinLeft=0.01
-        WinTop=0.2785
-        WinWidth=0.605
+        WinLeft=0.015
+        WinTop=0.2745
+        WinWidth=0.6
         StandardHeight=0.0325
         bStandardized=true
         CaptionWidth=0.176
+        LabelStyleName="HxTextLabel"
         bReadOnly=true
         bScaleToParent=true
         bBoundToParent=true
@@ -413,12 +416,13 @@ defaultproperties
     Begin Object class=moComboBox Name=MapFilterComboBox
         Caption="Map Filter"
         Hint="Select map filter to apply."
-        WinLeft=0.01
-        WinTop=0.328625
-        WinWidth=0.4293
+        WinLeft=0.015
+        WinTop=0.324625
+        WinWidth=0.4243
         StandardHeight=0.0325
         bStandardized=true
-        CaptionWidth=0.248
+        CaptionWidth=0.2489
+        LabelStyleName="HxTextLabel"
         bReadOnly=true
         bScaleToParent=true
         bBoundToParent=true
@@ -431,7 +435,7 @@ defaultproperties
         Caption="Manage Filters"
         Hint="Manage map filters."
         WinLeft=0.4448
-        WinTop=0.328625
+        WinTop=0.324625
         WinWidth=0.1702
         StandardHeight=0.0325
         bStandardized=true
@@ -446,9 +450,9 @@ defaultproperties
 
     Begin Object Class=HxMapVotingMapListBox Name=MapListBox
         WinLeft=0.01
-        WinTop=0.37825
+        WinTop=0.37425
         WinWidth=0.605
-        WinHeight=0.60375
+        WinHeight=0.60775
         bScaleToParent=true
         bBoundToParent=true
         FontScale=FNS_Small
@@ -460,9 +464,9 @@ defaultproperties
 
     Begin Object Class=GUILabel Name=RetrievingMapListLabel
         WinLeft=0.01
-        WinTop=0.37825
+        WinTop=0.37425
         WinWidth=0.605
-        WinHeight=0.60375
+        WinHeight=0.60775
         TextFont="MediumFont"
         TextAlign=TXTA_Center
         VertAlign=TXTA_Center

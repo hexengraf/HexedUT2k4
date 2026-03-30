@@ -1,29 +1,8 @@
 class HxSTYSquareButton extends HxGUIStyles;
 
-event Initialize()
-{
-    local int i;
-
-    Super.Initialize();
-    for (i = 0; i < 5; ++i)
-    {
-        if (Fonts[i] == None)
-        {
-            FontNames[i] = "UT2SmallFont";
-            Fonts[i] = Controller.GetMenuFont(FontNames[i]);
-        }
-    }
-}
-
 defaultproperties
 {
     KeyName="HxSquareButton"
-
-    FontNames(0)="HxSmallerFont"
-    FontNames(1)="HxSmallerFont"
-    FontNames(2)="HxSmallerFont"
-    FontNames(3)="HxSmallerFont"
-    FontNames(4)="HxSmallerFont"
 
     Images(0)=Material'engine.WhiteSquareTexture'
     Images(1)=Material'engine.WhiteSquareTexture'
@@ -38,4 +17,6 @@ defaultproperties
     ImgColors(4)=(R=25,G=25,B=25,A=255)
 
     FontColors(4)=(R=164,G=164,B=164,A=255)
+
+    Frames(0)=(Material=Material'engine.WhiteSquareTexture',Color=(R=113,G=159,B=205,A=255),Thickness=0.001)
 }

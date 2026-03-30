@@ -112,7 +112,7 @@ defaultproperties
         WinTop=0
         WinHeight=1
         WinWidth=1
-        StyleName="HxEditBox"
+        StyleName="HxTextLabel"
         TextAlign=TXTA_Center
         FontScale=FNS_Small
         bNeverFocus=true

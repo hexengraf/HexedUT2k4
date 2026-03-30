@@ -58,6 +58,18 @@ function InitComponent(GUIController MyController, GUIComponent MyComponent)
     Sections[SECTION_FILTER_LIST].Insert(ed_SearchFilterList, 0.015, 0.015);
     Sections[SECTION_FILTER_LIST].Insert(lb_FilterList, 0.001);
     Sections[SECTION_FILTER_LIST].Insert(l_MapListButtonAnchor, 0.015, 0.015);
+    class'HxGUIStyles'.static.ApplyComboBoxStyle(Controller, co_Filter);
+    class'HxGUIStyles'.static.ApplyComboBoxStyle(Controller, co_GameType);
+    class'HxGUIStyles'.static.ApplyEditBoxStyle(Controller, ed_SearchMaps);
+    class'HxGUIStyles'.static.ApplyEditBoxStyle(Controller, ed_SearchFilterList);
+    for (i = 0; i < 4; ++i)
+    {
+        class'HxGUIStyles'.static.ApplyEditBoxStyle(Controller, moEditBox(RuleOptions[i]));
+    }
+    for (i = 3; i < ArrayCount(RuleOptions); ++i)
+    {
+        class'HxGUIStyles'.static.ApplyComboBoxStyle(Controller, moComboBox(RuleOptions[i]));
+    }
     RuleOptions[0].ToolTip.ExpirationSeconds = 6;
     RuleOptions[0].SetHint(
         RuleOptions[0].Hint@class'HxPatternMatch'.default.StringPatternMatchHint);
@@ -535,9 +547,9 @@ defaultproperties
     Begin Object class=moComboBox Name=FilterComboBox
         Caption="Filter"
         Hint="Select filter to modify."
-        WinLeft=0.015
+        WinLeft=0.020715
         WinTop=0.052
-        WinWidth=0.502
+        WinWidth=0.496285
         CaptionWidth=0.175
         bReadOnly=true
         bScaleToParent=true

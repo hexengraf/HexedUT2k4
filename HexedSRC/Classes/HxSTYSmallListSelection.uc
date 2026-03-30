@@ -1,19 +1,4 @@
-class HxSTYSmallListSelection extends GUI2Styles;
-
-event Initialize()
-{
-    local int i;
-
-    Super.Initialize();
-    for (i = 0; i < 5; ++i)
-    {
-        if (Fonts[i] == None)
-        {
-            FontNames[i] = "UT2SmallFont";
-            Fonts[i] = Controller.GetMenuFont(FontNames[i]);
-        }
-    }
-}
+class HxSTYSmallListSelection extends HxGUIStyles;
 
 defaultproperties
 {
@@ -30,12 +15,6 @@ defaultproperties
     Images(2)=Material'engine.WhiteSquareTexture'
     Images(3)=Material'engine.WhiteSquareTexture'
     Images(4)=Material'engine.WhiteSquareTexture'
-
-    FontNames(0)="HxSmallerFont"
-    FontNames(1)="HxSmallerFont"
-    FontNames(2)="HxSmallerFont"
-    FontNames(3)="HxSmallerFont"
-    FontNames(4)="HxSmallerFont"
 
     FontColors(0)=(R=255,G=195,B=0,A=255)
     FontColors(1)=(R=255,G=195,B=0,A=255)

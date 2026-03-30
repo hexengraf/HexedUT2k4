@@ -93,7 +93,7 @@ function bool InternalOnPreDraw(Canvas C)
     Super.InternalOnPreDraw(C);
     OwnerWidth = MenuOwner.ActualWidth();
     CurrentWidth = ActualWidth();
-    CellSpacing = ColumnSpacing * C.ClipX;
+    CellSpacing = ColumnSpacing * C.ClipY;
     WinTop = ActualTop();
     WinHeight = ActualHeight();
     if (SearchBar != None)
@@ -151,7 +151,7 @@ function ShrinkToFit(Canvas C, int FirstColumn)
     local int i;
 
     OwnerWidth =  MenuOwner.ActualWidth();
-    CellSpacing = ColumnSpacing * C.ClipX;
+    CellSpacing = ColumnSpacing * C.ClipY;
     Header = GUIMultiColumnListBox(MenuOwner).Header;
     InitColumnPerc[FirstColumn] = 1;
     for (i = 0; i < FirstColumn; ++i)
@@ -184,7 +184,7 @@ defaultproperties
 {
     bAutoSpacing=true
     LineSpacing=0.003
-    ColumnSpacing=0.003
+    ColumnSpacing=0.005
     FrameThickness=0.001
     bDropSource=false
     bDropTarget=false

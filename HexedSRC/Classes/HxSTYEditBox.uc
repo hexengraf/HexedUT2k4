@@ -1,29 +1,8 @@
 class HxSTYEditBox extends HxGUIStyles;
 
-event Initialize()
-{
-    local int i;
-
-    Super.Initialize();
-    for (i = 0; i < 5; ++i)
-    {
-        if (Fonts[i] == None)
-        {
-            FontNames[i] = "UT2SmallFont";
-            Fonts[i] = Controller.GetMenuFont(FontNames[i]);
-        }
-    }
-}
-
 defaultproperties
 {
     KeyName="HxEditBox"
-
-    FontNames(0)="HxSmallerFont"
-    FontNames(1)="HxSmallerFont"
-    FontNames(2)="HxSmallerFont"
-    FontNames(3)="HxSmallerFont"
-    FontNames(4)="HxSmallerFont"
 
     Images(0)=Material'engine.WhiteSquareTexture'
     Images(1)=Material'engine.WhiteSquareTexture'
@@ -35,10 +14,11 @@ defaultproperties
     ImgColors(1)=(R=43,G=110,B=195,A=255)
     ImgColors(2)=(R=41,G=136,B=255,A=255)
     ImgColors(3)=(R=41,G=136,B=255,A=255)
-    ImgColors(4)=(R=32,G=50,B=75,A=255)
+    ImgColors(4)=(R=25,G=25,B=25,A=255)
 
-    FontColors(0)=(R=255,G=255,B=255,A=255)
-    FontColors(1)=(R=255,G=255,B=255,A=255)
-    FontColors(2)=(R=255,G=255,B=255,A=255)
-    FontColors(3)=(R=255,G=255,B=255,A=255)
+    FontColors(4)=(R=164,G=164,B=164,A=255)
+
+    RelativeBorderOffsets(0)=0.005
+    RelativeBorderOffsets(2)=0.005
+    Frames(0)=(Material=Material'engine.WhiteSquareTexture',Color=(R=113,G=159,B=205,A=255),Thickness=0.001)
 }

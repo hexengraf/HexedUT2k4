@@ -8,9 +8,35 @@ struct HxGUIFrame
     var float Thickness;
 };
 
-var protected bool bHideFrames;
-var protected array<HxGUIFrame> Frames;
-var private bool bDrawingFrame;
+var protected const float RelativeBorderOffsets[4];
+var protected const byte SkipFrameParts[4];
+var protected const array<HxGUIFrame> Frames;
+var private float LastResY;
+var private bool bLocked;
+var private int LeftOffsetCount;
+var private int TopOffsetCount;
+var private int WidthOffsetCount;
+var private int HeightOffsetCount;
+
+event Initialize()
+{
+    local int i;
+
+    Super.Initialize();
+    LeftOffsetCount = int(SkipFrameParts[0] == 0);
+    TopOffsetCount = int(SkipFrameParts[1] == 0);
+    WidthOffsetCount = LeftOffsetCount + int(SkipFrameParts[2] == 0);
+    HeightOffsetCount = TopOffsetCount + int(SkipFrameParts[3] == 0);
+    for (i = 0; i < 5; ++i)
+    {
+        if (Fonts[i] == None)
+        {
+            FontNames[i] = "UT2SmallFont";
+            Fonts[i] = Controller.GetMenuFont(FontNames[i]);
+        }
+    }
+    // UpdateBorderOffsets(Controller.ResY);
+}
 
 function bool InternalOnDraw(Canvas C,
                              eMenuState MenuState,
@@ -20,21 +46,46 @@ function bool InternalOnDraw(Canvas C,
                              float Height)
 {
     local float Offset;
-    local int i;
 
-    if (bHideFrames || bDrawingFrame)
+    if (bLocked)
     {
         return false;
     }
-    bDrawingFrame = true;
+    UpdateBorderOffsets(Controller.ResY);
+    bLocked = true;
     Offset = DrawFrames(C, MenuState, Left, Top, Width, Height);
-    Draw(C, MenuState, Left + Offset, Top + Offset, Width - 2 * Offset, Height - 2 * Offset);
-    for (i = 0; i < ArrayCount(BorderOffsets); ++i)
-    {
-        BorderOffsets[i] = Offset;
-    }
-    bDrawingFrame = false;
+    Width -= WidthOffsetCount * Offset;
+    Height -= HeightOffsetCount * Offset;
+    Left += LeftOffsetCount * Offset;
+    Top += TopOffsetCount * Offset;
+    Draw(C, MenuState, Left, Top, Width, Height);
+    bLocked = false;
     return true;
+}
+
+function bool UpdateBorderOffsets(float ResY)
+{
+    local float FrameOffset;
+    local int i;
+
+    if (LastResY != ResY)
+    {
+        for (i = 0; i < Frames.Length; ++i)
+        {
+            FrameOffset += Round(ResY * Frames[i].Thickness);
+        }
+        for (i = 0; i < ArrayCount(BorderOffsets); ++i)
+        {
+            BorderOffsets[i] = Round(RelativeBorderOffsets[i] * ResY);
+            if (SkipFrameParts[i] == 0)
+            {
+                BorderOffsets[i] += FrameOffset;
+            }
+        }
+        LastResY = ResY;
+        return true;
+    }
+    return false;
 }
 
 function float DrawFrames(Canvas C,
@@ -61,11 +112,20 @@ function float DrawFrames(Canvas C,
         Height -= 2 * Offset;
         if (Frames[i].Material != None)
         {
-            DrawFrame(C, Frames[i].Material, MenuState, Left, Top, Width, Height, Offset);
+            DrawFrame(
+                C,
+                Frames[i].Material,
+                MenuState,
+                Left,
+                Top,
+                Width,
+                Height,
+                Offset,
+                SkipFrameParts);
         }
         Left += Offset;
         Top += Offset;
-        Width -= 2 * Offset;
+        Width -= WidthOffsetCount * Offset;
     }
     C.Style = SavedStyle;
     C.DrawColor = SavedColor;
@@ -79,15 +139,28 @@ static function DrawFrame(Canvas C,
                           float Top,
                           float Width,
                           float Height,
-                          float Offset)
+                          float Offset,
+                          optional byte SkipParts[4])
 {
     C.SetPos(Left, Top);
-    C.DrawTileStretched(M, Width, Offset);
+    if (SkipParts[1] == 0)
+    {
+        C.DrawTileStretched(M, Width, Offset);
+    }
     C.SetPos(C.CurX, C.CurY + Offset);
-    C.DrawTileStretched(M, Offset, Height);
+    if (SkipParts[0] == 0)
+    {
+        C.DrawTileStretched(M, Offset, Height);
+    }
     C.SetPos(C.CurX + Width - Offset, C.CurY);
-    C.DrawTileStretched(M, Offset, Height);
-    C.SetPos(C.CurX - Width + Offset, C.CurY + Height);
+    if (SkipParts[2] == 0)
+    {
+        C.DrawTileStretched(M, Offset, Height);
+    }
+    if (SkipParts[3] == 0)
+    {
+        C.SetPos(C.CurX - Width + Offset, C.CurY + Height);
+    }
     C.DrawTileStretched(M, Width, Offset);
 }
 
@@ -119,8 +192,32 @@ static function bool GetFontSize(GUIComponent Comp,
     return false;
 }
 
+static function ApplyComboBoxStyle(GUIController Controller, moComboBox CB)
+{
+    CB.MyComboBox.Edit.StyleName = "HxComboBox";
+    CB.MyComboBox.Edit.Style = Controller.GetStyle(
+        "HxComboBox", CB.MyComboBox.Edit.FontScale);
+    CB.MyComboBox.Edit.FontScale = CB.FontScale;
+    CB.MyComboBox.MyShowListBtn.StyleName = "HxSquareButton";
+    CB.MyComboBox.MyShowListBtn.Style = Controller.GetStyle(
+        "HxSquareButton", CB.MyComboBox.Edit.FontScale);
+    CB.MyComboBox.MyShowListBtn.FontScale = CB.FontScale;
+}
+
+static function ApplyEditBoxStyle(GUIController Controller, moEditBox EB)
+{
+    EB.MyEditBox.StyleName = "HxEditBox";
+    EB.MyEditBox.Style = Controller.GetStyle("HxEditBox", EB.MyEditBox.FontScale);
+    EB.MyEditBox.FontScale = EB.FontScale;
+}
+
 defaultproperties
 {
-    Frames(0)=(Material=Material'engine.WhiteSquareTexture',Color=(R=113,G=159,B=205,A=255),Thickness=0.001)
+    FontNames(0)="HxSmallerFont"
+    FontNames(1)="HxSmallerFont"
+    FontNames(2)="HxSmallerFont"
+    FontNames(3)="HxSmallerFont"
+    FontNames(4)="HxSmallerFont"
+
     OnDraw=InternalOnDraw
 }
