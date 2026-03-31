@@ -107,9 +107,9 @@ function bool InternalOnPreDraw(Canvas C)
 
     if (CurrentWidth < OwnerWidth)
     {
-        if (HxScrollbar != None && HxScrollbar.ForceRelativeWidth > 0)
+        if (HxScrollbar != None && HxScrollbar.StandardWidth > 0)
         {
-            WinWidth = Round(OwnerWidth * (1 - HxScrollbar.ForceRelativeWidth));
+            WinWidth = OwnerWidth - (HxScrollbar.StandardWidth * C.ClipY);
         }
         else
         {

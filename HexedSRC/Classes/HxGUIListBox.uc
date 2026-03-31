@@ -17,7 +17,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     HxGUIList(List).bAutoSpacing = bAutoSpacing;
     HxGUIList(List).LineSpacing = LineSpacing;
     HxGUIList(List).LeftPadding = LeftPadding;
-    MyScrollBar.WinWidth = ScrollbarWidth;
+    HxGUIVertScrollBar(MyScrollBar).StandardWidth = ScrollbarWidth;
 }
 
 function bool Add(string NewItem, optional Object obj, optional string Str, optional bool bSection)
@@ -108,7 +108,7 @@ defaultproperties
     bAutoSpacing=true
     LineSpacing=0.003
     LeftPadding=0.015
-    ScrollbarWidth=0.017
+    ScrollbarWidth=0.016
     TextAlign=TXTA_Left
     StyleName="HxSmallList"
     SelectedStyleName="HxSmallListSelection"

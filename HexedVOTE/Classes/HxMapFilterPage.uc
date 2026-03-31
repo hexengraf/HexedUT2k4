@@ -680,7 +680,6 @@ defaultproperties
     ed_SearchMaps=SearchMapsEditBox
 
     Begin Object Class=HxGUIListBox Name=MapsListBox
-        ScrollbarWidth=0.034
         bVisibleWhenEmpty=true
         bSorted=True
         TabOrder=21
@@ -738,7 +737,6 @@ defaultproperties
     ed_SearchFilterList=SearchFilterListEditBox
 
     Begin Object Class=HxGUIListBox Name=FilterListBox
-        ScrollbarWidth=0.034
         bVisibleWhenEmpty=true
         bSorted=True
         TabOrder=32

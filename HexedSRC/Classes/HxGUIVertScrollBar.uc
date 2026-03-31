@@ -1,7 +1,7 @@
 class HxGUIVertScrollBar extends GUIVertScrollBar;
 
 var string ScrollZoneStyleName;
-var float ForceRelativeWidth;
+var float StandardWidth;
 var float TopOffset;
 var float RightOffset;
 var float BottomOffset;
@@ -15,10 +15,10 @@ function bool InternalOnPreDraw(Canvas C)
 
     TopPadding = Round(TopOffset * C.ClipY);
     RightPadding = Round(RightOffset * C.ClipY);
-    if (ForceRelativeWidth > 0)
+    if (StandardWidth > 0)
     {
         OwnerWidth = MenuOwner.ActualWidth();
-        MyWidth = ForceRelativeWidth * OwnerWidth;
+        MyWidth = Round(StandardWidth * C.ClipY);
         WinWidth = RelativeWidth(MyWidth);
         WinLeft = RelativeLeft(MenuOwner.ActualLeft() + OwnerWidth - MyWidth - RightPadding);
     }
@@ -74,7 +74,7 @@ defaultproperties
     End Object
 
     ScrollZoneStyleName="HxScrollZone"
-    ForceRelativeWidth=0
+    StandardWidth=0
     TopOffset=0
     RightOffset=0
     BottomOffset=0

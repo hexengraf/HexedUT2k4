@@ -15,7 +15,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
     DefaultListClass = string(class'HxGUIMultiOptionList');
     Super.InitComponent(MyController, MyOwner);
-    MyScrollBar.WinWidth = ScrollbarWidth;
+    HxGUIVertScrollBar(MyScrollBar).StandardWidth = ScrollbarWidth;
 }
 
 function InitBaseList(GUIListBase LocalList)
@@ -591,6 +591,6 @@ defaultproperties
 
     StyleName="HxOptionList"
     ComponentWidth=0.25
-    ScrollbarWidth=0.027
+    ScrollbarWidth=0.016
     bShowSections=true
 }

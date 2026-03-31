@@ -12,7 +12,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
     Super.InitComponent(MyController, MyOwner);
     HxGUIMultiColumnList(List).FrameThickness = FrameThickness;
-    HxGUIVertScrollBar(MyScrollBar).ForceRelativeWidth = ScrollbarWidth;
+    HxGUIVertScrollBar(MyScrollBar).StandardWidth = ScrollbarWidth;
     HxGUIVertScrollBar(MyScrollBar).RightOffset = FrameThickness;
     i_Background.FrameThickness = FrameThickness;
     SetCustomBackground("");
@@ -229,7 +229,7 @@ defaultproperties
     MyScrollBar=NewTheScrollbar
 
     StandardHeaderHeight=0.0325
-    ScrollbarWidth=0.017
+    ScrollbarWidth=0.016
     FrameThickness=0.001
     StyleName="HxSmallList"
     SelectedStyleName="HxSmallListSelection"

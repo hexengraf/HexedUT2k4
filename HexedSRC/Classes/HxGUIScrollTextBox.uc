@@ -38,9 +38,9 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     ScrollText.TopPadding = TopPadding;
     ScrollText.RightPadding = RightPadding;
     ScrollText.BottomPadding = BottomPadding;
-    MyScrollBar.WinWidth = ScrollbarWidth;
     i_Background.FrameThickness = FrameThickness;
     i_Background.bHideFrame = bHideFrame;
+    HxGUIVertScrollBar(MyScrollBar).StandardWidth = ScrollbarWidth;
     HxGUIVertScrollBar(MyScrollBar).TopOffset = FrameThickness;
     HxGUIVertScrollBar(MyScrollBar).RightOffset = FrameThickness;
     HxGUIVertScrollBar(MyScrollBar).BottomOffset = FrameThickness;
@@ -137,7 +137,7 @@ defaultproperties
     TopPadding=0
     RightPadding=0
     BottomPadding=0
-    ScrollbarWidth=0.0275
+    ScrollbarWidth=0.016
     FrameThickness=0.001
     bHideFrame=false
 }
