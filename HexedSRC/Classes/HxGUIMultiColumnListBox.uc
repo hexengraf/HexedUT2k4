@@ -134,7 +134,6 @@ function OnRenderedHeader(Canvas C)
 {
     local float Offset;
     local float Left;
-    local float Top;
     local float Width;
     local float Height;
     local int i;
@@ -143,21 +142,25 @@ function OnRenderedHeader(Canvas C)
     C.DrawColor = i_Background.FrameColor;
     Offset = Round(FrameThickness * C.ClipY);
     Left = Header.ActualLeft();
-    Top = Header.ActualTop();
     Width = Header.ActualWidth();
     Height = Header.ActualHeight() - Offset;
-    C.SetPos(Left, Top + Height);
+
+    C.SetPos(Left, Header.ActualTop());
     C.DrawTileStretched(i_Background.FrameMaterial, Width, Offset);
-    C.SetPos(C.CurX, C.CurY - Height);
-    C.DrawTileStretched(i_Background.FrameMaterial, Width, Offset);
+    C.CurY += Offset;
     C.DrawTileStretched(i_Background.FrameMaterial, Offset, Height);
-    for (i = 0; i < List.ColumnHeadings.Length - 1; ++i)
+    C.CurX += Width - Offset;
+    C.DrawTileStretched(i_Background.FrameMaterial, Offset, Height);
+    C.DrawColor.A = 172;
+    C.CurX += Offset / 2;
+    Height -= Offset;
+    for (i = List.ColumnHeadings.Length - 1; i > 0; --i)
     {
-        C.SetPos(C.CurX + List.ColumnWidths[i], C.CurY);
+        C.CurX -= List.ColumnWidths[i];
         C.DrawTileStretched(i_Background.FrameMaterial, Offset, Height);
     }
-    C.SetPos(C.CurX + List.ColumnWidths[i] - Offset, C.CurY);
-    C.DrawTileStretched(i_Background.FrameMaterial, Offset, Height);
+    C.SetPos(Left + Offset, C.CurY + Height);
+    C.DrawTileStretched(i_Background.FrameMaterial, Width - 2 * Offset, Offset);
 }
 
 function OnMousePressedHeader(GUIComponent Sender, bool bRepeat)
@@ -218,6 +221,7 @@ defaultproperties
         RenderWeight=0.1
         ImageSources(0)=(Image=Material'HxBlueGradient',Color=(R=255,G=255,B=255,A=164),Style=ISTY_Scaled,bSubImage=true,X1=0,Y1=127,X2=4,Y2=129)
         ImageSources(1)=(Color=(R=255,G=255,B=255,A=255),Style=ISTY_Scaled)
+        // FrameColor=(R=71,G=119,B=176,A=255)
         bScaleToParent=true
         bBoundToParent=true
     End Object
