@@ -140,6 +140,12 @@ function ProcessPI(PlayInfo PI)
         {
             Option = List.AddItem(
                 string(class'HxGUIMultiOptionListLabel'),, PI.Settings[i].DisplayName);
+            if (Option != None)
+            {
+                Option.CaptionWidth = 0.2;
+                Option.ComponentWidth = -1;
+                Option.bAutoSizeCaption = true;
+            }
         }
         else
         {
@@ -361,6 +367,9 @@ function GUIMenuOption AddEditBox(string Caption, string Width)
         {
             Option.MyEditBox.MaxWidth = int(Width);
         }
+        Option.CaptionWidth = 0.5;
+        Option.ComponentWidth = -1;
+        Option.bAutoSizeCaption = true;
     }
     return Option;
 }
