@@ -470,7 +470,7 @@ function LoadFromCRI(GUIMenuOption Sender)
     CRI = FindCRI(Index);
     if (CRI != None)
     {
-        Sender.SetComponentValue(CRI.GetProperty(Index));
+        Sender.SetComponentValue(CRI.GetProperty(Index), true);
     }
 }
 
@@ -483,7 +483,7 @@ function LoadFromPI(GUIMenuOption Sender)
     PI = FindPI(Index);
     if (PI != None)
     {
-        Sender.SetComponentValue(PI.Settings[Index].Value);
+        Sender.SetComponentValue(PI.Settings[Index].Value, true);
     }
 }
 
