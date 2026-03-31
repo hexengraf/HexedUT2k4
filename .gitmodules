@@ -1,8 +1,8 @@
-[submodule "HexedUTComp"]
-	path = HexedUTComp
-	url = git@github.com:hexengraf/HexedUTComp.git
-	branch = master
 [submodule "Resources"]
 	path = Resources
-	url = https://github.com/hexengraf/HexedUT2k4-Resources
+	url = ../HexedUT2k4-Resources.git
+	branch = master
+[submodule "HexedNET"]
+	path = HexedNET
+	url = ../HexedNET.git
 	branch = master

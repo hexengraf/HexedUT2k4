@@ -2,23 +2,23 @@
 
 This is a collection of packages and mutators providing a variety of features and QoL improvements. The following packages are provided:
 * **HexedUT**: main mutator, provides hit sounds, damage numbers, colored death messages, enhanced map vote menu, and more.
-* **HexedUTComp**: hexed-compliant version of UTComp, stripped down to eye height algorithms and NewNet weapons. Not thoroughly tested, so it might have some bugs.
-* **HexedSRC**: package containing shared classes and resources used by HexedUT and HexedUTComp.
+* **HexedNET**: fork of WSUTComp stripped down to eye height algorithms and enhanced netcode (NewNet weapons).
+* **HexedSRC**: package containing shared classes and resources used by HexedUT and HexedNET.
 * **HexedPatches**: provides QoL improvements, such as better scaling for fonts, HUDs, and weapons (non-versioned, client-only package).
 
 ## Installation
 
 Download the [latest release](https://github.com/hexengraf/HexedUT2k4/releases/latest) and extract it inside the root directory of your UT2004 installation, merging the `System` directory when asked. You can safely delete the `.uz2` files extracted to the root directory (only useful for download redirection servers).
 
-**Players**: when upgrading to a new version of HexedUT, keep the old version in you system folder (e.g. `HexedUTv3.u`) to allow HexedUT to automatically copy your configuration to the new version.
+**Players**: when upgrading to a new version of HexedUT, keep the old version in you system folder (e.g. `HexedUTv4.u`) to allow HexedUT to automatically copy your configuration to the new version.
 
 **Server administrators**: when upgrading to a new version of HexedUT, add the previous version to your `ServerPackages` to allow players that don't have it locally installed to automatically copy their configuration to the new version.
 
-### HexedUT & HexedUTComp
+### HexedUT & HexedNET
 
-Specify `MutHexedUT` and/or `MutUTComp` to enable either HexedUT and/or HexedUTComp through the command line for your dedicated server as follows:
+Specify `MutHexedUT` and/or `MutHexedNET` to enable either HexedUT and/or HexedNET through the command line for your dedicated server as follows:
 ```bash
-./ucc-bin server DM-Gestalt?game=XGame.xTeamGame?Mutator=HexedUTv4.MutHexedUT,HexedUTCompv4.MutUTComp ini=Server.ini -nohomedir
+./ucc-bin server DM-Gestalt?game=XGame.xTeamGame?Mutator=HexedUTv5.MutHexedUT,HexedNETv5.MutHexedNET ini=Server.ini -nohomedir
 ```
 
 An in-game menu is provided to configure the mutators. To open it, execute either `mutate HexedMenu` or `mutate HexedUT` (the last one is only available if HexedUT is enabled).
@@ -60,10 +60,10 @@ The following features are provided:
     * Filter by source: any map, official maps or custom maps.
     * Several improvements to font size, line spacing, alignments, backgrounds and colors.
 
-### HexedUTComp
+### HexedNET
 
-[HexedUTComp](https://github.com/hexengraf/HexedUTComp) is a fork of [WSUTComp](https://github.com/zenakuten/WSUTComp) made to work together with HexedUT and significantly reduce the amount of features.
-For the sake of a streamlined building process, releases of HexedUTComp are bundled together with HexedUT here.
+[HexedNET](https://github.com/hexengraf/HexedNET) is a fork of [WSUTComp](https://github.com/zenakuten/WSUTComp) made to work together with HexedUT and significantly reduce the amount of features.
+For the sake of a streamlined building process, releases of HexedNET are bundled together with HexedUT here.
 
 The following features are provided:
 * New eye height algorithm: fixes where your aim is on uneven terrain (such as ramps).
