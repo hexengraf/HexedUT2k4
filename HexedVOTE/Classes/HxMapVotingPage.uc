@@ -18,6 +18,11 @@ var automated HxGUIChatBox ChatBox;
 var localized string LoadingText;
 var localized string RetrievingMapListText;
 
+var string VoteListBG;
+var string MapListBG;
+var string PreviewBG;
+var string ChatBoxBG;
+
 var HxMapFilterManager FilterManager;
 var private int SelectedGameType;
 var private int SelectedMap;
@@ -31,6 +36,10 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     lb_VoteList.OnTagUpdated = lb_MapList.UpdateMapTag;
     class'HxGUIStyles'.static.ApplyComboBoxStyle(Controller, co_GameType);
     class'HxGUIStyles'.static.ApplyComboBoxStyle(Controller, co_MapFilter);
+    lb_VoteList.SetCustomBackground(VoteListBG);
+    lb_MapList.SetCustomBackground(MapListBG);
+    MapBanner.SetCustomBackground(PreviewBG);
+    ChatBox.SetCustomBackground(ChatBoxBG);
     SetupWindowHeader();
     Unpause();
     AdjustWindowSize(Controller.ResX, Controller.ResY);
@@ -71,6 +80,26 @@ function InternalOnOpen()
     {
         MVRI = VotingReplicationInfo(PlayerOwner().VoteReplicationInfo);
         SetTimer(0.02, true);
+    }
+    if (VoteListBG != default.VoteListBG)
+    {
+        VoteListBG = default.VoteListBG;
+        lb_VoteList.SetCustomBackground(VoteListBG);
+    }
+    if (MapListBG != default.MapListBG)
+    {
+        MapListBG = default.MapListBG;
+        lb_MapList.SetCustomBackground(MapListBG);
+    }
+    if (PreviewBG != default.PreviewBG)
+    {
+        PreviewBG = default.PreviewBG;
+        MapBanner.SetCustomBackground(PreviewBG);
+    }
+    if (ChatBoxBG != default.ChatBoxBG)
+    {
+        ChatBoxBG = default.ChatBoxBG;
+        ChatBox.SetCustomBackground(ChatBoxBG);
     }
     lb_VoteList.Refresh();
     lb_MapList.Refresh();

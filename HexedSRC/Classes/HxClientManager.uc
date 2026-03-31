@@ -7,8 +7,6 @@ var const private array<class<GUIStyles> > CustomStyleClasses;
 
 var private PlayerController PC;
 var private GUIController GC;
-var private string CustomMapVoteMenu;
-var private bool bReplaceMapVoteMenu;
 var private bool bInitialized;
 
 simulated event Tick(float DeltaTime)
@@ -18,10 +16,6 @@ simulated event Tick(float DeltaTime)
         if (!bInitialized)
         {
             bInitialized = InitializePlayerController() && InitializeGUIController();
-        }
-        else if (bReplaceMapVoteMenu)
-        {
-            TryReplaceMapVoteMenu();
         }
     }
 }
@@ -42,55 +36,17 @@ simulated function bool InitializeGUIController()
     {
         GC = GUIController(PC.Player.GUIController);
         RegisterStyles();
-        SetCustomMapVoteMenu(CustomMapVoteMenu);
         return true;
     }
     return false;
 }
 
-simulated function SetCustomMapVoteMenu(string MapVoteMenu, optional bool bDisable)
-{
-    if (bDisable && CustomMapVoteMenu ~= MapVoteMenu)
-    {
-        CustomMapVoteMenu = "";
-    }
-    else
-    {
-        CustomMapVoteMenu = MapVoteMenu;
-    }
-    if (GC != None)
-    {
-        bReplaceMapVoteMenu = CustomMapVoteMenu != ""
-            && !GC.SetPropertyText("CustomMapVotingMenu", CustomMapVoteMenu);
-    }
-    else
-    {
-        bReplaceMapVoteMenu = false;
-    }
-}
-
-simulated function TryReplaceMapVoteMenu()
-{
-    if (GC.ActivePage != None)
-    {
-        if (GC.ActivePage.Class == class'MapVotingPage')
-        {
-            GC.ReplaceMenu(CustomMapVoteMenu);
-        }
-        else if (GC.ActivePage.ParentPage != None
-            && GC.ActivePage.ParentPage.Class == class'MapVotingPage')
-        {
-            if (GC.CloseMenu(true))
-            {
-                GC.ReplaceMenu(CustomMapVoteMenu);
-            }
-        }
-    }
-}
-
 simulated function NotifyServerInfoChanged(HxClientReplicationInfo Sender)
 {
-    RefreshHexedMenu();
+    if (Level.NetMode == NM_Client)
+    {
+        RefreshHexedMenu();
+    }
 }
 
 simulated function OpenHexedMenu(HxClientReplicationInfo Sender)
