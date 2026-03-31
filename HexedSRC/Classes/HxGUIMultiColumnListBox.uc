@@ -71,15 +71,15 @@ function bool InternalOnPreDraw(Canvas C)
     if (bInit)
     {
         FullHeight = ActualHeight();
-        Offset = i_Background.ActualFrameThickness(C) / FullHeight;
-        i_Background.WinTop = (GetHeaderHeight(C) / FullHeight) - Offset;
-        i_Background.WinHeight = 1.0 - i_Background.WinTop + Offset;
+        Offset = i_Background.ActualFrameThickness(C);
+        i_Background.WinTop = (GetHeaderHeight(C) - Offset) / FullHeight;
+        i_Background.WinHeight = 1.0 - i_Background.WinTop;
         if (SearchBar != None)
         {
             SearchBarHeight = SearchBar.ActualHeight();
             SearchBar.WinTop = (FullHeight - SearchBarHeight) / FullHeight;
             HxGUIVertScrollBar(MyScrollBar).BottomOffset = SearchBarHeight / C.ClipY;
-            i_Background.WinHeight -= (SearchBarHeight / FullHeight) - Offset;
+            i_Background.WinHeight -= (SearchBarHeight - Offset) / FullHeight;
         }
         bInit = false;
         return true;
