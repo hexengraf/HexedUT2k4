@@ -225,10 +225,10 @@ defaultproperties
 
     Begin Object Class=GUILabel Name=NoPreviewLabel
         Caption="No Preview Available"
-        TextFont="MediumFont"
+        StyleName="HxTextGolden"
+        FontScale=FNS_Large
         TextAlign=TXTA_Center
         VertAlign=TXTA_Center
-        TextColor=(R=255,G=210,B=0,A=255)
         RenderWeight=1
         bVisible=false
         bMultiline=true
@@ -282,12 +282,9 @@ defaultproperties
     lb_Description=DescriptionTextBox
 
     Begin Object Class=GUILabel Name=NoInformationLabel
-        TextFont="MediumFont"
+        StyleName="HxTextGolden"
         TextAlign=TXTA_Center
         VertAlign=TXTA_Center
-        TextColor=(R=255,G=210,B=0,A=255)
-        BackColor=(R=28,G=47,B=96,A=255)
-        bTransparent=true
         RenderWeight=1
         bScaleToParent=true
         bBoundToParent=true

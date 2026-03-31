@@ -137,7 +137,7 @@ defaultproperties
     HexedMenuClass=class'HxGUIMenu'
     CustomStyleClasses(0)=class'HxSTYSmallList'
     CustomStyleClasses(1)=class'HxSTYSmallListSelection'
-    CustomStyleClasses(2)=class'HxSTYSmallText'
+    CustomStyleClasses(2)=class'HxSTYTextGolden'
     CustomStyleClasses(3)=class'HxSTYScrollGrip'
     CustomStyleClasses(4)=class'HxSTYScrollZone'
     CustomStyleClasses(5)=class'HxSTYEditBox'

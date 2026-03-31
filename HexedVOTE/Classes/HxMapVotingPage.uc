@@ -428,7 +428,7 @@ defaultproperties
         Caption="Game Type"
         Hint="Select game type to show."
         WinLeft=0.015
-        WinTop=0.2745
+        WinTop=0.2747
         WinWidth=0.6
         StandardHeight=0.0325
         bStandardized=true
@@ -496,10 +496,10 @@ defaultproperties
         WinTop=0.37425
         WinWidth=0.605
         WinHeight=0.60775
-        TextFont="MediumFont"
+        StyleName="HxTextGolden"
+        FontScale=FNS_Large
         TextAlign=TXTA_Center
         VertAlign=TXTA_Center
-        TextColor=(R=255,G=210,B=0,A=255)
         bVisible=false
         RenderWeight=1
         bScaleToParent=true

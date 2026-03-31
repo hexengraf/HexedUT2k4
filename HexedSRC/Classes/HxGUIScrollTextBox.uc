@@ -128,9 +128,8 @@ defaultproperties
     MyScrollBar=NewTheScrollbar
 
     bRequiresStyle=true
-    StyleName="HxSmallText"
-    SelectedStyleName="HxSmallText"
-    // DefaultListClass="HexedPatches.HxGUIScrollText"
+    StyleName="HxTextGolden"
+    SelectedStyleName="HxTextGolden"
     VertAlign=TXTA_Left
     bAutoSpacing=false
     LineSpacing=0.002

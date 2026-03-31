@@ -145,8 +145,8 @@ defaultproperties
     TopPadding=0
     RightPadding=0
     BottomPadding=0
-    StyleName="HxSmallText"
-    SelectedStyleName="HxSmallText"
+    StyleName="HxTextGolden"
+    SelectedStyleName="HxTextGolden"
     GetItemHeight=GetSpacedItemHeight
     OnPreDraw=InternalOnPreDraw
     OnDraw=InternalOnDraw
