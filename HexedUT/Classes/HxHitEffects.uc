@@ -88,7 +88,7 @@ var private float GlobalScale;
 simulated event PreBeginPlay()
 {
     super.PreBeginPlay();
-    if (Owner != None)
+    if (HUD(Owner) != None)
     {
         PC = HUD(Owner).PlayerOwner;
     }
