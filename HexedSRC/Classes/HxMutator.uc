@@ -110,14 +110,9 @@ function SetProperty(int Index, string Value)
 
 function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
 {
-    local HxClientReplicationInfo CRI;
-
     if (Other.IsA('PlayerController') && !Other.IsA('MessagingSpectator'))
     {
-        CRI = Other.Spawn(CRIClass, Other);
-        CRI.MutatorOwner = Self;
-        CRI.NetUpdateTime = Level.TimeSeconds - 1;
-        CRIs[CRIs.Length] = CRI;
+        SpawnClientReplicationInfo(Other);
     }
     return true;
 }
@@ -137,13 +132,41 @@ function NotifyLogout(Controller Exiting)
     Super.NotifyLogout(Exiting);
 }
 
-function HxClientReplicationInfo GetClientReplicationInfo(PlayerController PC)
+function ValidateClientReplicationInfos()
+{
+    local HxClientReplicationInfo CRI;
+    local Controller P;
+
+    for (P = Level.ControllerList; P != None; P = P.nextController)
+    {
+        if (P.IsA('PlayerController') && !P.IsA('MessagingSpectator'))
+        {
+            CRI = GetClientReplicationInfo(P);
+            if (CRI == None)
+            {
+                SpawnClientReplicationInfo(P);
+            }
+        }
+    }
+}
+
+function SpawnClientReplicationInfo(Actor ClientOwner)
+{
+    local HxClientReplicationInfo CRI;
+
+    CRI = ClientOwner.Spawn(CRIClass, ClientOwner);
+    CRI.MutatorOwner = Self;
+    CRI.NetUpdateTime = Level.TimeSeconds - 1;
+    CRIs[CRIs.Length] = CRI;
+}
+
+function HxClientReplicationInfo GetClientReplicationInfo(Actor ClientOwner)
 {
     local int i;
 
     for (i = 0; i < CRIs.Length; ++i)
     {
-        if (CRIs[i].Owner == PC)
+        if (CRIs[i].Owner == ClientOwner)
         {
             return CRIs[i];
         }
