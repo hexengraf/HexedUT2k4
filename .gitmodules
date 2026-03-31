@@ -1,12 +1,8 @@
-[submodule "Resources/Sounds"]
-	path = Resources/Sounds
-	url = git@github.com:hexengraf/HexedUTSounds.git
-	branch = master
 [submodule "HexedUTComp"]
 	path = HexedUTComp
 	url = git@github.com:hexengraf/HexedUTComp.git
 	branch = master
-[submodule "Resources/Textures"]
-	path = Resources/Textures
-	url = git@github.com:hexengraf/HexedUTTextures.git
+[submodule "Resources"]
+	path = Resources
+	url = https://github.com/hexengraf/HexedUT2k4-Resources
 	branch = master
