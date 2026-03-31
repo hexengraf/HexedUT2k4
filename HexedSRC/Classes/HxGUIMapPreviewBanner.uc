@@ -16,6 +16,12 @@ var localized string AuthorLabel;
 
 var private string DisplayedMap;
 
+function InitComponent(GUIController MyController, GUIComponent MyOwner)
+{
+    Super.InitComponent(MyController, MyOwner);
+    SetCustomBackground("");
+}
+
 function ResetBanner(string Caption)
 {
     DisplayedMap = "";
@@ -182,6 +188,18 @@ function AlignDescription(Canvas C)
     lb_Description.WinHeight = 1.0 - lb_Description.WinTop;
 }
 
+function SetCustomBackground(string BackgroundName)
+{
+    if (BackgroundName == "")
+    {
+        Images[1].Image = None;
+    }
+    else
+    {
+        Images[1].Image = Material(DynamicLoadObject(BackgroundName, class'Material'));
+    }
+}
+
 defaultproperties
 {
     Begin Object class=GUILabel Name=HeaderLabel
@@ -284,5 +302,6 @@ defaultproperties
     AuthorLabel="Author"
 
     ImageSources(0)=(Image=Material'HxBlueGradient',Color=(R=255,G=255,B=255,A=164),Style=ISTY_Scaled,bSubImage=true,X1=0,Y1=255,X2=4,Y2=1)
+    ImageSources(1)=(Color=(R=255,G=255,B=255,A=255),Style=ISTY_Scaled)
     OnPreDrawInit=AlignComponents
 }

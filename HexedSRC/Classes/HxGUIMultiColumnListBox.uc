@@ -1,7 +1,7 @@
 class HxGUIMultiColumnListBox extends GUIMultiColumnListBox
     abstract;
 
-var automated HxGUIFramedImage fi_Background;
+var automated HxGUIFramedImage i_Background;
 var automated HxGUIMultiColumnListSearchBar SearchBar;
 
 var float StandardHeaderHeight;
@@ -14,7 +14,8 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     HxGUIMultiColumnList(List).FrameThickness = FrameThickness;
     HxGUIVertScrollBar(MyScrollBar).ForceRelativeWidth = ScrollbarWidth;
     HxGUIVertScrollBar(MyScrollBar).RightOffset = FrameThickness;
-    fi_Background.FrameThickness = FrameThickness;
+    i_Background.FrameThickness = FrameThickness;
+    SetCustomBackground("");
 }
 
 event ResolutionChanged(int NewX, int NewY)
@@ -63,12 +64,22 @@ function Clear()
 
 function bool InternalOnPreDraw(Canvas C)
 {
+    local float FullHeight;
+    local float SearchBarHeight;
+    local float Offset;
+
     if (bInit)
     {
+        FullHeight = ActualHeight();
+        Offset = i_Background.ActualFrameThickness(C) / FullHeight;
+        i_Background.WinTop = (GetHeaderHeight(C) / FullHeight) - Offset;
+        i_Background.WinHeight = 1.0 - i_Background.WinTop + Offset;
         if (SearchBar != None)
         {
-            SearchBar.WinTop = SearchBar.RelativeHeight(ActualHeight() - SearchBar.ActualHeight());
-            HxGUIVertScrollBar(MyScrollBar).BottomOffset = SearchBar.ActualHeight() / C.ClipY;
+            SearchBarHeight = SearchBar.ActualHeight();
+            SearchBar.WinTop = (FullHeight - SearchBarHeight) / FullHeight;
+            HxGUIVertScrollBar(MyScrollBar).BottomOffset = SearchBarHeight / C.ClipY;
+            i_Background.WinHeight -= (SearchBarHeight / FullHeight) - Offset;
         }
         bInit = false;
         return true;
@@ -115,7 +126,7 @@ function bool OnHoverHeader(GUIComponent Sender)
 
 function bool OnPreDrawHeader(Canvas C)
 {
-    Header.WinHeight = Round(C.ClipY * StandardHeaderHeight);
+    Header.WinHeight = GetHeaderHeight(C);
     return true;
 }
 
@@ -129,24 +140,24 @@ function OnRenderedHeader(Canvas C)
     local int i;
 
     C.Style = 5;
-    C.DrawColor = fi_Background.FrameColor;
+    C.DrawColor = i_Background.FrameColor;
     Offset = Round(FrameThickness * C.ClipY);
     Left = Header.ActualLeft();
     Top = Header.ActualTop();
     Width = Header.ActualWidth();
     Height = Header.ActualHeight() - Offset;
     C.SetPos(Left, Top + Height);
-    C.DrawTileStretched(fi_Background.FrameMaterial, Width, Offset);
+    C.DrawTileStretched(i_Background.FrameMaterial, Width, Offset);
     C.SetPos(C.CurX, C.CurY - Height);
-    C.DrawTileStretched(fi_Background.FrameMaterial, Width, Offset);
-    C.DrawTileStretched(fi_Background.FrameMaterial, Offset, Height);
+    C.DrawTileStretched(i_Background.FrameMaterial, Width, Offset);
+    C.DrawTileStretched(i_Background.FrameMaterial, Offset, Height);
     for (i = 0; i < List.ColumnHeadings.Length - 1; ++i)
     {
         C.SetPos(C.CurX + List.ColumnWidths[i], C.CurY);
-        C.DrawTileStretched(fi_Background.FrameMaterial, Offset, Height);
+        C.DrawTileStretched(i_Background.FrameMaterial, Offset, Height);
     }
     C.SetPos(C.CurX + List.ColumnWidths[i] - Offset, C.CurY);
-    C.DrawTileStretched(fi_Background.FrameMaterial, Offset, Height);
+    C.DrawTileStretched(i_Background.FrameMaterial, Offset, Height);
 }
 
 function OnMousePressedHeader(GUIComponent Sender, bool bRepeat)
@@ -162,6 +173,23 @@ function bool OnCapturedMouseMoveHeader(float deltaX, float deltaY)
         Header.MenuState = Header.LastMenuState;
     }
     return false;
+}
+
+function float GetHeaderHeight(Canvas C)
+{
+    return Round(C.ClipY * StandardHeaderHeight);
+}
+
+function SetCustomBackground(string BackgroundName)
+{
+    if (BackgroundName == "")
+    {
+        i_Background.Images[1].Image = None;
+    }
+    else
+    {
+        i_Background.Images[1].Image = Material(DynamicLoadObject(BackgroundName, class'Material'));
+    }
 }
 
 defaultproperties
@@ -189,10 +217,11 @@ defaultproperties
         WinHeight=1
         RenderWeight=0.1
         ImageSources(0)=(Image=Material'HxBlueGradient',Color=(R=255,G=255,B=255,A=164),Style=ISTY_Scaled,bSubImage=true,X1=0,Y1=127,X2=4,Y2=129)
+        ImageSources(1)=(Color=(R=255,G=255,B=255,A=255),Style=ISTY_Scaled)
         bScaleToParent=true
         bBoundToParent=true
     End Object
-    fi_Background=BackgroundImage
+    i_Background=BackgroundImage
 
     Begin Object Class=HxGUIVertScrollBar Name=NewTheScrollbar
         bScaleToParent=true

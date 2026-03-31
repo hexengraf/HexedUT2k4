@@ -14,7 +14,7 @@ struct HxChatInputHistory
     var int Index;
 };
 
-var automated GUIScrollTextBox lb_Chat;
+var automated HxGUIScrollTextBox lb_Chat;
 var automated GUIButton b_Channel;
 var automated GUIEditBox ed_Input;
 
@@ -42,6 +42,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
         CIH[i].Index = 0;
     }
     SetInputType(HX_CHAT_CHANNEL_Say);
+    SetCustomBackground("");
 }
 
 event Opened(GUIComponent Sender)
@@ -243,6 +244,19 @@ function SetInputType(EHxChatChannel Channel)
     b_Channel.Caption = ChatChannels[ActiveChannel];
 }
 
+function SetCustomBackground(string BackgroundName)
+{
+    if (BackgroundName == "")
+    {
+        lb_Chat.i_Background.Images[0].Image = None;
+    }
+    else
+    {
+        lb_Chat.i_Background.Images[0].Image = Material(
+            DynamicLoadObject(BackgroundName, class'Material'));
+    }
+}
+
 static function bool IsMessageSent(PlayerController Controller)
 {
     return Controller.Level.NetMode == NM_Standalone
@@ -269,6 +283,7 @@ defaultproperties
         bHideFrame=true
         bStripColors=true
         ColorReplacements(0)=(Match=(R=200,G=1,B=1),ReplaceWith=(R=255,G=66,B=66))
+        BackgroundSources(0)=(Color=(R=255,G=255,B=255,A=255),Style=ISTY_Scaled)
         RenderWeight=1
         bBoundToParent=true
         bScaleToParent=true

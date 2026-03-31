@@ -35,7 +35,7 @@ event Initialize()
             Fonts[i] = Controller.GetMenuFont(FontNames[i]);
         }
     }
-    // UpdateBorderOffsets(Controller.ResY);
+    UpdateBorderOffsets(Controller.ResY);
 }
 
 function bool InternalOnDraw(Canvas C,
