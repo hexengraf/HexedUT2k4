@@ -226,12 +226,12 @@ function ShowReadyState()
 
 function ShowDisabledMessage()
 {
-    local GUIQuestionPage QuestionPage;
-
-    Controller.OpenMenu("GUI2K4.GUI2K4QuestionPage");
-    QuestionPage = GUIQuestionPage(Controller.TopPage());
-    QuestionPage.SetupQuestion(lmsgMapVotingDisabled, QBTN_Ok, QBTN_Ok);
-    QuestionPage.OnClose = OnCloseQuestionPage;
+    if (Controller.OpenMenu(string(class'HxGUIQuestionPage')))
+    {
+        GUIQuestionPage(Controller.ActivePage).SetupQuestion(
+            lmsgMapVotingDisabled, QBTN_Ok, QBTN_Ok);
+        GUIQuestionPage(Controller.ActivePage).OnClose = OnCloseQuestionPage;
+    }
 }
 
 function PopulateGameTypeList()

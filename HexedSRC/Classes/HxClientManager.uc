@@ -147,6 +147,8 @@ defaultproperties
     CustomStyleClasses(9)=class'HxSTYCloseButton'
     CustomStyleClasses(10)=class'HxSTYMenuHeader'
     CustomStyleClasses(11)=class'HxSTYMenuBackground'
-    CustomStyleClasses(12)=class'HxSTYOptionList'
-    CustomStyleClasses(13)=class'HxSTYTextLabel'
+    CustomStyleClasses(12)=class'HxSTYPopupHeader'
+    CustomStyleClasses(13)=class'HxSTYPopupBackground'
+    CustomStyleClasses(14)=class'HxSTYOptionList'
+    CustomStyleClasses(15)=class'HxSTYTextLabel'
 }

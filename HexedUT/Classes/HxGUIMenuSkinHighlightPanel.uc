@@ -458,7 +458,7 @@ function bool ColorEditorButtonsOnPreDraw(Canvas C)
 
 function bool OnClickNewColor(GUIComponent Sender)
 {
-    if (Controller.OpenMenu(Controller.RequestDataMenu, NewColorPageCaption, NameLabel))
+    if (Controller.OpenMenu(string(class'HxGUIGetDataMenu'), NewColorPageCaption, NameLabel))
     {
         Controller.ActivePage.SetDataString(class'HxSkinHighlight'.static.RandomColorName());
         Controller.ActivePage.OnClose = OnCloseNewColor;
@@ -491,7 +491,7 @@ function OnCloseNewColor(optional bool bCancelled)
 
 function bool OnClickRenameColor(GUIComponent Sender)
 {
-    if (Controller.OpenMenu(Controller.RequestDataMenu, RenameColorPageCaption, NameLabel))
+    if (Controller.OpenMenu(string(class'HxGUIGetDataMenu'), RenameColorPageCaption, NameLabel))
     {
         Controller.ActivePage.SetDataString(co_EditColor.GetText());
         Controller.ActivePage.OnClose = OnCloseRenameColor;
@@ -523,10 +523,12 @@ function OnCloseRenameColor(optional bool bCancelled)
 
 function bool OnClickDeleteColor(GUIComponent Sender)
 {
-    Controller.OpenMenu("GUI2K4.GUI2K4QuestionPage");
-    GUIQuestionPage(Controller.TopPage()).SetupQuestion(
-        ConfirmColorDeletionLabel, QBTN_YesNo, QBTN_Yes);
-    GUIQuestionPage(Controller.TopPage()).OnButtonClick = OnCloseDeleteColor;
+    if (Controller.OpenMenu(string(class'HxGUIQuestionPage')))
+    {
+        GUIQuestionPage(Controller.ActivePage).SetupQuestion(
+            ConfirmColorDeletionLabel, QBTN_YesNo, QBTN_Yes);
+        GUIQuestionPage(Controller.ActivePage).OnButtonClick = OnCloseDeleteColor;
+    }
     return true;
 }
 
@@ -567,9 +569,11 @@ function OnCloseChangeModel(optional bool bCancelled)
 
 function ShowInvalidNameDialog(string Name)
 {
-    Controller.OpenMenu("GUI2K4.GUI2K4QuestionPage");
-    GUIQuestionPage(Controller.TopPage()).SetupQuestion(
-        InvalidNamePrefix@"\""$Name$"\""@InvalidNameSuffix, QBTN_Ok, QBTN_Ok);
+    if (Controller.OpenMenu(string(class'HxGUIQuestionPage')))
+    {
+        GUIQuestionPage(Controller.ActivePage).SetupQuestion(
+            InvalidNamePrefix@"\""$Name$"\""@InvalidNameSuffix, QBTN_Ok, QBTN_Ok);
+    }
 }
 
 function Free()

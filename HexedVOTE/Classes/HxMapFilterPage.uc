@@ -358,7 +358,7 @@ function OnChangeSearchFilterList(GUIComponent Sender)
 
 function bool OnClickNewFilter(GUIComponent Sender)
 {
-    if (Controller.OpenMenu(Controller.RequestDataMenu, NewFilterPageCaption, NameLabel))
+    if (Controller.OpenMenu(string(class'HxGUIGetDataMenu'), NewFilterPageCaption, NameLabel))
     {
         SaveSelectedFilter();
         Controller.ActivePage.OnClose = OnCloseNewFilter;
@@ -387,7 +387,7 @@ function OnCloseNewFilter(optional bool bCancelled)
 
 function bool OnClickRenameFilter(GUIComponent Sender)
 {
-    if (Controller.OpenMenu(Controller.RequestDataMenu, RenameFilterPageCaption, NameLabel))
+    if (Controller.OpenMenu(string(class'HxGUIGetDataMenu'), RenameFilterPageCaption, NameLabel))
     {
         SaveSelectedFilter();
         Controller.ActivePage.SetDataString(co_Filter.GetText());
@@ -419,7 +419,7 @@ function OnCloseRenameFilter(optional bool bCancelled)
 
 function bool OnClickDeleteFilter(GUIComponent Sender)
 {
-    if (Controller.OpenMenu("GUI2K4.GUI2K4QuestionPage"))
+    if (Controller.OpenMenu(string(class'HxGUIQuestionPage')))
     {
         GUIQuestionPage(Controller.ActivePage).SetupQuestion(
             ConfirmFilterDeletionLabel, QBTN_YesNo, QBTN_Yes);
@@ -439,7 +439,7 @@ function OnCloseDeleteFilter(byte bButton)
 
 function ShowInvalidNameDialog(string Name)
 {
-    if (Controller.OpenMenu("GUI2K4.GUI2K4QuestionPage"))
+    if (Controller.OpenMenu(string(class'HxGUIQuestionPage')))
     {
         GUIQuestionPage(Controller.ActivePage).SetupQuestion(
             InvalidNamePrefix@"\""$Name$"\""@InvalidNameSuffix, QBTN_Ok, QBTN_Ok);
