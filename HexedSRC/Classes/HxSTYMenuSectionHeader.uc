@@ -10,11 +10,12 @@ defaultproperties
     Images(3)=Material'engine.WhiteSquareTexture'
     Images(4)=Material'engine.WhiteSquareTexture'
 
-    ImgColors(0)=(R=21,G=73,B=126,A=255)
-    ImgColors(1)=(R=21,G=73,B=126,A=255)
-    ImgColors(2)=(R=21,G=73,B=126,A=255)
-    ImgColors(3)=(R=21,G=73,B=126,A=255)
-    ImgColors(4)=(R=21,G=73,B=126,A=255)
+    // Original background color of AltSectionBackground: (R=21,G=73,B=126,A=255)
+    ImgColors(0)=(R=29,G=78,B=146,A=255)
+    ImgColors(1)=(R=29,G=78,B=146,A=255)
+    ImgColors(2)=(R=29,G=78,B=146,A=255)
+    ImgColors(3)=(R=29,G=78,B=146,A=255)
+    ImgColors(4)=(R=29,G=78,B=146,A=255)
 
     FontColors(0)=(R=255,G=255,B=255,A=255)
     FontColors(1)=(R=255,G=240,B=0,A=255)
