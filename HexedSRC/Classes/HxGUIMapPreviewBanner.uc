@@ -1,6 +1,5 @@
 class HxGUIMapPreviewBanner extends HxGUIBackground;
 
-var automated GUIImage i_MainBG;
 var automated GUILabel l_Header;
 var automated HxGUIBackground b_Preview;
 var automated GUIImage i_Preview;
@@ -143,7 +142,6 @@ function bool InternalOnPreDrawInit(Canvas C)
     local float MaxHeight;
     local float ItemHeight;
 
-    class'HxGUIStyles'.static.FillFrame(Self, i_MainBG);
     class'HxGUIStyles'.static.FillFrame(Self, l_NoInformation);
     class'HxGUIStyles'.static.AlignToBottomOf(l_Header, b_Preview);
     ItemHeight = lb_Information.GetItemHeight(C);
@@ -160,7 +158,7 @@ function bool InternalOnPreDrawInit(Canvas C)
     class'HxGUIStyles'.static.FillFrame(b_Preview, l_NoPreview);
     class'HxGUIStyles'.static.FillFrameWidth(Self, lb_Information);
     lb_Information.WinTop = b_Preview.WinTop + b_Preview.WinHeight;
-    lb_Information.WinHeight = lb_Information.RelativeHeight(ItemHeight * 2.4);
+    lb_Information.WinHeight = lb_Information.RelativeHeight(ItemHeight * 2.3);
     b_DescriptionFrame.WinTop = lb_Information.WinTop + lb_Information.WinHeight;
     b_DescriptionFrame.WinHeight = 1.0 - b_DescriptionFrame.WinTop;
     class'HxGUIStyles'.static.FillFrame(b_DescriptionFrame, i_DescriptionBG);
@@ -170,20 +168,6 @@ function bool InternalOnPreDrawInit(Canvas C)
 
 defaultproperties
 {
-    Begin Object Class=GUIImage Name=MainBackgroundImage
-        RenderWeight=0.1
-        Image=Material'HxBlueGradient'
-        ImageColor=(R=255,G=255,B=255,A=164)
-        ImageStyle=ISTY_Scaled
-        X1=0
-        Y1=255
-        X2=4
-        Y2=1
-        bBoundToParent=true
-        bScaleToParent=true
-    End Object
-    i_mainBG=MainBackgroundImage
-
     Begin Object class=GUILabel Name=HeaderLabel
         WinLeft=0
         WinTop=0
@@ -303,7 +287,7 @@ defaultproperties
     End Object
     l_NoInformation=NoInformationLabel
 
-    StyleName="HxBackgroundFrame"
+    StyleName="HxBackgroundGradient"
     MaxPreviewWidth=0.94
     NoMapLabel="No Map Selected"
     NoInfoLabel="Map Information Unavailable"

@@ -153,7 +153,8 @@ defaultproperties
     CustomStyleClasses(15)=class'HxSTYPopupBackground'
     CustomStyleClasses(16)=class'HxSTYOptionList'
     CustomStyleClasses(17)=class'HxSTYTextLabel'
-    CustomStyleClasses(18)=class'HxSTYBackgroundFrame'
-    CustomStyleClasses(19)=class'HxSTYBackground'
+    CustomStyleClasses(18)=class'HxSTYBackground'
+    CustomStyleClasses(19)=class'HxSTYBackgroundFrame'
     CustomStyleClasses(20)=class'HxSTYBackgroundDarker'
+    CustomStyleClasses(21)=class'HxSTYBackgroundGradient'
 }
