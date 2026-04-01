@@ -1,8 +1,7 @@
-class HxGUIFramedSection extends HxGUIFramedImage;
+class HxGUIFramedSection extends HxGUIBackground;
 
 const INDENT_SPACE = 0.03;
 
-var automated HxGUIFramedImage HeaderBar;
 var automated GUILabel l_Header;
 var automated GUILabel l_HideReason;
 
@@ -27,7 +26,6 @@ var private array<float> RightIndents;
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
     Super.InitComponent(MyController, MyOwner);
-    HeaderBar.SetVisibility(!bNoHeader);
     l_Header.SetVisibility(!bNoHeader);
     l_Header.Caption = Caption;
     bInit = true;
@@ -40,7 +38,6 @@ event SetVisibility(bool bIsVisible)
     Super.SetVisibility(bIsVisible);
     if (!bNoHeader)
     {
-        HeaderBar.SetVisibility(bIsVisible);
         l_Header.SetVisibility(bIsVisible);
     }
     for (i = 0; i < Grid.Length; ++i)
@@ -110,23 +107,27 @@ function int FindIndex(GUIComponent Component)
 function bool OnPreDrawInit(Canvas C)
 {
     local float Height;
-    local float Border;
     local float Top;
     local float Bottom;
 
     Height = ActualHeight();
-    Border = ActualFrameThickness(C);
-    Top = AlignHeader(C, Border, Height);
+    if (HxGUIStyles(Style) != None)
+    {
+        HxGUIStyles(Style).UpdateBorderOffsets();
+    }
+    Top = AlignHeader(C, Style.BorderOffsets[1], Height);
     Bottom = AlignColumns(
         C,
-        ActualLeft() + Border + (LeftPadding * C.ClipY),
+        ActualLeft() + Style.BorderOffsets[0] + (LeftPadding * C.ClipY),
         Top + (TopPadding * C.ClipY),
-        ActualWidth() - (2 * Border) - (RightPadding + LeftPadding) * C.ClipY,
-        Height - (Top - ActualTop()) - Border - (TopPadding + BottomPadding) * C.ClipY,
+        ActualWidth() - Style.BorderOffsets[0] - Style.BorderOffsets[2]
+            - (RightPadding + LeftPadding) * C.ClipY,
+        Height - (Top - ActualTop()) -  Style.BorderOffsets[3]
+            - (TopPadding + BottomPadding) * C.ClipY,
         0);
     if (bShrinkToFit)
     {
-        WinHeight = RelativeHeight(Bottom - ActualTop() + Border);
+        WinHeight = RelativeHeight(Bottom - ActualTop() + Style.BorderOffsets[3]);
     }
     return false;
 }
@@ -137,16 +138,9 @@ function float AlignHeader(Canvas C, float Top, float Height)
     {
         return ActualTop() + Top;
     }
-    GetFontSize(l_Header, C,,, l_Header.WinHeight);
-    l_Header.WinTop = (Top - HeaderBar.ActualFrameThickness(C)) / Height;
-    l_Header.WinWidth = ActualWidth();
-    l_Header.WinHeight *= LARGE_FONT_SPACING;
-    HeaderBar.WinTop = l_Header.WinTop;
-    HeaderBar.WinWidth = l_Header.WinWidth;
-    HeaderBar.WinHeight = l_Header.WinHeight;
     l_HideReason.WinTop = l_HideReason.RelativeHeight(l_Header.ActualHeight());
     l_HideReason.WinHeight = 1.0 - l_HideReason.WinTop;
-    return l_Header.ActualTop() + l_Header.WinHeight;
+    return l_Header.ActualTop() + l_Header.ActualHeight();
 }
 
 function float AlignColumns(Canvas C, float Left, float Top, float Width, float Height, int Index)
@@ -298,23 +292,16 @@ function SetPosition(float Left, float Top, float Width, float Height, optional 
 
 defaultproperties
 {
-    Begin Object Class=HxGUIFramedImage Name=HeaderBarImage
-        WinLeft=0
-        WinTop=0
-        RenderWeight=0.3
-        ImageSources(0)=(Color=(R=21,G=73,B=126,A=255),Style=ISTY_Stretched)
-        bScaleToParent=false
-        bBoundToParent=true
-    End Object
-    HeaderBar=HeaderBarImage
-
     Begin Object class=GUILabel Name=HeaderLabel
         WinLeft=0
         WinTop=0
-        TextColor=(R=255,G=255,B=255,A=255)
+        WinWidth=1
+        StandardHeight=0.035
+        bStandardized=true
+        StyleName="HxMenuSectionHeader"
         TextAlign=TXTA_Center
-        bTransparent=true
-        bScaleToParent=false
+        bTransparent=false
+        bScaleToParent=true
         bBoundToParent=true
     End Object
     l_Header=HeaderLabel
@@ -324,7 +311,7 @@ defaultproperties
         WinTop=0
         WinWidth=1
         WinHeight=1
-        TextColor=(R=255,G=255,B=255,A=255)
+        StyleName="HxMenuSectionHeader"
         TextAlign=TXTA_Center
         bTransparent=true
         bScaleToParent=true
@@ -342,8 +329,8 @@ defaultproperties
     bAutoSpacing=true
     bShrinkToFit=false
     ExpandIndex=-1
-    ImageSources(0)=(Color=(R=0,G=38,B=74,A=176),Style=ISTY_Stretched,RenderWeight=0.1)
 
+    StyleName="HxMenuSectionBackground"
     bScaleToParent=true
     bBoundToParent=true
     FontScale=FNS_Small

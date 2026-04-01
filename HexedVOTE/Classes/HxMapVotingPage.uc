@@ -3,7 +3,7 @@ class HxMapVotingPage extends MapVotingPage;
 const VERT_SPACING = 0.009;
 const MED_FONT_SPACING = 1.44;
 
-var automated GUIBorder b_Background;
+var automated HxGUIBackground b_Background;
 var automated HxMapVotingVoteListBox lb_VoteList;
 var automated GUIImage i_VoteListBorder;
 var automated moComboBox co_MapFilter;
@@ -397,7 +397,7 @@ defaultproperties
     End Object
     t_WindowTitle=HxGUIHeader'HxGUIFloatingWindow.WindowTitleHeader'
 
-    Begin Object Class=GUIBorder Name=BackgroundBorder
+    Begin Object Class=HxGUIBackground Name=HxBackground
         WinLeft=0
         WinTop=0
         WinWidth=1
@@ -407,7 +407,7 @@ defaultproperties
         bScaleToParent=true
         bBoundToParent=true
     End Object
-    b_Background=BackgroundBorder
+    b_Background=HxBackground
     i_FrameBG=None
 
     Begin Object Class=HxMapVotingVoteListBox Name=VoteListBox

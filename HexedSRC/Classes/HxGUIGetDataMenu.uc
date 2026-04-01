@@ -1,6 +1,6 @@
 class HxGUIGetDataMenu extends UT2K4GetDataMenu;
 
-var automated GUIBorder b_Background;
+var automated HxGUIBackground b_Background;
 
 function InitComponent(GUIController MyController, GUIComponent MyComponent)
 {
@@ -33,7 +33,7 @@ event ResolutionChanged(int ResX, int ResY)
 
 defaultproperties
 {
-    Begin Object Class=GUIBorder Name=BackgroundBorder
+    Begin Object Class=HxGUIBackground Name=HxBackground
         WinLeft=0
         WinTop=0
         WinWidth=1
@@ -43,7 +43,7 @@ defaultproperties
         bScaleToParent=true
         bBoundToParent=true
     End Object
-    b_Background=BackgroundBorder
+    b_Background=HxBackground
     i_FrameBG=None
 
     Begin Object Class=GUIButton Name=NewOkButton

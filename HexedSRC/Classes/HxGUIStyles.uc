@@ -35,7 +35,7 @@ event Initialize()
             Fonts[i] = Controller.GetMenuFont(FontNames[i]);
         }
     }
-    UpdateBorderOffsets(Controller.ResY);
+    UpdateBorderOffsets();
 }
 
 function bool InternalOnDraw(Canvas C,
@@ -51,7 +51,7 @@ function bool InternalOnDraw(Canvas C,
     {
         return false;
     }
-    UpdateBorderOffsets(Controller.ResY);
+    UpdateBorderOffsets();
     bLocked = true;
     Offset = DrawFrames(C, MenuState, Left, Top, Width, Height);
     Width -= WidthOffsetCount * Offset;
@@ -63,26 +63,26 @@ function bool InternalOnDraw(Canvas C,
     return true;
 }
 
-function bool UpdateBorderOffsets(float ResY)
+function bool UpdateBorderOffsets()
 {
     local float FrameOffset;
     local int i;
 
-    if (LastResY != ResY)
+    if (LastResY != Controller.ResY)
     {
         for (i = 0; i < Frames.Length; ++i)
         {
-            FrameOffset += Round(ResY * Frames[i].Thickness);
+            FrameOffset += Round(Controller.ResY * Frames[i].Thickness);
         }
         for (i = 0; i < ArrayCount(BorderOffsets); ++i)
         {
-            BorderOffsets[i] = Round(RelativeBorderOffsets[i] * ResY);
+            BorderOffsets[i] = Round(RelativeBorderOffsets[i] * Controller.ResY);
             if (SkipFrameParts[i] == 0)
             {
                 BorderOffsets[i] += FrameOffset;
             }
         }
-        LastResY = ResY;
+        LastResY = Controller.ResY;
         return true;
     }
     return false;
@@ -218,6 +218,18 @@ defaultproperties
     FontNames(2)="HxSmallerFont"
     FontNames(3)="HxSmallerFont"
     FontNames(4)="HxSmallerFont"
+
+    RStyles(0)=MSTY_Alpha
+    RStyles(1)=MSTY_Alpha
+    RStyles(2)=MSTY_Alpha
+    RStyles(3)=MSTY_Alpha
+    RStyles(4)=MSTY_Alpha
+
+    ImgStyle(0)=ISTY_Scaled
+    ImgStyle(1)=ISTY_Scaled
+    ImgStyle(2)=ISTY_Scaled
+    ImgStyle(3)=ISTY_Scaled
+    ImgStyle(4)=ISTY_Scaled
 
     OnDraw=InternalOnDraw
 }
