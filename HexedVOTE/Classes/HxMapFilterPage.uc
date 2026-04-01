@@ -58,17 +58,17 @@ function InitComponent(GUIController MyController, GUIComponent MyComponent)
     Sections[SECTION_FILTER_LIST].Insert(ed_SearchFilterList, 0.015, 0.015);
     Sections[SECTION_FILTER_LIST].Insert(lb_FilterList, 0.001);
     Sections[SECTION_FILTER_LIST].Insert(l_MapListButtonAnchor, 0.015, 0.015);
-    class'HxGUIStyles'.static.ApplyComboBoxStyle(Controller, co_Filter);
-    class'HxGUIStyles'.static.ApplyComboBoxStyle(Controller, co_GameType);
-    class'HxGUIStyles'.static.ApplyEditBoxStyle(Controller, ed_SearchMaps);
-    class'HxGUIStyles'.static.ApplyEditBoxStyle(Controller, ed_SearchFilterList);
+    class'HxGUITheme'.static.ApplyComboBoxStyle(Controller, co_Filter);
+    class'HxGUITheme'.static.ApplyComboBoxStyle(Controller, co_GameType);
+    class'HxGUITheme'.static.ApplyEditBoxStyle(Controller, ed_SearchMaps);
+    class'HxGUITheme'.static.ApplyEditBoxStyle(Controller, ed_SearchFilterList);
     for (i = 0; i < 4; ++i)
     {
-        class'HxGUIStyles'.static.ApplyEditBoxStyle(Controller, moEditBox(RuleOptions[i]));
+        class'HxGUITheme'.static.ApplyEditBoxStyle(Controller, moEditBox(RuleOptions[i]));
     }
     for (i = 3; i < ArrayCount(RuleOptions); ++i)
     {
-        class'HxGUIStyles'.static.ApplyComboBoxStyle(Controller, moComboBox(RuleOptions[i]));
+        class'HxGUITheme'.static.ApplyComboBoxStyle(Controller, moComboBox(RuleOptions[i]));
     }
     RuleOptions[0].ToolTip.ExpirationSeconds = 6;
     RuleOptions[0].SetHint(

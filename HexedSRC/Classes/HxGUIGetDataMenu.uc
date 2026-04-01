@@ -5,7 +5,7 @@ var automated HxGUIBackground b_Background;
 function InitComponent(GUIController MyController, GUIComponent MyComponent)
 {
     Super.InitComponent(MyController, MyComponent);
-    class'HxGUIStyles'.static.ApplyEditBoxStyle(Controller, ed_Data);
+    class'HxGUITheme'.static.ApplyEditBoxStyle(Controller, ed_Data);
     AdjustWindowSize(Controller.ResX, Controller.ResY);
 }
 

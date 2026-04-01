@@ -293,25 +293,6 @@ static function float GetActualFrameThickness(GUIComponent Comp)
     return 0;
 }
 
-static function ApplyComboBoxStyle(GUIController Controller, moComboBox CB)
-{
-    CB.MyComboBox.Edit.StyleName = "HxComboBox";
-    CB.MyComboBox.Edit.Style = Controller.GetStyle(
-        "HxComboBox", CB.MyComboBox.Edit.FontScale);
-    CB.MyComboBox.Edit.FontScale = CB.FontScale;
-    CB.MyComboBox.MyShowListBtn.StyleName = "HxSquareButton";
-    CB.MyComboBox.MyShowListBtn.Style = Controller.GetStyle(
-        "HxSquareButton", CB.MyComboBox.Edit.FontScale);
-    CB.MyComboBox.MyShowListBtn.FontScale = CB.FontScale;
-}
-
-static function ApplyEditBoxStyle(GUIController Controller, moEditBox EB)
-{
-    EB.MyEditBox.StyleName = "HxEditBox";
-    EB.MyEditBox.Style = Controller.GetStyle("HxEditBox", EB.MyEditBox.FontScale);
-    EB.MyEditBox.FontScale = EB.FontScale;
-}
-
 defaultproperties
 {
     FontNames(0)="HxSmallerFont"
