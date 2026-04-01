@@ -32,12 +32,6 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     DefaultStyle = Style;
 }
 
-event ResolutionChanged(int NewX, int NewY)
-{
-    Super.ResolutionChanged(NewX, NewY);
-    bReInit = true;
-}
-
 function float GetSpacedItemHeight(Canvas C)
 {
     local float XL;

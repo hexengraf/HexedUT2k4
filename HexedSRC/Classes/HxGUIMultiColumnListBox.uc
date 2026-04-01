@@ -14,7 +14,6 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
         class'HxGUIStyles'.static.StaticFrameThickness(b_ListBackground);
     HxGUIVertScrollBar(MyScrollBar).RightOffset = HxGUIMultiColumnList(List).FrameThickness;
     HxGUIVertScrollBar(MyScrollBar).StandardWidth = ScrollbarWidth;
-    SetCustomBackground("");
 }
 
 event ResolutionChanged(int NewX, int NewY)

@@ -18,12 +18,6 @@ var localized string AuthorLabel;
 
 var private string DisplayedMap;
 
-function InitComponent(GUIController MyController, GUIComponent MyOwner)
-{
-    Super.InitComponent(MyController, MyOwner);
-    SetCustomBackground("");
-}
-
 function ResetBanner(string Caption)
 {
     DisplayedMap = "";

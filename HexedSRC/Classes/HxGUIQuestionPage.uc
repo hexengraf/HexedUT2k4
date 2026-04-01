@@ -36,11 +36,12 @@ function LayoutButtons(byte ActiveButton)
     Super.LayoutButtons(ActiveButton);
     for (i = 0; i<Buttons.Length; i++)
     {
+        class'HxGUITheme'.static.ApplySquareButtonStyle(Controller, Buttons[i]);
         Buttons[i].WinTop = 0.675;
         Buttons[i].bBoundToParent = true;
         Buttons[i].bScaleToParent = true;
         Buttons[i].bStandardized = true;
-        Buttons[i].StandardHeight = 0.035;
+        Buttons[i].StandardHeight = 0.0325;
     }
 }
 

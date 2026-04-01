@@ -83,7 +83,7 @@ defaultproperties
         winWidth=0.93
         CaptionWidth=0.15
         bAutoSizeCaption=true
-        LabelStyleName="HxTextLabel"
+        LabelStyleName="HxEditBox"
         bBoundToParent=true
         bScaleToParent=true
         TabOrder=0

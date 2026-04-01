@@ -13,25 +13,33 @@ static function RegisterStyles(GUIController GC)
     }
 }
 
-static function ApplyComboBoxStyle(GUIController Controller, moComboBox CB)
+static function ApplyComboBoxStyle(GUIController GC, moComboBox CB)
 {
     local eFontScale FontScale;
 
     CB.MyComboBox.Edit.StyleName = "HxComboBox";
-    CB.MyComboBox.Edit.Style = Controller.GetStyle("HxComboBox", FontScale);
+    CB.MyComboBox.Edit.Style = GC.GetStyle("HxComboBox", FontScale);
     CB.MyComboBox.Edit.FontScale = CB.FontScale;
     CB.MyComboBox.MyShowListBtn.StyleName = "HxSquareButton";
-    CB.MyComboBox.MyShowListBtn.Style = Controller.GetStyle("HxSquareButton", FontScale);
+    CB.MyComboBox.MyShowListBtn.Style = GC.GetStyle("HxSquareButton", FontScale);
     CB.MyComboBox.MyShowListBtn.FontScale = CB.FontScale;
 }
 
-static function ApplyEditBoxStyle(GUIController Controller, moEditBox EB)
+static function ApplyEditBoxStyle(GUIController GC, moEditBox EB)
 {
     local eFontScale FontScale;
 
     EB.MyEditBox.StyleName = "HxEditBox";
-    EB.MyEditBox.Style = Controller.GetStyle("HxEditBox", FontScale);
+    EB.MyEditBox.Style = GC.GetStyle("HxEditBox", FontScale);
     EB.MyEditBox.FontScale = EB.FontScale;
+}
+
+static function ApplySquareButtonStyle(GUIController GC, GUIButton B)
+{
+    local eFontScale FontScale;
+
+    B.StyleName = "HxSquareButton";
+    B.Style = GC.GetStyle("HxSquareButton", FontScale);
 }
 
 defaultproperties
