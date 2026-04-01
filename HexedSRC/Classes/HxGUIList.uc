@@ -63,8 +63,8 @@ defaultproperties
     bAutoSpacing=true
     LineSpacing=0.003
     LeftPadding=0.015
-    StyleName="HxSmallList"
-    SelectedStyleName="HxSmallListSelection"
+    StyleName="HxList"
+    SelectedStyleName="HxListSelection"
     OutlineStyleName=""
     bDrawSelectionBorder=false
     bMultiSelect=false

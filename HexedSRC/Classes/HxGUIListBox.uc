@@ -110,7 +110,7 @@ defaultproperties
     LeftPadding=0.015
     ScrollbarWidth=0.016
     TextAlign=TXTA_Left
-    StyleName="HxSmallList"
-    SelectedStyleName="HxSmallListSelection"
+    StyleName="HxList"
+    SelectedStyleName="HxListSelection"
     OutlineStyleName=""
 }

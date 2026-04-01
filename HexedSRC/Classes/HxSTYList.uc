@@ -1,8 +1,8 @@
-class HxSTYSmallList extends HxGUIStyles;
+class HxSTYList extends HxGUIStyles;
 
 defaultproperties
 {
-    KeyName="HxSmallList"
+    KeyName="HxList"
 
     FontColors(0)=(R=255,G=195,B=0,A=255)
     FontColors(1)=(R=255,G=195,B=0,A=255)

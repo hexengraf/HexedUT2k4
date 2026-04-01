@@ -1,8 +1,8 @@
-class HxSTYSmallListSelection extends HxGUIStyles;
+class HxSTYListSelection extends HxGUIStyles;
 
 defaultproperties
 {
-    KeyName="HxSmallListSelection"
+    KeyName="HxListSelection"
 
     Images(0)=Material'engine.WhiteSquareTexture'
     Images(1)=Material'engine.WhiteSquareTexture'

@@ -135,8 +135,8 @@ defaultproperties
     bHidden=True
 
     HexedMenuClass=class'HxGUIMenu'
-    CustomStyleClasses(0)=class'HxSTYSmallList'
-    CustomStyleClasses(1)=class'HxSTYSmallListSelection'
+    CustomStyleClasses(0)=class'HxSTYList'
+    CustomStyleClasses(1)=class'HxSTYListSelection'
     CustomStyleClasses(2)=class'HxSTYTextGolden'
     CustomStyleClasses(3)=class'HxSTYScrollGrip'
     CustomStyleClasses(4)=class'HxSTYScrollZone'

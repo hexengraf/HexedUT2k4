@@ -234,8 +234,8 @@ defaultproperties
 
     StandardHeaderHeight=0.0325
     ScrollbarWidth=0.016
-    StyleName="HxSmallList"
-    SelectedStyleName="HxSmallListSelection"
+    StyleName="HxList"
+    SelectedStyleName="HxListSelection"
     bVisibleWhenEmpty=true
     OnPreDraw=InternalOnPreDraw
 }

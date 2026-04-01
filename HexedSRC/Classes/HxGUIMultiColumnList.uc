@@ -189,8 +189,8 @@ defaultproperties
     bDropSource=false
     bDropTarget=false
     ExpandLastColumn=true
-    StyleName="HxSmallList"
-    SelectedStyleName="HxSmallListSelection"
+    StyleName="HxList"
+    SelectedStyleName="HxListSelection"
     bReInit=true
     GetItemHeight=GetSpacedItemHeight
     OnDrawItem=DrawItem
