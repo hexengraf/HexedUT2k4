@@ -3,7 +3,7 @@ class HxClientManager extends Actor;
 var array<HxClientReplicationInfo> CRIs;
 
 var const private class<HxGUIFloatingWindow> HexedMenuClass;
-var const private array<class<GUIStyles> > CustomStyleClasses;
+var const private class<HxGUITheme> HexedThemeClass;
 
 var private PlayerController PC;
 var private GUIController GC;
@@ -35,7 +35,7 @@ simulated function bool InitializeGUIController()
     if (PC.Player != None)
     {
         GC = GUIController(PC.Player.GUIController);
-        RegisterStyles();
+        HexedThemeClass.static.RegisterStyles(GC);
         return true;
     }
     return false;
@@ -73,16 +73,6 @@ simulated function RefreshHexedMenu(optional bool bUpdateTabControl)
         {
             HxGUIServerMenu(GC.ActivePage).Refresh();
         }
-    }
-}
-
-simulated function RegisterStyles()
-{
-    local int i;
-
-    for (i = 0; i < CustomStyleClasses.Length; ++i)
-    {
-        GC.RegisterStyle(CustomStyleClasses[i]);
     }
 }
 
@@ -133,28 +123,6 @@ defaultproperties
 {
     RemoteRole=ROLE_None
     bHidden=True
-
     HexedMenuClass=class'HxGUIMenu'
-    CustomStyleClasses(0)=class'HxSTYList'
-    CustomStyleClasses(1)=class'HxSTYListSelection'
-    CustomStyleClasses(2)=class'HxSTYTextGolden'
-    CustomStyleClasses(3)=class'HxSTYScrollGrip'
-    CustomStyleClasses(4)=class'HxSTYScrollZone'
-    CustomStyleClasses(5)=class'HxSTYEditBox'
-    CustomStyleClasses(6)=class'HxSTYComboBox'
-    CustomStyleClasses(7)=class'HxSTYListHeader'
-    CustomStyleClasses(8)=class'HxSTYSquareButton'
-    CustomStyleClasses(9)=class'HxSTYCloseButton'
-    CustomStyleClasses(10)=class'HxSTYMenuHeader'
-    CustomStyleClasses(11)=class'HxSTYMenuBackground'
-    CustomStyleClasses(12)=class'HxSTYMenuSectionHeader'
-    CustomStyleClasses(13)=class'HxSTYMenuSectionBackground'
-    CustomStyleClasses(14)=class'HxSTYPopupHeader'
-    CustomStyleClasses(15)=class'HxSTYPopupBackground'
-    CustomStyleClasses(16)=class'HxSTYOptionList'
-    CustomStyleClasses(17)=class'HxSTYTextLabel'
-    CustomStyleClasses(18)=class'HxSTYBackground'
-    CustomStyleClasses(19)=class'HxSTYBackgroundFrame'
-    CustomStyleClasses(20)=class'HxSTYBackgroundDarker'
-    CustomStyleClasses(21)=class'HxSTYBackgroundGradient'
+    HexedThemeClass=class'HxGUIThemeDefault'
 }
