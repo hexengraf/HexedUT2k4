@@ -1,20 +1,19 @@
 class HxGUIMultiColumnListBox extends GUIMultiColumnListBox
     abstract;
 
-var automated HxGUIFramedImage i_Background;
+var automated HxGUIBackground b_ListBackground;
 var automated HxGUIMultiColumnListSearchBar SearchBar;
 
 var float StandardHeaderHeight;
 var float ScrollbarWidth;
-var float FrameThickness;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
     Super.InitComponent(MyController, MyOwner);
-    HxGUIMultiColumnList(List).FrameThickness = FrameThickness;
+    HxGUIMultiColumnList(List).FrameThickness =
+        class'HxGUIStyles'.static.StaticFrameThickness(b_ListBackground);
+    HxGUIVertScrollBar(MyScrollBar).RightOffset = HxGUIMultiColumnList(List).FrameThickness;
     HxGUIVertScrollBar(MyScrollBar).StandardWidth = ScrollbarWidth;
-    HxGUIVertScrollBar(MyScrollBar).RightOffset = FrameThickness;
-    i_Background.FrameThickness = FrameThickness;
     SetCustomBackground("");
 }
 
@@ -71,15 +70,15 @@ function bool InternalOnPreDraw(Canvas C)
     if (bInit)
     {
         FullHeight = ActualHeight();
-        Offset = i_Background.ActualFrameThickness(C);
-        i_Background.WinTop = (GetHeaderHeight(C) - Offset) / FullHeight;
-        i_Background.WinHeight = 1.0 - i_Background.WinTop;
+        Offset = class'HxGUIStyles'.static.GetActualFrameThickness(b_ListBackground);
+        b_ListBackground.WinTop = (GetHeaderHeight(C) - Offset) / FullHeight;
+        b_ListBackground.WinHeight = 1.0 - b_ListBackground.WinTop;
         if (SearchBar != None)
         {
             SearchBarHeight = SearchBar.ActualHeight();
             SearchBar.WinTop = (FullHeight - SearchBarHeight) / FullHeight;
             HxGUIVertScrollBar(MyScrollBar).BottomOffset = SearchBarHeight / C.ClipY;
-            i_Background.WinHeight -= (SearchBarHeight - Offset) / FullHeight;
+            b_ListBackground.WinHeight -= (SearchBarHeight - Offset) / FullHeight;
         }
         bInit = false;
         return true;
@@ -132,6 +131,7 @@ function bool OnPreDrawHeader(Canvas C)
 
 function OnRenderedHeader(Canvas C)
 {
+    local Material FrameMaterial;
     local float Offset;
     local float Left;
     local float Width;
@@ -139,28 +139,37 @@ function OnRenderedHeader(Canvas C)
     local int i;
 
     C.Style = 5;
-    C.DrawColor = i_Background.FrameColor;
-    Offset = Round(FrameThickness * C.ClipY);
     Left = Header.ActualLeft();
     Width = Header.ActualWidth();
-    Height = Header.ActualHeight() - Offset;
-
-    C.SetPos(Left, Header.ActualTop());
-    C.DrawTileStretched(i_Background.FrameMaterial, Width, Offset);
-    C.CurY += Offset;
-    C.DrawTileStretched(i_Background.FrameMaterial, Offset, Height);
-    C.CurX += Width - Offset;
-    C.DrawTileStretched(i_Background.FrameMaterial, Offset, Height);
-    C.DrawColor.A = 172;
-    C.CurX += Offset / 2;
-    Height -= Offset;
-    for (i = List.ColumnHeadings.Length - 1; i > 0; --i)
+    Height = Header.ActualHeight();
+    if (HxGUIStyles(b_ListBackground.Style) != None)
     {
-        C.CurX -= List.ColumnWidths[i];
-        C.DrawTileStretched(i_Background.FrameMaterial, Offset, Height);
+        C.DrawColor = HxGUIStyles(b_ListBackground.Style).GetFrameColor();
+        FrameMaterial = HxGUIStyles(b_ListBackground.Style).GetFrameMaterial();
+        Offset = class'HxGUIStyles'.static.GetActualFrameThickness(b_ListBackground);
+        Height -= Offset;
+        C.SetPos(Left, Header.ActualTop());
+        C.DrawTileStretched(FrameMaterial, Width, Offset);
+        C.CurY += Offset;
+        C.DrawTileStretched(FrameMaterial, Offset, Height);
+        C.CurX += Width - Offset;
+        C.DrawTileStretched(FrameMaterial, Offset, Height);
     }
-    C.SetPos(Left + Offset, C.CurY + Height);
-    C.DrawTileStretched(i_Background.FrameMaterial, Width - 2 * Offset, Offset);
+    if (HxGUIStyles(Header.Style) != None)
+    {
+        C.DrawColor = HxGUIStyles(Header.Style).GetFrameColor();
+        FrameMaterial = HxGUIStyles(Header.Style).GetFrameMaterial();
+        Offset = class'HxGUIStyles'.static.GetActualFrameThickness(Header);
+        C.CurX += Offset / 2;
+        Height -= Offset;
+        for (i = List.ColumnHeadings.Length - 1; i > 0; --i)
+        {
+            C.CurX -= List.ColumnWidths[i];
+            C.DrawTileStretched(FrameMaterial, Offset, Height);
+        }
+        C.SetPos(Left + Offset, C.CurY + Height);
+        C.DrawTileStretched(FrameMaterial, Width - 2 * Offset, Offset);
+    }
 }
 
 function OnMousePressedHeader(GUIComponent Sender, bool bRepeat)
@@ -185,14 +194,7 @@ function float GetHeaderHeight(Canvas C)
 
 function SetCustomBackground(string BackgroundName)
 {
-    if (BackgroundName == "")
-    {
-        i_Background.Images[1].Image = None;
-    }
-    else
-    {
-        i_Background.Images[1].Image = Material(DynamicLoadObject(BackgroundName, class'Material'));
-    }
+    b_ListBackground.SetCustomBackground(BackgroundName);
 }
 
 defaultproperties
@@ -213,19 +215,17 @@ defaultproperties
     End Object
     Header=MyNewHeader
 
-    Begin Object Class=HxGUIFramedImage Name=BackgroundImage
+    Begin Object Class=HxGUIBackground Name=ListBackground
         WinLeft=0
         WinTop=0
         WinWidth=1
         WinHeight=1
         RenderWeight=0.1
-        ImageSources(0)=(Image=Material'HxBlueGradient',Color=(R=255,G=255,B=255,A=164),Style=ISTY_Scaled,bSubImage=true,X1=0,Y1=127,X2=4,Y2=129)
-        ImageSources(1)=(Color=(R=255,G=255,B=255,A=255),Style=ISTY_Scaled)
-        // FrameColor=(R=71,G=119,B=176,A=255)
+        StyleName="HxBackground"
         bScaleToParent=true
         bBoundToParent=true
     End Object
-    i_Background=BackgroundImage
+    b_ListBackground=ListBackground
 
     Begin Object Class=HxGUIVertScrollBar Name=NewTheScrollbar
         bScaleToParent=true
@@ -234,7 +234,6 @@ defaultproperties
 
     StandardHeaderHeight=0.0325
     ScrollbarWidth=0.016
-    FrameThickness=0.001
     StyleName="HxSmallList"
     SelectedStyleName="HxSmallListSelection"
     bVisibleWhenEmpty=true

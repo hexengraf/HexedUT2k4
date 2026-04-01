@@ -17,6 +17,7 @@ var private int LeftOffsetCount;
 var private int TopOffsetCount;
 var private int WidthOffsetCount;
 var private int HeightOffsetCount;
+var private Color FallbackFrameColor;
 
 event Initialize()
 {
@@ -65,21 +66,18 @@ function bool InternalOnDraw(Canvas C,
 
 function bool UpdateBorderOffsets()
 {
-    local float FrameOffset;
+    local float FrameThickness;
     local int i;
 
     if (LastResY != Controller.ResY)
     {
-        for (i = 0; i < Frames.Length; ++i)
-        {
-            FrameOffset += Round(Controller.ResY * Frames[i].Thickness);
-        }
+        FrameThickness = ActualFrameThickness();
         for (i = 0; i < ArrayCount(BorderOffsets); ++i)
         {
             BorderOffsets[i] = Round(RelativeBorderOffsets[i] * Controller.ResY);
             if (SkipFrameParts[i] == 0)
             {
-                BorderOffsets[i] += FrameOffset;
+                BorderOffsets[i] += FrameThickness;
             }
         }
         LastResY = Controller.ResY;
@@ -130,6 +128,48 @@ function float DrawFrames(Canvas C,
     C.Style = SavedStyle;
     C.DrawColor = SavedColor;
     return TotalOffset;
+}
+
+function Color GetFrameColor()
+{
+    if (Frames.Length > 0)
+    {
+        return Frames[0].Color;
+    }
+    return FallbackFrameColor;
+}
+
+function Material GetFrameMaterial()
+{
+    if (Frames.Length > 0)
+    {
+        return Frames[0].Material;
+    }
+    return None;
+}
+
+function float FrameThickness()
+{
+    local float Thickness;
+    local int i;
+
+    for (i = 0; i < Frames.Length; ++i)
+    {
+        Thickness += Frames[i].Thickness;
+    }
+    return Thickness;
+}
+
+function float ActualFrameThickness()
+{
+    local float Thickness;
+    local int i;
+
+    for (i = 0; i < Frames.Length; ++i)
+    {
+        Thickness += Round(Controller.ResY * Frames[i].Thickness);
+    }
+    return Thickness;
 }
 
 static function DrawFrame(Canvas C,
@@ -192,6 +232,67 @@ static function bool GetFontSize(GUIComponent Comp,
     return false;
 }
 
+static function FillFrame(GUIComponent Framer, GUIComponent Framed)
+{
+    local float Thickness;
+
+    Thickness = GetActualFrameThickness(Framer);
+    Framed.WinLeft = Framed.RelativeLeft(Framer.ActualLeft() + Thickness, Framed.bScaleToParent);
+    Framed.WinTop = Framed.RelativeTop(Framer.ActualTop() + Thickness, Framed.bScaleToParent);
+    Framed.WinWidth = Framed.RelativeWidth(
+        Framer.ActualWidth() - 2 * Thickness, Framed.bScaleToParent);
+    Framed.WinHeight = Framed.RelativeHeight(
+        Framer.ActualHeight() - 2 * Thickness, Framed.bScaleToParent);
+}
+
+static function FillFrameWidth(GUIComponent Framer, GUIComponent Framed)
+{
+    local float Thickness;
+
+    Thickness = GetActualFrameThickness(Framer);
+    Framed.WinLeft = Framed.RelativeLeft(Framer.ActualLeft() + Thickness, Framed.bScaleToParent);
+    Framed.WinWidth = Framed.RelativeWidth(
+        Framer.ActualWidth() - 2 * Thickness, Framed.bScaleToParent);
+}
+
+static function AlignToRightOf(GUIComponent RightOf, GUIComponent Aligned)
+{
+    Aligned.WinLeft = Aligned.RelativeLeft(
+        RightOf.ActualLeft() + RightOf.ActualWidth() - GetActualFrameThickness(Aligned));
+}
+
+static function AlignToBottomOf(GUIComponent BottomOf, GUIComponent Aligned)
+{
+    Aligned.WinTop = Aligned.RelativeTop(
+        BottomOf.ActualTop() + BottomOf.ActualHeight() - GetActualFrameThickness(Aligned));
+}
+
+static function CopyPosition(GUIComponent Reference, GUIComponent Target)
+{
+    Target.WinLeft = Reference.WinLeft;
+    Target.WinTop = Reference.WinTop;
+    Target.WinWidth = Reference.WinWidth;
+    Target.WinHeight = Reference.WinHeight;
+}
+
+static function float StaticFrameThickness(GUIComponent Comp)
+{
+    if (HxGUIStyles(Comp.Style) != None)
+    {
+        return HxGUIStyles(Comp.Style).FrameThickness();
+    }
+    return 0;
+}
+
+static function float GetActualFrameThickness(GUIComponent Comp)
+{
+    if (HxGUIStyles(Comp.Style) != None)
+    {
+        return HxGUIStyles(Comp.Style).ActualFrameThickness();
+    }
+    return 0;
+}
+
 static function ApplyComboBoxStyle(GUIController Controller, moComboBox CB)
 {
     CB.MyComboBox.Edit.StyleName = "HxComboBox";
@@ -231,5 +332,6 @@ defaultproperties
     ImgStyle(3)=ISTY_Scaled
     ImgStyle(4)=ISTY_Scaled
 
+    FallbackFrameColor=(R=113,G=159,B=205,A=255)
     OnDraw=InternalOnDraw
 }

@@ -70,7 +70,7 @@ function OnRenderedHeader(Canvas C)
     local float Height;
 
     Super.OnRenderedHeader(C);
-    Offset = Round(FrameThickness * C.ClipY);
+    Offset = class'HxGUIStyles'.static.GetActualFrameThickness(b_ListBackground);
     Height = Header.ActualHeight();
     Top = Header.ActualTop() + Height * 0.13;
     Height = Round(Height * 0.75);

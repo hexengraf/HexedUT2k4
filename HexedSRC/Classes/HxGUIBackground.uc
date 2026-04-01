@@ -1,6 +1,6 @@
 class HxGUIBackground extends GUIMultiComponent;
 
-var protected array<GUIComponent> AlignedComponents;
+var automated GUIImage i_CustomBG;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
@@ -22,6 +22,11 @@ function bool InternalOnPreDraw(Canvas C)
 {
     if (bInit)
     {
+        if (HxGUIStyles(Style) != None)
+        {
+            HxGUIStyles(Style).UpdateBorderOffsets();
+            HxGUIStyles(Style).FillFrame(Self, i_CustomBG);
+        }
         bInit = OnPreDrawInit(C);
         return true;
     }
@@ -30,7 +35,11 @@ function bool InternalOnPreDraw(Canvas C)
 
 function bool InternalOnDraw(Canvas C)
 {
-    Style.Draw(C, MenuState, Bounds[0], Bounds[1], Bounds[2] - Bounds[0], Bounds[3] - Bounds[1]);
+    if (bVisible)
+    {
+        Style.Draw(
+            C, MenuState, Bounds[0], Bounds[1], Bounds[2] - Bounds[0], Bounds[3] - Bounds[1]);
+    }
     return false;
 }
 
@@ -43,9 +52,28 @@ static function bool GetFontSize(GUIComponent Comp,
     return class'HxGUIStyles'.static.GetFontSize(Comp, C, Text, Width, Height);
 }
 
+function SetCustomBackground(string BackgroundName)
+{
+    if (BackgroundName == "")
+    {
+        i_CustomBG.Image = None;
+    }
+    else
+    {
+        i_CustomBG.Image = Material(DynamicLoadObject(BackgroundName, class'Material'));
+    }
+}
+
 defaultproperties
 {
-    StyleName="HxTextLabel"
+    Begin Object Class=GUIImage Name=CustomBackgroundImage
+        RenderWeight=0.5
+        bBoundToParent=true
+        bScaleToParent=true
+    End Object
+    i_CustomBG=CustomBackgroundImage
+
+    StyleName="HxBackgroundFrame"
     bScaleToParent=true
     bBoundToParent=true
     OnPreDraw=InternalOnPreDraw

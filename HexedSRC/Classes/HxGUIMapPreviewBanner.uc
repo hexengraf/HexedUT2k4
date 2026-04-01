@@ -1,13 +1,16 @@
-class HxGUIMapPreviewBanner extends HxGUIFramedImage;
+class HxGUIMapPreviewBanner extends HxGUIBackground;
 
+var automated GUIImage i_MainBG;
 var automated GUILabel l_Header;
-var automated HxGUIFramedImage fi_Preview;
+var automated HxGUIBackground b_Preview;
+var automated GUIImage i_Preview;
 var automated GUILabel l_NoPreview;
 var automated HxGUIScrollTextBox lb_Information;
+var automated HxGUIBackground b_DescriptionFrame;
+var automated GUIImage i_DescriptionBG;
 var automated HxGUIScrollTextBox lb_Description;
 var automated GUILabel l_NoInformation;
 
-var float StandardHeaderHeight;
 var float MaxPreviewWidth;
 var localized string NoMapLabel;
 var localized string NoInfoLabel;
@@ -26,8 +29,11 @@ function ResetBanner(string Caption)
 {
     DisplayedMap = "";
     l_Header.SetVisibility(false);
-    fi_Preview.SetVisibility(false);
+    b_Preview.SetVisibility(false);
+    i_Preview.SetVisibility(false);
     l_NoPreview.SetVisibility(false);
+    b_DescriptionFrame.SetVisibility(false);
+    i_DescriptionBG.SetVisibility(false);
     lb_Description.SetVisibility(false);
     l_NoInformation.SetVisibility(true);
     l_Header.Caption = "";
@@ -56,20 +62,22 @@ function SetMap(string MapName)
         }
         if (Record.ScreenshotRef != "")
         {
-            fi_Preview.Images[1].Image = Material(
-                DynamicLoadObject(Record.ScreenshotRef, class'Material'));
+            i_Preview.Image = Material(DynamicLoadObject(Record.ScreenshotRef, class'Material'));
         }
         else
         {
-            fi_Preview.Images[1].Image = None;
+            i_Preview.Image = None;
         }
         l_Header.Caption = Record.FriendlyName;
         SetMapInformation(Record);
         lb_Description.SetContent(GetMapDescription(Record));
         l_Header.SetVisibility(true);
-        fi_Preview.SetVisibility(true);
-        l_NoPreview.SetVisibility(fi_Preview.Images[1].Image == None);
+        b_Preview.SetVisibility(true);
+        i_Preview.SetVisibility(true);
+        l_NoPreview.SetVisibility(i_Preview.Image == None);
         l_NoInformation.SetVisibility(false);
+        b_DescriptionFrame.SetVisibility(true);
+        i_DescriptionBG.SetVisibility(true);
         lb_Description.SetVisibility(true);
     }
 }
@@ -130,82 +138,59 @@ function string GetMapDescription(CacheManager.MapRecord Record)
     return Record.Description;
 }
 
-function bool AlignComponents(Canvas C)
+function bool InternalOnPreDrawInit(Canvas C)
 {
-    AlignPreview(C, AlignHeader(C));
-    AlignDescription(C);
-    AlignNoInformationLabel();
-    return false;
-}
-
-function AlignNoInformationLabel()
-{
-    l_NoInformation.WinLeft = Images[0].WinLeft;
-    l_NoInformation.WinTop = Images[0].WinTop;
-    l_NoInformation.WinWidth = Images[0].WinWidth;
-    l_NoInformation.WinHeight = Images[0].WinHeight;
-}
-
-function float AlignHeader(Canvas C)
-{
-    l_Header.WinHeight = l_Header.RelativeHeight(Round(C.ClipY * StandardHeaderHeight));
-    return l_Header.WinHeight;
-}
-
-function AlignPreview(Canvas C, float FilledHeight)
-{
-    local float TotalWidth;
-    local float TotalHeight;
     local float MaxHeight;
-
-    TotalWidth = ActualWidth();
-    TotalHeight = ActualHeight();
-    MaxHeight = fi_Preview.RelativeHeight(
-        TotalHeight - (TotalHeight * FilledHeight) - (7 * lb_Information.GetItemHeight(C)));
-    fi_Preview.WinWidth = MaxPreviewWidth;
-    fi_Preview.WinHeight = (2 / 3) * fi_Preview.WinWidth * (TotalWidth / TotalHeight);
-    if (fi_Preview.WinHeight > MaxHeight)
-    {
-        fi_Preview.WinHeight = MaxHeight;
-        fi_Preview.WinWidth = (3 / 2) * fi_Preview.WinHeight * (TotalHeight / TotalWidth);
-    }
-    fi_Preview.WinLeft = (1.0 - fi_Preview.WinWidth) / 2;
-    fi_Preview.WinTop = l_Header.WinTop + l_Header.WinHeight - Images[0].WinTop;
-    l_NoPreview.WinLeft = fi_Preview.WinLeft;
-    l_NoPreview.WinTop = fi_Preview.WinTop;
-    l_NoPreview.WinWidth = fi_Preview.WinWidth;
-    l_NoPreview.WinHeight = fi_Preview.WinHeight;
-}
-
-function AlignDescription(Canvas C)
-{
     local float ItemHeight;
 
+    class'HxGUIStyles'.static.FillFrame(Self, i_MainBG);
+    class'HxGUIStyles'.static.FillFrame(Self, l_NoInformation);
+    class'HxGUIStyles'.static.AlignToBottomOf(l_Header, b_Preview);
     ItemHeight = lb_Information.GetItemHeight(C);
-    lb_Information.WinTop = fi_Preview.WinTop + fi_Preview.WinHeight - Images[0].WinTop;
-    lb_Information.WinHeight = lb_Information.RelativeHeight(ItemHeight * 2 * SMALL_FONT_SPACING);
-    lb_Description.WinTop = lb_Information.WinTop + lb_Information.WinHeight - Images[0].WinTop;
-    lb_Description.WinHeight = 1.0 - lb_Description.WinTop;
-}
-
-function SetCustomBackground(string BackgroundName)
-{
-    if (BackgroundName == "")
+    MaxHeight = 1.0 - b_Preview.WinTop - b_Preview.RelativeHeight(7 * ItemHeight);
+    b_Preview.WinWidth = MaxPreviewWidth;
+    b_Preview.WinHeight = (2 / 3) * b_Preview.WinWidth * (ActualWidth() / ActualHeight());
+    if (b_Preview.WinHeight > MaxHeight)
     {
-        Images[1].Image = None;
+        b_Preview.WinHeight = MaxHeight;
+        b_Preview.WinWidth = (3 / 2) * b_Preview.WinHeight * (ActualHeight() / ActualWidth());
     }
-    else
-    {
-        Images[1].Image = Material(DynamicLoadObject(BackgroundName, class'Material'));
-    }
+    b_Preview.WinLeft = (1.0 - b_Preview.WinWidth) / 2;
+    class'HxGUIStyles'.static.FillFrame(b_Preview, i_Preview);
+    class'HxGUIStyles'.static.FillFrame(b_Preview, l_NoPreview);
+    class'HxGUIStyles'.static.FillFrameWidth(Self, lb_Information);
+    lb_Information.WinTop = b_Preview.WinTop + b_Preview.WinHeight;
+    lb_Information.WinHeight = lb_Information.RelativeHeight(ItemHeight * 2.4);
+    b_DescriptionFrame.WinTop = lb_Information.WinTop + lb_Information.WinHeight;
+    b_DescriptionFrame.WinHeight = 1.0 - b_DescriptionFrame.WinTop;
+    class'HxGUIStyles'.static.FillFrame(b_DescriptionFrame, i_DescriptionBG);
+    class'HxGUIStyles'.static.CopyPosition(i_DescriptionBG, lb_Description);
+    return false;
 }
 
 defaultproperties
 {
+    Begin Object Class=GUIImage Name=MainBackgroundImage
+        RenderWeight=0.1
+        Image=Material'HxBlueGradient'
+        ImageColor=(R=255,G=255,B=255,A=164)
+        ImageStyle=ISTY_Scaled
+        X1=0
+        Y1=255
+        X2=4
+        Y2=1
+        bBoundToParent=true
+        bScaleToParent=true
+    End Object
+    i_mainBG=MainBackgroundImage
+
     Begin Object class=GUILabel Name=HeaderLabel
         WinLeft=0
         WinTop=0
         WinWidth=1
+        StandardHeight=0.0325
+        bStandardized=true
+        StyleName="HxBackgroundFrame"
         TextColor=(R=255,G=210,B=0,A=255)
         TextAlign=TXTA_Center
         bTransparent=true
@@ -214,19 +199,26 @@ defaultproperties
     End Object
     l_Header=HeaderLabel
 
-    Begin Object Class=HxGUIFramedImage Name=PreviewImage
-        RenderWeight=0.5
-        ImageSources(0)=(Color=(R=0,G=0,B=0,A=255),Style=ISTY_Stretched)
-        ImageSources(1)=(Color=(R=255,G=255,B=255,A=255),Style=ISTY_Scaled,RenderWeight=1)
+    Begin Object Class=HxGUIBackground Name=PreviewBackground
+        RenderWeight=0.2
+        StyleName="HxBackgroundDarker"
+        bBoundToParent=true
+        bScaleToParent=true
+    End Object
+    b_Preview=PreviewBackground
+
+    Begin Object Class=GUIImage Name=PreviewImage
+        RenderWeight=0.3
+        ImageStyle=ISTY_Scaled
         bScaleToParent=true
         bBoundToParent=true
     End Object
-    fi_Preview=PreviewImage
+    i_Preview=PreviewImage
 
     Begin Object Class=GUILabel Name=NoPreviewLabel
         Caption="No Preview Available"
         StyleName="HxTextGolden"
-        FontScale=FNS_Large
+        FontScale=FNS_Medium
         TextAlign=TXTA_Center
         VertAlign=TXTA_Center
         RenderWeight=1
@@ -238,8 +230,6 @@ defaultproperties
     l_NoPreview=NoPreviewLabel
 
     Begin Object Class=HxGUIScrollTextBox Name=InformationTextBox
-        WinLeft=0
-        WinWidth=1
         FontScale=FNS_Small
         TextAlign=TXTA_Center
         VertAlign=TXTA_Center
@@ -247,7 +237,6 @@ defaultproperties
         LeftPadding=0.04
         RightPadding=0.04
         Separator=""
-        bHideFrame=true
         bTabStop=false
         bVisibleWhenEmpty=true
         bNoTeletype=true
@@ -258,6 +247,30 @@ defaultproperties
     End Object
     lb_Information=InformationTextBox
 
+    Begin Object Class=HxGUIBackground Name=DescriptionBackground
+        WinLeft=0
+        WinWidth=1
+        RenderWeight=0.2
+        StyleName="HxBackgroundFrame"
+        bBoundToParent=true
+        bScaleToParent=true
+    End Object
+    b_DescriptionFrame=DescriptionBackground
+
+    Begin Object Class=GUIImage Name=DescriptionBackgroundImage
+        RenderWeight=0.3
+        Image=Material'2K4Menus.BKRenders.ScanLines'
+        ImageColor=(R=113,G=159,B=205,A=32)
+        ImageStyle=ISTY_Stretched
+        X1=0
+        Y1=0
+        X2=8
+        Y2=128
+        bBoundToParent=true
+        bScaleToParent=true
+    End Object
+    i_DescriptionBG=DescriptionBackgroundImage
+
     Begin Object Class=HxGUIScrollTextBox Name=DescriptionTextBox
         WinLeft=0
         WinWidth=1
@@ -266,7 +279,6 @@ defaultproperties
         FontScale=FNS_Small
         TextAlign=TXTA_Center
         VertAlign=TXTA_Center
-        BackgroundSources(0)=(Image=Material'2K4Menus.BKRenders.ScanLines',Color=(R=113,G=159,B=205,A=32),Style=ISTY_Stretched,bSubImage=true,X1=0,Y1=0,X2=8,Y2=128)
         LeftPadding=0.04
         TopPadding=0.04
         RightPadding=0.04
@@ -291,14 +303,11 @@ defaultproperties
     End Object
     l_NoInformation=NoInformationLabel
 
-    StandardHeaderHeight=0.0325
+    StyleName="HxBackgroundFrame"
     MaxPreviewWidth=0.94
     NoMapLabel="No Map Selected"
     NoInfoLabel="Map Information Unavailable"
     PlayersLabel="players"
     AuthorLabel="Author"
-
-    ImageSources(0)=(Image=Material'HxBlueGradient',Color=(R=255,G=255,B=255,A=164),Style=ISTY_Scaled,bSubImage=true,X1=0,Y1=255,X2=4,Y2=1)
-    ImageSources(1)=(Color=(R=255,G=255,B=255,A=255),Style=ISTY_Scaled)
-    OnPreDrawInit=AlignComponents
+    OnPReDrawInit=InternalOnPreDrawInit
 }

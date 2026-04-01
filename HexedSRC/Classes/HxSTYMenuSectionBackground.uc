@@ -1,4 +1,4 @@
-class HxSTYMenuSectionBackground extends HxGUIStyles;
+class HxSTYMenuSectionBackground extends HxSTYBackgroundFrame;
 
 defaultproperties
 {
@@ -21,6 +21,4 @@ defaultproperties
     FontColors(2)=(R=230,G=200,B=0,A=255)
     FontColors(3)=(R=230,G=200,B=0,A=255)
     FontColors(4)=(R=255,G=255,B=255,A=255)
-
-    Frames(0)=(Material=Material'engine.WhiteSquareTexture',Color=(R=113,G=159,B=205,A=255),Thickness=0.001)
 }

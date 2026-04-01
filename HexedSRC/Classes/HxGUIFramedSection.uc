@@ -111,10 +111,6 @@ function bool OnPreDrawInit(Canvas C)
     local float Bottom;
 
     Height = ActualHeight();
-    if (HxGUIStyles(Style) != None)
-    {
-        HxGUIStyles(Style).UpdateBorderOffsets();
-    }
     Top = AlignHeader(C, Style.BorderOffsets[1], Height);
     Bottom = AlignColumns(
         C,

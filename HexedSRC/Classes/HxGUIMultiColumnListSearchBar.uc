@@ -1,4 +1,4 @@
-class HxGUIMultiColumnListSearchBar extends HxGUIFramedImage;
+class HxGUIMultiColumnListSearchBar extends HxGUIBackground;
 
 var automated GUILabel l_Search;
 var automated array<GUIEditBox> ed_Columns;
@@ -14,6 +14,8 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     {
         ed_Columns[i].bBoundToParent = true;
         ed_Columns[i].bScaleToParent = true;
+        ed_Columns[i].WinTop = 0;
+        ed_Columns[i].WinHeight = 1;
     }
 }
 
@@ -51,7 +53,7 @@ function ResizeEditBoxes(Canvas C)
     if (List != None && (ed_Columns.Length + FirstColumn) <= List.ColumnWidths.Length)
     {
         Width = ActualWidth();
-        Thickness = ActualFrameThickness(C) / Width;
+        Thickness = class'HxGUIStyles'.static.GetActualFrameThickness(Self) / Width;
         for (i = 0; i < ed_Columns.Length; ++i)
         {
             ed_Columns[i].WinWidth = List.ColumnWidths[FirstColumn + i] / Width + Thickness;
@@ -64,8 +66,6 @@ function ResizeEditBoxes(Canvas C)
                 ed_Columns[i].WinLeft =
                     ed_Columns[i - 1].WinLeft + ed_Columns[i - 1].WinWidth - Thickness;
             }
-            ed_Columns[i].WinTop = 0;
-            ed_Columns[i].WinHeight = 1;
             ed_Columns[i].bInit = bInit;
         }
     }
@@ -121,6 +121,6 @@ defaultproperties
     End Object
     l_Search=SearchLabel
 
-    ImageSources(0)=(Color=(R=28,G=47,B=96,A=255),Style=ISTY_Stretched)
+    StyleName="HxBackgroundDarker"
     FirstColumn=0
 }

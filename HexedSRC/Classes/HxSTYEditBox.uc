@@ -1,4 +1,4 @@
-class HxSTYEditBox extends HxGUIStyles;
+class HxSTYEditBox extends HxSTYBackgroundFrame;
 
 defaultproperties
 {
@@ -20,5 +20,4 @@ defaultproperties
 
     RelativeBorderOffsets(0)=0.005
     RelativeBorderOffsets(2)=0.005
-    Frames(0)=(Material=Material'engine.WhiteSquareTexture',Color=(R=113,G=159,B=205,A=255),Thickness=0.001)
 }

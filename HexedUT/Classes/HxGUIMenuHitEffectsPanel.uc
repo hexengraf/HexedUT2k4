@@ -17,7 +17,7 @@ var automated moFloatEdit fl_DisplayPosY;
 var automated moComboBox co_DamagePoints;
 var automated moNumericEdit nu_Value;
 var automated moSlider sl_Pitch;
-var automated HxGUIFramedImage i_Preview;
+var automated HxGUIBackground b_Preview;
 var automated moSlider sl_Scale;
 var automated moSlider sl_RedColor;
 var automated moSlider sl_GreenColor;
@@ -51,7 +51,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     Sections[SECTION_DAMAGE_POINT_EDITOR].Insert(sl_RedColor);
     Sections[SECTION_DAMAGE_POINT_EDITOR].Insert(sl_GreenColor);
     Sections[SECTION_DAMAGE_POINT_EDITOR].Insert(sl_BlueColor);
-    Sections[SECTION_DAMAGE_POINT_EDITOR].Insert(i_Preview);
+    Sections[SECTION_DAMAGE_POINT_EDITOR].Insert(b_Preview);
     PrependClassNameToINIOptions();
     PopulateComboBoxes();
     sl_HitSoundVolume.MySlider.OnClickSound = CS_None;
@@ -299,10 +299,10 @@ function DrawPreview(Canvas C)
         SavedClipY = C.ClipY;
         SavedFontScaleX = C.FontScaleX;
         SavedFontScaleY = C.FontScaleY;
-        C.OrgX = i_Preview.ActualLeft();
-        C.OrgY = i_Preview.ActualTop();
-        C.ClipX = i_Preview.ActualWidth();
-        C.ClipY = i_Preview.ActualHeight();
+        C.OrgX = b_Preview.ActualLeft();
+        C.OrgY = b_Preview.ActualTop();
+        C.ClipX = b_Preview.ActualWidth();
+        C.ClipY = b_Preview.ActualHeight();
         Client.HitEffects.DrawPreview(C, DPIndex);
         C.OrgX = SavedOrgX;
         C.OrgY = SavedOrgY;
@@ -311,7 +311,6 @@ function DrawPreview(Canvas C)
         C.FontScaleX = SavedFontScaleX;
         C.FontScaleY = SavedFontScaleY;
     }
-    i_Preview.InternalOnRendered(C);
 }
 
 function PrependClassNameToINIOptions()
@@ -549,12 +548,11 @@ defaultproperties
     End Object
     sl_BlueColor=BlueColorSlider
 
-    Begin Object class=HxGUIFramedImage Name=PreviewImage
-        ImageSources(0)=(Color=(R=0,G=0,B=0,A=128),Style=ISTY_Stretched)
-        RenderStyle=MSTY_Alpha
+    Begin Object class=HxGUIBackground Name=PreviewBackground
+        StyleName="HxBackgroundDarker"
         OnRendered=DrawPreview
     End Object
-    i_Preview=PreviewImage
+    b_Preview=PreviewBackground
 
     PanelCaption="Hit Effects"
     PanelHint="Hit sound and damage number options"

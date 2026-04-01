@@ -1,4 +1,4 @@
-class HxGUIChatBox extends HxGUIFramedImage;
+class HxGUIChatBox extends HxGUIBackground;
 
 enum EHxChatChannel
 {
@@ -42,7 +42,6 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
         CIH[i].Index = 0;
     }
     SetInputType(HX_CHAT_CHANNEL_Say);
-    SetCustomBackground("");
 }
 
 event Opened(GUIComponent Sender)
@@ -215,19 +214,16 @@ function bool AlignComponents(Canvas C)
 {
     local float XL;
     local float YL;
-    local float Height;
-    local float Thickness;
 
-    Height = ActualHeight();
-    Thickness = ActualFrameThickness(C) / Height;
-    b_Channel.Style.TextSize(
-        C, b_Channel.MenuState, ChatChannels[1], XL, YL, b_Channel.FontScale);
+    class'HxGUIStyles'.static.FillFrame(Self, lb_Chat);
+    class'HxGUIStyles'.static.CopyPosition(lb_Chat, i_CustomBG);
+    lb_Chat.WinHeight = 1.0 - b_Channel.RelativeHeight(b_Channel.ActualHeight());
+    b_Channel.WinTop = lb_Chat.WinHeight;
+    b_Channel.Style.TextSize(C, b_Channel.MenuState, ChatChannels[1], XL, YL, b_Channel.FontScale);
     b_Channel.WinWidth = b_Channel.RelativeWidth(XL * 1.2);
-    b_Channel.WinTop = 1.0 - (b_Channel.ActualHeight() / Height);
-    ed_Input.WinLeft = b_Channel.WinWidth - Thickness;
+    class'HxGUIStyles'.static.AlignToRightOf(b_Channel, ed_Input);
     ed_Input.WinTop = b_Channel.WinTop;
     ed_Input.WinWidth = 1.0 - ed_Input.WinLeft;
-    lb_Chat.WinHeight = b_Channel.WinTop + Thickness;
     return false;
 }
 
@@ -244,19 +240,6 @@ function SetInputType(EHxChatChannel Channel)
     b_Channel.Caption = ChatChannels[ActiveChannel];
 }
 
-function SetCustomBackground(string BackgroundName)
-{
-    if (BackgroundName == "")
-    {
-        lb_Chat.i_Background.Images[0].Image = None;
-    }
-    else
-    {
-        lb_Chat.i_Background.Images[0].Image = Material(
-            DynamicLoadObject(BackgroundName, class'Material'));
-    }
-}
-
 static function bool IsMessageSent(PlayerController Controller)
 {
     return Controller.Level.NetMode == NM_Standalone
@@ -267,9 +250,6 @@ static function bool IsMessageSent(PlayerController Controller)
 defaultproperties
 {
     Begin Object Class=HxGUIScrollTextBox Name=ChatScrollBox
-        WinLeft=0
-        WinTop=0
-        WinWidth=1
         LeftPadding=0.02
         TopPadding=0.05
         RightPadding=0.02
@@ -280,10 +260,8 @@ defaultproperties
         bVisibleWhenEmpty=true
         bNoTeletype=true
         bNeverFocus=true
-        bHideFrame=true
         bStripColors=true
         ColorReplacements(0)=(Match=(R=200,G=1,B=1),ReplaceWith=(R=255,G=66,B=66))
-        BackgroundSources(0)=(Color=(R=255,G=255,B=255,A=255),Style=ISTY_Scaled)
         RenderWeight=1
         bBoundToParent=true
         bScaleToParent=true
@@ -320,7 +298,7 @@ defaultproperties
     End Object
     ed_Input=ChatInputBox
 
-    ImageSources(0)=(Color=(R=24,G=14,B=51,A=164),Style=ISTY_Stretched,RenderWeight=0.1)
+    StyleName="HxBackgroundDarker"
     MaxChatHistory=256
     MaxInputHistory=128
     MessageColor=(R=236,G=236,B=236)

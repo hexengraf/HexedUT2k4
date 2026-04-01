@@ -1,5 +1,4 @@
-class HxGUIScrollTextBox extends GUIScrollTextBox
-    DependsOn(HxGUIFramedImage);
+class HxGUIScrollTextBox extends GUIScrollTextBox;
 
 struct HxColorReplacement
 {
@@ -7,7 +6,6 @@ struct HxColorReplacement
     var Color ReplaceWith;
 };
 
-var automated HxGUIFramedImage i_Background;
 var HxGUIScrollText ScrollText;
 
 var eTextAlign VertAlign;
@@ -18,16 +16,11 @@ var float TopPadding;
 var float RightPadding;
 var float BottomPadding;
 var float ScrollbarWidth;
-var float FrameThickness;
-var bool bHideFrame;
 
-var array<HxGUIFramedImage.HxGUIImageSource> BackgroundSources;
 var array<HxColorReplacement> ColorReplacements;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
-    local int i;
-
     DefaultListClass = string(class'HxGUIScrollText');
     Super.InitComponent(MyController, MyOwner);
     ScrollText = HxGUIScrollText(MyScrollText);
@@ -38,16 +31,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     ScrollText.TopPadding = TopPadding;
     ScrollText.RightPadding = RightPadding;
     ScrollText.BottomPadding = BottomPadding;
-    i_Background.FrameThickness = FrameThickness;
-    i_Background.bHideFrame = bHideFrame;
     HxGUIVertScrollBar(MyScrollBar).StandardWidth = ScrollbarWidth;
-    HxGUIVertScrollBar(MyScrollBar).TopOffset = FrameThickness;
-    HxGUIVertScrollBar(MyScrollBar).RightOffset = FrameThickness;
-    HxGUIVertScrollBar(MyScrollBar).BottomOffset = FrameThickness;
-    for (i = 0; i < BackgroundSources.Length; ++i)
-    {
-        i_Background.AddImage(BackgroundSources[i]);
-    }
 }
 
 function string ReplaceColorCodes(string Text)
@@ -111,17 +95,6 @@ function float GetItemHeight(Canvas C)
 
 defaultproperties
 {
-    Begin Object Class=HxGUIFramedImage Name=Background
-        WinLeft=0
-        WinTop=0
-        WinWidth=1
-        WinHeight=1
-        RenderWeight=0.1
-        bBoundToParent=true
-        bScaleToParent=true
-    End Object
-    i_Background=Background
-
     Begin Object Class=HxGUIVertScrollBar Name=NewTheScrollbar
         bScaleToParent=true
     End Object
@@ -138,6 +111,4 @@ defaultproperties
     RightPadding=0
     BottomPadding=0
     ScrollbarWidth=0.016
-    FrameThickness=0.001
-    bHideFrame=false
 }

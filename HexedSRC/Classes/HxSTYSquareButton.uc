@@ -1,4 +1,4 @@
-class HxSTYSquareButton extends HxGUIStyles;
+class HxSTYSquareButton extends HxSTYBackgroundFrame;
 
 defaultproperties
 {
@@ -17,6 +17,4 @@ defaultproperties
     ImgColors(4)=(R=25,G=25,B=25,A=255)
 
     FontColors(4)=(R=164,G=164,B=164,A=255)
-
-    Frames(0)=(Material=Material'engine.WhiteSquareTexture',Color=(R=113,G=159,B=205,A=255),Thickness=0.001)
 }
