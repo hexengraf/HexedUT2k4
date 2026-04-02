@@ -90,7 +90,7 @@ function Subtract(HxGUIListBox Other)
     local int i;
 
     bOldNotify = List.bNotify;
-    List.bNotify = False;
+    List.bNotify = false;
     for (i = 0; i < Other.List.Elements.Length; ++i)
     {
         List.RemoveItem(Other.List.Elements[i].Item);

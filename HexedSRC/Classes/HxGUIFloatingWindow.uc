@@ -14,7 +14,7 @@ function SetupWindowHeader()
     t_WindowTitle.SetCaption(WindowName);
     if (bMoveAllowed)
     {
-        t_WindowTitle.bAcceptsInput = True;
+        t_WindowTitle.bAcceptsInput = true;
         t_WindowTitle.MouseCursorIndex = HeaderMouseCursorIndex;
     }
     b_ExitButton = HxGUIHeader(t_WindowTitle).b_Close;

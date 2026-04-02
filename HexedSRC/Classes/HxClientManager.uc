@@ -122,7 +122,7 @@ static function HxClientManager Register(HxClientReplicationInfo CRI)
 defaultproperties
 {
     RemoteRole=ROLE_None
-    bHidden=True
+    bHidden=true
     HexedMenuClass=class'HxGUIMenu'
     HexedThemeClass=class'HxGUIThemeDefault'
 }

@@ -669,7 +669,7 @@ defaultproperties
 
     Begin Object Class=HxGUIListBox Name=MapsListBox
         bVisibleWhenEmpty=true
-        bSorted=True
+        bSorted=true
         TabOrder=21
     End Object
     lb_Maps=MapsListBox
@@ -726,7 +726,7 @@ defaultproperties
 
     Begin Object Class=HxGUIListBox Name=FilterListBox
         bVisibleWhenEmpty=true
-        bSorted=True
+        bSorted=true
         TabOrder=32
     End Object
     lb_FilterList=FilterListBox

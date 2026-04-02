@@ -24,7 +24,7 @@ function AdjustWindowSize(coerce float X, coerce float Y)
 
 event ResolutionChanged(int ResX, int ResY)
 {
-    bInit = True;
+    bInit = true;
     Super.ResolutionChanged(ResX, ResY);
 }
 
@@ -64,7 +64,7 @@ defaultproperties
         WinTop=0.125
         WinWidth=0.9
         WinHeight=0.5
-        bMultiLine=True
+        bMultiLine=true
         StyleName="HxTextLabel"
         VertAlign=TXTA_Center
         TextAlign=TXTA_Center

@@ -26,7 +26,7 @@ function AdjustWindowSize(coerce float X, coerce float Y)
 
 event ResolutionChanged(int ResX, int ResY)
 {
-    bInit = True;
+    bInit = true;
     Super.ResolutionChanged(ResX, ResY);
 }
 
