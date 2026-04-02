@@ -44,8 +44,8 @@ defaultproperties
         WinTop=0
         RenderWeight=1
         bNeverFocus=true
-        bRepeatClick=False
-        bAutoShrink=False
+        bRepeatClick=false
+        bAutoShrink=false
         StyleName="HxCloseButton"
         bScaleToParent=true
         bBoundToParent=true
@@ -55,8 +55,8 @@ defaultproperties
     WinWidth=1.0
     RenderWeight=0.100000
     bStandardized=false
-    bUseTextHeight=False
-    bAcceptsInput=True
+    bUseTextHeight=false
+    bAcceptsInput=false
     bNeverFocus=false
     ScalingType=SCALE_X
     StyleName="HxMenuHeader"
