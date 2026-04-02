@@ -34,8 +34,6 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     FilterManager = new() class'HxMapFilterManager';
     lb_MapList.OnTagUpdated = lb_VoteList.UpdateMapTag;
     lb_VoteList.OnTagUpdated = lb_MapList.UpdateMapTag;
-    class'HxGUITheme'.static.ApplyComboBoxStyle(Controller, co_GameType);
-    class'HxGUITheme'.static.ApplyComboBoxStyle(Controller, co_MapFilter);
     lb_VoteList.SetCustomBackground(VoteListBG);
     lb_MapList.SetCustomBackground(MapListBG);
     MapBanner.SetCustomBackground(PreviewBG);

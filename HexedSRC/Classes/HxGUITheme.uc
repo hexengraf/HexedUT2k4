@@ -13,17 +13,16 @@ static function RegisterStyles(GUIController GC)
     }
 }
 
-static function ApplyComboBoxStyle(GUIController GC, moComboBox CB)
-{
-    local eFontScale FontScale;
+// static function ApplyComboBoxStyle(GUIController GC, moComboBox CB)
+// {
+//     local eFontScale FontScale;
 
-    CB.MyComboBox.Edit.StyleName = "HxComboBox";
-    CB.MyComboBox.Edit.Style = GC.GetStyle("HxComboBox", FontScale);
-    CB.MyComboBox.Edit.FontScale = CB.FontScale;
-    CB.MyComboBox.MyShowListBtn.StyleName = "HxSquareButton";
-    CB.MyComboBox.MyShowListBtn.Style = GC.GetStyle("HxSquareButton", FontScale);
-    CB.MyComboBox.MyShowListBtn.FontScale = CB.FontScale;
-}
+//     CB.MyComboBox.Edit.StyleName = "HxEditBox";
+//     CB.MyComboBox.Edit.Style = GC.GetStyle("HxEditBox", FontScale);
+//     CB.MyComboBox.Edit.FontScale = CB.FontScale;
+//     CB.MyComboBox.MyListBox.List.StyleName = "HxComboList";
+//     CB.MyComboBox.MyListBox.List.Style = GC.GetStyle("HxComboList", FontScale);
+// }
 
 static function ApplyEditBoxStyle(GUIController GC, moEditBox EB)
 {

@@ -57,7 +57,6 @@ function InternalOnCreateComponent(GUIComponent NewComponent, GUIComponent Sende
 defaultproperties
 {
     Begin Object Class=GUIVertScrollZone Name=NewScrollZone
-        StyleName="HxScrollZone"
         OnScrollZoneClick=ZoneClick
     End Object
 
@@ -73,7 +72,7 @@ defaultproperties
         OnMousePressed=GripPressed
     End Object
 
-    ScrollZoneStyleName="HxScrollZone"
+    ScrollZoneStyleName="NoBackground"
     StandardWidth=0
     TopOffset=0
     RightOffset=0
