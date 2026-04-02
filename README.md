@@ -1,47 +1,54 @@
 # HexedUT2k4 - Hexed Unreal Tournament 2004
 
-This is a collection of packages and mutators providing a variety of features and QoL improvements. The following packages are provided:
-* **HexedUT**: main mutator, provides hit sounds, damage numbers, colored death messages, enhanced map vote menu, and more.
-* **HexedNET**: fork of WSUTComp stripped down to eye height algorithms and enhanced netcode (NewNet weapons).
-* **HexedSRC**: package containing shared classes and resources used by HexedUT and HexedNET.
-* **HexedPatches**: provides QoL improvements, such as better scaling for fonts, HUDs, and weapons (non-versioned, client-only package).
+This is a collection of mutators and packages providing a variety of features and QoL improvements for Unreal Tournament 2004.
+The following game packages are provided:
+* **HexedUT**: mutator providing hit sounds, damage numbers, colored death messages, skin highlights, and more.
+* **HexedVOTE**: mutator providing an enhanced map vote menu on top of xVoting.
+* **HexedNET**: (WS)UTComp's enhanced netcode (NewNet weapons) and new eye height algorithm.
+* **HexedSRC**: package containing classes and resources used by HexedUT, HexedVOTE and HexedNET.
+* **HexedPatches**: client-side package providing QoL improvements (only font scaling is still relevant for OldUnreal installations).
 
 ## Installation
 
-Download the [latest release](https://github.com/hexengraf/HexedUT2k4/releases/latest) and extract it inside the root directory of your UT2004 installation, merging the `System` directory when asked. You can safely delete the `.uz2` files extracted to the root directory (only useful for download redirection servers).
+Download the [latest release](https://github.com/hexengraf/HexedUT2k4/releases/latest) and extract it inside the root directory of your UT2004 installation, merging the `System` directory when asked.
+Files with the `.uz2` extension are safe to delete (you only need them if configuring your own download redirect server).
 
-**Players**: when upgrading to a new version of HexedUT, keep the old version in you system folder (e.g. `HexedUTv4.u`) to allow HexedUT to automatically copy your configuration to the new version.
+> [!NOTE]
+> **PLAYERS**: when upgrading to a new version keep the previous version in you system folder to allow HexedUT/HexedVOTE to automatically copy your configuration to the new version.
+> If you don't do this, your liked/disliked maps will not transfer over to the new version of HexedVOTE.
 
-**Server administrators**: when upgrading to a new version of HexedUT, add the previous version to your `ServerPackages` to allow players that don't have it locally installed to automatically copy their configuration to the new version.
+> [!NOTE]
+> **SERVER ADMINS**: when upgrading to a new version add the **mutator packages** of the previous version to your `ServerPackages` to allow players that don't have it locally installed to automatically copy their configuration to the new version.
 
-### HexedUT & HexedNET
+## Configuration
 
-Specify `MutHexedUT` and/or `MutHexedNET` to enable either HexedUT and/or HexedNET through the command line for your dedicated server as follows:
-```bash
-./ucc-bin server DM-Gestalt?game=XGame.xTeamGame?Mutator=HexedUTv5.MutHexedUT,HexedNETv5.MutHexedNET ini=Server.ini -nohomedir
-```
+HexedUT, HexedVOTE and HexedNET can be enabled as mutators (`MutHexedUT`, `MutHexedVOTE` and `MutHexedNET`), while HexedVOTE also provides a ServerActor (`HxVTServerActor`) to load it.
 
-An in-game menu is provided to configure the mutators. To open it, execute either `mutate HexedMenu` or `mutate HexedUT` (the last one is only available if HexedUT is enabled).
-You can bind this command to a key, e.g. `set input F5 mutate HexedMenu`.
+When one or more mutators are active, an in-game configuration menu is provided via the `mutate HexedMenu` command.
+This menu gives access to all configurations (both user and server), so it is highly recommended to tweak your initial setup through it.
 
-#### A note about upgrading to a new version
+> [!TIP]
+> Binding the menu to a key is strongly recommended. Execute `set input F5 mutate HexedMenu` in the console, replacing F5 with the desired key.
 
-### HexedPatches
+See additional configuration guidelines for each mutator in the sections below.
 
-To enable HexedPatches, open `System/UT2004.ini` and replace the default value of `GUIController` with `HexedPatches.HxGUIController`:
+## HexedUT
+
+HexedUT is a completely new implementation of some of the features commonly offered by mutators like UTComp.
+While it is possible to enable HexedUT and UTComp at the same time, you probably want to disable equivalent features from one of the two mutators.
+To disable all equivalent features from HexedUT, use the following configuration:
 ```ini
-; GUIController=GUI2K4.UT2K4GUIController
-GUIController=HexedPatches.HxGUIController
+[HexedUTv6.MutHexedUT]
+bAllowHitSounds=False
+bAllowDamageNumbers=False
+bColoredDeathMessages=False
+bAllowSkinHighlight=False
 ```
-**WARNING: do not change the `GUIController` if you plan to join servers running AntiTCC, otherwise you will most likely be banned.**
 
-All configuration can be changed through a new tab called "HexedPatches" in the settings.
+Keep in mind that disabling all of these features greatly reduces the utility of HexedUT.
+If possible, consider replacing UTComp entirely by combining HexedUT and HexedNET.
 
-## Features
-
-### HexedUT
-
-The following features are provided:
+List of features:
 * Hit sounds: pings and pongs to know when you hit someone.
 * Damage numbers: pop-up numbers to know how much damage you've dealt.
 * Skin highlights: can't see your enemy? Paint him radioactive green.
@@ -51,26 +58,65 @@ The following features are provided:
 * Movement modifiers: change movement speed, jump acceleration, number of jumps, etc.
 * Starting values modifiers: add/remove health, shield, number of Assault Rifle grenades, adrenaline, etc.
 * Disable specific combos and/or UDamage on maps.
+
+In case there are more features you wish to see on HexedUT, open an issue so we can evaluate the viability of implementing them.
+
+## HexedVOTE
+
+HexedVOTE does not replace xVoting, it builds on top of it.
+In order to use it, you need to first enable and configure xVoting (UT2004's default voting system).
+Enable HexedVOTE and it will replace the map vote menu automatically, no additional configuration needed.
+
+Servers may configure custom backgrounds to add their own flair to the map vote menu. The following backgrounds can be set:
+* `VoteListCustomBG`: background for the votes list (upper list). Use ~16:3 images.
+* `MapListCustomBG`: background for the maps list (lower list). Use ~9:5 images.
+* `PreviewCustomBG`: background for the map preview banner. Use ~9:10 images.
+* `ChatBoxCustomBG`: background for the chat box. Use ~22:7 images.
+
+Each variable should contain the fully qualified `PackageName.TextureName` string of the texture to be used.
+If the texture doesn't match the proportions of the background, it will be **centered and scaled** to fit.
+Make sure to include the package containing the custom backgrounds to your `ServerPackages` configuration.
+
+> [!TIP]
+> The textures are alpha-blended with the default background, so you can rely on transparency to create subtle logos/watermarks.
+
+List of features:
 * Enhanced map voting page:
     * On-screen map previews: screenshots, number of players, author and description.
     * Liked/disliked map classification.
     * New column with the recommended minimum/maximum of players.
     * Search bar for each column of the map list.
     * New button to select a random map.
-    * Filter by source: any map, official maps or custom maps.
+    * Map filters: create custom filters to quickly sort through the map list.
     * Several improvements to font size, line spacing, alignments, backgrounds and colors.
+    * Server-defined custom backgrounds to add flair.
 
-### HexedNET
+## HexedNET
 
-[HexedNET](https://github.com/hexengraf/HexedNET) is a fork of [WSUTComp](https://github.com/zenakuten/WSUTComp) made to work together with HexedUT and significantly reduce the amount of features.
+[HexedNET](https://github.com/hexengraf/HexedNET) is a fork of [WSUTComp](https://github.com/zenakuten/WSUTComp) that extracts the enhanced netcode from the myriad of features inside UTComp.
 For the sake of a streamlined building process, releases of HexedNET are bundled together with HexedUT here.
 
-The following features are provided:
-* New eye height algorithm: fixes where your aim is on uneven terrain (such as ramps).
+List of features:
 * NewNet Weapons (a.k.a. enhanced netcode): ping compensation implementation.
-* Timed overtime: limit overtime duration.
+* New eye height algorithm: fixes where your aim position on uneven terrain (such as ramps).
 
-### HexedPatches
+> [!TIP]
+> Compatibility with other mods should be somewhat improved, since `xPlayer` is no longer replaced.
+> `xPawn` is still replaced to provide the EyeHeight algorithm, disable this feature server-side if you have issues with this replacement.
+> Default weapons are replaced in order to provide the enhanced netcode.
+
+## HexedPatches
+
+To enable HexedPatches, open `System/UT2004.ini` and replace the default value of `GUIController` with `HexedPatches.HxGUIController`:
+```ini
+; GUIController=GUI2K4.UT2K4GUIController
+GUIController=HexedPatches.HxGUIController
+```
+
+> [!CAUTION]
+> **DO NOT** change the `GUIController` if you plan to join servers running AntiTCC, otherwise you will most likely be **BANNED**.
+
+All configuration can be changed through a new tab called "HexedPatches" in the settings.
 
 The following QoL improvements are provided (any game version):
 * Better font scaling for higher resolutions (may cause some font cropping/overflow, since some background elements are not properly scaled).
@@ -88,9 +134,21 @@ The following QoL improvements are provided for the legacy 3369 version of the g
 
 If you find any bugs, feel free to [open an issue](https://github.com/hexengraf/HexedUT2k4/issues/new/choose).
 
-### The cursor is too small
+### Some characters have semi-transparent parts when skin highlight is enabled
 
-The small cursor should be an adequate size for the most commonly used resolutions nowadays, but if you think it is too small, disable it in the Patches tab.
+This is an issue with the game. Maybe one day it will be [solved](https://github.com/OldUnreal/UT2004Patches/issues/182).
+The best you can do is to avoid using such characters and/or force default models that don't have this issue.
+
+### My map vote menu is gone!
+
+You've been using `HexedPatches` since a long time, I see. Open your `User.ini` and search for `MapVotingMenu`.
+Make sure **all** occurrences of this keyword have the following value:
+```ini
+MapVotingMenu=xVoting.MapVotingPage
+```
+
+When the enhanced map vote menu was part of `HexedPatches`, it was directly set to be the `MapVotingMenu`.
+With the migration to HexedVOTE, this leftover configuration will unfortunately break your map vote menu and require this manual intervention.
 
 ### Fonts are too big or too small
 
@@ -105,9 +163,6 @@ Restore all `InputClass` values in `System/User.ini` to the default value:
 InputClass=Class'Engine.PlayerInput'
 ```
 
-### Can't access HexedUT's Server tab
+### Server Options buttons is grayed-out
 
-You need to log-in as administrator first. Open the in-game terminal and execute:
-```
-adminlogin YOUR_ADMIN_PASSWORD
-```
+You need to log-in as administrator first. You may need to wait a bit before reopening the configuration menu for it to detect you have admin privileges.

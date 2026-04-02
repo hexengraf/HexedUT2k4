@@ -1,3 +1,21 @@
+# v6.0
+
+Major changes:
+* HexedUTComp is now called HexedNET and only provides the enhanced netcode and the new EyeHeight algorithm.
+* The enhanced map vote menu now has its own mutator: HexedVOTE, which can also be enabled with a server actor.
+
+Please check the README for updated information.
+
+New features:
+* Map filters (HexedVOTE): create custom map filters that are saved and can be quickly accessed to apply to the map list.
+* Map vote menu (hexedVOTE): options to configure custom backgrounds for the lists, map preview banner and chat box.
+* HexedMenu is more generic now, displaying configuration from multiple mutators in a single page.
+* Partial GUI styles overhaul. The idea is to eventually consolidate everything in customizable themes.
+
+Bugfixes:
+* Fixed backspace not working on the map vote menu's chat.
+* Fixed HexedNET (HexedUTComp) issues on game types with rounds (e.g. Assault, Onslaught).
+
 # v5.0
 
 No new features, only ironing out bugs that slipped into v4 and restoring HexedSRC as shared resources package.
