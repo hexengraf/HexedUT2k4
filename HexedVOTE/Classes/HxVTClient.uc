@@ -70,10 +70,10 @@ simulated function TryReplaceMapVoteMenu()
 
 simulated function UpdateMapVoteMenuBackgrounds()
 {
-    class'HxMapVotingPage'.default.VoteListBG = GetServerProperty("VoteListBG");
-    class'HxMapVotingPage'.default.MapListBG = GetServerProperty("MapListBG");
-    class'HxMapVotingPage'.default.PreviewBG = GetServerProperty("PreviewBG");
-    class'HxMapVotingPage'.default.ChatBoxBG = GetServerProperty("ChatBoxBG");
+    class'HxMapVotingPage'.default.VoteListCustomBG = GetServerProperty("VoteListCustomBG");
+    class'HxMapVotingPage'.default.MapListCustomBG = GetServerProperty("MapListCustomBG");
+    class'HxMapVotingPage'.default.PreviewCustomBG = GetServerProperty("PreviewCustomBG");
+    class'HxMapVotingPage'.default.ChatBoxCustomBG = GetServerProperty("ChatBoxCustomBG");
 }
 
 simulated function ServerInfoReady()

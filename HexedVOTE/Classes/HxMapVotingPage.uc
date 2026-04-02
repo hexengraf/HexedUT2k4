@@ -18,10 +18,10 @@ var automated HxGUIChatBox ChatBox;
 var localized string LoadingText;
 var localized string RetrievingMapListText;
 
-var string VoteListBG;
-var string MapListBG;
-var string PreviewBG;
-var string ChatBoxBG;
+var string VoteListCustomBG;
+var string MapListCustomBG;
+var string PreviewCustomBG;
+var string ChatBoxCustomBG;
 
 var HxMapFilterManager FilterManager;
 var private int SelectedGameType;
@@ -34,10 +34,10 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     FilterManager = new() class'HxMapFilterManager';
     lb_MapList.OnTagUpdated = lb_VoteList.UpdateMapTag;
     lb_VoteList.OnTagUpdated = lb_MapList.UpdateMapTag;
-    lb_VoteList.SetCustomBackground(VoteListBG);
-    lb_MapList.SetCustomBackground(MapListBG);
-    MapBanner.SetCustomBackground(PreviewBG);
-    ChatBox.SetCustomBackground(ChatBoxBG);
+    lb_VoteList.SetCustomBackground(VoteListCustomBG);
+    lb_MapList.SetCustomBackground(MapListCustomBG);
+    MapBanner.SetCustomBackground(PreviewCustomBG);
+    ChatBox.SetCustomBackground(ChatBoxCustomBG);
     SetupWindowHeader();
     Unpause();
     AdjustWindowSize(Controller.ResX, Controller.ResY);
@@ -79,25 +79,25 @@ function InternalOnOpen()
         MVRI = VotingReplicationInfo(PlayerOwner().VoteReplicationInfo);
         SetTimer(0.02, true);
     }
-    if (VoteListBG != default.VoteListBG)
+    if (VoteListCustomBG != default.VoteListCustomBG)
     {
-        VoteListBG = default.VoteListBG;
-        lb_VoteList.SetCustomBackground(VoteListBG);
+        VoteListCustomBG = default.VoteListCustomBG;
+        lb_VoteList.SetCustomBackground(VoteListCustomBG);
     }
-    if (MapListBG != default.MapListBG)
+    if (MapListCustomBG != default.MapListCustomBG)
     {
-        MapListBG = default.MapListBG;
-        lb_MapList.SetCustomBackground(MapListBG);
+        MapListCustomBG = default.MapListCustomBG;
+        lb_MapList.SetCustomBackground(MapListCustomBG);
     }
-    if (PreviewBG != default.PreviewBG)
+    if (PreviewCustomBG != default.PreviewCustomBG)
     {
-        PreviewBG = default.PreviewBG;
-        MapBanner.SetCustomBackground(PreviewBG);
+        PreviewCustomBG = default.PreviewCustomBG;
+        MapBanner.SetCustomBackground(PreviewCustomBG);
     }
-    if (ChatBoxBG != default.ChatBoxBG)
+    if (ChatBoxCustomBG != default.ChatBoxCustomBG)
     {
-        ChatBoxBG = default.ChatBoxBG;
-        ChatBox.SetCustomBackground(ChatBoxBG);
+        ChatBoxCustomBG = default.ChatBoxCustomBG;
+        ChatBox.SetCustomBackground(ChatBoxCustomBG);
     }
     lb_VoteList.Refresh();
     lb_MapList.Refresh();
