@@ -19,19 +19,19 @@ project:=HexedUT2k4
 packages:=HexedSRC HexedUT HexedVOTE HexedPatches HexedNET
 requiresint:=HexedSRC HexedUT HexedVOTE HexedPatches HexedNET
 requirescompressed:=HexedSRC HexedUT HexedVOTE HexedNET
-miscfiles:=README.md LICENSE CHANGELOG.md
+helpfiles:=README.md LICENSE CHANGELOG.md
 
 .outdir:=build
 .versionfiles:=$(packages:%=$(.outdir)/%.make)
 
 -include $(.versionfiles)
 
-.projectversion:=v6.0-dev
+.projectversion:=v6.0
 .packages:=$(foreach p,$(packages),$p$($p.version))
 .intpackages:=$(foreach p,$(requiresint),$p$($p.version))
 .compressedpackages:=$(foreach p,$(requirescompressed),$p$($p.version))
 .archive:=$(.outdir)/$(project)$(.projectversion).zip
-.miscfiles:=$(addprefix $(.outdir)/$(project)$(.projectversion)-, $(miscfiles))
+.helpfiles:=$(addprefix $(.outdir)/Help/$(project)$(.projectversion)-, $(helpfiles))
 .ufiles:=$(.packages:%=$(.outdir)/System/%.u)
 .intfiles:=$(.intpackages:%=$(.outdir)/System/%.int)
 .compressedfiles:=$(.compressedpackages:%=$(.outdir)/%.u.uz2)
@@ -86,12 +86,13 @@ $(.outdir)/%.u.uz2: $(.outdir)/System/%.u
 	@cd ../
 	@cp System/$*.u.uz2 $(@D)
 
-$(.outdir)/%.zip: $(.targets) $(.compressedfiles) $(.miscfiles)
+$(.outdir)/%.zip: $(.targets) $(.compressedfiles) $(.helpfiles)
 	@rm -f $@
 	@cd $(.outdir)
-	@7z a -mmt=8 -mx=9 $(@F) System/ $(.compressedfiles:$(.outdir)/%=%) $(.miscfiles:$(.outdir)/%=%)
+	@7z a -mmt=8 -mx=9 $(@F) System/ $(.compressedfiles:$(.outdir)/%=%) $(.helpfiles:$(.outdir)/%=%)
 
-$(.outdir)/$(project)$(.projectversion)-%: %
+$(.outdir)/Help/$(project)$(.projectversion)-%: %
+	@mkdir -p $(@D)
 	@cp $^ $@
 
 $(.versionfiles): $(.outdir)/%.make: %/make.ini
