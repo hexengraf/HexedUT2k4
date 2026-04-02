@@ -188,7 +188,7 @@ function bool OnCapturedMouseMoveHeader(float deltaX, float deltaY)
 
 function float GetHeaderHeight(Canvas C)
 {
-    return Round(C.ClipY * StandardHeaderHeight);
+    return C.ClipY * StandardHeaderHeight;
 }
 
 function SetCustomBackground(string BackgroundName)

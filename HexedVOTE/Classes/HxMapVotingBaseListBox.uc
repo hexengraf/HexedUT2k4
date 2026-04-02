@@ -73,7 +73,7 @@ function OnRenderedHeader(Canvas C)
     Offset = class'HxGUIStyles'.static.GetActualFrameThickness(b_ListBackground);
     Height = Header.ActualHeight();
     Top = Header.ActualTop() + Height * 0.13;
-    Height = Round(Height * 0.75);
+    Height = Height * 0.75;
     Left = Header.ActualLeft() + (List.ColumnWidths[0] - Height) / 2  + (Offset / 2);
     DrawHeaderColumnIcon(C, 0, Left, Top, Height);
     DrawHeaderColumnIcon(C, 1, Left + List.ColumnWidths[1], Top, Height);

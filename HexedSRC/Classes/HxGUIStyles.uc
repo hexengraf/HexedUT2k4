@@ -74,7 +74,7 @@ function bool UpdateBorderOffsets()
         FrameThickness = ActualFrameThickness();
         for (i = 0; i < ArrayCount(BorderOffsets); ++i)
         {
-            BorderOffsets[i] = Round(RelativeBorderOffsets[i] * Controller.ResY);
+            BorderOffsets[i] = RelativeBorderOffsets[i] * Controller.ResY;
             if (SkipFrameParts[i] == 0)
             {
                 BorderOffsets[i] += FrameThickness;
@@ -105,7 +105,7 @@ function float DrawFrames(Canvas C,
     for (i = 0; i < Frames.Length; ++i)
     {
         C.DrawColor = Frames[i].Color;
-        Offset = Round(C.ClipY * Frames[i].Thickness);
+        Offset = C.ClipY * Frames[i].Thickness;
         TotalOffset += Offset;
         Height -= 2 * Offset;
         if (Frames[i].Material != None)
@@ -167,7 +167,7 @@ function float ActualFrameThickness()
 
     for (i = 0; i < Frames.Length; ++i)
     {
-        Thickness += Round(Controller.ResY * Frames[i].Thickness);
+        Thickness += Controller.ResY * Frames[i].Thickness;
     }
     return Thickness;
 }

@@ -13,7 +13,7 @@ function float GetSpacedItemHeight(Canvas C)
     local float NewItemsPerPage;
 
     Style.TextSize(C, MenuState, "q|W", XL, YL, FontScale);
-    NewItemHeight = YL + Round(LineSpacing * C.ClipY);
+    NewItemHeight = YL + (LineSpacing * C.ClipY);
     if (bAutoSpacing)
     {
         Height = ActualHeight();
@@ -28,7 +28,7 @@ function DrawItem(Canvas C, int i, float X, float Y, float W, float H, bool bSel
     local float Offset;
 
     X = ActualLeft();
-    Offset = Round(LeftPadding * C.ClipY);
+    Offset = C.ClipY * LeftPadding;
     if (bSelected)
     {
         SelectedStyle.Draw(C, MenuState, X, Y, W, H);

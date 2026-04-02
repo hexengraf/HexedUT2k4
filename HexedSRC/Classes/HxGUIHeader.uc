@@ -19,10 +19,10 @@ function bool InternalOnPreDraw(Canvas C)
     {
         Height = GetDesiredHeight(C);
         WinHeight = RelativeHeight(Height);
-        b_Close.WinTop = Round(0.003 * C.ClipY);
+        b_Close.WinTop = FMax(1.0, 0.003 * C.ClipY);
         b_Close.WinHeight = (Height - 2 * b_Close.WinTop) / Height;
         b_Close.WinWidth = b_Close.RelativeWidth(Height - 2 * b_Close.WinTop);
-        b_Close.WinLeft = 1.0 - b_Close.WinWidth - b_Close.RelativeWidth(b_Close.WinTop);
+        b_Close.WinLeft = 1.0 - b_Close.WinWidth - b_Close.RelativeWidth(b_Close.WinTop, true);
         b_Close.WinTop = b_Close.WinTop / Height;
         bInit = false;
         return true;

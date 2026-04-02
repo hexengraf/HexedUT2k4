@@ -13,12 +13,12 @@ function bool InternalOnPreDraw(Canvas C)
     local float TopPadding;
     local float RightPadding;
 
-    TopPadding = Round(TopOffset * C.ClipY);
-    RightPadding = Round(RightOffset * C.ClipY);
+    TopPadding = TopOffset * C.ClipY;
+    RightPadding = RightOffset * C.ClipY;
     if (StandardWidth > 0)
     {
         OwnerWidth = MenuOwner.ActualWidth();
-        MyWidth = Round(StandardWidth * C.ClipY);
+        MyWidth = (StandardWidth * C.ClipY);
         WinWidth = RelativeWidth(MyWidth);
         WinLeft = RelativeLeft(MenuOwner.ActualLeft() + OwnerWidth - MyWidth - RightPadding);
     }
@@ -28,7 +28,7 @@ function bool InternalOnPreDraw(Canvas C)
         WinLeft = RelativeLeft(ActualLeft() - RightPadding);
     }
     WinTop = MyList.ActualTop() - MyWidth + TopPadding;
-    WinHeight = MyList.ActualHeight() + 2 * MyWidth - TopPadding - Round(BottomOffset * C.ClipY);
+    WinHeight = MyList.ActualHeight() + 2 * MyWidth - TopPadding - (BottomOffset * C.ClipY);
     MyDecreaseButton.SetVisibility(false);
     MyIncreaseButton.SetVisibility(false);
     return Super.GripPreDraw(Self);
@@ -39,10 +39,10 @@ function ZoneClick(float Delta)
     GripPos = Delta;
     if (MyList != none)
     {
-        MyList.SetTopItem(Round(GripPos * (MyList.ItemCount - MyList.ItemsPerPage)));
+        MyList.SetTopItem(GripPos * (MyList.ItemCount - MyList.ItemsPerPage));
         ItemCount = MyList.ItemCount;
     }
-    CurPos = Round((ItemCount - ItemsPerPage) * GripPos);
+    CurPos = (ItemCount - ItemsPerPage) * GripPos;
     PositionChanged(CurPos);
 }
 

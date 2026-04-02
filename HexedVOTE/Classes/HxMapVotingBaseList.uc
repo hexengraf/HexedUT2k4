@@ -244,7 +244,7 @@ function DrawRow(Canvas C, int Row, float X, float Y, float W, float H)
     local VotingHandler.MapVoteMapList Entry;
     local float Offset;
 
-    Offset = Round(FrameThickness * C.ClipY);
+    Offset = C.ClipY * FrameThickness;
     if (SortColumn == 0)
     {
         DrawLastPlayedIndicator(C, X, Y, H * 0.97, Offset);

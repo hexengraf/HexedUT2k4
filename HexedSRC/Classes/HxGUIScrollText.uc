@@ -28,7 +28,7 @@ function float GetSpacedItemHeight(Canvas C)
     local float YL;
 
     Style.TextSize(C, MenuState, "q|W", XL, YL, FontScale);
-    MyItemHeight = YL + Round(LineSpacing * C.ClipY);
+    MyItemHeight = YL + (LineSpacing * C.ClipY);
     if (bAutoSpacing)
     {
         MyItemsPerPage = NewHeight / MyItemHeight;
