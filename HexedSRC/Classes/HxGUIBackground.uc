@@ -60,7 +60,7 @@ function SetCustomBackground(string BackgroundName)
     }
     else
     {
-        i_CustomBG.Image = Material(DynamicLoadObject(BackgroundName, class'Material'));
+        i_CustomBG.Image = Material(DynamicLoadObject(BackgroundName, class'Material', true));
     }
 }
 
