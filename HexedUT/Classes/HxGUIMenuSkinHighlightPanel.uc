@@ -810,7 +810,7 @@ defaultproperties
 
     Begin Object Class=GUIButton Name=NewColorButton
         Caption="New"
-        Hint="Add new color to the list of colors."
+        Hint="Add new color."
         StandardHeight=0.03
         bStandardized=true
         StyleName="HxSquareButton"
@@ -834,7 +834,7 @@ defaultproperties
 
     Begin Object Class=GUIButton Name=DeleteColorButton
         Caption="Delete"
-        Hint="Delete current color from the list of colors."
+        Hint="Delete current color."
         StandardHeight=0.03
         bStandardized=true
         StyleName="HxSquareButton"
@@ -887,12 +887,12 @@ defaultproperties
     Sections(1)=ColorEditorSection
     DisabledLabel="Disabled"
     DefaultLabel="Default"
-    NameLabel="Name:"
+    NameLabel="Name"
     NewColorPageCaption="New Color"
     RenameColorPageCaption="Rename Color"
     ConfirmColorDeletionLabel="Are you sure you want to delete this color?"
     InvalidNamePrefix="The name"
-    InvalidNameSuffix="is invalid or already in use."
+    InvalidNameSuffix="is already in use or invalid."
     SkinLabels(0)="View Normal Skin"
     SkinLabels(1)="View Red Team Skin"
     SkinLabels(2)="View Blue Team Skin"

@@ -2,7 +2,7 @@ class HxGUIMenuHitEffectsPanel extends HxGUIMenuPanel;
 
 const SECTION_HIT_SOUNDS = 0;
 const SECTION_DAMAGE_NUMBERS = 1;
-const SECTION_DAMAGE_POINT_EDITOR = 2;
+const SECTION_INTERPOLATION_CURVE = 2;
 
 var automated moCheckBox ch_HitSounds;
 var automated moComboBox co_HitSoundNames;
@@ -44,14 +44,14 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     Sections[SECTION_DAMAGE_NUMBERS].Insert(co_DisplayMode);
     Sections[SECTION_DAMAGE_NUMBERS].Insert(co_DisplayFont);
     Sections[SECTION_DAMAGE_NUMBERS].Insert(l_PositionAnchor);
-    Sections[SECTION_DAMAGE_POINT_EDITOR].Insert(co_DamagePoints);
-    Sections[SECTION_DAMAGE_POINT_EDITOR].Insert(nu_Value);
-    Sections[SECTION_DAMAGE_POINT_EDITOR].Insert(sl_Pitch);
-    Sections[SECTION_DAMAGE_POINT_EDITOR].Insert(sl_Scale);
-    Sections[SECTION_DAMAGE_POINT_EDITOR].Insert(sl_RedColor);
-    Sections[SECTION_DAMAGE_POINT_EDITOR].Insert(sl_GreenColor);
-    Sections[SECTION_DAMAGE_POINT_EDITOR].Insert(sl_BlueColor);
-    Sections[SECTION_DAMAGE_POINT_EDITOR].Insert(b_Preview);
+    Sections[SECTION_INTERPOLATION_CURVE].Insert(co_DamagePoints);
+    Sections[SECTION_INTERPOLATION_CURVE].Insert(nu_Value);
+    Sections[SECTION_INTERPOLATION_CURVE].Insert(sl_Pitch);
+    Sections[SECTION_INTERPOLATION_CURVE].Insert(sl_Scale);
+    Sections[SECTION_INTERPOLATION_CURVE].Insert(sl_RedColor);
+    Sections[SECTION_INTERPOLATION_CURVE].Insert(sl_GreenColor);
+    Sections[SECTION_INTERPOLATION_CURVE].Insert(sl_BlueColor);
+    Sections[SECTION_INTERPOLATION_CURVE].Insert(b_Preview);
     PrependClassNameToINIOptions();
     PopulateComboBoxes();
     sl_HitSoundVolume.MySlider.OnClickSound = CS_None;
@@ -74,7 +74,7 @@ function Refresh()
         Sections[SECTION_DAMAGE_NUMBERS].SetHide(!bAllowDamageNumbers, HideDueDisable);
         fl_DisplayPosX.SetVisibility(bAllowDamageNumbers);
         fl_DisplayPosY.SetVisibility(bAllowDamageNumbers);
-        Sections[SECTION_DAMAGE_POINT_EDITOR].SetHide(
+        Sections[SECTION_INTERPOLATION_CURVE].SetHide(
             !bAllowHitSounds && !bAllowDamageNumbers, HideDueDisable);
     }
     Super.Refresh();
@@ -341,8 +341,8 @@ defaultproperties
         WinHeight=0.4
     End Object
 
-    Begin Object class=HxGUIFramedSection Name=DamagePointEditorSection
-        Caption="Damage Point Editor"
+    Begin Object class=HxGUIFramedSection Name=InterpolationCurveSection
+        Caption="Hit Effects Interpolation Curve"
         WinHeight=0.6
         ColumnWidths=(0.5,0.5)
         MaxItemsPerColumn=7
@@ -561,7 +561,7 @@ defaultproperties
     bFillPanelHeight=false
     Sections(0)=HitSoundsSection
     Sections(1)=DamageNumbersSection
-    Sections(2)=DamagePointEditorSection
+    Sections(2)=InterpolationCurveSection
     Sections(3)=None
     PitchModeNames(0)="Disabled"
     PitchModeNames(1)="Low to high"
