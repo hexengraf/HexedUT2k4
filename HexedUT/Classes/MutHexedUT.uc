@@ -287,7 +287,7 @@ function RecoverConfigs()
 
 defaultproperties
 {
-    FriendlyName="HexedUT v6"
+    FriendlyName="HexedUT v7T1"
     Description="Provides hit sounds, damage numbers, skin highlights, colored death messages, and more."
     bAddToServerPackages=true
 

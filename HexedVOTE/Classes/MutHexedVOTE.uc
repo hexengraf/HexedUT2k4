@@ -7,7 +7,7 @@ var config string ChatBoxCustomBG;
 
 defaultproperties
 {
-    FriendlyName="HexedVOTE v6"
+    FriendlyName="HexedVOTE v7T1"
     Description="Provides an enhanced map vote menu on top of xVoting."
     bAddToServerPackages=true
     MutatorGroup="HexedVOTE"
