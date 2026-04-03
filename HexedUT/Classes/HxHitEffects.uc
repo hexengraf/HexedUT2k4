@@ -383,8 +383,8 @@ simulated function float GetPitch(int Damage)
     {
         if (Damage < DamagePoints[i].Value)
         {
-            Pitch = FInterpolate(
-                Damage, DamagePoints[i].Value, DamagePoints[i - 1].Pitch, DamagePoints[i].Pitch);
+            Pitch = Lerp(
+                Damage / DamagePoints[i].Value, DamagePoints[i - 1].Pitch, DamagePoints[i].Pitch);
             break;
         }
     }
@@ -465,8 +465,8 @@ simulated function float GetScale(int Damage)
     {
         if (Damage < DamagePoints[i].Value)
         {
-            return ToAbsoluteScale(FInterpolate(
-                Damage, DamagePoints[i].Value, DamagePoints[i - 1].Scale, DamagePoints[i].Scale));
+            return ToAbsoluteScale(Lerp(
+                Damage / DamagePoints[i].Value, DamagePoints[i - 1].Scale, DamagePoints[i].Scale));
             break;
         }
     }
@@ -572,9 +572,9 @@ simulated function Color InterpolateColor(int Damage, float MaxValue, Color Firs
     local float Percentage;
 
     Percentage = FClamp(Damage / MaxValue, 0.0, 1.0);
-    Result.R = First.R + Round(Percentage * (Second.R - First.R));
-    Result.G = First.G + Round(Percentage * (Second.G - First.G));
-    Result.B = First.B + Round(Percentage * (Second.B - First.B));
+    Result.R = Lerp(Percentage, First.R, Second.R);
+    Result.G = Lerp(Percentage, First.G, Second.G);
+    Result.B = Lerp(Percentage, First.B, Second.B);
     Result.A = 255;
     return Result;
 }
@@ -627,11 +627,6 @@ static function StaticRecoverConfigs(Actor Spawner)
     Temp = Spawner.Spawn(class'HxHitEffects');
     Temp.RecoverConfigs();
     Temp.Destroy();
-}
-
-static function float FInterpolate(int Value, float MaxValue, float First, float Second)
-{
-    return First + FClamp(Value / MaxValue, 0.0, 1.0) * (Second - First);
 }
 
 static function float ToAbsoluteScale(float NormalizedScale)
