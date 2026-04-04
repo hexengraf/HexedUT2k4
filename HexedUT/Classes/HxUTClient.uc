@@ -15,6 +15,7 @@ var config bool bFirstRun;
 
 var HxHitEffects HitEffects;
 var HxSpawnProtectionTimer SPTimer;
+var HxPlayerModifiers PlayerModifiers;
 
 var private PlayerController PC;
 var private HxDamageInfo Damage;
@@ -37,7 +38,6 @@ simulated event PreBeginPlay()
             RecoverConfigs();
         }
     }
-    InitializePlayerController();
 }
 
 simulated event Tick(float DeltaTime)
@@ -97,7 +97,11 @@ simulated function bool InitializePlayerController()
     if (PC == None)
     {
         PC = PlayerController(Owner);
-        ModifyPlayerCombos(xPlayer(PC));
+        if (PC != None)
+        {
+            PlayerModifiers = Spawn(class'HxPlayerModifiers', PC);
+            PlayerModifiers.SetDisabledCombos(Self);
+        }
         return PC != None;
     }
     return true;
@@ -122,48 +126,6 @@ simulated function bool InitializeHUDOverlays()
     return HitEffects != None && SPTimer != None;
 }
 
-simulated function ModifyPlayerCombos(xPlayer Other)
-{
-    local int Combo;
-
-    if (Other != None)
-    {
-        for (Combo = 0; Combo < ArrayCount(Other.ComboNameList); ++Combo)
-        {
-            if (Other.ComboNameList[Combo] == "")
-            {
-                break;
-            }
-            if (ShouldDisableCombo(Other.ComboNameList[Combo]))
-            {
-                Other.ComboNameList[Combo] = string(class'HxComboNull');
-                Other.ComboList[Combo] = class'HxComboNull';
-            }
-        }
-    }
-}
-
-simulated function bool ShouldDisableCombo(coerce string Name)
-{
-    if (Name ~= "XGame.ComboSpeed")
-    {
-        return bool(GetServerProperty("bDisableSpeedCombo"));
-    }
-    if (Name ~= "XGame.ComboBerserk")
-    {
-        return bool(GetServerProperty("bDisableBerserkCombo"));
-    }
-    if (Name ~= "XGame.ComboDefensive")
-    {
-        return bool(GetServerProperty("bDisableBoosterCombo"));
-    }
-    if (Name ~= "XGame.ComboInvis")
-    {
-        return bool(GetServerProperty("bDisableInvisibleCombo"));
-    }
-    return false;
-}
-
 simulated function ConfigureHitEffects()
 {
     HitEffects.SetServerProperties(
@@ -172,9 +134,9 @@ simulated function ConfigureHitEffects()
 
 simulated function ServerInfoReady()
 {
-    if (PC != None)
+    if (PlayerModifiers != None)
     {
-        ModifyPlayerCombos(xPlayer(PC));
+        PlayerModifiers.SetDisabledCombos(Self);
     }
     if (HitEffects != None)
     {
