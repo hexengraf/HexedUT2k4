@@ -727,11 +727,6 @@ defaultproperties
     RemoteRole=ROLE_SimulatedProxy
     bHardAttach=true
     bHidden=true
-    bStatic=false
-    bNoDelete=false
-    bAlwaysRelevant=false
-    bSkipActorPropertyReplication=false
-    bOnlyDirtyReplication=false
     NetUpdateFrequency=100
     NetPriority=3
 }
