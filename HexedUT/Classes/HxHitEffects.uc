@@ -538,10 +538,10 @@ simulated function SetDamagePointColorB(int Index, byte B)
     UpdateDamagePointConfig(Index);
 }
 
-simulated function SetServerProperties(coerce bool bAllowHS, coerce bool bAllowDN)
+simulated function ApplyServerConfiguration(HxUTClient Client)
 {
-    bAllowHitSounds = bAllowHS;
-    bAllowDamageNumbers = bAllowDN;
+    bAllowHitSounds = bool(Client.GetServerProperty("bAllowHitSounds"));
+    bAllowDamageNumbers = bool(Client.GetServerProperty("bAllowDamageNumbers"));
 }
 
 simulated function UpdateDamagePointConfig(int Index)
