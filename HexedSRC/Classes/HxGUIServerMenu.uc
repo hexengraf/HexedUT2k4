@@ -23,35 +23,36 @@ event Opened(GUIComponent Sender)
 
 event Closed(GUIComponent Sender, bool bCancelled)
 {
-    local int FirstIndex;
-    local int i;
-
     if (IsAdmin())
     {
-        for (i = 0; i < ClientManager.CRIs.Length; ++i)
-        {
-            FirstIndex = UpdateProperties(ClientManager.CRIs[i], FirstIndex);
-        }
+        UpdateServerProperties();
     }
     Super.Closed(Sender, bCancelled);
 }
 
-function int UpdateProperties(HxClientReplicationInfo CRI, int FirstIndex)
+function UpdateServerProperties()
 {
-    local int Limit;
+    local int FirstTag;
+    local int ActualTag;
     local int i;
+    local int j;
 
-    Limit = Min(lb_Options.Options.Length, FirstIndex + CRI.ServerInfo.Settings.Length);
-    for (i = FirstIndex; i < Limit; ++i)
+    for (i = 0; i < lb_Options.Options.Length; ++i)
     {
+        ActualTag = lb_Options.Options[i].Tag - FirstTag;
+        if (ActualTag >= ClientManager.CRIs[j].ServerInfo.Settings.Length)
+        {
+            FirstTag += ClientManager.CRIs[j].ServerInfo.Settings.Length;
+            ActualTag = lb_Options.Options[i].Tag - FirstTag;
+            ++j;
+        }
         if (lb_Options.IsModified(i))
         {
             lb_Options.ResetModified(i);
-            CRI.ServerUpdateProperty(
-                lb_Options.Options[i].Tag - FirstIndex, lb_Options.Options[i].GetComponentValue());
+            ClientManager.CRIs[j].ServerUpdateProperty(
+                ActualTag, lb_Options.Options[i].GetComponentValue());
         }
     }
-    return Limit;
 }
 
 function Refresh()

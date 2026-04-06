@@ -10,6 +10,7 @@ var array<GUIMenuOption> Options;
 var private array<HxClientReplicationInfo> CRIs;
 var private array<PlayInfo> PIs;
 var private array<byte> OptionModified;
+var private int PropertyCount;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
@@ -72,7 +73,7 @@ function ProcessCRI(HxClientReplicationInfo CRI)
     bSavedCurMenuInitialized = Controller.bCurMenuInitialized;
     Controller.bCurMenuInitialized = false;
     AddSection(CRI.MutatorClass.default.FriendlyName);
-    for (i = 0; i <CRI.Properties.Length; ++i)
+    for (i = 0; i < CRI.Properties.Length; ++i)
     {
         if ((!Controller.bExpertMode && CRI.Properties[i].bAdvanced)
             || (CRI.Properties[i].Dependency != ""
@@ -88,10 +89,11 @@ function ProcessCRI(HxClientReplicationInfo CRI)
         Option = AddCRIOption(CRI.Properties[i]);
         if (Option != None)
         {
-            Option.Tag = Options.Length;
+            Option.Tag = PropertyCount + i;
             Options[Options.Length] = Option;
         }
     }
+    PropertyCount += CRI.Properties.Length;
     Controller.bCurMenuInitialized = bSavedCurMenuInitialized;
 }
 
@@ -153,11 +155,12 @@ function ProcessPI(PlayInfo PI)
         }
         if (Option != None)
         {
-            Option.Tag = Options.Length;
+            Option.Tag = PropertyCount + i;
             Options[Options.Length] = Option;
             OptionModified[OptionModified.Length] = 0;
         }
     }
+    PropertyCount += PI.Settings.Length;
     Controller.bCurMenuInitialized = bSavedCurMenuInitialized;
 }
 
@@ -572,6 +575,7 @@ function Clear()
     CRIs.Remove(0, CRIs.Length);
     PIs.Remove(0, PIs.Length);
     OptionModified.Remove(0, OptionModified.Length);
+    PropertyCount = 0;
     List.Clear();
 }
 
