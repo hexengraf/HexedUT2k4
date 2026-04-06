@@ -17,7 +17,6 @@ var HxHitEffects HitEffects;
 var HxSpawnProtectionTimer SPTimer;
 var HxPlayerModifiers PlayerModifiers;
 
-var private PlayerController PC;
 var private HxDamageInfo Damage;
 var private bool bInitialized;
 
@@ -47,7 +46,7 @@ simulated event Tick(float DeltaTime)
     {
         if (!bInitialized)
         {
-            bInitialized = InitializePlayerController() && InitializeHUDOverlays();
+            bInitialized = InitializeClient();
         }
     }
     ServerTick(DeltaTime);
@@ -92,38 +91,34 @@ simulated function ClientNotifySpawn(float SpawnProtectionTime)
     }
 }
 
-simulated function bool InitializePlayerController()
+simulated function bool InitializeClient()
 {
-    if (PC == None)
+    local PlayerController PC;
+
+    PC = PlayerController(Owner);
+    if (PC != None)
     {
-        PC = PlayerController(Owner);
-        if (PC != None)
+        if (PlayerModifiers == None)
         {
             PlayerModifiers = Spawn(class'HxPlayerModifiers', PC);
             PlayerModifiers.ApplyServerConfiguration(Self);
         }
-        return PC != None;
-    }
-    return true;
-}
-
-simulated function bool InitializeHUDOverlays()
-{
-    if (PC.myHUD != None)
-    {
-        if (HitEffects == None)
+        if (PC.myHUD != None)
         {
-            HitEffects = PC.myHUD.Spawn(class'HxHitEffects', PC.myHUD);
-            PC.myHUD.AddHudOverlay(HitEffects);
-            HitEffects.ApplyServerConfiguration(Self);
-        }
-        if (SPTimer == None)
-        {
-            SPTimer = PC.myHUD.Spawn(class'HxSpawnProtectionTimer', PC.myHUD);
-            PC.myHUD.AddHudOverlay(SPTimer);
+            if (HitEffects == None)
+            {
+                HitEffects = Spawn(class'HxHitEffects', PC.myHUD);
+                PC.myHUD.AddHudOverlay(HitEffects);
+                HitEffects.ApplyServerConfiguration(Self);
+            }
+            if (SPTimer == None)
+            {
+                SPTimer = Spawn(class'HxSpawnProtectionTimer', PC.myHUD);
+                PC.myHUD.AddHudOverlay(SPTimer);
+            }
         }
     }
-    return HitEffects != None && SPTimer != None;
+    return PlayerModifiers != None && HitEffects != None && SPTimer != None;
 }
 
 simulated function ServerInfoReady()
