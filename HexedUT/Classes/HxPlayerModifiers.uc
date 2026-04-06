@@ -52,7 +52,7 @@ simulated function ModifyViewSmoothing(Pawn P, float DeltaTime)
     }
 }
 
-simulated event WeakViewSmoothing(Pawn P, float DeltaZ, float DeltaTime)
+simulated function WeakViewSmoothing(Pawn P, float DeltaZ, float DeltaTime)
 {
     if (Abs(DeltaZ) <= DeltaTime * P.GroundSpeed)
     {
