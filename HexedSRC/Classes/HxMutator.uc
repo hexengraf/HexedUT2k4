@@ -127,6 +127,7 @@ function NotifyLogout(Controller Exiting)
         {
             CRIs[i].Destroy();
             CRIs.Remove(i, 1);
+            break;
         }
     }
     Super.NotifyLogout(Exiting);
