@@ -1,0 +1,64 @@
+var protected const class<Weapon> BaseClass;
+var protected bool bConfigCleared;
+
+replication
+{
+    reliable if (Role == ROLE_Authority)
+        ClientSetFireRate;
+}
+
+simulated function PostBeginPlay()
+{
+    Super.PostBeginPlay();
+    if (Level.NetMode != NM_DedicatedServer)
+    {
+        if (!default.bConfigCleared)
+        {
+            ClearConfig();
+            default.bConfigCleared = true;
+        }
+        default.ExchangeFireModes = BaseClass.default.ExchangeFireModes;
+        ExchangeFireModes = default.ExchangeFireModes;
+        default.Priority = BaseClass.default.Priority;
+        Priority = default.Priority;
+        default.CustomCrosshair = BaseClass.default.CustomCrosshair;
+        CustomCrosshair = default.CustomCrosshair;
+        default.CustomCrosshairColor = BaseClass.default.CustomCrosshairColor;
+        CustomCrosshairColor = default.CustomCrosshairColor;
+        default.CustomCrosshairScale = BaseClass.default.CustomCrosshairScale;
+        CustomCrosshairScale = default.CustomCrosshairScale;
+        default.CustomCrosshairTextureName = BaseClass.default.CustomCrosshairTextureName;
+        CustomCrosshairTextureName = default.CustomCrosshairTextureName;
+    }
+}
+
+function SetFireRate(float Value)
+{
+    UpdateFireRate(Value);
+    ClientSetFireRate(Value);
+}
+
+simulated function UpdateFireRate(float Value)
+{
+    local int i;
+
+    for (i = 0; i < ArrayCount(FireMode); ++i)
+    {
+        if (ShockBeamFire(FireMode[i]) != None)
+        {
+            if (Value > 0)
+            {
+                FireMode[i].FireRate = Value;
+            }
+            else
+            {
+                FireMode[i].FireRate = FireMode[i].default.FireRate;
+            }
+        }
+    }
+}
+
+simulated function ClientSetFireRate(float Value)
+{
+    UpdateFireRate(Value);
+}
