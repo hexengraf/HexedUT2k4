@@ -63,6 +63,7 @@ function ProcessCRI(HxClientReplicationInfo CRI)
     local GUIMenuOption Option;
     local string SectionCaption;
     local bool bSavedCurMenuInitialized;
+    local bool bSectionAdded;
     local int i;
 
     CRIs[CRIs.Length] = CRI;
@@ -72,7 +73,6 @@ function ProcessCRI(HxClientReplicationInfo CRI)
     }
     bSavedCurMenuInitialized = Controller.bCurMenuInitialized;
     Controller.bCurMenuInitialized = false;
-    AddSection(CRI.MutatorClass.default.FriendlyName);
     for (i = 0; i < CRI.Properties.Length; ++i)
     {
         if ((!Controller.bExpertMode && CRI.Properties[i].bAdvanced)
@@ -80,6 +80,11 @@ function ProcessCRI(HxClientReplicationInfo CRI)
                 && !bool(CRI.GetServerProperty(CRI.Properties[i].Dependency))))
         {
             continue;
+        }
+        if (!bSectionAdded)
+        {
+            AddSection(CRI.MutatorClass.default.FriendlyName);
+            bSectionAdded = true;
         }
         if (CRI.Properties[i].Section != SectionCaption)
         {
