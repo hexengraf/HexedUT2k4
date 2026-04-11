@@ -1,4 +1,4 @@
-class MutHexedGIB extends HxMutator;
+class MutHexedInstaGib extends HxMutator;
 
 var config bool bAllowTranslocator;
 var config bool bAllowBoost;
@@ -160,7 +160,7 @@ static function DisablePickupBases(Actor Requester)
 
 defaultproperties
 {
-    FriendlyName="Hexed InstaGib v7T1"
+    FriendlyName="HexedInstaGib v7T1"
     Description="Instant-kill combat with modified Shock Rifles with options to enable zoom and change fire rate."
     GroupName="Arena"
     bAddToServerPackages=true
@@ -168,8 +168,8 @@ defaultproperties
     AmmoName='ShockAmmo'
     DefaultWeaponName=""
 
-    MutatorGroup="HexedGIB"
-    CRIClass=class'HxGIBClient'
+    MutatorGroup="HexedInstaGib"
+    CRIClass=class'HxIGClient'
     Properties(0)=(Name="bAllowTranslocator",Caption="Allow Translocator",Hint="Players get a Translocator in their inventory. Applied on restart/map change.",Type="Check")
     Properties(1)=(Name="bAllowBoost",Caption="Allow Teammate boosting",Hint="Teammates get a big boost when shot by the instagib rifle. Applied on restart/map change.",Type="Check")
     Properties(2)=(Name="bZoomInstagib",Caption="Allow Zoom",Hint="Instagib rifles have sniper scopes. Applied on restart/map change.",Type="Check")
