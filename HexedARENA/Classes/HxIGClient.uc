@@ -6,7 +6,7 @@ simulated function Tick(float DeltaTime)
 {
     if (Level.NetMode == NM_Client && !bPickupBasesDisabled)
     {
-        class'MutHexedINSTAGIB'.static.DisablePickupBases(Self);
+        class'MutHexedINSTAGIB'.static.HidePickupBases(Self);
         bPickupBasesDisabled = true;
     }
     Super.Tick(DeltaTime);

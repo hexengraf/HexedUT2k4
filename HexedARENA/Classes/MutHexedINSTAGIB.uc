@@ -42,7 +42,7 @@ function Initialized()
         WeaponName = WeaponClass.Name;
         AmmoName = WeaponClass.default.FireModeClass[0].default.AmmoClass.Name;
     }
-    DisablePickupBases(Self);
+    HidePickupBases(Self);
 }
 
 function ModifyPlayer(Pawn Pawn)
@@ -101,6 +101,10 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
         }
         return false;
     }
+    else if (Other.IsA('xPickupBase'))
+    {
+        Other.bHidden = true;
+    }
     return Super.CheckReplacement(Other, bSuperRelevant);
 }
 
@@ -126,10 +130,10 @@ function ModifyFireRate(Pawn Pawn)
     }
 }
 
-static function DisablePickupBases(Actor Requester)
+static function HidePickupBases(Actor Requester)
 {
     local xPickupBase P;
-    local Pickup L;
+    local WeaponLocker L;
 
     foreach Requester.AllActors(class'xPickupBase', P)
     {
@@ -139,12 +143,9 @@ static function DisablePickupBases(Actor Requester)
             P.myEmitter.Destroy();
         }
     }
-    foreach Requester.AllActors(class'Pickup', L)
+    foreach Requester.AllActors(class'WeaponLocker', L)
     {
-        if (L.IsA('WeaponLocker'))
-        {
-            L.GotoState('Disabled');
-        }
+        L.GotoState('Disabled');
     }
 }
 
