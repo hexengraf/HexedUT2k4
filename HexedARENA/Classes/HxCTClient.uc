@@ -45,10 +45,10 @@ simulated function ServerPropertyChanged(int Index, string OldValue)
 
 simulated function UpdateDisabledCombos()
 {
-    DisabledCombos[0] = byte(bool(GetServerProperty("bDisableSpeedCombo")));
-    DisabledCombos[1] = byte(bool(GetServerProperty("bDisableBerserkCombo")));
-    DisabledCombos[2] = byte(bool(GetServerProperty("bDisableBoosterCombo")));
-    DisabledCombos[3] = byte(bool(GetServerProperty("bDisableInvisibleCombo")));
+    DisabledCombos[0] = byte(bool(GetServerProperty("bNoSpeedCombo")));
+    DisabledCombos[1] = byte(bool(GetServerProperty("bNoBerserkCombo")));
+    DisabledCombos[2] = byte(bool(GetServerProperty("bNoBoosterCombo")));
+    DisabledCombos[3] = byte(bool(GetServerProperty("bNoInvisibleCombo")));
     ModifyPlayerCombos(xPlayer(Owner));
 }
 
