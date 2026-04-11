@@ -1,13 +1,13 @@
 class HxCTPlayerInfo extends HxLinkedReplicationInfo;
 
-var MutHexedControl HexedControl;
+var MutHexedCONTROL HexedControl;
 
 var private float AccumulatedLeech;
 
 event PreBeginPlay()
 {
     Super.PreBeginPlay();
-    HexedControl = MutHexedControl(Owner);
+    HexedControl = MutHexedCONTROL(Owner);
 }
 
 function UpdateHealthLeech(int Value, Pawn Inflictor)

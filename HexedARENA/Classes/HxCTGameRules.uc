@@ -1,11 +1,11 @@
 class HxCTGameRules extends GameRules;
 
-var private MutHexedControl HexedControl;
+var private MutHexedCONTROL HexedControl;
 
 event PreBeginPlay()
 {
     Super.PreBeginPlay();
-    HexedControl = MutHexedControl(Owner);
+    HexedControl = MutHexedCONTROL(Owner);
     if (HexedControl != None)
     {
         Level.Game.AddGameModifier(Self);

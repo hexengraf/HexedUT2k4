@@ -1,4 +1,4 @@
-class MutHexedControl extends HxMutator;
+class MutHexedCONTROL extends HxMutator;
 
 var config int BonusStartingHealth;
 var config int BonusStartingShield;

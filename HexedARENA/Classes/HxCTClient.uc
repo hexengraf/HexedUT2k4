@@ -105,6 +105,6 @@ simulated function bool IsDisabledCombo(coerce string Name)
 
 defaultproperties
 {
-    MutatorClass=class'MutHexedControl'
+    MutatorClass=class'MutHexedCONTROL'
     NullComboClass=class'HxComboNull'
 }
