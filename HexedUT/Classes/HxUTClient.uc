@@ -15,7 +15,7 @@ var config bool bFirstRun;
 
 var HxHitEffects HitEffects;
 var HxSpawnProtectionTimer SPTimer;
-var HxPlayerModifiers PlayerModifiers;
+var HxUTPlayer Player;
 
 var private HxDamageInfo Damage;
 var private bool bInitialized;
@@ -98,10 +98,10 @@ simulated function bool InitializeClient()
     PC = PlayerController(Owner);
     if (PC != None)
     {
-        if (PlayerModifiers == None)
+        if (Player == None)
         {
-            PlayerModifiers = Spawn(class'HxPlayerModifiers', PC);
-            PlayerModifiers.ApplyServerConfiguration(Self);
+            Player = Spawn(class'HxUTPlayer', PC);
+            Player.ApplyServerConfiguration(Self);
         }
         if (PC.myHUD != None)
         {
@@ -118,14 +118,14 @@ simulated function bool InitializeClient()
             }
         }
     }
-    return PlayerModifiers != None && HitEffects != None && SPTimer != None;
+    return Player != None && HitEffects != None && SPTimer != None;
 }
 
 simulated function ServerInfoReady()
 {
-    if (PlayerModifiers != None)
+    if (Player != None)
     {
-        PlayerModifiers.ApplyServerConfiguration(Self);
+        Player.ApplyServerConfiguration(Self);
     }
     if (HitEffects != None)
     {
@@ -144,7 +144,7 @@ simulated function string GetProperty(int Index)
     {
         case 0:
             return string(
-                GetEnum(enum'EHxViewSmoothing', class'HxPlayerModifiers'.default.ViewSmoothing));
+                GetEnum(enum'EHxViewSmoothing', class'HxUTPlayer'.default.ViewSmoothing));
         case 1:
             return string(class'HxSpawnProtectionTimer'.default.bEnabled);
         case 2:
@@ -163,15 +163,15 @@ simulated function SetProperty(int Index, string Value)
 {
     if (Index == 0)
     {
-        if (PlayerModifiers != None)
+        if (Player != None)
         {
-            PlayerModifiers.SetPropertyText(Properties[Index].Name, Value);
-            PlayerModifiers.SaveConfig();
+            Player.SetPropertyText(Properties[Index].Name, Value);
+            Player.SaveConfig();
         }
         else
         {
-            class'HxPlayerModifiers'.static.SetViewSmoothing(Value);
-            class'HxPlayerModifiers'.static.StaticSaveConfig();
+            class'HxUTPlayer'.static.SetViewSmoothing(Value);
+            class'HxUTPlayer'.static.StaticSaveConfig();
         }
     }
     else if (Index < Properties.Length)

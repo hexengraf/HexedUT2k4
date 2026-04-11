@@ -1,4 +1,4 @@
-class HxPlayerModifiers extends Info
+class HxUTPlayer extends Info
     config(User);
 
 enum EHxViewSmoothing
@@ -71,13 +71,13 @@ static function SetViewSmoothing(string Value)
     switch (Value)
     {
         case "HX_VS_Default":
-            class'HxPlayerModifiers'.default.ViewSmoothing = HX_VS_Default;
+            class'HxUTPlayer'.default.ViewSmoothing = HX_VS_Default;
             break;
         case "HX_VS_Weak":
-            class'HxPlayerModifiers'.default.ViewSmoothing = HX_VS_Weak;
+            class'HxUTPlayer'.default.ViewSmoothing = HX_VS_Weak;
             break;
         case "HX_VS_Disabled":
-            class'HxPlayerModifiers'.default.ViewSmoothing = HX_VS_Disabled;
+            class'HxUTPlayer'.default.ViewSmoothing = HX_VS_Disabled;
             break;
     }
 }
