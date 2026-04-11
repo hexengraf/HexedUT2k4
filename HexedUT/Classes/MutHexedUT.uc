@@ -11,8 +11,6 @@ var config bool bAllowSkinHighlight;
 var config float SkinHighlightIntensity;
 var config bool bAllowCustomViewSmoothing;
 
-var private bool bInitialized;
-
 function Mutate(string Command, PlayerController Sender)
 {
     if (Command ~= "HexedUT")
@@ -34,18 +32,10 @@ event PreBeginPlay()
     }
 }
 
-event Tick(float DeltaTime)
+function Initialized()
 {
-    if (!bInitialized)
-    {
-        bInitialized = true;
-        ModifyDeathMessageClass();
-        Spawn(class'HxUTGameRules', Self);
-    }
-    else
-    {
-        Disable('Tick');
-    }
+    ModifyDeathMessageClass();
+    Spawn(class'HxUTGameRules', Self);
 }
 
 function ModifyPlayer(Pawn Pawn)
@@ -170,6 +160,8 @@ defaultproperties
     Properties(4)=(Name="bAllowSkinHighlight",Section="Skin Highlight",Caption="Allow skin highlight",Hint="Allow clients to enable/disable skin highlights.",Type="Check")
     Properties(5)=(Name="SkinHighlightIntensity",Section="Skin Highlight",Caption="Skin highlight intensity",Hint="Factor to multiply RGB values (between 0.0 and 1.0).",Type="Text",Data="8;0.0:1.0",bAdvanced=true)
     Properties(6)=(Name="bAllowCustomViewSmoothing",Section="Camera",Caption="Allow custom view smoothing",Hint="Allow clients to select different types of view smoothing.",Type="Check")
+    bAllowURLOptions=true
+    bDisableTick=true
 
     bFirstRun=true
     bAllowHitSounds=true

@@ -22,19 +22,9 @@ var config bool bDisableDodgeJump;
 var config float HealthLeechRatio;
 var config int HealthLeechLimit;
 
-var private bool bInitialized;
-
-event Tick(float DeltaTime)
+function Initialized()
 {
-    if (!bInitialized)
-    {
-        bInitialized = true;
-        Spawn(class'HxCTGameRules', Self);
-    }
-    else
-    {
-        Disable('Tick');
-    }
+    Spawn(class'HxCTGameRules', Self);
 }
 
 function ModifyPlayer(Pawn Pawn)
@@ -167,6 +157,8 @@ defaultproperties
     Properties(18)=(Name="bDisableDodgeJump",Section="Movement",Caption="Disable dodge jump",Hint="Disable dodge jump (UT Classic). Applied on spawn.",Type="Check",bAdvanced=true)
     Properties(19)=(Name="HealthLeechRatio",Section="Health Leech",Caption="Health leech ratio",Hint="Ratio to leech health from damage dealt (between 0.0 and 5.0).",Type="Text",Data="8;0.0:5.0",bAdvanced=true)
     Properties(20)=(Name="HealthLeechLimit",Section="Health Leech",Caption="Health leech limit",Hint="Limit up to how much health can be filled with leech (between 0 and 199).",Type="Text",Data="8;0:199",bAdvanced=true)
+    bAllowURLOptions=true
+    bDisableTick=true
 
     BonusStartingHealth=0
     BonusStartingShield=0

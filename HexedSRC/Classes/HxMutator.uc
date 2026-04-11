@@ -18,8 +18,43 @@ var const array<HxMutatorProperty> Properties;
 
 var protected const class<HxClientReplicationInfo> CRIClass;
 var protected array<HxClientReplicationInfo> CRIs;
+var protected const bool bAllowURLOptions;
+var protected const bool bDisableTick;
 
+var private bool bInitialized;
+
+function Initialized();
 function PropertyChanged(int Index, string OldValue);
+
+event Tick(float DeltaTime)
+{
+    if (!bInitialized)
+    {
+        if (bAllowURLOptions)
+        {
+            ParseURLOptions();
+        }
+        bInitialized = true;
+        Initialized();
+    }
+    else if (bDisableTick)
+    {
+        Disable('Tick');
+    }
+}
+
+function ParseURLOptions()
+{
+    local int i;
+
+    for (i = 0; i < Properties.Length; ++i)
+    {
+        if (GetUrlOption(Properties[i].Name) != "")
+        {
+            SetPropertyText(Properties[i].Name, GetUrlOption(Properties[i].Name));
+        }
+    }
+}
 
 function Mutate(string Command, PlayerController Sender)
 {
