@@ -16,9 +16,9 @@
 # OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 project:=HexedUT2k4
-packages:=HexedSRC HexedUT HexedVOTE HexedPatches HexedNET
-requiresint:=HexedSRC HexedUT HexedVOTE HexedPatches HexedNET
-requirescompressed:=HexedSRC HexedUT HexedVOTE HexedNET
+packages:=HexedSRC HexedUT HexedVOTE HexedARENA HexedNET HexedPatches
+requiresint:=HexedSRC HexedUT HexedVOTE HexedARENA HexedNET HexedPatches
+requirescompressed:=HexedSRC HexedUT HexedVOTE HexedARENA HexedNET
 helpfiles:=README.md LICENSE CHANGELOG.md
 
 .outdir:=build
