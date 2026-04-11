@@ -159,7 +159,6 @@ defaultproperties
     FriendlyName="HexedCONTROL v7T1"
     Description="Enhanced control over game mechanics: modify starting values, disable specific combos, disable specific pick-ups, modify movement parameters, and more."
     bAddToServerPackages=true
-    MutatorGroup="HexedCONTROL"
     CRIClass=class'HxCTClient'
     Properties(0)=(Name="BonusHealth",Section="Starting Values",Caption="Bonus health",Hint="Bonus to starting health (between -99 and 99). Applied on spawn.",Type="Text",Data="8;-99:99")
     Properties(1)=(Name="BonusShield",Section="Starting Values",Caption="Bonus shield",Hint="Bonus to starting shield (between 0 and 150). Applied on spawn.",Type="Text",Data="8;0:150")

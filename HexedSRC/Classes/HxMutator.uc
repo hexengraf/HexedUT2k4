@@ -13,7 +13,6 @@ struct HxMutatorProperty
     var const bool bAdvanced;
 };
 
-var const localized string MutatorGroup;
 var const array<HxMutatorProperty> Properties;
 
 var protected const class<HxClientReplicationInfo> CRIClass;
@@ -90,7 +89,7 @@ static function FillPlayInfo(PlayInfo PlayInfo)
     {
         Prop = default.Properties[i];
         PlayInfo.AddSetting(
-            default.MutatorGroup,
+            default.FriendlyName,
             Prop.Name,
             Prop.Caption,
             0,
@@ -270,5 +269,4 @@ function bool DestroyLinkedPRI(PlayerReplicationInfo PRI,
 
 defaultproperties
 {
-    MutatorGroup="HexedMutator"
 }

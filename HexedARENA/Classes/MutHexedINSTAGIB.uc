@@ -150,11 +150,10 @@ static function DisablePickupBases(Actor Requester)
 
 defaultproperties
 {
-    FriendlyName="HexedInstaGib v7T1"
+    FriendlyName="HexedINSTAGIB v7T1"
     Description="Instant-kill combat with modified Shock Rifles with options to enable zoom and change fire rate."
     GroupName="Arena"
     bAddToServerPackages=true
-    MutatorGroup="HexedInstaGib"
     CRIClass=class'HxIGClient'
     Properties(0)=(Name="bAllowTranslocator",Caption="Allow Translocator",Hint="Players get a Translocator in their inventory. Applied on restart/map change.",Type="Check")
     Properties(1)=(Name="bAllowBoost",Caption="Allow Teammate boosting",Hint="Teammates get a big boost when shot by the instagib rifle. Applied on restart/map change.",Type="Check")

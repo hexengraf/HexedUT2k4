@@ -151,7 +151,6 @@ defaultproperties
     FriendlyName="HexedUT v7T1"
     Description="Provides hit sounds, damage numbers, skin highlights, colored death messages, and more."
     bAddToServerPackages=true
-    MutatorGroup="HexedUT"
     CRIClass=class'HxUTClient'
     Properties(0)=(Name="bAllowHitSounds",Section="Hit Effects",Caption="Allow hit sounds",Hint="Allow clients to enable/disable hit sound effects.",Type="Check")
     Properties(1)=(Name="bAllowDamageNumbers",Section="Hit Effects",Caption="Allow damage numbers",Hint="Allow clients to enable/disable damage number effects.",Type="Check")
