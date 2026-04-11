@@ -1,12 +1,12 @@
-class HxUTGameRules extends GameRules;
+class HxCTGameRules extends GameRules;
 
-var private MutHexedUT HexedUT;
+var private MutHexedControl HexedControl;
 
 event PreBeginPlay()
 {
     Super.PreBeginPlay();
-    HexedUT = MutHexedUT(Owner);
-    if (HexedUT != None)
+    HexedControl = MutHexedControl(Owner);
+    if (HexedControl != None)
     {
         Level.Game.AddGameModifier(Self);
     }
@@ -29,12 +29,21 @@ function int NetDamage(int Original,
         Damage = NextGameRules.NetDamage(
             Original, Damage, Injured, Inflictor, Location, Momentum, Type);
     }
-    if (Damage > 0 && Inflictor != None && Injured != None
+    if (HexedControl.HealthLeechLimit != 0 && Damage > 0 && Inflictor != None && Injured != None
         && Injured != Inflictor && IsEnemy(Injured, Inflictor))
     {
-        HexedUT.RegisterDamage(Damage, Injured, Inflictor, Type);
+        class'HxCTPlayerInfo'.static.RegisterDamage(Damage, Injured, Inflictor, Type);
     }
     return Damage;
+}
+
+function ScoreKill(Controller Killer, Controller Killed)
+{
+    if (HexedControl.HealthLeechLimit != 0)
+    {
+        class'HxCTPlayerInfo'.static.RegisterKill(Killer, Killed);
+    }
+    Super.ScoreKill(Killer, Killed);
 }
 
 static function bool IsEnemy(Pawn Injured, Pawn Inflictor)

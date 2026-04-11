@@ -1,13 +1,13 @@
-class HxUTPlayerInfo extends HxLinkedReplicationInfo;
+class HxCTPlayerInfo extends HxLinkedReplicationInfo;
 
-var MutHexedUT HexedUT;
+var MutHexedControl HexedControl;
 
 var private float AccumulatedLeech;
 
 event PreBeginPlay()
 {
     Super.PreBeginPlay();
-    HexedUT = MutHexedUT(Owner);
+    HexedControl = MutHexedControl(Owner);
 }
 
 function UpdateHealthLeech(int Value, Pawn Inflictor)
@@ -15,7 +15,7 @@ function UpdateHealthLeech(int Value, Pawn Inflictor)
     local float HealthLeechValue;
     local int IntegerValue;
 
-    HealthLeechValue = Value * HexedUT.HealthLeechRatio;
+    HealthLeechValue = Value * HexedControl.HealthLeechRatio;
     IntegerValue = int(HealthLeechValue);
     AccumulatedLeech += HealthLeechValue - float(IntegerValue);
     if (AccumulatedLeech >= 1.0)
@@ -23,14 +23,14 @@ function UpdateHealthLeech(int Value, Pawn Inflictor)
         IntegerValue += 1;
         AccumulatedLeech -= 1;
     }
-    Inflictor.GiveHealth(IntegerValue, HexedUT.HealthLeechLimit);
+    Inflictor.GiveHealth(IntegerValue, HexedControl.HealthLeechLimit);
 }
 
 static function RegisterDamage(int Damage, Pawn Injured, Pawn Inflictor, class<DamageType> Type)
 {
-    local HxUTPlayerInfo Info;
+    local HxCTPlayerInfo Info;
 
-    Info = HxUTPlayerInfo(Find(Inflictor.PlayerReplicationInfo, default.Class));
+    Info = HxCTPlayerInfo(Find(Inflictor.PlayerReplicationInfo, default.Class));
     if (Info != None)
     {
         Info.UpdateHealthLeech(Damage, Inflictor);
@@ -39,9 +39,9 @@ static function RegisterDamage(int Damage, Pawn Injured, Pawn Inflictor, class<D
 
 static function RegisterKill(Controller Killer, Controller Killed)
 {
-    local HxUTPlayerInfo Info;
+    local HxCTPlayerInfo Info;
 
-    Info = HxUTPlayerInfo(Find(Killed.PlayerReplicationInfo, default.Class));
+    Info = HxCTPlayerInfo(Find(Killed.PlayerReplicationInfo, default.Class));
     if (Info != None)
     {
         Info.AccumulatedLeech = 0;
