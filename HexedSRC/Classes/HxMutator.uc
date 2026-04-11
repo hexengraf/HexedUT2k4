@@ -50,7 +50,7 @@ function ParseURLOptions()
     {
         if (GetUrlOption(Properties[i].Name) != "")
         {
-            SetPropertyText(Properties[i].Name, GetUrlOption(Properties[i].Name));
+            SetProperty(i, GetUrlOption(Properties[i].Name));
         }
     }
 }
