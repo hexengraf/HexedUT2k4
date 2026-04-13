@@ -115,6 +115,15 @@ simulated function string GetServerProperty(string Name)
     return GetServerPropertyByIndex(ServerInfo.FindIndex(Name));
 }
 
+simulated function string GetServerPropertyName(int Index)
+{
+    if (Index < ServerInfo.Settings.Length)
+    {
+        return GetItemName(ServerInfo.Settings[Index].SettingName);
+    }
+    return "";
+}
+
 simulated function RequestServerInfo()
 {
     local int Limit;

@@ -83,7 +83,7 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
     return Super.CheckReplacement(Other, bSuperRelevant);
 }
 
-function PropertyChanged(int Index, string OldValue)
+function PropertyChanged(int Index, string OldValue, optional bool bFromURL)
 {
     if (Properties[Index].Name == "bColoredDeathMessages")
     {

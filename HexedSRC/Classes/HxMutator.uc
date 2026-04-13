@@ -23,7 +23,7 @@ var protected const bool bDisableTick;
 var private bool bInitialized;
 
 function Initialized();
-function PropertyChanged(int Index, string OldValue);
+function PropertyChanged(int Index, string OldValue, optional bool bFromURL);
 
 event Tick(float DeltaTime)
 {
@@ -127,7 +127,7 @@ static simulated function int GetPropertyIndex(string PropertyName)
     return -1;
 }
 
-function SetProperty(int Index, string Value)
+function SetProperty(int Index, string Value, optional bool bFromURL)
 {
     local string OldValue;
     local int i;
@@ -138,7 +138,7 @@ function SetProperty(int Index, string Value)
     {
         CRIs[i].SetServerProperty(Index, Value);
     }
-    PropertyChanged(Index, OldValue);
+    PropertyChanged(Index, OldValue, bFromURL);
     SaveConfig();
 }
 
