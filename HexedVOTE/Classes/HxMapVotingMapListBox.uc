@@ -40,7 +40,7 @@ defaultproperties
         StandardHeight=0.027
         bStandardized=true
         FirstColumn=2
-        Types=(HX_PATTERN_String,HX_PATTERN_NumRange,HX_PATTERn_NumValue)
+        Types=(HX_PATTERN_String,HX_PATTERN_NumRange,HX_PATTERN_NumValue)
         Hints(0)="Search by map name."
         Hints(1)="Search by player count."
         Hints(2)="Search by played count."
