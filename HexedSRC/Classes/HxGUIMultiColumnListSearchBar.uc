@@ -1,22 +1,43 @@
 class HxGUIMultiColumnListSearchBar extends HxGUIBackground;
 
 var automated GUILabel l_Search;
-var automated array<GUIEditBox> ed_Columns;
 
 var int FirstColumn;
+var array<HxPatternMatch.EHxPatternType> Types;
+var localized array<string> Hints;
+
+var private array<GUIEditBox> ed_Columns;
+
+delegate OnSearch(int Index, string Term);
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
     local int i;
 
     Super.InitComponent(MyController, MyOwner);
-    for (i = 0; i < ed_Columns.Length; ++i)
+    Types.Length = Max(Types.Length, Hints.Length);
+    Hints.Length = Types.Length;
+    for (i = 0; i < Types.Length; ++i)
     {
-        ed_Columns[i].bBoundToParent = true;
-        ed_Columns[i].bScaleToParent = true;
-        ed_Columns[i].WinTop = 0;
-        ed_Columns[i].WinHeight = 1;
+        CreateSearchBox(i);
     }
+}
+
+function AddSearchBox(HxPatternMatch.EHxPatternType Type, optional string Hint)
+{
+    Types[Types.Length] = Type;
+    Hints[Hints.Length] = Hint;
+    CreateSearchBox(Types.Length - 1);
+    bInit = true;
+}
+
+private function CreateSearchBox(int i)
+{
+    ed_Columns[i] = GUIEditBox(AddComponent("XInterface.GUIEditBox", true));
+    ed_Columns[i].TabOrder = i;
+    ed_Columns[i].AllowedCharSet = class'HxPatternMatch'.static.GetPatternCharset(Types[i]);
+    ed_Columns[i].SetHint(Hints[i]@class'HxPatternMatch'.static.GetPatternHint(Types[i]));
+    ed_Columns[i].ToolTip.ExpirationSeconds = 0.085 * Len(ed_Columns[i].Hint);
 }
 
 function ResolutionChanged(int ResX, int ResY)
@@ -27,12 +48,11 @@ function ResolutionChanged(int ResX, int ResY)
 
 function bool InternalOnPreDraw(Canvas C)
 {
-    bInit = bInit || GUIMultiColumnListBox(MenuOwner).Header.MenuState == MSAT_Pressed;
-    if (bInit)
+    if (bInit || GUIMultiColumnListBox(MenuOwner).Header.MenuState == MSAT_Pressed)
     {
         ResizeSearchLabel(C);
+        ResizeEditBoxes(C);
     }
-    ResizeEditBoxes(C);
     return Super.InternalOnPreDraw(C);
 }
 
@@ -104,6 +124,25 @@ function Clear()
     }
 }
 
+function InternalOnCreateComponent(GUIComponent NewComp, GUIComponent Sender)
+{
+    if (GUIEditBox(NewComp) != None)
+    {
+        NewComp.StyleName = "HxEditBox";
+        NewComp.FontScale = FNS_Small;
+        NewComp.WinTop = 0;
+        NewComp.WinHeight = 1;
+        NewComp.bBoundToParent = true;
+        NewComp.bScaleToParent = true;
+        NewComp.OnChange = EditBoxOnChange;
+    }
+}
+
+function EditBoxOnChange(GUIComponent Sender)
+{
+    OnSearch(Sender.TabOrder, GUIEditBox(Sender).GetText());
+}
+
 defaultproperties
 {
     Begin Object class=GUILabel Name=SearchLabel
@@ -123,4 +162,5 @@ defaultproperties
 
     StyleName="HxBackgroundDarker"
     FirstColumn=0
+    OnCreateComponent=InternalOnCreateComponent
 }

@@ -1,6 +1,13 @@
 class HxPatternMatch extends Object
     abstract;
 
+enum EHxPatternType
+{
+    HX_PATTERN_String,
+    HX_PATTERN_NumValue,
+    HX_PATTERN_NumRange,
+};
+
 enum EHxOperation
 {
     HX_OPERATION_DontCare,
@@ -8,6 +15,12 @@ enum EHxOperation
     HX_OPERATION_GreaterThan,
     HX_OPERATION_EqualTo,
     HX_OPERATION_EqualTo_Implicit,
+};
+
+enum EHxFilterMode
+{
+    HX_FILTER_MODE_Include,
+    HX_FILTER_MODE_Exclude,
 };
 
 struct HxStringPattern
@@ -29,12 +42,6 @@ struct HxRangePattern
 {
     var HxValuePattern Min;
     var HxValuePattern Max;
-};
-
-enum EHxFilterMode
-{
-    HX_FILTER_MODE_Include,
-    HX_FILTER_MODE_Exclude,
 };
 
 var localized string StringPatternMatchHint;
@@ -233,6 +240,34 @@ function bool ValuePatternMatch(int Value, HxValuePattern Pattern)
             break;
     }
     return true;
+}
+
+static function string GetPatternHint(EHxPatternType Type)
+{
+    switch (Type)
+    {
+        case HX_PATTERN_String:
+            return default.StringPatternMatchHint;
+        case HX_PATTERN_NumValue:
+            return default.ValuePatternMatchHint;
+        case HX_PATTERN_NumRange:
+            return default.RangePatternMatchHint;
+    }
+    return "";
+}
+
+static function string GetPatternCharset(EHxPatternType Type)
+{
+    switch (Type)
+    {
+        case HX_PATTERN_String:
+            return "";
+        case HX_PATTERN_NumValue:
+            return "0123456789<=>*";
+        case HX_PATTERN_NumRange:
+            return "0123456789<=>*-";
+    }
+    return "";
 }
 
 defaultproperties
