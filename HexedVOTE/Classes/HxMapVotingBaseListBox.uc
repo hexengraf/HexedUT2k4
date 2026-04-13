@@ -4,7 +4,6 @@ class HxMapVotingBaseListBox extends HxGUITable
 
 delegate OnTagUpdated(int MapIndex, HxFavorites.EHxTag NewTag);
 delegate NotifySelection(GUIComponent Sender);
-delegate bool NotifyVote(GUIComponent Sender);
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
@@ -21,8 +20,7 @@ function OnChangeList(GUIComponent Sender)
 
 function bool OnDbkClickList(GUIComponent Sender)
 {
-    NotifyVote(Self);
-    return true;
+    return OnEnterKeyEvent(Self);
 }
 
 function SetVRI(VotingReplicationInfo V)
@@ -45,16 +43,6 @@ function UpdateMapTag(int MapIndex, HxFavorites.EHxTag NewTag)
     HxMapVotingBaseList(List).UpdateMapTag(MapIndex, NewTag);
 }
 
-function bool InternalOnKeyEvent(out byte Key, out byte KeyState, float Delta)
-{
-    if (EInputKey(Key) == IK_Enter && HxMapVotingPage(PageOwner) != None)
-    {
-        NotifyVote(Self);
-        return true;
-    }
-    return false;
-}
-
 function InternalOnTagUpdated(int MapIndex, HxFavorites.EHxTag NewTag)
 {
     OnTagUpdated(MapIndex, NewTag);
@@ -67,5 +55,4 @@ defaultproperties
     HeaderColumnPerc(2)=0.41
     HeaderIcons(0)=Material'HxClockIcon'
     HeaderIcons(1)=Material'HxStarIcon'
-    OnKeyEvent=InternalOnKeyEvent
 }

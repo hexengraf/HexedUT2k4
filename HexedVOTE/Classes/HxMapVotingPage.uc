@@ -417,7 +417,7 @@ defaultproperties
         bBoundToParent=true
         FontScale=FNS_Small
         NotifySelection=OnChangeSelectedMap
-        NotifyVote=OnClickSubmitVote
+        OnEnterKeyEvent=OnClickSubmitVote
         TabOrder=0
     End Object
     lb_VoteList=VoteListBox
@@ -484,7 +484,7 @@ defaultproperties
         bBoundToParent=true
         FontScale=FNS_Small
         NotifySelection=OnChangeSelectedMap
-        NotifyVote=OnClickSubmitVote
+        OnEnterKeyEvent=OnClickSubmitVote
         TabOrder=3
     End Object
     lb_MapList=MapListBox

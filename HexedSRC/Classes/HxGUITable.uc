@@ -9,9 +9,12 @@ var array<Material> HeaderIcons;
 var float StandardHeaderHeight;
 var float ScrollbarWidth;
 
+delegate bool OnEnterKeyEvent(GUIComponent Sender);
+
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
     Super.InitComponent(MyController, MyOwner);
+    HxGUITableList(List).OnEnterKeyEvent = InternalOnKeyEvent;
     HxGUITableList(List).FrameThickness =
         class'HxGUIStyles'.static.StaticFrameThickness(b_ListBackground);
     HxGUIVertScrollBar(MyScrollBar).RightOffset = HxGUITableList(List).FrameThickness;
@@ -85,6 +88,11 @@ function bool InternalOnPreDraw(Canvas C)
         return true;
     }
     return false;
+}
+
+function bool InternalOnKeyEvent(GUIComponent Sender)
+{
+    return OnEnterKeyEvent(Sender);
 }
 
 function bool OnHoverHeader(GUIComponent Sender)

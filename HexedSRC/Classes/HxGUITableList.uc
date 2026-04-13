@@ -21,6 +21,7 @@ var int PreviousSortColumn;
 var bool bPreviousSortDescending;
 var private GUIStyles DefaultStyle;
 
+delegate bool OnEnterKeyEvent(GUIComponent Sender);
 function bool Refresh();
 function DrawRow(Canvas C, int Row, float X, float Y, float W, float H);
 
@@ -79,6 +80,13 @@ function bool InternalOnKeyEvent(out byte Key, out byte State, float Delta)
         if (EInputKey(Key) == IK_Down && Down())
         {
             return true;
+        }
+    }
+    else if (EInputAction(State) == IST_Release)
+    {
+        if (EInputKey(Key) == IK_Enter && MenuState == MSAT_Focused)
+        {
+            return OnEnterKeyEvent(Self);
         }
     }
     return Super.InternalOnKeyEvent(Key, State, Delta);
