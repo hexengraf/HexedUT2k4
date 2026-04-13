@@ -5,6 +5,9 @@ var config int BonusShield;
 var config int BonusARGrenades;
 var config int BonusAdrenaline;
 var config int BonusAdrenalineOnSpawn;
+var config float SelfDamageScale;
+var config float HealthLeechRatio;
+var config int HealthLeechLimit;
 var config bool bNoSpeedCombo;
 var config bool bNoBerserkCombo;
 var config bool bNoBoosterCombo;
@@ -26,9 +29,6 @@ var config float DodgeMultiplier;
 var config float DodgeSpeedMultiplier;
 var config bool bNoWallDodge;
 var config bool bNoDodgeJump;
-var config float SelfDamageScale;
-var config float HealthLeechRatio;
-var config int HealthLeechLimit;
 
 function Initialized()
 {
@@ -389,30 +389,30 @@ defaultproperties
     Properties(2)=(Name="BonusARGrenades",Section="Starting Values",Caption="Bonus AR grenades",Hint="Bonus to starting number of AR grenades (between -4 and 99). Applied on spawn.",Type="Text",Data="8;-4:99")
     Properties(3)=(Name="BonusAdrenaline",Section="Starting Values",Caption="Bonus adrenaline",Hint="Bonus to starting adrenaline (between 0 and 100). Applied on restart/map change.",Type="Text",Data="8;0:100")
     Properties(4)=(Name="BonusAdrenalineOnSpawn",Section="Starting Values",Caption="Bonus adrenaline on spawn",Hint="Bonus to adrenaline on spawn (between -100 and 100). Applied on spawn.",Type="Text",Data="8;-100:100")
-    Properties(5)=(Name="bNoSpeedCombo",Section="Power-Ups",Caption="No speed combo",Hint="Disable speed combo (up, up, up, up). Applied instantly.",Type="Check")
-    Properties(6)=(Name="bNoBerserkCombo",Section="Power-Ups",Caption="No berserk combo",Hint="Disable berserk combo (up, up, down, down). Applied instantly.",Type="Check")
-    Properties(7)=(Name="bNoBoosterCombo",Section="Power-Ups",Caption="No booster combo",Hint="Disable booster combo (down, down, down, down). Applied instantly.",Type="Check")
-    Properties(8)=(Name="bNoInvisibleCombo",Section="Power-Ups",Caption="No invisible combo",Hint="Disable invisible combo (right, right, left, left). Applied instantly.",Type="Check")
-    Properties(9)=(Name="bNoAdrenalinePills",Section="Pick-Ups",Caption="No adrenaline pills",Hint="Disable adrenaline pills. Applied instantly.",Type="Check")
-    Properties(10)=(Name="bNoHealthVials",Section="Pick-Ups",Caption="No health vials",Hint="Disable health vials. Applied instantly.",Type="Check")
-    Properties(11)=(Name="bNoHealthPacks",Section="Pick-Ups",Caption="No health packs",Hint="Disable health packs. Applied instantly.",Type="Check")
-    Properties(12)=(Name="bNoSuperHealthPacks",Section="Pick-Ups",Caption="No super health packs",Hint="Disable super health packs. Applied instantly.",Type="Check")
-    Properties(13)=(Name="bNoShieldPacks",Section="Pick-Ups",Caption="No shield packs",Hint="Disable shield packs. Applied instantly.",Type="Check")
-    Properties(14)=(Name="bNoSuperShieldPacks",Section="Pick-Ups",Caption="No super shield packs",Hint="Disable super shield packs. Applied instantly.",Type="Check")
-    Properties(15)=(Name="bNoUDamagePacks",Section="Pick-Ups",Caption="No UDamage packs",Hint="Disable UDamage packs. Applied instantly.",Type="Check")
-    Properties(16)=(Name="bNoAmmoPacks",Section="Pick-Ups",Caption="No ammo packs",Hint="Disable ammo packs. Applied instantly.",Type="Check")
-    Properties(17)=(Name="MaxSpeedMultiplier",Section="Movement",Caption="Speed multiplier",Hint="Coefficient to multiply maximum movement speed (between -100.0 and 100.0). Applied on spawn.",Type="Text",Data="8;-100.0:100.0")
-    Properties(18)=(Name="AirControlMultiplier",Section="Movement",Caption="Air control multiplier",Hint="Coefficient to multiply air control (between -10.0 and 10.0). Applied on spawn.",Type="Text",Data="8;-10.0:10.0")
-    Properties(19)=(Name="BaseJumpMultiplier",Section="Movement",Caption="Base jump multiplier",Hint="Coefficient to multiply base jump acceleration (between -10.0 and 10.0). Applied on spawn.",Type="Text",Data="8;-10.0:10.0")
-    Properties(20)=(Name="MultiJumpMultiplier",Section="Movement",Caption="Multi-jump multiplier",Hint="Coefficient to multiply multi-jump acceleration boost (between -100.0 and 100.0). Applied on spawn.",Type="Text",Data="8;-100.0:100.0")
-    Properties(21)=(Name="BonusMultiJumps",Section="Movement",Caption="Bonus multi-jumps",Hint="Bonus to add to base amount of multi-jumps (between -1 and 99). Applied on spawn.",Type="Text",Data="8;-1:99")
-    Properties(22)=(Name="DodgeMultiplier",Section="Movement",Caption="Dodge multiplier",Hint="Coefficient to multiply dodge acceleration (Z-axis, between -10.0 and 10.0). Applied on spawn.",Type="Text",Data="8;-10.0:10.0")
-    Properties(23)=(Name="DodgeSpeedMultiplier",Section="Movement",Caption="Dodge speed multiplier",Hint="Coefficient to multiply dodge speed factor (between -10.0 and 10.0). Applied on spawn.",Type="Text",Data="8;-10.0:10.0")
-    Properties(24)=(Name="bNoWallDodge",Section="Movement",Caption="Disable wall dodge",Hint="Disable wall dodge (UT Classic). Applied on spawn.",Type="Check")
-    Properties(25)=(Name="bNoDodgeJump",Section="Movement",Caption="Disable dodge jump",Hint="Disable dodge jump (UT Classic). Applied on spawn.",Type="Check")
-    Properties(26)=(Name="SelfDamageScale",Section="Damage",Caption="Self-damage scale",Hint="How much damage you do to yourself. Applied instantly.",Type="Text",Data="8;0.0:1.0")
-    Properties(27)=(Name="HealthLeechRatio",Section="Health Leech",Caption="Health leech ratio",Hint="Ratio to leech health from damage dealt (between 0.0 and 5.0).",Type="Text",Data="8;0.0:5.0")
-    Properties(28)=(Name="HealthLeechLimit",Section="Health Leech",Caption="Health leech limit",Hint="Limit up to how much health can be filled with leech (between 0 and 199).",Type="Text",Data="8;0:199")
+    Properties(5)=(Name="SelfDamageScale",Section="Damage",Caption="Self-damage scale",Hint="How much damage you do to yourself. Applied instantly.",Type="Text",Data="8;0.0:1.0")
+    Properties(6)=(Name="HealthLeechRatio",Section="Health Leech",Caption="Health leech ratio",Hint="Ratio to leech health from damage dealt (between 0.0 and 5.0).",Type="Text",Data="8;0.0:5.0")
+    Properties(7)=(Name="HealthLeechLimit",Section="Health Leech",Caption="Health leech limit",Hint="Limit up to how much health can be filled with leech (between 0 and 199).",Type="Text",Data="8;0:199")
+    Properties(8)=(Name="bNoSpeedCombo",Section="Power-Ups",Caption="No speed combo",Hint="Disable speed combo (up, up, up, up). Applied instantly.",Type="Check")
+    Properties(9)=(Name="bNoBerserkCombo",Section="Power-Ups",Caption="No berserk combo",Hint="Disable berserk combo (up, up, down, down). Applied instantly.",Type="Check")
+    Properties(10)=(Name="bNoBoosterCombo",Section="Power-Ups",Caption="No booster combo",Hint="Disable booster combo (down, down, down, down). Applied instantly.",Type="Check")
+    Properties(11)=(Name="bNoInvisibleCombo",Section="Power-Ups",Caption="No invisible combo",Hint="Disable invisible combo (right, right, left, left). Applied instantly.",Type="Check")
+    Properties(12)=(Name="bNoAdrenalinePills",Section="Pick-Ups",Caption="No adrenaline pills",Hint="Disable adrenaline pills. Applied instantly.",Type="Check")
+    Properties(13)=(Name="bNoHealthVials",Section="Pick-Ups",Caption="No health vials",Hint="Disable health vials. Applied instantly.",Type="Check")
+    Properties(14)=(Name="bNoHealthPacks",Section="Pick-Ups",Caption="No health packs",Hint="Disable health packs. Applied instantly.",Type="Check")
+    Properties(15)=(Name="bNoSuperHealthPacks",Section="Pick-Ups",Caption="No super health packs",Hint="Disable super health packs. Applied instantly.",Type="Check")
+    Properties(16)=(Name="bNoShieldPacks",Section="Pick-Ups",Caption="No shield packs",Hint="Disable shield packs. Applied instantly.",Type="Check")
+    Properties(17)=(Name="bNoSuperShieldPacks",Section="Pick-Ups",Caption="No super shield packs",Hint="Disable super shield packs. Applied instantly.",Type="Check")
+    Properties(18)=(Name="bNoUDamagePacks",Section="Pick-Ups",Caption="No UDamage packs",Hint="Disable UDamage packs. Applied instantly.",Type="Check")
+    Properties(19)=(Name="bNoAmmoPacks",Section="Pick-Ups",Caption="No ammo packs",Hint="Disable ammo packs. Applied instantly.",Type="Check")
+    Properties(20)=(Name="MaxSpeedMultiplier",Section="Movement",Caption="Speed multiplier",Hint="Coefficient to multiply maximum movement speed (between -100.0 and 100.0). Applied on spawn.",Type="Text",Data="8;-100.0:100.0")
+    Properties(21)=(Name="AirControlMultiplier",Section="Movement",Caption="Air control multiplier",Hint="Coefficient to multiply air control (between -10.0 and 10.0). Applied on spawn.",Type="Text",Data="8;-10.0:10.0")
+    Properties(22)=(Name="BaseJumpMultiplier",Section="Movement",Caption="Base jump multiplier",Hint="Coefficient to multiply base jump acceleration (between -10.0 and 10.0). Applied on spawn.",Type="Text",Data="8;-10.0:10.0")
+    Properties(23)=(Name="MultiJumpMultiplier",Section="Movement",Caption="Multi-jump multiplier",Hint="Coefficient to multiply multi-jump acceleration boost (between -100.0 and 100.0). Applied on spawn.",Type="Text",Data="8;-100.0:100.0")
+    Properties(24)=(Name="BonusMultiJumps",Section="Movement",Caption="Bonus multi-jumps",Hint="Bonus to add to base amount of multi-jumps (between -1 and 99). Applied on spawn.",Type="Text",Data="8;-1:99")
+    Properties(25)=(Name="DodgeMultiplier",Section="Movement",Caption="Dodge multiplier",Hint="Coefficient to multiply dodge acceleration (Z-axis, between -10.0 and 10.0). Applied on spawn.",Type="Text",Data="8;-10.0:10.0")
+    Properties(26)=(Name="DodgeSpeedMultiplier",Section="Movement",Caption="Dodge speed multiplier",Hint="Coefficient to multiply dodge speed factor (between -10.0 and 10.0). Applied on spawn.",Type="Text",Data="8;-10.0:10.0")
+    Properties(27)=(Name="bNoWallDodge",Section="Movement",Caption="Disable wall dodge",Hint="Disable wall dodge (UT Classic). Applied on spawn.",Type="Check")
+    Properties(28)=(Name="bNoDodgeJump",Section="Movement",Caption="Disable dodge jump",Hint="Disable dodge jump (UT Classic). Applied on spawn.",Type="Check")
     bAllowURLOptions=true
     bDisableTick=true
 
@@ -421,6 +421,9 @@ defaultproperties
     BonusARGrenades=0
     BonusAdrenaline=0
     BonusAdrenalineOnSpawn=0
+    SelfDamageScale=1
+    HealthLeechRatio=0
+    HealthLeechLimit=0
     bNoSpeedCombo=false
     bNoBerserkCombo=false
     bNoBoosterCombo=false
@@ -442,7 +445,4 @@ defaultproperties
     DodgeSpeedMultiplier=1.0
     bNoWallDodge=false
     bNoDodgeJump=false
-    SelfDamageScale=1
-    HealthLeechRatio=0
-    HealthLeechLimit=0
 }
