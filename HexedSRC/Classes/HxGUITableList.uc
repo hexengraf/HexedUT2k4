@@ -1,4 +1,4 @@
-class HxGUIMultiColumnList extends GUIMultiColumnList
+class HxGUITableList extends GUIMultiColumnList
     abstract;
 
 const INT_PADDING = "0000000000";
@@ -13,7 +13,7 @@ var float FrameThickness;
 
 var protected bool bReInit;
 var protected HxGUIVertScrollBar HxScrollbar;
-var protected HxGUIMultiColumnListSearchBar SearchBar;
+var protected HxGUITableSearchBar SearchBar;
 var protected float MyItemHeight;
 var protected int MyItemsPerPage;
 
@@ -28,7 +28,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
     Super.InitComponent(MyController, MyOwner);
     HxScrollbar = HxGUIVertScrollBar(MyScrollBar);
-    SearchBar = HxGUIMultiColumnListBox(MenuOwner).SearchBar;
+    SearchBar = HxGUITable(MenuOwner).SearchBar;
     DefaultStyle = Style;
 }
 

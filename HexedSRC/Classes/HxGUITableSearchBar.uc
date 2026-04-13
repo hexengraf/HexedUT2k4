@@ -1,4 +1,4 @@
-class HxGUIMultiColumnListSearchBar extends HxGUIBackground;
+class HxGUITableSearchBar extends HxGUIBackground;
 
 var automated GUILabel l_Search;
 
@@ -6,7 +6,7 @@ var int FirstColumn;
 var array<HxPatternMatch.EHxPatternType> Types;
 var localized array<string> Hints;
 
-var private array<GUIEditBox> ed_Columns;
+var private array<GUIEditBox> ed_SearchBoxes;
 
 delegate OnSearch(int Index, string Term);
 
@@ -33,11 +33,11 @@ function AddSearchBox(HxPatternMatch.EHxPatternType Type, optional string Hint)
 
 private function CreateSearchBox(int i)
 {
-    ed_Columns[i] = GUIEditBox(AddComponent("XInterface.GUIEditBox", true));
-    ed_Columns[i].TabOrder = i;
-    ed_Columns[i].AllowedCharSet = class'HxPatternMatch'.static.GetPatternCharset(Types[i]);
-    ed_Columns[i].SetHint(Hints[i]@class'HxPatternMatch'.static.GetPatternHint(Types[i]));
-    ed_Columns[i].ToolTip.ExpirationSeconds = 0.085 * Len(ed_Columns[i].Hint);
+    ed_SearchBoxes[i] = GUIEditBox(AddComponent("XInterface.GUIEditBox", true));
+    ed_SearchBoxes[i].TabOrder = i;
+    ed_SearchBoxes[i].AllowedCharSet = class'HxPatternMatch'.static.GetPatternCharset(Types[i]);
+    ed_SearchBoxes[i].SetHint(Hints[i]@class'HxPatternMatch'.static.GetPatternHint(Types[i]));
+    ed_SearchBoxes[i].ToolTip.ExpirationSeconds = 0.085 * Len(ed_SearchBoxes[i].Hint);
 }
 
 function ResolutionChanged(int ResX, int ResY)
@@ -70,23 +70,23 @@ function ResizeEditBoxes(Canvas C)
     local int i;
 
     List = GUIMultiColumnListBox(MenuOwner).List;
-    if (List != None && (ed_Columns.Length + FirstColumn) <= List.ColumnWidths.Length)
+    if (List != None && (ed_SearchBoxes.Length + FirstColumn) <= List.ColumnWidths.Length)
     {
         Width = ActualWidth();
         Thickness = class'HxGUIStyles'.static.GetActualFrameThickness(Self) / Width;
-        for (i = 0; i < ed_Columns.Length; ++i)
+        for (i = 0; i < ed_SearchBoxes.Length; ++i)
         {
-            ed_Columns[i].WinWidth = List.ColumnWidths[FirstColumn + i] / Width + Thickness;
+            ed_SearchBoxes[i].WinWidth = List.ColumnWidths[FirstColumn + i] / Width + Thickness;
             if (i == 0)
             {
-                ed_Columns[i].WinLeft = FirstLeft(List, Width) - Thickness;
+                ed_SearchBoxes[i].WinLeft = FirstLeft(List, Width) - Thickness;
             }
             else
             {
-                ed_Columns[i].WinLeft =
-                    ed_Columns[i - 1].WinLeft + ed_Columns[i - 1].WinWidth - Thickness;
+                ed_SearchBoxes[i].WinLeft =
+                    ed_SearchBoxes[i - 1].WinLeft + ed_SearchBoxes[i - 1].WinWidth - Thickness;
             }
-            ed_Columns[i].bInit = bInit;
+            ed_SearchBoxes[i].bInit = bInit;
         }
     }
 }
@@ -108,7 +108,7 @@ function float FirstLeft(GUIMultiColumnList List, float TotalWidth)
     Left = Left / TotalWidth;
     if (l_Search.WinWidth > Left)
     {
-        ed_Columns[0].WinWidth -= l_Search.WinWidth - Left;
+        ed_SearchBoxes[0].WinWidth -= l_Search.WinWidth - Left;
         return l_Search.WinWidth;
     }
     return Left;
@@ -118,9 +118,9 @@ function Clear()
 {
     local int i;
 
-    for (i = 0; i < ed_Columns.Length; ++i)
+    for (i = 0; i < ed_SearchBoxes.Length; ++i)
     {
-        ed_Columns[i].SetText("");
+        ed_SearchBoxes[i].SetText("");
     }
 }
 

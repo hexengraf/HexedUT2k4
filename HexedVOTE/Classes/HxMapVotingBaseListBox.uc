@@ -1,4 +1,4 @@
-class HxMapVotingBaseListBox extends HxGUIMultiColumnListBox
+class HxMapVotingBaseListBox extends HxGUITable
     abstract
     DependsOn(HxFavorites);
 

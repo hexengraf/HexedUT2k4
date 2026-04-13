@@ -1,8 +1,8 @@
-class HxGUIMultiColumnListBox extends GUIMultiColumnListBox
+class HxGUITable extends GUIMultiColumnListBox
     abstract;
 
 var automated HxGUIBackground b_ListBackground;
-var automated HxGUIMultiColumnListSearchBar SearchBar;
+var automated HxGUITableSearchBar SearchBar;
 
 var array<Material> HeaderIcons;
 
@@ -12,9 +12,9 @@ var float ScrollbarWidth;
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
     Super.InitComponent(MyController, MyOwner);
-    HxGUIMultiColumnList(List).FrameThickness =
+    HxGUITableList(List).FrameThickness =
         class'HxGUIStyles'.static.StaticFrameThickness(b_ListBackground);
-    HxGUIVertScrollBar(MyScrollBar).RightOffset = HxGUIMultiColumnList(List).FrameThickness;
+    HxGUIVertScrollBar(MyScrollBar).RightOffset = HxGUITableList(List).FrameThickness;
     HxGUIVertScrollBar(MyScrollBar).StandardWidth = ScrollbarWidth;
 }
 
@@ -32,7 +32,7 @@ event ResolutionChanged(int NewX, int NewY)
 
 function bool Refresh()
 {
-    return HxGUIMultiColumnList(List).Refresh();
+    return HxGUITableList(List).Refresh();
 }
 
 function SelectRandom()
@@ -205,8 +205,8 @@ function DrawHeaderIcons(Canvas C, float Left, float Height, float Offset)
 
 function OnMousePressedHeader(GUIComponent Sender, bool bRepeat)
 {
-    HxGUIMultiColumnList(List).PreviousSortColumn = List.SortColumn;
-    HxGUIMultiColumnList(List).bPreviousSortDescending = List.SortDescending;
+    HxGUITableList(List).PreviousSortColumn = List.SortColumn;
+    HxGUITableList(List).bPreviousSortDescending = List.SortDescending;
 }
 
 function bool OnCapturedMouseMoveHeader(float deltaX, float deltaY)
