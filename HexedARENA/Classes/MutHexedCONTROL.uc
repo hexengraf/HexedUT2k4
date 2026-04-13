@@ -26,6 +26,7 @@ var config float DodgeMultiplier;
 var config float DodgeSpeedMultiplier;
 var config bool bNoWallDodge;
 var config bool bNoDodgeJump;
+var config float SelfDamageScale;
 var config float HealthLeechRatio;
 var config int HealthLeechLimit;
 
@@ -409,8 +410,9 @@ defaultproperties
     Properties(23)=(Name="DodgeSpeedMultiplier",Section="Movement",Caption="Dodge speed multiplier",Hint="Coefficient to multiply dodge speed factor (between -10.0 and 10.0). Applied on spawn.",Type="Text",Data="8;-10.0:10.0")
     Properties(24)=(Name="bNoWallDodge",Section="Movement",Caption="Disable wall dodge",Hint="Disable wall dodge (UT Classic). Applied on spawn.",Type="Check")
     Properties(25)=(Name="bNoDodgeJump",Section="Movement",Caption="Disable dodge jump",Hint="Disable dodge jump (UT Classic). Applied on spawn.",Type="Check")
-    Properties(26)=(Name="HealthLeechRatio",Section="Health Leech",Caption="Health leech ratio",Hint="Ratio to leech health from damage dealt (between 0.0 and 5.0).",Type="Text",Data="8;0.0:5.0")
-    Properties(27)=(Name="HealthLeechLimit",Section="Health Leech",Caption="Health leech limit",Hint="Limit up to how much health can be filled with leech (between 0 and 199).",Type="Text",Data="8;0:199")
+    Properties(26)=(Name="SelfDamageScale",Section="Damage",Caption="Self-damage scale",Hint="How much damage you do to yourself. Applied instantly.",Type="Text",Data="8;0.0:1.0")
+    Properties(27)=(Name="HealthLeechRatio",Section="Health Leech",Caption="Health leech ratio",Hint="Ratio to leech health from damage dealt (between 0.0 and 5.0).",Type="Text",Data="8;0.0:5.0")
+    Properties(28)=(Name="HealthLeechLimit",Section="Health Leech",Caption="Health leech limit",Hint="Limit up to how much health can be filled with leech (between 0 and 199).",Type="Text",Data="8;0:199")
     bAllowURLOptions=true
     bDisableTick=true
 
@@ -440,6 +442,7 @@ defaultproperties
     DodgeSpeedMultiplier=1.0
     bNoWallDodge=false
     bNoDodgeJump=false
+    SelfDamageScale=1
     HealthLeechRatio=0
     HealthLeechLimit=0
 }

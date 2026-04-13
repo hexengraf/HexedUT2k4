@@ -29,10 +29,16 @@ function int NetDamage(int Original,
         Damage = NextGameRules.NetDamage(
             Original, Damage, Injured, Inflictor, Location, Momentum, Type);
     }
-    if (HexedControl.HealthLeechLimit != 0 && Damage > 0 && Inflictor != None && Injured != None
-        && Injured != Inflictor && IsEnemy(Injured, Inflictor))
+    if (Inflictor != None)
     {
-        class'HxCTPlayerInfo'.static.RegisterDamage(Damage, Injured, Inflictor, Type);
+        if (Injured.Controller == Inflictor.Controller)
+        {
+            Damage *= HexedControl.SelfDamageScale;
+        }
+        else if (HexedControl.HealthLeechLimit != 0 && Damage > 0 && IsEnemy(Injured, Inflictor))
+        {
+            class'HxCTPlayerInfo'.static.RegisterDamage(Damage, Injured, Inflictor, Type);
+        }
     }
     return Damage;
 }
