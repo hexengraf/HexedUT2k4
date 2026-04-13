@@ -4,6 +4,8 @@ class HxGUIMultiColumnListBox extends GUIMultiColumnListBox
 var automated HxGUIBackground b_ListBackground;
 var automated HxGUIMultiColumnListSearchBar SearchBar;
 
+var array<Material> HeaderIcons;
+
 var float StandardHeaderHeight;
 var float ScrollbarWidth;
 
@@ -141,11 +143,15 @@ function OnRenderedHeader(Canvas C)
     Left = Header.ActualLeft();
     Width = Header.ActualWidth();
     Height = Header.ActualHeight();
+    Offset = class'HxGUIStyles'.static.GetActualFrameThickness(b_ListBackground);
+    if (HeaderIcons.Length > 0)
+    {
+        DrawHeaderIcons(C, Left, Height, Offset);
+    }
     if (HxGUIStyles(b_ListBackground.Style) != None)
     {
         C.DrawColor = HxGUIStyles(b_ListBackground.Style).GetFrameColor();
         FrameMaterial = HxGUIStyles(b_ListBackground.Style).GetFrameMaterial();
-        Offset = class'HxGUIStyles'.static.GetActualFrameThickness(b_ListBackground);
         Height -= Offset;
         C.SetPos(Left, Header.ActualTop());
         C.DrawTileStretched(FrameMaterial, Width, Offset);
@@ -168,6 +174,32 @@ function OnRenderedHeader(Canvas C)
         }
         C.SetPos(Left + Offset, C.CurY + Height);
         C.DrawTileStretched(FrameMaterial, Width - 2 * Offset, Offset);
+    }
+}
+
+function DrawHeaderIcons(Canvas C, float Left, float Height, float Offset)
+{
+    local float Top;
+    local int i;
+
+    Top = Header.ActualTop() + Height * 0.13;
+    Height = Height * 0.75;
+    for (i = 0; i < HeaderIcons.Length; ++i)
+    {
+        if (HeaderIcons[i] != None)
+        {
+            if (List.SortColumn == i)
+            {
+                C.DrawColor = Header.Style.FontColors[2];
+            }
+            else
+            {
+                C.DrawColor = Header.Style.FontColors[0];
+            }
+            C.SetPos(Left + (List.ColumnWidths[i] - Height) / 2  + (Offset / 2), Top);
+            C.DrawTileJustified(HeaderIcons[i], 1, Height, Height);
+        }
+        Left += List.ColumnWidths[i];
     }
 }
 
