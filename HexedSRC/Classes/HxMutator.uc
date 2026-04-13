@@ -44,13 +44,19 @@ event Tick(float DeltaTime)
 
 function ParseURLOptions()
 {
+    local PlayInfo PI;
+    local string Value;
     local int i;
 
+    PI = new(None) class'PlayInfo';
+    FillPlayInfo(PI);
     for (i = 0; i < Properties.Length; ++i)
     {
-        if (GetUrlOption(Properties[i].Name) != "")
+        Value = GetUrlOption(Properties[i].Name);
+        if (Value != "")
         {
-            SetProperty(i, GetUrlOption(Properties[i].Name));
+            PI.StoreSetting(i, Value);
+            SetProperty(i, PI.Settings[i].Value);
         }
     }
 }
