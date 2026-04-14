@@ -21,5 +21,4 @@ defaultproperties
 {
     HeaderColumnPerc(3)=0.49
     HeaderColumnPerc(4)=0.1
-    // DefaultListClass="HexedPatches.HxMapVotingVoteList"
 }

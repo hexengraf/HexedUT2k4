@@ -4,7 +4,8 @@ const MIN_VERSION = 6;
 
 var config bool bFirstRun;
 
-var HxFavorites MapFavorites;
+var HxFavorites Favorites;
+var VotingReplicationInfo VRI;
 
 var private PlayerController PC;
 var private GUIController GC;
@@ -18,7 +19,7 @@ simulated event PreBeginPlay()
     CustomMapVoteMenu = string(class'HxMapVotingPage');
     if (Level.NetMode != NM_DedicatedServer)
     {
-        MapFavorites = new(None, "Maps") class'HxFavorites';
+        Favorites = new(None, "Maps") class'HxFavorites';
         if (bFirstRun)
         {
             RecoverConfigs();
@@ -28,7 +29,7 @@ simulated event PreBeginPlay()
 
 simulated event Destroyed()
 {
-    MapFavorites = None;
+    Favorites = None;
     Super.Destroyed();
 }
 
@@ -39,7 +40,7 @@ simulated event Tick(float DeltaTime)
     {
         if (!bInitialized)
         {
-            bInitialized = InitializePlayerController() && InitializeGUIController();
+            bInitialized = InitializeClient();
         }
         else if (bReplaceMapVoteMenu)
         {
@@ -48,25 +49,22 @@ simulated event Tick(float DeltaTime)
     }
 }
 
-simulated function bool InitializePlayerController()
+simulated function bool InitializeClient()
 {
     if (PC == None)
     {
         PC = Level.GetLocalPlayerController();
-        return PC != None;
     }
-    return true;
-}
-
-simulated function bool InitializeGUIController()
-{
-    if (PC.Player != None)
+    if (PC != None)
     {
-        GC = GUIController(PC.Player.GUIController);
-        bReplaceMapVoteMenu = !GC.SetPropertyText("CustomMapVotingMenu", CustomMapVoteMenu);
-        return true;
+        if (PC.Player != None)
+        {
+            GC = GUIController(PC.Player.GUIController);
+            bReplaceMapVoteMenu = !GC.SetPropertyText("CustomMapVotingMenu", CustomMapVoteMenu);
+        }
+        VRI = VotingReplicationInfo(PC.VoteReplicationInfo);
     }
-    return false;
+    return PC != None && GC != None;
 }
 
 simulated function TryReplaceMapVoteMenu()
@@ -106,6 +104,62 @@ simulated function ServerPropertyChanged(int Index, string OldValue)
     UpdateMapVoteMenuBackgrounds();
 }
 
+simulated function bool SendMapVote(int GameType, int Map)
+{
+    if (VRI.MapList[Map].bEnabled || PC.PlayerReplicationInfo.bAdmin)
+    {
+        VRI.SendMapVote(Map, GameType);
+        return true;
+    }
+    return false;
+}
+
+simulated function string GetGameTypePrefix(int GameType)
+{
+    return VRI.GameConfig[GameType].Prefix;
+}
+
+simulated function string GetGameTypeName(int GameType)
+{
+    return VRI.GameConfig[GameType].GameName;
+}
+
+simulated function int GetGameTypeCount()
+{
+    return VRI.GameConfig.Length;
+}
+
+simulated function int GetCurrentGameType()
+{
+    return VRI.CurrentGameConfig;
+}
+
+simulated function byte GetMapVoteMode()
+{
+    return VRI.Mode;
+}
+
+simulated function string GetLoadingStatus()
+{
+    return VRI.MapList.Length$"/"$VRI.MapCount;
+}
+
+simulated function bool IsInitialized()
+{
+    return bInitialized && VRI != None;
+}
+
+simulated function bool IsLoadingMapData()
+{
+    return VRI.GameConfig.Length < VRI.GameConfigCount
+        || VRI.MapList.Length < VRI.MapCount;
+}
+
+simulated function bool IsMapVoteEnabled()
+{
+    return VRI.bMapVote;
+}
+
 // TODO: delete this function in v8
 simulated function RecoverConfigs()
 {
@@ -121,9 +175,9 @@ simulated function RecoverConfigs()
     }
     for (i = 0; i < NewObject.Maps.Length; ++i)
     {
-        MapFavorites.Save(NewObject.Maps[i].Map, NewObject.Maps[i].Tag, true);
+        Favorites.Save(NewObject.Maps[i].Map, NewObject.Maps[i].Tag, true);
     }
-    MapFavorites.SaveConfig();
+    Favorites.SaveConfig();
     NewObject = None;
     OldObject = None;
     bFirstRun = false;

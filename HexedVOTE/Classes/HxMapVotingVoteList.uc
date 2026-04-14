@@ -5,10 +5,11 @@ function PopulateList()
     local HxFavorites.EHxTag MapTag;
     local int i;
 
-    for (i = 0; i < VRI.MapVoteCount.Length; ++i)
+    for (i = 0; i < Client.VRI.MapVoteCount.Length; ++i)
     {
-        MapTag = Client.MapFavorites.Get(VRI.MapList[VRI.MapVoteCount[i].MapIndex].MapName);
-        AddMap(VRI.MapVoteCount[i].MapIndex, MapTag);
+        MapTag = Client.Favorites.Get(
+            Client.VRI.MapList[Client.VRI.MapVoteCount[i].MapIndex].MapName);
+        AddMap(Client.VRI.MapVoteCount[i].MapIndex, MapTag);
     }
 }
 
@@ -22,9 +23,9 @@ function UpdatedVoteCount(int UpdatedIndex, bool bRemoved)
     }
     else if (UpdatedIndex >= ItemCount)
     {
-        MapTag = Client.MapFavorites.Get(
-            VRI.MapList[VRI.MapVoteCount[UpdatedIndex].MapIndex].MapName);
-        AddMap(VRI.MapVoteCount[UpdatedIndex].MapIndex, MapTag);
+        MapTag = Client.Favorites.Get(
+            Client.VRI.MapList[Client.VRI.MapVoteCount[UpdatedIndex].MapIndex].MapName);
+        AddMap(Client.VRI.MapVoteCount[UpdatedIndex].MapIndex, MapTag);
     }
     else
     {
@@ -37,7 +38,7 @@ function int GetGameTypeIndex()
 {
     if (Index > -1)
     {
-        return VRI.MapVoteCount[SortData[Index].SortItem].GameConfigIndex;
+        return Client.VRI.MapVoteCount[SortData[Index].SortItem].GameConfigIndex;
     }
     return Index;
 }
@@ -56,10 +57,10 @@ function DrawRow(Canvas C, int Row, float X, float Y, float W, float H)
     local VotingHandler.MapVoteScore Entry;
 
     Super.DrawRow(C, Row, X, Y, W, H);
-    Entry = VRI.MapVoteCount[SortData[Row].SortItem];
+    Entry = Client.VRI.MapVoteCount[SortData[Row].SortItem];
     GetCellLeftWidth(3, X, W);
     Style.DrawText(
-        C, MenuState, X, Y, W, H, TXTA_Left, VRI.GameConfig[Entry.GameConfigIndex].GameName, FontScale);
+        C, MenuState, X, Y, W, H, TXTA_Left, Client.GetGameTypeName(Entry.GameConfigIndex), FontScale);
     GetCellLeftWidth(4, X, W);
     Style.DrawText(C, MenuState, X, Y, W, H, TXTA_Left, string(Entry.VoteCount), FontScale);
 }
@@ -69,9 +70,10 @@ function string GetNormalizedSortString(int Row, int Column)
     switch (Column)
     {
         case 3:
-            return NormalizeString(VRI.GameConfig[VRI.MapVoteCount[Row].GameConfigIndex].GameName);
+            return NormalizeString(
+                Client.GetGameTypeName(Client.VRI.MapVoteCount[Row].GameConfigIndex));
         case 4:
-            return NormalizeInt(VRI.MapVoteCount[Row].VoteCount, 6);
+            return NormalizeInt(Client.VRI.MapVoteCount[Row].VoteCount, 6);
         default:
             break;
     }

@@ -13,6 +13,11 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     HxMapVotingBaseList(List).OnDblClick = OnDbkClickList;
 }
 
+function Initialize()
+{
+    HxMapVotingBaseList(List).Initialize();
+}
+
 function OnChangeList(GUIComponent Sender)
 {
     NotifySelection(Self);
@@ -26,11 +31,6 @@ function bool OnDbkClickList(GUIComponent Sender)
 function SetClient(HxVTClient Client)
 {
     HxMapVotingBaseList(List).SetClient(Client);
-}
-
-function SetVRI(VotingReplicationInfo V)
-{
-    HxMapVotingBaseList(List).SetVRI(V);
 }
 
 function int GetMapIndex()

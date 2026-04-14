@@ -23,9 +23,9 @@ var string MapListCustomBG;
 var string PreviewCustomBG;
 var string ChatBoxCustomBG;
 
+var HxMapFilterManager FilterManager;
 var private HxClientManager ClientManager;
 var private HxVTClient Client;
-var HxMapFilterManager FilterManager;
 var private int SelectedGameType;
 var private int SelectedMap;
 
@@ -49,6 +49,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     lb_MapList.SetClient(Client);
     UpdateMapFilter();
     ShowInitialState();
+    SetTimer(0.02, true);
 }
 
 function SetupWindowHeader()
@@ -80,11 +81,6 @@ function Unpause()
 
 function InternalOnOpen()
 {
-    if (MVRI == None)
-    {
-        MVRI = VotingReplicationInfo(PlayerOwner().VoteReplicationInfo);
-        SetTimer(0.02, true);
-    }
     if (VoteListCustomBG != default.VoteListCustomBG)
     {
         VoteListCustomBG = default.VoteListCustomBG;
@@ -164,14 +160,14 @@ function bool InternalOnKeyEvent(out byte Key, out byte State, float Delta)
 
 event Timer()
 {
-    if (MVRI != None)
+    if (Client.IsInitialized())
     {
-        if (!MVRI.bMapVote)
+        if (!Client.IsMapVoteEnabled())
         {
             ShowDisabledMessage();
+            KillTimer();
         }
-        else if (MVRI.GameConfig.Length < MVRI.GameConfigCount
-                 || MVRI.MapList.Length < MVRI.MapCount)
+        else if (Client.IsLoadingMapData())
         {
             ShowLoadingState();
         }
@@ -185,12 +181,9 @@ event Timer()
 
 function ShowInitialState()
 {
-    MVRI = None;
     SelectedGameType = -1;
     SelectedMap = -1;
-    lb_VoteList.SetVRI(None);
     lb_VoteList.Clear();
-    lb_MapList.SetVRI(None);
     lb_MapList.Clear();
     co_GameType.ResetComponent();
     MapBanner.SetMap("");
@@ -207,14 +200,13 @@ function ShowInitialState()
 function ShowLoadingState()
 {
     t_WindowTitle.Caption = WindowName@"("$LoadingText$")";
-    l_RetrievingMapList.Caption = RetrievingMapListText@"("$MVRI.MapList.Length$"/"$MVRI.MapCount$")";
+    l_RetrievingMapList.Caption = RetrievingMapListText@"("$Client.GetLoadingStatus()$")";
     l_RetrievingMapList.SetVisibility(true);
-    PopulateGameTypeList();
 }
 
 function ShowReadyState()
 {
-    t_WindowTitle.Caption = WindowName@"("$lmsgMode[MVRI.Mode]$")";
+    t_WindowTitle.Caption = WindowName@"("$lmsgMode[Client.GetMapVoteMode()]$")";
     lb_VoteList.EnableMe();
     co_GameType.EnableMe();
     co_MapFilter.EnableMe();
@@ -224,35 +216,20 @@ function ShowReadyState()
     b_Vote.EnableMe();
     l_RetrievingMapList.SetVisibility(false);
     PopulateGameTypeList();
-    lb_MapList.SetVRI(MVRI);
-    lb_VoteList.SetVRI(MVRI);
-}
-
-function ShowDisabledMessage()
-{
-    if (Controller.OpenMenu(string(class'HxGUIQuestionPage')))
-    {
-        GUIQuestionPage(Controller.ActivePage).SetupQuestion(
-            lmsgMapVotingDisabled, QBTN_Ok, QBTN_Ok);
-        GUIQuestionPage(Controller.ActivePage).OnClose = OnCloseQuestionPage;
-    }
+    lb_MapList.Initialize();
+    lb_VoteList.Initialize();
 }
 
 function PopulateGameTypeList()
 {
     local int i;
 
-    if (MVRI.GameConfig.Length < MVRI.GameConfigCount
-        || co_GameType.MyComboBox.List.Elements.Length > 0)
+    for (i = 0; i < Client.GetGameTypeCount(); ++i)
     {
-        return;
-    }
-    for (i = 0; i < MVRI.GameConfig.Length; ++i)
-    {
-        co_GameType.AddItem(MVRI.GameConfig[i].GameName, none, string(i));
+        co_GameType.AddItem(Client.GetGameTypeName(i),, string(i));
     }
     co_GameType.MyComboBox.List.SortList();
-    SelectedGameType = co_GameType.FindExtra(string(MVRI.CurrentGameConfig));
+    SelectedGameType = co_GameType.FindExtra(string(Client.GetCurrentGameType()));
     co_GameType.SetIndex(SelectedGameType);
 }
 
@@ -279,24 +256,17 @@ function OnChangeGameType(GUIComponent Sender)
     Type = int(co_GameType.GetExtra());
     if (Type > -1)
     {
-        lb_MapList.SetPrefix(MVRI.GameConfig[Type].Prefix);
+        lb_MapList.SetPrefix(Client.GetGameTypePrefix(Type));
     }
 }
 
 function bool OnClickSubmitVote(GUIComponent Sender)
 {
-    local PlayerController PC;
-
     if (SelectedMap > -1 && SelectedGameType > -1)
     {
-        PC = PlayerOwner();
-        if (MVRI.MapList[SelectedMap].bEnabled || PC.PlayerReplicationInfo.bAdmin)
+        if (!Client.SendMapVote(SelectedGameType, SelectedMap))
         {
-            MVRI.SendMapVote(SelectedMap, SelectedGameType);
-        }
-        else
-        {
-            PC.ClientMessage(lmsgMapDisabled);
+            PlayerOwner().ClientMessage(lmsgMapDisabled);
         }
     }
     return true;
@@ -358,6 +328,16 @@ function OnChangeSelectedMap(GUIComponent Sender)
     }
 }
 
+function ShowDisabledMessage()
+{
+    if (Controller.OpenMenu(string(class'HxGUIQuestionPage')))
+    {
+        HxGUIQuestionPage(Controller.ActivePage).SetupQuestion(
+            lmsgMapVotingDisabled, QBTN_Ok, QBTN_Ok);
+        HxGUIQuestionPage(Controller.ActivePage).OnClose = OnCloseQuestionPage;
+    }
+}
+
 function OnCloseQuestionPage(optional bool bCanceled)
 {
     Controller.CloseMenu(bCanceled);
@@ -381,15 +361,9 @@ function AdjustWindowSize(coerce float X, coerce float Y)
     WinLeft = default.WinLeft + ((default.WinWidth - WinWidth) / 2);
 }
 
-event Free()
-{
-    Super(GUIPage).Free();
-}
-
 function LevelChanged()
 {
     bPersistent = false;
-    ShowInitialState();
     Super.LevelChanged();
 }
 

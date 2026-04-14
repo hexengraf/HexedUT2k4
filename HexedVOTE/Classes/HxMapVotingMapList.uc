@@ -8,10 +8,11 @@ function PopulateList()
     local HxFavorites.EHxTag MapTag;
     local int i;
 
-    for (i = 0; i < VRI.MapList.Length; ++i)
+    for (i = 0; i < Client.VRI.MapList.Length; ++i)
     {
-        MapTag = Client.MapFavorites.Get(VRI.MapList[i].MapName);
-        if (PrefixMatch(VRI.MapList[i].MapName) && ActiveFilter.Match(VRI.MapList[i], MapTag))
+        MapTag = Client.Favorites.Get(Client.VRI.MapList[i].MapName);
+        if (PrefixMatch(Client.VRI.MapList[i].MapName)
+            && ActiveFilter.Match(Client.VRI.MapList[i], MapTag))
         {
             AddMap(i, MapTag);
         }
@@ -78,7 +79,7 @@ function DrawRow(Canvas C, int Row, float X, float Y, float W, float H)
     local CacheManager.MapRecord Record;
 
     Super.DrawRow(C, Row, X, Y, W, H);
-    Entry = VRI.MapList[GetSortedMapIndex(Row)];
+    Entry = Client.VRI.MapList[GetSortedMapIndex(Row)];
     Record = class'CacheManager'.static.GetMapRecord(Entry.MapName);
     GetCellLeftWidth(3, X, W);
     Style.DrawText(
@@ -93,7 +94,7 @@ function string GetNormalizedSortString(int Row, int Column)
     local VotingHandler.MapVoteMapList Entry;
     local CacheManager.MapRecord Record;
 
-    Entry = VRI.MapList[MapIndices[Row]];
+    Entry = Client.VRI.MapList[MapIndices[Row]];
     switch (Column)
     {
         case 3:
