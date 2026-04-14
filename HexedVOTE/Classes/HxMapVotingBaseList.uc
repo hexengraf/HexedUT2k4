@@ -7,6 +7,7 @@ var localized string RemoveFromLabel;
 var localized string LikedMapsLabel;
 var localized string DislikedMapsLabel;
 
+var protected HxVTClient Client;
 var protected VotingReplicationInfo VRI;
 var protected array<int> MapIndices;
 var protected array<HxFavorites.EHxTag> MapTags;
@@ -28,6 +29,11 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     Super.InitComponent(MyController, MyOwner);
     ContextMenu.AddItem(AddToLabel@LikedMapsLabel);
     ContextMenu.AddItem(AddToLabel@DislikedMapsLabel);
+}
+
+function SetClient(HxVTClient Client)
+{
+    Self.Client = Client;
 }
 
 function SetVRI(VotingReplicationInfo V)
@@ -288,7 +294,7 @@ function DrawLastPlayedIndicator(Canvas C, float X, float Y, float Size, float O
 function DrawMapTag(Canvas C, HxFavorites.EHxTag Tag, float X, float Y, float Size, float Offset)
 {
     X += ColumnWidths[0] + (Offset / 2) + ((ColumnWidths[1] - Size) / 2);
-    class'HxMapFavorites'.static.DrawTag(C, Tag, X, Y, Size);
+    class'HxFavorites'.static.DrawTag(C, Tag, X, Y, Size);
 }
 
 function bool OnOpenContextMenu(GUIContextMenu Sender)
@@ -326,7 +332,7 @@ function OnSelectMapTag(GUIContextMenu Sender, int Option)
         {
             T = HX_TAG_None;
         }
-        class'HxMapFavorites'.static.TagMap(GetMapName(), T);
+        Client.MapFavorites.Save(GetMapName(), T);
         MapTags[SortData[Index].SortItem] = T;
         OnTagUpdated(GetMapIndex(), T);
         UpdatedItem(SortData[Index].SortItem);

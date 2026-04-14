@@ -10,7 +10,7 @@ function PopulateList()
 
     for (i = 0; i < VRI.MapList.Length; ++i)
     {
-        MapTag = class'HxMapFavorites'.static.GetMapTag(VRI.MapList[i].MapName);
+        MapTag = Client.MapFavorites.Get(VRI.MapList[i].MapName);
         if (PrefixMatch(VRI.MapList[i].MapName) && ActiveFilter.Match(VRI.MapList[i], MapTag))
         {
             AddMap(i, MapTag);

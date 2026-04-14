@@ -23,6 +23,11 @@ function bool OnDbkClickList(GUIComponent Sender)
     return OnEnterKeyEvent(Self);
 }
 
+function SetClient(HxVTClient Client)
+{
+    HxMapVotingBaseList(List).SetClient(Client);
+}
+
 function SetVRI(VotingReplicationInfo V)
 {
     HxMapVotingBaseList(List).SetVRI(V);

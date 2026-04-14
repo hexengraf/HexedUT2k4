@@ -1,5 +1,11 @@
 class HxVTClient extends HxClientReplicationInfo;
 
+const MIN_VERSION = 6;
+
+var config bool bFirstRun;
+
+var HxFavorites MapFavorites;
+
 var private PlayerController PC;
 var private GUIController GC;
 var private string CustomMapVoteMenu;
@@ -10,6 +16,20 @@ simulated event PreBeginPlay()
 {
     Super.PreBeginPlay();
     CustomMapVoteMenu = string(class'HxMapVotingPage');
+    if (Level.NetMode != NM_DedicatedServer)
+    {
+        MapFavorites = new(None, "Maps") class'HxFavorites';
+        if (bFirstRun)
+        {
+            RecoverConfigs();
+        }
+    }
+}
+
+simulated event Destroyed()
+{
+    MapFavorites = None;
+    Super.Destroyed();
 }
 
 simulated event Tick(float DeltaTime)
@@ -86,7 +106,32 @@ simulated function ServerPropertyChanged(int Index, string OldValue)
     UpdateMapVoteMenuBackgrounds();
 }
 
+// TODO: delete this function in v8
+simulated function RecoverConfigs()
+{
+    local HxMapFavorites NewObject;
+    local Object OldObject;
+    local int i;
+
+    NewObject = new() class'HxMapFavorites';
+    OldObject = NewObject.FindOldVersionObject(class'HxMapFavorites', MIN_VERSION);
+    if (OldObject != None)
+    {
+        NewObject.CopyPropertyFrom(OldObject, "Maps");
+    }
+    for (i = 0; i < NewObject.Maps.Length; ++i)
+    {
+        MapFavorites.Save(NewObject.Maps[i].Map, NewObject.Maps[i].Tag, true);
+    }
+    MapFavorites.SaveConfig();
+    NewObject = None;
+    OldObject = None;
+    bFirstRun = false;
+    SaveConfig();
+}
+
 defaultproperties
 {
     MutatorClass=class'MutHexedVOTE'
+    bFirstRun=true
 }

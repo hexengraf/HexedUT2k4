@@ -7,8 +7,7 @@ function PopulateList()
 
     for (i = 0; i < VRI.MapVoteCount.Length; ++i)
     {
-        MapTag = class'HxMapFavorites'.static.GetMapTag(
-            VRI.MapList[VRI.MapVoteCount[i].MapIndex].MapName);
+        MapTag = Client.MapFavorites.Get(VRI.MapList[VRI.MapVoteCount[i].MapIndex].MapName);
         AddMap(VRI.MapVoteCount[i].MapIndex, MapTag);
     }
 }
@@ -23,7 +22,7 @@ function UpdatedVoteCount(int UpdatedIndex, bool bRemoved)
     }
     else if (UpdatedIndex >= ItemCount)
     {
-        MapTag = class'HxMapFavorites'.static.GetMapTag(
+        MapTag = Client.MapFavorites.Get(
             VRI.MapList[VRI.MapVoteCount[UpdatedIndex].MapIndex].MapName);
         AddMap(VRI.MapVoteCount[UpdatedIndex].MapIndex, MapTag);
     }

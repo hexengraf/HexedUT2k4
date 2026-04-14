@@ -23,6 +23,8 @@ var string MapListCustomBG;
 var string PreviewCustomBG;
 var string ChatBoxCustomBG;
 
+var private HxClientManager ClientManager;
+var private HxVTClient Client;
 var HxMapFilterManager FilterManager;
 var private int SelectedGameType;
 var private int SelectedMap;
@@ -41,6 +43,10 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     SetupWindowHeader();
     Unpause();
     AdjustWindowSize(Controller.ResX, Controller.ResY);
+    ForEach PlayerOwner().DynamicActors(class'HxClientManager', ClientManager) break;
+    Client = HxVTClient(ClientManager.Find(class'HxVTClient'));
+    lb_VoteList.SetClient(Client);
+    lb_MapList.SetClient(Client);
     UpdateMapFilter();
     ShowInitialState();
 }
