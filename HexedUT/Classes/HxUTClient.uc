@@ -210,6 +210,7 @@ simulated function RecoverConfigs()
 {
     class'HxHitEffects'.static.StaticRecoverConfigs(Self);
     class'HxSkinHighlight'.static.StaticRecoverConfigs(Self);
+    class'HxSpawnProtectionTimer'.static.StaticRecoverConfigs(Self);
     bFirstRun = false;
     SaveConfig();
 }

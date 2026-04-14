@@ -3,6 +3,8 @@ class HxSpawnProtectionTimer extends HudOverlay
 
 #exec texture Import File=Textures\HxSpawnProtectionTimer.tga Name=HxSPTimerIcon Mips=Off Alpha=1
 
+const MIN_VERSION = 4;
+
 var config bool bEnabled;
 var config bool bUseHUDColor;
 var config bool bPulsingDigits;
@@ -95,6 +97,34 @@ simulated function Update()
     {
         Digits = class'HudCDeathMatch'.default.DigitsBig;
     }
+}
+
+simulated function RecoverConfigs()
+{
+    local Actor OldActor;
+    local int Version;
+
+    OldActor = class'HxConfig'.static.FindOldVersionActor(Self, Class, MIN_VERSION, Version);
+    if (OldActor != None)
+    {
+        class'HxConfig'.static.CopyProperty(Self, OldActor, "bEnabled");
+        class'HxConfig'.static.CopyProperty(Self, OldActor, "bUseHUDColor");
+        class'HxConfig'.static.CopyProperty(Self, OldActor, "bPulsingDigits");
+        class'HxConfig'.static.CopyProperty(Self, OldActor, "PosX");
+        class'HxConfig'.static.CopyProperty(Self, OldActor, "PosY");
+        class'HxConfig'.static.CopyProperty(Self, OldActor, "DefaultColor");
+        OldActor.Destroy();
+        SaveConfig();
+    }
+}
+
+static function StaticRecoverConfigs(Actor Spawner)
+{
+    local HxSpawnProtectionTimer Temp;
+
+    Temp = Spawner.Spawn(class'HxSpawnProtectionTimer');
+    Temp.RecoverConfigs();
+    Temp.Destroy();
 }
 
 defaultproperties
