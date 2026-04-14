@@ -1,8 +1,5 @@
 class MutHexedUT extends HxMutator;
 
-const MIN_VERSION = 4;
-
-var config bool bFirstRun;
 var config bool bAllowHitSounds;
 var config bool bAllowDamageNumbers;
 var config bool bAllowSpawnProtectionTimer;
@@ -20,15 +17,6 @@ function Mutate(string Command, PlayerController Sender)
     else
     {
         Super.Mutate(Command, Sender);
-    }
-}
-
-event PreBeginPlay()
-{
-    Super.PreBeginPlay();
-    if (bFirstRun)
-    {
-        RecoverConfigs();
     }
 }
 
@@ -127,25 +115,6 @@ function RegisterSpawn(Pawn Spawned)
     }
 }
 
-function RecoverConfigs()
-{
-    local Actor OldActor;
-    local int Version;
-    local int i;
-
-    OldActor = class'HxConfig'.static.FindOldVersionActor(Self, Class, MIN_VERSION, Version);
-    if (OldActor != None)
-    {
-        for (i = 0; i < Properties.Length; ++i)
-        {
-            class'HxConfig'.static.CopyProperty(Self, OldActor, Properties[i].Name);
-        }
-        OldActor.Destroy();
-    }
-    bFirstRun = false;
-    SaveConfig();
-}
-
 defaultproperties
 {
     FriendlyName="HexedUT v7T1"
@@ -162,7 +131,6 @@ defaultproperties
     bAllowURLOptions=true
     bDisableTick=true
 
-    bFirstRun=true
     bAllowHitSounds=true
     bAllowDamageNumbers=true
     bAllowSpawnProtectionTimer=true
