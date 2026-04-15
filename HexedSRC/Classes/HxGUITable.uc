@@ -1,280 +1,206 @@
-class HxGUITable extends GUIMultiColumnListBox
+class HxGUITable extends GUIMultiColumnList
     abstract;
 
-var automated HxGUIBackground b_ListBackground;
-var automated HxGUITableSearchBar SearchBar;
+const INT_PADDING = "0000000000";
+const INT_PADDING_SIZE = 10;
+const STRING_PADDING = "                                ";
+const STRING_PADDING_SIZE = 32;
 
-var array<Material> HeaderIcons;
+var bool bAutoSpacing;
+var float LineSpacing;
+var float ColumnSpacing;
+var float FrameThickness;
 
-var float StandardHeaderHeight;
-var float ScrollbarWidth;
+var protected bool bReInit;
+var protected HxGUIVertScrollBar HxScrollbar;
+var protected HxGUITableSearchBar SearchBar;
+var protected float MyItemHeight;
+var protected int MyItemsPerPage;
+
+var int PreviousSortColumn;
+var bool bPreviousSortDescending;
+var private GUIStyles DefaultStyle;
 
 delegate bool OnEnterKeyEvent(GUIComponent Sender);
+function bool Refresh();
+function DrawRow(Canvas C, int Row, float X, float Y, float W, float H);
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
     Super.InitComponent(MyController, MyOwner);
-    HxGUITableList(List).OnEnterKeyEvent = InternalOnKeyEvent;
-    HxGUITableList(List).FrameThickness =
-        class'HxGUIStyles'.static.StaticFrameThickness(b_ListBackground);
-    HxGUIVertScrollBar(MyScrollBar).RightOffset = HxGUITableList(List).FrameThickness;
-    HxGUIVertScrollBar(MyScrollBar).StandardWidth = ScrollbarWidth;
+    HxScrollbar = HxGUIVertScrollBar(MyScrollBar);
+    SearchBar = HxGUITableBox(MenuOwner).SearchBar;
+    DefaultStyle = Style;
 }
 
 event ResolutionChanged(int NewX, int NewY)
 {
+    Super.ResolutionChanged(NewX, NewY);
+    bReInit = true;
+}
+
+function float GetSpacedItemHeight(Canvas C)
+{
+    local float XL;
+    local float YL;
+
+    Style.TextSize(C, MenuState, "q|W", XL, YL, FontScale);
+    MyItemHeight = YL + (LineSpacing * C.ClipY);
+    if (bAutoSpacing)
+    {
+        MyItemsPerPage = int(WinHeight / MyItemHeight);
+        MyItemHeight = YL + FMax(
+            0, int((WinHeight - (MyItemsPerPage * YL)) / float(MyItemsPerPage)));
+    }
+    MyItemsPerPage = WinHeight / MyItemHeight;
+    return MyItemHeight;
+}
+
+event InitializeColumns(Canvas C)
+{
+    local float Width;
     local int i;
 
-    for (i = 0; i < HeaderColumnPerc.Length; ++i)
+    Width = MenuOwner.ActualWidth();
+    for (i = 0; i < InitColumnPerc.Length; ++i)
     {
-        HeaderColumnPerc[i] = default.HeaderColumnPerc[i];
+        ColumnWidths[i] = InitColumnPerc[i] * Width;
     }
-    bInit = true;
-    Super.ResolutionChanged(NewX, NewY);
+    bInit = false;
 }
 
-function bool Refresh()
+function bool InternalOnKeyEvent(out byte Key, out byte State, float Delta)
 {
-    return HxGUITableList(List).Refresh();
-}
-
-function SelectRandom()
-{
-    if (List.ItemCount > 0)
+    if (EInputAction(State) == IST_Hold)
     {
-        List.SetIndex(Rand(List.ItemCount));
+        if (EInputKey(Key) == IK_Up && Up())
+        {
+            return true;
+        }
+        if (EInputKey(Key) == IK_Down && Down())
+        {
+            return true;
+        }
     }
-}
-
-function bool IsEmpty()
-{
-    return List.ItemCount == 0;
-}
-
-function int SilentSetIndex(int NewIndex)
-{
-    return List.SilentSetIndex(NewIndex);
-}
-
-function Clear()
-{
-    if (SearchBar != None)
+    else if (EInputAction(State) == IST_Release)
     {
-        SearchBar.Clear();
+        if (EInputKey(Key) == IK_Enter && MenuState == MSAT_Focused)
+        {
+            return OnEnterKeyEvent(Self);
+        }
     }
-    List.Clear();
+    return Super.InternalOnKeyEvent(Key, State, Delta);
 }
 
 function bool InternalOnPreDraw(Canvas C)
 {
-    local float FullHeight;
-    local float SearchBarHeight;
     local float Offset;
+    local float OwnerWidth;
+    local float CurrentWidth;
 
-    if (bInit)
+    Super.InternalOnPreDraw(C);
+    OwnerWidth = MenuOwner.ActualWidth();
+    CurrentWidth = ActualWidth();
+    CellSpacing = ColumnSpacing * C.ClipY;
+    WinTop = ActualTop();
+    WinHeight = ActualHeight();
+    if (SearchBar != None)
     {
-        FullHeight = ActualHeight();
-        Offset = class'HxGUIStyles'.static.GetActualFrameThickness(b_ListBackground);
-        b_ListBackground.WinTop = (GetHeaderHeight(C) - Offset) / FullHeight;
-        b_ListBackground.WinHeight = 1.0 - b_ListBackground.WinTop;
-        if (SearchBar != None)
-        {
-            SearchBarHeight = SearchBar.ActualHeight();
-            SearchBar.WinTop = (FullHeight - SearchBarHeight) / FullHeight;
-            HxGUIVertScrollBar(MyScrollBar).BottomOffset = SearchBarHeight / C.ClipY;
-            b_ListBackground.WinHeight -= (SearchBarHeight - Offset) / FullHeight;
-        }
-        bInit = false;
-        return true;
+        WinHeight -= SearchBar.ActualHeight();
     }
-    return false;
-}
+    GetSpacedItemHeight(C);
+    Offset = FMax(0, (WinHeight - (MyItemsPerPage * MyItemHeight)) / 2);
+    WinTop += Offset;
+    WinHeight -= Offset;
 
-function bool InternalOnKeyEvent(GUIComponent Sender)
-{
-    return OnEnterKeyEvent(Sender);
-}
-
-function bool OnHoverHeader(GUIComponent Sender)
-{
-    local float Left;
-    local float Right;
-    local bool bOnResizing;
-    local int i;
-
-    Left = Header.ActualLeft() + 5;
-    for (i = 0; i < Header.MyList.ColumnHeadingHints.Length; ++i)
+    if (CurrentWidth < OwnerWidth)
     {
-        Right = Left + Header.MyList.ColumnWidths[i] - 10;
-        if (Controller.MouseX > Left && Controller.MouseX < Right)
+        if (HxScrollbar != None && HxScrollbar.StandardWidth > 0)
         {
-            if (Header.Hint != Header.MyList.ColumnHeadingHints[i])
-            {
-                Header.SetHint(Header.MyList.ColumnHeadingHints[i]);
-            }
-            break;
+            WinWidth = OwnerWidth - (HxScrollbar.StandardWidth * C.ClipY);
         }
-        if (Controller.MouseX <= Right + 10 && Controller.MouseX >= Right)
+        else
         {
-            bOnResizing = true;
-            break;
+            WinWidth = OwnerWidth - MyScrollBar.ActualWidth();
         }
-        Left += Header.MyList.ColumnWidths[i];
     }
-    if (bOnResizing && i > 1 && i < Header.MyList.ColumnHeadingHints.Length - 1)
+    if (bReInit)
     {
-        Header.MouseCursorIndex = 5;
+        InitializeColumns(C);
+        bReInit = false;
     }
-    else
+    else if (ExpandLastColumn)
     {
-        Header.MouseCursorIndex = 0;
+        ColumnWidths[ColumnWidths.Length - 1] += OwnerWidth - CurrentWidth;
     }
     return true;
 }
 
-function bool OnPreDrawHeader(Canvas C)
+function DrawItem(Canvas C, int i, float X, float Y, float W, float H, bool bSelected, bool bPending)
 {
-    Header.WinHeight = GetHeaderHeight(C);
-    return true;
+    local float Offset;
+
+    X = ActualLeft();
+    Offset = FrameThickness * C.ClipY;
+    if (bSelected)
+    {
+        Style = SelectedStyle;
+        Style.Draw(C, MenuState, X + Offset, Y, W - 2 * Offset, H);
+    }
+    DrawRow(C, i, X, Y, W, H);
+    Style = DefaultStyle;
 }
 
-function OnRenderedHeader(Canvas C)
+function ShrinkToFit(Canvas C, int FirstColumn)
 {
-    local Material FrameMaterial;
-    local float Offset;
-    local float Left;
+    local GUIMultiColumnListHeader Header;
+    local float OwnerWidth;
     local float Width;
-    local float Height;
     local int i;
 
-    C.Style = 5;
-    Left = Header.ActualLeft();
-    Width = Header.ActualWidth();
-    Height = Header.ActualHeight();
-    Offset = class'HxGUIStyles'.static.GetActualFrameThickness(b_ListBackground);
-    if (HeaderIcons.Length > 0)
+    OwnerWidth =  MenuOwner.ActualWidth();
+    CellSpacing = ColumnSpacing * C.ClipY;
+    Header = GUIMultiColumnListBox(MenuOwner).Header;
+    InitColumnPerc[FirstColumn] = 1;
+    for (i = 0; i < FirstColumn; ++i)
     {
-        DrawHeaderIcons(C, Left, Height, Offset);
+        InitColumnPerc[FirstColumn] -= InitColumnPerc[i];
     }
-    if (HxGUIStyles(b_ListBackground.Style) != None)
+    for (i = FirstColumn + 1; i < InitColumnPerc.Length; ++i)
     {
-        C.DrawColor = HxGUIStyles(b_ListBackground.Style).GetFrameColor();
-        FrameMaterial = HxGUIStyles(b_ListBackground.Style).GetFrameMaterial();
-        Height -= Offset;
-        C.SetPos(Left, Header.ActualTop());
-        C.DrawTileStretched(FrameMaterial, Width, Offset);
-        C.CurY += Offset;
-        C.DrawTileStretched(FrameMaterial, Offset, Height);
-        C.CurX += Width - Offset;
-        C.DrawTileStretched(FrameMaterial, Offset, Height);
+        class'HxGUIStyles'.static.GetFontSize(Header, C, ColumnHeadings[i], Width);
+        InitColumnPerc[i] = FMax(0.1, (Width + (4 * CellSpacing)) / OwnerWidth);
+        InitColumnPerc[FirstColumn] -= InitColumnPerc[i];
     }
-    if (HxGUIStyles(Header.Style) != None)
+    if (SearchBar != None)
     {
-        C.DrawColor = HxGUIStyles(Header.Style).GetFrameColor();
-        FrameMaterial = HxGUIStyles(Header.Style).GetFrameMaterial();
-        Offset = class'HxGUIStyles'.static.GetActualFrameThickness(Header);
-        C.CurX += Offset / 2;
-        Height -= Offset;
-        for (i = List.ColumnHeadings.Length - 1; i > 0; --i)
-        {
-            C.CurX -= List.ColumnWidths[i];
-            C.DrawTileStretched(FrameMaterial, Offset, Height);
-        }
-        C.SetPos(Left + Offset, C.CurY + Height);
-        C.DrawTileStretched(FrameMaterial, Width - 2 * Offset, Offset);
+        SearchBar.bInit = true;
     }
 }
 
-function DrawHeaderIcons(Canvas C, float Left, float Height, float Offset)
+static function string NormalizeString(string S)
 {
-    local float Top;
-    local int i;
-
-    Top = Header.ActualTop() + Height * 0.13;
-    Height = Height * 0.75;
-    for (i = 0; i < HeaderIcons.Length; ++i)
-    {
-        if (HeaderIcons[i] != None)
-        {
-            if (List.SortColumn == i)
-            {
-                C.DrawColor = Header.Style.FontColors[2];
-            }
-            else
-            {
-                C.DrawColor = Header.Style.FontColors[0];
-            }
-            C.SetPos(Left + (List.ColumnWidths[i] - Height) / 2  + (Offset / 2), Top);
-            C.DrawTileJustified(HeaderIcons[i], 1, Height, Height);
-        }
-        Left += List.ColumnWidths[i];
-    }
+    return left(Caps(S)$STRING_PADDING, STRING_PADDING_SIZE);
 }
 
-function OnMousePressedHeader(GUIComponent Sender, bool bRepeat)
+static function string NormalizeInt(coerce string Value, int Count)
 {
-    HxGUITableList(List).PreviousSortColumn = List.SortColumn;
-    HxGUITableList(List).bPreviousSortDescending = List.SortDescending;
-}
-
-function bool OnCapturedMouseMoveHeader(float deltaX, float deltaY)
-{
-    if (Header.SizingCol == 0 || Header.SizingCol == 1)
-    {
-        Header.MenuState = Header.LastMenuState;
-    }
-    return false;
-}
-
-function float GetHeaderHeight(Canvas C)
-{
-    return C.ClipY * StandardHeaderHeight;
-}
-
-function SetCustomBackground(string BackgroundName)
-{
-    b_ListBackground.SetCustomBackground(BackgroundName);
+    return right(INT_PADDING$Value, Min(Count, INT_PADDING_SIZE));
 }
 
 defaultproperties
 {
-    Begin Object Class=GUIToolTip Name=HeaderToolTip
-    End Object
-
-    Begin Object Class=GUIMultiColumnListHeader Name=MyNewHeader
-        StyleName="HxListHeader"
-        BarStyleName="HxListHeader"
-        ToolTip=HeaderToolTip
-        bNeverFocus=true
-        OnMousePressed=OnMousePressedHeader
-        OnCapturedMouseMove=OnCapturedMouseMoveHeader
-        OnHover=OnHoverHeader
-        OnPreDraw=OnPreDrawHeader
-        OnRendered=OnRenderedHeader
-    End Object
-    Header=MyNewHeader
-
-    Begin Object Class=HxGUIBackground Name=ListBackground
-        WinLeft=0
-        WinTop=0
-        WinWidth=1
-        WinHeight=1
-        RenderWeight=0.1
-        StyleName="HxBackground"
-        bScaleToParent=true
-        bBoundToParent=true
-    End Object
-    b_ListBackground=ListBackground
-
-    Begin Object Class=HxGUIVertScrollBar Name=NewTheScrollbar
-        bScaleToParent=true
-    End Object
-    MyScrollBar=NewTheScrollbar
-
-    StandardHeaderHeight=0.0325
-    ScrollbarWidth=0.016
+    bAutoSpacing=true
+    LineSpacing=0.003
+    ColumnSpacing=0.005
+    FrameThickness=0.001
+    bDropSource=false
+    bDropTarget=false
+    ExpandLastColumn=true
     StyleName="HxList"
     SelectedStyleName="HxListSelection"
-    bVisibleWhenEmpty=true
-    OnPreDraw=InternalOnPreDraw
+    bReInit=true
+    GetItemHeight=GetSpacedItemHeight
+    OnDrawItem=DrawItem
+    PreviousSortColumn=-1
 }

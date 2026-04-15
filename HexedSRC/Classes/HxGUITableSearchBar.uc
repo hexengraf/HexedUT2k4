@@ -3,9 +3,10 @@ class HxGUITableSearchBar extends HxGUIBackground;
 var automated GUILabel l_Search;
 
 var int FirstColumn;
-var array<HxPatternMatch.EHxPatternType> Types;
+var array<HxDataHandler.EHxDataType> Types;
 var localized array<string> Hints;
 
+var private HxGUITable Table;
 var private array<GUIEditBox> ed_SearchBoxes;
 
 delegate OnSearch(int Index, string Term);
@@ -23,7 +24,12 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     }
 }
 
-function AddSearchBox(HxPatternMatch.EHxPatternType Type, optional string Hint)
+function SetTable(HxGUITable T)
+{
+    Table = T;
+}
+
+function AddSearchBox(HxDataHandler.EHxDataType Type, optional string Hint)
 {
     Types[Types.Length] = Type;
     Hints[Hints.Length] = Hint;
@@ -35,7 +41,7 @@ private function CreateSearchBox(int i)
 {
     ed_SearchBoxes[i] = GUIEditBox(AddComponent("XInterface.GUIEditBox", true));
     ed_SearchBoxes[i].TabOrder = i;
-    ed_SearchBoxes[i].AllowedCharSet = class'HxPatternMatch'.static.GetPatternCharset(Types[i]);
+    ed_SearchBoxes[i].AllowedCharSet = class'HxDataHandler'.static.GetDataCharset(Types[i]);
     ed_SearchBoxes[i].SetHint(Hints[i]@class'HxPatternMatch'.static.GetPatternHint(Types[i]));
     ed_SearchBoxes[i].ToolTip.ExpirationSeconds = 0.085 * Len(ed_SearchBoxes[i].Hint);
 }
@@ -64,22 +70,20 @@ function ResizeSearchLabel(Canvas C)
 
 function ResizeEditBoxes(Canvas C)
 {
-    local GUIMultiColumnList List;
     local float Thickness;
     local float Width;
     local int i;
 
-    List = GUIMultiColumnListBox(MenuOwner).List;
-    if (List != None && (ed_SearchBoxes.Length + FirstColumn) <= List.ColumnWidths.Length)
+    if (Table != None && (ed_SearchBoxes.Length + FirstColumn) <= Table.ColumnWidths.Length)
     {
         Width = ActualWidth();
         Thickness = class'HxGUIStyles'.static.GetActualFrameThickness(Self) / Width;
         for (i = 0; i < ed_SearchBoxes.Length; ++i)
         {
-            ed_SearchBoxes[i].WinWidth = List.ColumnWidths[FirstColumn + i] / Width + Thickness;
+            ed_SearchBoxes[i].WinWidth = Table.ColumnWidths[FirstColumn + i] / Width + Thickness;
             if (i == 0)
             {
-                ed_SearchBoxes[i].WinLeft = FirstLeft(List, Width) - Thickness;
+                ed_SearchBoxes[i].WinLeft = FirstLeft(Width) - Thickness;
             }
             else
             {
@@ -91,7 +95,7 @@ function ResizeEditBoxes(Canvas C)
     }
 }
 
-function float FirstLeft(GUIMultiColumnList List, float TotalWidth)
+function float FirstLeft(float TotalWidth)
 {
     local float Left;
     local int i;
@@ -103,7 +107,7 @@ function float FirstLeft(GUIMultiColumnList List, float TotalWidth)
 
     for (i = 0; i < FirstColumn; ++i)
     {
-        Left += List.ColumnWidths[i];
+        Left += Table.ColumnWidths[i];
     }
     Left = Left / TotalWidth;
     if (l_Search.WinWidth > Left)

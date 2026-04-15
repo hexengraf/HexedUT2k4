@@ -1,0 +1,285 @@
+class HxGUITableBox extends GUIMultiColumnListBox
+    abstract;
+
+var automated HxGUIBackground b_ListBackground;
+var automated HxGUITableSearchBar SearchBar;
+
+var float StandardHeaderHeight;
+var float ScrollbarWidth;
+
+var protected HxGUITable Table;
+var protected array<Material> HeaderIcons;
+
+delegate bool OnEnterKeyEvent(GUIComponent Sender);
+
+function InitComponent(GUIController MyController, GUIComponent MyOwner)
+{
+    Super.InitComponent(MyController, MyOwner);
+    Table = HxGUITable(List);
+    if (SearchBar != None)
+    {
+        SearchBar.SetTable(Table);
+    }
+    Table.OnEnterKeyEvent = InternalOnKeyEvent;
+    Table.FrameThickness = class'HxGUIStyles'.static.StaticFrameThickness(b_ListBackground);
+    HxGUIVertScrollBar(MyScrollBar).RightOffset = Table.FrameThickness;
+    HxGUIVertScrollBar(MyScrollBar).StandardWidth = ScrollbarWidth;
+}
+
+event ResolutionChanged(int NewX, int NewY)
+{
+    local int i;
+
+    for (i = 0; i < HeaderColumnPerc.Length; ++i)
+    {
+        HeaderColumnPerc[i] = default.HeaderColumnPerc[i];
+    }
+    bInit = true;
+    Super.ResolutionChanged(NewX, NewY);
+}
+
+function bool Refresh()
+{
+    return Table.Refresh();
+}
+
+function SelectRandom()
+{
+    if (Table.ItemCount > 0)
+    {
+        Table.SetIndex(Rand(Table.ItemCount));
+    }
+}
+
+function bool IsEmpty()
+{
+    return Table.ItemCount == 0;
+}
+
+function int SilentSetIndex(int NewIndex)
+{
+    return Table.SilentSetIndex(NewIndex);
+}
+
+function Clear()
+{
+    if (SearchBar != None)
+    {
+        SearchBar.Clear();
+    }
+    Table.Clear();
+}
+
+function bool InternalOnPreDraw(Canvas C)
+{
+    local float FullHeight;
+    local float SearchBarHeight;
+    local float Offset;
+
+    if (bInit)
+    {
+        FullHeight = ActualHeight();
+        Offset = class'HxGUIStyles'.static.GetActualFrameThickness(b_ListBackground);
+        b_ListBackground.WinTop = (GetHeaderHeight(C) - Offset) / FullHeight;
+        b_ListBackground.WinHeight = 1.0 - b_ListBackground.WinTop;
+        if (SearchBar != None)
+        {
+            SearchBarHeight = SearchBar.ActualHeight();
+            SearchBar.WinTop = (FullHeight - SearchBarHeight) / FullHeight;
+            HxGUIVertScrollBar(MyScrollBar).BottomOffset = SearchBarHeight / C.ClipY;
+            b_ListBackground.WinHeight -= (SearchBarHeight - Offset) / FullHeight;
+        }
+        bInit = false;
+        return true;
+    }
+    return false;
+}
+
+function bool InternalOnKeyEvent(GUIComponent Sender)
+{
+    return OnEnterKeyEvent(Sender);
+}
+
+function bool OnHoverHeader(GUIComponent Sender)
+{
+    local float Left;
+    local float Right;
+    local bool bOnResizing;
+    local int i;
+
+    Left = Header.ActualLeft() + 5;
+    for (i = 0; i < Table.ColumnHeadingHints.Length; ++i)
+    {
+        Right = Left + Table.ColumnWidths[i] - 10;
+        if (Controller.MouseX > Left && Controller.MouseX < Right)
+        {
+            if (Header.Hint != Table.ColumnHeadingHints[i])
+            {
+                Header.SetHint(Table.ColumnHeadingHints[i]);
+            }
+            break;
+        }
+        if (Controller.MouseX <= Right + 10 && Controller.MouseX >= Right)
+        {
+            bOnResizing = true;
+            break;
+        }
+        Left += Table.ColumnWidths[i];
+    }
+    if (bOnResizing && i > 1 && i < Table.ColumnHeadingHints.Length - 1)
+    {
+        Header.MouseCursorIndex = 5;
+    }
+    else
+    {
+        Header.MouseCursorIndex = 0;
+    }
+    return true;
+}
+
+function bool OnPreDrawHeader(Canvas C)
+{
+    Header.WinHeight = GetHeaderHeight(C);
+    return true;
+}
+
+function OnRenderedHeader(Canvas C)
+{
+    local Material FrameMaterial;
+    local float Offset;
+    local float Left;
+    local float Width;
+    local float Height;
+    local int i;
+
+    C.Style = 5;
+    Left = Header.ActualLeft();
+    Width = Header.ActualWidth();
+    Height = Header.ActualHeight();
+    Offset = class'HxGUIStyles'.static.GetActualFrameThickness(b_ListBackground);
+    if (HeaderIcons.Length > 0)
+    {
+        DrawHeaderIcons(C, Left, Height, Offset);
+    }
+    if (HxGUIStyles(b_ListBackground.Style) != None)
+    {
+        C.DrawColor = HxGUIStyles(b_ListBackground.Style).GetFrameColor();
+        FrameMaterial = HxGUIStyles(b_ListBackground.Style).GetFrameMaterial();
+        Height -= Offset;
+        C.SetPos(Left, Header.ActualTop());
+        C.DrawTileStretched(FrameMaterial, Width, Offset);
+        C.CurY += Offset;
+        C.DrawTileStretched(FrameMaterial, Offset, Height);
+        C.CurX += Width - Offset;
+        C.DrawTileStretched(FrameMaterial, Offset, Height);
+    }
+    if (HxGUIStyles(Header.Style) != None)
+    {
+        C.DrawColor = HxGUIStyles(Header.Style).GetFrameColor();
+        FrameMaterial = HxGUIStyles(Header.Style).GetFrameMaterial();
+        Offset = class'HxGUIStyles'.static.GetActualFrameThickness(Header);
+        C.CurX += Offset / 2;
+        Height -= Offset;
+        for (i = Table.ColumnHeadings.Length - 1; i > 0; --i)
+        {
+            C.CurX -= Table.ColumnWidths[i];
+            C.DrawTileStretched(FrameMaterial, Offset, Height);
+        }
+        C.SetPos(Left + Offset, C.CurY + Height);
+        C.DrawTileStretched(FrameMaterial, Width - 2 * Offset, Offset);
+    }
+}
+
+function DrawHeaderIcons(Canvas C, float Left, float Height, float Offset)
+{
+    local float Top;
+    local int i;
+
+    Top = Header.ActualTop() + Height * 0.13;
+    Height = Height * 0.75;
+    for (i = 0; i < HeaderIcons.Length; ++i)
+    {
+        if (HeaderIcons[i] != None)
+        {
+            if (Table.SortColumn == i)
+            {
+                C.DrawColor = Header.Style.FontColors[2];
+            }
+            else
+            {
+                C.DrawColor = Header.Style.FontColors[0];
+            }
+            C.SetPos(Left + (Table.ColumnWidths[i] - Height) / 2  + (Offset / 2), Top);
+            C.DrawTileJustified(HeaderIcons[i], 1, Height, Height);
+        }
+        Left += Table.ColumnWidths[i];
+    }
+}
+
+function OnMousePressedHeader(GUIComponent Sender, bool bRepeat)
+{
+    Table.PreviousSortColumn = Table.SortColumn;
+    Table.bPreviousSortDescending = Table.SortDescending;
+}
+
+function bool OnCapturedMouseMoveHeader(float deltaX, float deltaY)
+{
+    if (Header.SizingCol == 0 || Header.SizingCol == 1)
+    {
+        Header.MenuState = Header.LastMenuState;
+    }
+    return false;
+}
+
+function float GetHeaderHeight(Canvas C)
+{
+    return C.ClipY * StandardHeaderHeight;
+}
+
+function SetCustomBackground(string BackgroundName)
+{
+    b_ListBackground.SetCustomBackground(BackgroundName);
+}
+
+defaultproperties
+{
+    Begin Object Class=GUIToolTip Name=HeaderToolTip
+    End Object
+
+    Begin Object Class=GUIMultiColumnListHeader Name=MyNewHeader
+        StyleName="HxListHeader"
+        BarStyleName="HxListHeader"
+        ToolTip=HeaderToolTip
+        bNeverFocus=true
+        OnMousePressed=OnMousePressedHeader
+        OnCapturedMouseMove=OnCapturedMouseMoveHeader
+        OnHover=OnHoverHeader
+        OnPreDraw=OnPreDrawHeader
+        OnRendered=OnRenderedHeader
+    End Object
+    Header=MyNewHeader
+
+    Begin Object Class=HxGUIBackground Name=ListBackground
+        WinLeft=0
+        WinTop=0
+        WinWidth=1
+        WinHeight=1
+        RenderWeight=0.1
+        StyleName="HxBackground"
+        bScaleToParent=true
+        bBoundToParent=true
+    End Object
+    b_ListBackground=ListBackground
+
+    Begin Object Class=HxGUIVertScrollBar Name=NewTheScrollbar
+        bScaleToParent=true
+    End Object
+    MyScrollBar=NewTheScrollbar
+
+    StandardHeaderHeight=0.0325
+    ScrollbarWidth=0.016
+    StyleName="HxList"
+    SelectedStyleName="HxListSelection"
+    bVisibleWhenEmpty=true
+    OnPreDraw=InternalOnPreDraw
+}

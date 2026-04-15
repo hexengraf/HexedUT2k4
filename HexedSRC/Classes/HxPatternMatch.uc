@@ -1,21 +1,5 @@
-class HxPatternMatch extends Object
+class HxPatternMatch extends HxDataHandler
     abstract;
-
-enum EHxPatternType
-{
-    HX_PATTERN_String,
-    HX_PATTERN_NumValue,
-    HX_PATTERN_NumRange,
-};
-
-enum EHxOperation
-{
-    HX_OPERATION_DontCare,
-    HX_OPERATION_LessThan,
-    HX_OPERATION_GreaterThan,
-    HX_OPERATION_EqualTo,
-    HX_OPERATION_EqualTo_Implicit,
-};
 
 enum EHxFilterMode
 {
@@ -242,30 +226,16 @@ function bool ValuePatternMatch(int Value, HxValuePattern Pattern)
     return true;
 }
 
-static function string GetPatternHint(EHxPatternType Type)
+static function string GetPatternHint(EHxDataType Type)
 {
     switch (Type)
     {
-        case HX_PATTERN_String:
+        case HX_DATA_String:
             return default.StringPatternMatchHint;
-        case HX_PATTERN_NumValue:
+        case HX_DATA_Number:
             return default.ValuePatternMatchHint;
-        case HX_PATTERN_NumRange:
+        case HX_DATA_Range:
             return default.RangePatternMatchHint;
-    }
-    return "";
-}
-
-static function string GetPatternCharset(EHxPatternType Type)
-{
-    switch (Type)
-    {
-        case HX_PATTERN_String:
-            return "";
-        case HX_PATTERN_NumValue:
-            return "0123456789<=>*";
-        case HX_PATTERN_NumRange:
-            return "0123456789<=>*-";
     }
     return "";
 }
