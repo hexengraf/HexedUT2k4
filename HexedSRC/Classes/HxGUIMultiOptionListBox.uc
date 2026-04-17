@@ -392,13 +392,33 @@ function GUIMenuOption AddComboBox(string Caption, string Data)
     if (Option != None)
     {
         Option.ReadOnly(true);
-        Split(Data, ";", Range);
-        for (i = 0; i + 1 < Range.Length; i += 2)
+        if (Data ~= "CROSSHAIRS")
         {
-            Option.AddItem(Range[i + 1],, Range[i]);
+            PopulateCrosshairsComboBox(Option);
+        }
+        else
+        {
+            Split(Data, ";", Range);
+            for (i = 0; i + 1 < Range.Length; i += 2)
+            {
+                Option.AddItem(Range[i + 1],, Range[i]);
+            }
         }
     }
     return Option;
+}
+
+function PopulateCrosshairsComboBox(moComboBox Option)
+{
+    local array<CacheManager.CrosshairRecord> Crosshairs;
+    local int i;
+
+    class'CacheManager'.static.GetCrosshairList(Crosshairs);
+    Option.MyComboBox.MyListBox.MyList.bInitializeList = false;
+    for (i = 0; i < Crosshairs.Length; ++i)
+    {
+        Option.AddItem(Crosshairs[i].FriendlyName,, string(i));
+    }
 }
 
 function ArrayPropClicked(GUIComponent Sender)

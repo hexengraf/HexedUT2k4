@@ -29,6 +29,7 @@ simulated function PostBeginPlay()
         CustomCrosshairScale = default.CustomCrosshairScale;
         default.CustomCrosshairTextureName = BaseClass.default.CustomCrosshairTextureName;
         CustomCrosshairTextureName = default.CustomCrosshairTextureName;
+        CustomCrossHairTexture = None;
     }
 }
 

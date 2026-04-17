@@ -110,7 +110,7 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
 
 function ModifyFireRate(Pawn Pawn)
 {
-    local inventory Inv;
+    local Inventory Inv;
 
     if (FireRate > 0)
     {
