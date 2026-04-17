@@ -15,6 +15,12 @@ struct HxClientProperty
     var const bool bAdvanced;
 };
 
+struct HxPendingUpdate
+{
+    var int Index;
+    var string Value;
+};
+
 const PARALLEL_REQUESTS = 16;
 
 var const class<HxMutator> MutatorClass;
@@ -28,6 +34,7 @@ var PlayInfo ServerInfo;
 var protected HxClientManager Manager;
 var private int PropertyIndex;
 var private int ReceivedCount;
+var private array<HxPendingUpdate> PendingUpdates;
 
 replication
 {
@@ -145,17 +152,33 @@ simulated function ClientReceiveServerProperty(int Index, string Value)
     {
         ServerInfoReady();
         Manager.NotifyServerInfoChanged(Self);
+        ProcessPendingUpdates();
     }
 }
 
 simulated function ClientUpdateServerProperty(int Index, string Value)
 {
-    local string OldValue;
+    if (IsServerInfoReady())
+    {
+        DoUpdateServerProperty(Index, Value);
+    }
+    else
+    {
+        PendingUpdates.Insert(PendingUpdates.Length, 1);
+        PendingUpdates[PendingUpdates.Length - 1].Index = Index;
+        PendingUpdates[PendingUpdates.Length - 1].Value = Value;
+    }
+}
 
-    OldValue = ServerInfo.Settings[Index].Value;
-    ServerInfo.StoreSetting(Index, Value);
-    ServerPropertyChanged(Index, OldValue);
-    Manager.NotifyServerInfoChanged(Self);
+simulated function ProcessPendingUpdates()
+{
+    local int i;
+
+    for (i = 0; i < PendingUpdates.Length; ++i)
+    {
+        DoUpdateServerProperty(PendingUpdates[i].Index, PendingUpdates[i].Value);
+    }
+    PendingUpdates.Remove(0, PendingUpdates.Length);
 }
 
 simulated function ClientOpenHexedMenu()
@@ -174,6 +197,16 @@ simulated function bool IsAdmin()
 simulated function bool IsServerInfoReady()
 {
     return ReceivedCount == ServerInfo.Settings.Length;
+}
+
+simulated private function DoUpdateServerProperty(int Index, string Value)
+{
+    local string OldValue;
+
+    OldValue = ServerInfo.Settings[Index].Value;
+    ServerInfo.StoreSetting(Index, Value);
+    ServerPropertyChanged(Index, OldValue);
+    Manager.NotifyServerInfoChanged(Self);
 }
 
 defaultproperties
