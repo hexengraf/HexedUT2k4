@@ -55,8 +55,9 @@ function ParseURLOptions()
         Value = GetUrlOption(Properties[i].Name);
         if (Value != "")
         {
+            UpdateURL(Properties[i].Name, "", false);
             PI.StoreSetting(i, Value);
-            SetProperty(i, PI.Settings[i].Value);
+            SetProperty(i, PI.Settings[i].Value, true);
         }
     }
 }
@@ -145,7 +146,10 @@ function SetProperty(int Index, string Value, optional bool bFromURL)
         CRIs[i].SetServerProperty(Index, Value);
     }
     PropertyChanged(Index, OldValue, bFromURL);
-    SaveConfig();
+    if (!bFromURL)
+    {
+        SaveConfig();
+    }
 }
 
 function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
