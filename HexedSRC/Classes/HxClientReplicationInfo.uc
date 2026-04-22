@@ -41,7 +41,7 @@ replication
     reliable if (Role == ROLE_Authority)
         ClientReceiveServerProperty,
         ClientUpdateServerProperty,
-        ClientOpenHexedMenu;
+        ClientOpenConfigurationMenu;
 
     reliable if (Role < ROLE_Authority)
         ServerRequestProperty,
@@ -181,9 +181,9 @@ simulated function ProcessPendingUpdates()
     PendingUpdates.Remove(0, PendingUpdates.Length);
 }
 
-simulated function ClientOpenHexedMenu()
+simulated function ClientOpenConfigurationMenu()
 {
-    Manager.OpenHexedMenu(Self);
+    Manager.OpenConfigurationMenu(Self);
 }
 
 simulated function bool IsAdmin()

@@ -12,7 +12,7 @@ function Mutate(string Command, PlayerController Sender)
 {
     if (Command ~= "HexedUT")
     {
-        OpenHexedMenu(Sender);
+        OpenConfigurationMenu(Sender);
     }
     else
     {

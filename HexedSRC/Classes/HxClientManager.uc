@@ -1,44 +1,59 @@
-class HxClientManager extends Actor;
+class HxClientManager extends Actor
+    config(User);
+
+var config bool bFirstRun;
+var config bool bNoFirstRunNotification;
+var config bool bNoAutoKeybinding;
 
 var array<HxClientReplicationInfo> CRIs;
 
-var const private class<HxGUIFloatingWindow> HexedMenuClass;
-var const private class<HxGUITheme> HexedThemeClass;
+var const private class<HxGUIFloatingWindow> MenuClass;
+var const private class<HxGUITheme> ThemeClass;
+var const private string AutoMenuKeybind;
 
 var private PlayerController PC;
 var private GUIController GC;
 var private bool bInitialized;
+var private bool bShowFirstRunNotification;
+
+simulated event PreBeginPlay()
+{
+    Super.PreBeginPlay();
+    if (bFirstRun)
+    {
+        bShowFirstRunNotification = !bNoFirstRunNotification;
+        bFirstRun = false;
+        SaveConfig();
+    }
+}
 
 simulated event Tick(float DeltaTime)
 {
-    if (Level.NetMode != NM_DedicatedServer)
+    if (!bInitialized)
     {
-        if (!bInitialized)
-        {
-            bInitialized = InitializePlayerController() && InitializeGUIController();
-        }
+        bInitialized = InitializeClient();
     }
 }
 
-simulated function bool InitializePlayerController()
+simulated function bool InitializeClient()
 {
+    local string KeyName;
+
     if (PC == None)
     {
         PC = Level.GetLocalPlayerController();
-        return PC != None;
     }
-    return true;
-}
-
-simulated function bool InitializeGUIController()
-{
-    if (PC.Player != None)
+    if (PC != None && PC.Player != None)
     {
         GC = GUIController(PC.Player.GUIController);
-        HexedThemeClass.static.RegisterStyles(GC);
-        return true;
+        ThemeClass.static.RegisterStyles(GC);
+        KeyName = CreateMenuKeybind();
+        if (bShowFirstRunNotification)
+        {
+            ShowFirstTimeNotification(KeyName);
+        }
     }
-    return false;
+    return PC != None && GC != None;
 }
 
 simulated function NotifyServerInfoChanged(HxClientReplicationInfo Sender)
@@ -49,11 +64,11 @@ simulated function NotifyServerInfoChanged(HxClientReplicationInfo Sender)
     }
 }
 
-simulated function OpenHexedMenu(HxClientReplicationInfo Sender)
+simulated function OpenConfigurationMenu(optional HxClientReplicationInfo Sender)
 {
     if (bInitialized)
     {
-        PC.ClientOpenMenu(string(HexedMenuClass));
+        PC.ClientOpenMenu(string(MenuClass));
     }
 }
 
@@ -106,6 +121,64 @@ simulated function HxClientReplicationInfo Find(class<HxClientReplicationInfo> C
     return None;
 }
 
+simulated function ShowFirstTimeNotification(string KeyName)
+{
+    local string MenuKey;
+    local string MenuKeyName;
+
+    if (KeyName != "")
+    {
+        MenuKey = PC.ConsoleCommand("KEYNUMBER"@KeyName);
+        MenuKeyName = PC.ConsoleCommand("LOCALIZEDKEYNAME"@MenuKey);
+    }
+    if (GC.OpenMenu(string(class'HxGUIFirstRunNotification'), MenuKey, MenuKeyName))
+    {
+        HxGUIFirstRunNotification(GC.ActivePage).ClientManager = Self;
+    }
+    bShowFirstRunNotification = false;
+}
+
+simulated private function string CreateMenuKeybind()
+{
+    local string Keybind;
+
+    Keybind = FindMenuKeybind();
+    if (Keybind == "" && !bNoAutoKeybinding)
+    {
+        if (PC.ConsoleCommand("KEYBINDING"@AutoMenuKeybind) == "")
+        {
+            PC.ConsoleCommand("SET INPUT"@AutoMenuKeybind@"mutate HexedMenu");
+            return "H";
+        }
+    }
+    return Keybind;
+}
+
+simulated private function string FindMenuKeybind()
+{
+    local string KeyName;
+    local int i;
+
+    if (IsMenuKeybind(AutoMenuKeybind))
+    {
+        return AutoMenuKeybind;
+    }
+    for (i = 0; i < 255; ++i)
+    {
+        KeyName = PC.ConsoleCommand("KEYNAME"@i);
+        if (IsMenuKeybind(KeyName))
+        {
+            return KeyName;
+        }
+    }
+    return "";
+}
+
+simulated private function bool IsMenuKeybind(string KeyName)
+{
+    return InStr(Caps(PC.ConsoleCommand("KEYBINDING"@KeyName)), "HEXEDMENU") > -1;
+}
+
 static function HxClientManager Register(HxClientReplicationInfo CRI)
 {
     local HxClientManager Manager;
@@ -123,6 +196,11 @@ defaultproperties
 {
     RemoteRole=ROLE_None
     bHidden=true
-    HexedMenuClass=class'HxGUIMenu'
-    HexedThemeClass=class'HxGUIThemeDefault'
+    MenuClass=class'HxGUIMenu'
+    ThemeClass=class'HxGUIThemeDefault'
+    AutoMenuKeybind="H"
+
+    bFirstRun=true
+    bNoFirstRunNotification=false
+    bNoAutoKeybinding=false
 }

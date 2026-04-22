@@ -17,8 +17,7 @@ static function Object FindOldVersionObject(coerce string FullName,
     local string ClassName;
     local string VersionName;
 
-    if (Divide(FullName, ".", PackageName, ClassName)
-        && Divide(PackageName, "v", PackageName, VersionName))
+    if (ExtractVersion(FullName, VersionName, PackageName, ClassName))
     {
         Version = int(VersionName);
         while (Version > MinVersion)
@@ -50,8 +49,7 @@ static function Actor FindOldVersionActor(Actor Owner,
     local string ClassName;
     local string VersionName;
 
-    if (Divide(FullName, ".", PackageName, ClassName)
-        && Divide(PackageName, "v", PackageName, VersionName))
+    if (ExtractVersion(FullName, VersionName, PackageName, ClassName))
     {
         Version = int(VersionName);
         while (Version > MinVersion)
@@ -94,4 +92,13 @@ static function bool CopyProperty(Object NewObject,
         }
     }
     return false;
+}
+
+static function bool ExtractVersion(coerce string FullName,
+                                    out string Version,
+                                    optional out string PackageName,
+                                    optional out string ClassName)
+{
+    return Divide(FullName, ".", PackageName, ClassName)
+        && Divide(PackageName, "v", PackageName, Version);
 }

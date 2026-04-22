@@ -66,7 +66,7 @@ function Mutate(string Command, PlayerController Sender)
 {
     if (Command ~= "HexedMenu")
     {
-        OpenHexedMenu(Sender);
+        OpenConfigurationMenu(Sender);
     }
     else
     {
@@ -74,14 +74,14 @@ function Mutate(string Command, PlayerController Sender)
     }
 }
 
-function OpenHexedMenu(PlayerController Sender)
+function OpenConfigurationMenu(PlayerController Sender)
 {
     local HxClientReplicationInfo CRI;
 
     CRI = GetClientReplicationInfo(Sender);
     if (CRI != None)
     {
-        CRI.ClientOpenHexedMenu();
+        CRI.ClientOpenConfigurationMenu();
     }
 }
 
