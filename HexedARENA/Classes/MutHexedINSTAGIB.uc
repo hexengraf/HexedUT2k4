@@ -5,12 +5,6 @@ var config bool bAllowBoost;
 var config bool bZoomInstagib;
 var config float FireRate;
 
-var private name WeaponName;
-var private name AmmoName;
-var private bool bTranslocatorEnabled;
-var private bool bBoostEnabled;
-var private bool bZoomEnabled;
-
 function PreBeginPlay()
 {
     Super.PreBeginPlay();
@@ -22,12 +16,12 @@ function PreBeginPlay()
     {
         DefaultWeaponName = string(class'HxSuperShockRifle');
     }
+    DefaultWeapon = class<Weapon>(DynamicLoadObject(DefaultWeaponName, class'Class'));
 }
 
-function Initialized()
+function PostBeginPlay()
 {
-    local class<Weapon> WeaponClass;
-
+    Super.PostBeginPlay();
     if (bAllowBoost && TeamGame(Level.Game) != None)
     {
         TeamGame(Level.Game).TeammateBoost = 1.0;
@@ -35,12 +29,6 @@ function Initialized()
     if (bAllowTranslocator)
     {
         DeathMatch(Level.Game).bOverrideTranslocator = true;
-    }
-    WeaponClass = class<Weapon>(DynamicLoadObject(DefaultWeaponName, class'Class', true));
-    if (WeaponClass != None)
-    {
-        WeaponName = WeaponClass.Name;
-        AmmoName = WeaponClass.default.FireModeClass[0].default.AmmoClass.Name;
     }
     HidePickupBases(Self);
 }
@@ -62,12 +50,9 @@ function string RecommendCombo(string ComboName)
 
 function bool AlwaysKeep(Actor Other)
 {
-    if (Other.IsA(WeaponName) || Other.IsA(AmmoName))
+    if (Other.Class == DefaultWeapon || Other.IsA('SuperShockAmmo'))
     {
-        if (NextMutator != None)
-        {
-            NextMutator.AlwaysKeep(Other);
-        }
+        Super.AlwaysKeep(Other);
         return true;
     }
     return Super.AlwaysKeep(Other);
@@ -77,17 +62,13 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
 {
     if (Other.IsA('Weapon'))
     {
-        if (Weapon(Other).bNoInstagibReplace)
+        if (Weapon(Other).bNoInstagibReplace
+            || (DeathMatch(Level.Game).bOverrideTranslocator && Other.IsA('TransLauncher')))
         {
             bSuperRelevant = 0;
             return true;
         }
-        if (Other.IsA('TransLauncher') && DeathMatch(Level.Game).bOverrideTranslocator)
-        {
-            bSuperRelevant = 0;
-            return true;
-        }
-        if (!Other.IsA(WeaponName))
+        if (Other.Class != DefaultWeapon)
         {
             Level.Game.bWeaponStay = false;
             return false;
