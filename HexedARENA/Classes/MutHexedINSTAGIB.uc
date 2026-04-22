@@ -11,9 +11,9 @@ var private bool bTranslocatorEnabled;
 var private bool bBoostEnabled;
 var private bool bZoomEnabled;
 
-function PostBeginPlay()
+function PreBeginPlay()
 {
-    Super.PostBeginPlay();
+    Super.PreBeginPlay();
     if (bZoomInstagib)
     {
         DefaultWeaponName = string(class'HxZoomSuperShockRifle');
@@ -108,11 +108,27 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
     return Super.CheckReplacement(Other, bSuperRelevant);
 }
 
-function ModifyFireRate(Pawn Pawn)
+function PropertyChanged(int Index, string OldValue, optional bool bFromURL)
+{
+    local int i;
+
+    if (Properties[Index].Name == "FireRate")
+    {
+        for (i = 0; i < CRIs.Length; ++i)
+        {
+            if (PlayerController(CRIs[i].Owner).Pawn != None)
+            {
+                ModifyFireRate(PlayerController(CRIs[i].Owner).Pawn, true);
+            }
+        }
+    }
+}
+
+function ModifyFireRate(Pawn Pawn, optional bool bForce)
 {
     local Inventory Inv;
 
-    if (FireRate > 0)
+    if (FireRate > 0 || bForce)
     {
         for (Inv = Pawn.Inventory; Inv != None; Inv = Inv.inventory)
         {
@@ -159,9 +175,7 @@ defaultproperties
     Properties(0)=(Name="bAllowTranslocator",Caption="Allow Translocator",Hint="Players get a Translocator in their inventory. Applied on restart/map change.",Type="Check")
     Properties(1)=(Name="bAllowBoost",Caption="Allow Teammate boosting",Hint="Teammates get a big boost when shot by the instagib rifle. Applied on restart/map change.",Type="Check")
     Properties(2)=(Name="bZoomInstagib",Caption="Allow Zoom",Hint="Instagib rifles have sniper scopes. Applied on restart/map change.",Type="Check")
-    Properties(3)=(Name="FireRate",Caption="Fire rate",Hint="Change the default fire rate of shock rifles (0 = default). Applied on respawn.",Type="Text",Data="8;0.0:2.0",bAdvanced=true)
+    Properties(3)=(Name="FireRate",Caption="Fire rate",Hint="Change the default fire rate of shock rifles (0 = default). Applied instantly.",Type="Text",Data="8;0.0:2.0",bAdvanced=true)
     bAllowURLOptions=true
     bDisableTick=true
-    AmmoName='ShockAmmo'
-    DefaultWeaponName=""
 }
