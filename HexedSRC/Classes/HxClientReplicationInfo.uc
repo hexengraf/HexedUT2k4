@@ -28,10 +28,10 @@ var const array<HxClientProperty> Properties;
 var const array<class<HxGUIMenuPanel> > PanelClasses;
 var const byte Order;
 
-var HxMutator MutatorOwner;
 var PlayInfo ServerInfo;
 
 var protected HxClientManager Manager;
+var private HxMutator MutatorOwner;
 var private int PropertyIndex;
 var private int ReceivedCount;
 var private array<HxPendingUpdate> PendingUpdates;
@@ -62,11 +62,12 @@ simulated event PreBeginPlay()
     {
         Manager = class'HxClientManager'.static.Register(Self);
     }
-    SetupServer();
 }
 
-function SetupServer()
+function SetupServer(HxMutator Mutator)
 {
+    MutatorOwner = Mutator;
+    MutatorOwner.UpdateServerInfo(ServerInfo);
     PropertyIndex = ServerInfo.Settings.Length;
     ReceivedCount = ServerInfo.Settings.Length;
     if (Level.NetMode != NM_DedicatedServer)

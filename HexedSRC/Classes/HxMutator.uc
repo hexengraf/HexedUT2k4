@@ -20,19 +20,26 @@ var protected array<HxClientReplicationInfo> CRIs;
 var protected const bool bAllowURLOptions;
 var protected const bool bDisableTick;
 
+var private array<int> LoadedURLOptions;
 var private bool bInitialized;
 
 function Initialized();
-function PropertyChanged(int Index, string OldValue, optional bool bFromURL);
+function PropertyChanged(int Index, string OldValue);
+
+event PreBeginPlay()
+{
+    Super.PreBeginPlay();
+    if (bAllowURLOptions)
+    {
+        ParseURLOptions(GetURLOptions(Level.GetLocalURL()));
+    }
+}
 
 event Tick(float DeltaTime)
 {
     if (!bInitialized)
     {
-        if (bAllowURLOptions)
-        {
-            ParseURLOptions();
-        }
+        ClearURLOptions();
         bInitialized = true;
         Initialized();
     }
@@ -42,7 +49,7 @@ event Tick(float DeltaTime)
     }
 }
 
-function ParseURLOptions()
+function ParseURLOptions(string Options)
 {
     local PlayInfo PI;
     local string Value;
@@ -52,13 +59,35 @@ function ParseURLOptions()
     FillPlayInfo(PI);
     for (i = 0; i < Properties.Length; ++i)
     {
-        Value = GetUrlOption(Properties[i].Name);
+        Value = class'GameInfo'.static.ParseOption(Options, Properties[i].Name);
         if (Value != "")
         {
-            UpdateURL(Properties[i].Name, "", false);
             PI.StoreSetting(i, Value);
-            SetProperty(i, PI.Settings[i].Value, true);
+            SetPropertyText(Properties[i].Name, PI.Settings[i].Value);
+            LoadedURLOptions[LoadedURLOptions.Length] = i;
         }
+    }
+}
+
+function ClearURLOptions()
+{
+    local int i;
+
+    for (i = 0; i < LoadedURLOptions.Length; ++i)
+    {
+        UpdateURL(Properties[LoadedURLOptions[i]].Name, "", false);
+    }
+}
+
+function UpdateServerInfo(PlayInfo ServerInfo)
+{
+    local int Index;
+    local int i;
+
+    for (i = 0; i < LoadedURLOptions.Length; ++i)
+    {
+        Index = LoadedURLOptions[i];
+        ServerInfo.StoreSetting(Index, GetPropertyText(Properties[Index].Name));
     }
 }
 
@@ -134,7 +163,7 @@ static simulated function int GetPropertyIndex(string PropertyName)
     return -1;
 }
 
-function SetProperty(int Index, string Value, optional bool bFromURL)
+function SetProperty(int Index, string Value)
 {
     local string OldValue;
     local int i;
@@ -145,11 +174,8 @@ function SetProperty(int Index, string Value, optional bool bFromURL)
     {
         CRIs[i].SetServerProperty(Index, Value);
     }
-    PropertyChanged(Index, OldValue, bFromURL);
-    if (!bFromURL)
-    {
-        SaveConfig();
-    }
+    PropertyChanged(Index, OldValue);
+    SaveConfig();
 }
 
 function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
@@ -200,7 +226,7 @@ function SpawnClientReplicationInfo(Actor ClientOwner)
     local HxClientReplicationInfo CRI;
 
     CRI = ClientOwner.Spawn(CRIClass, ClientOwner);
-    CRI.MutatorOwner = Self;
+    CRI.SetupServer(Self);
     CRI.NetUpdateTime = Level.TimeSeconds - 1;
     CRIs[CRIs.Length] = CRI;
 }
@@ -275,6 +301,11 @@ function bool DestroyLinkedPRI(PlayerReplicationInfo PRI,
         LinkedPRI = LinkedPRI.NextReplicationInfo;
     }
     return false;
+}
+
+static function string GetURLOptions(string FullURL)
+{
+    return Right(FullURL, Len(FullURL) - InStr(FullURL, "?"));
 }
 
 defaultproperties

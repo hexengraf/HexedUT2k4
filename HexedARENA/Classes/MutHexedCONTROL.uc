@@ -172,42 +172,39 @@ function string RecommendCombo(string ComboName)
     return ComboName;
 }
 
-function PropertyChanged(int Index, string OldValue, optional bool bFromURL)
+function PropertyChanged(int Index, string OldValue)
 {
-    if (!bFromURL)
+    switch (Properties[Index].Name)
     {
-        switch (Properties[Index].Name)
-        {
-            case "bNoAdrenalinePills":
-                ModifyPickups(class'AdrenalinePickup', bNoAdrenalinePills);
-                break;
-            case "bNoHealthVials":
-                ModifyPickups(class'MiniHealthPack', bNoHealthVials);
-                break;
-            case "bNoHealthPacks":
-                ModifyPickupBases(class'HealthPack', bNoHealthPacks);
-                ModifyPickups(class'HealthPack', bNoHealthPacks);
-                break;
-            case "bNoSuperHealthPacks":
-                ModifyPickupBases(class'SuperHealthPack', bNoSuperHealthPacks);
-                ModifyPickups(class'SuperHealthPack', bNoSuperHealthPacks);
-                break;
-            case "bNoShieldPacks":
-                ModifyPickupBases(class'ShieldPack', bNoShieldPacks);
-                ModifyPickups(class'ShieldPack', bNoShieldPacks);
-                break;
-            case "bNoSuperShieldPacks":
-                ModifyPickupBases(class'SuperShieldPack', bNoSuperShieldPacks);
-                ModifyPickups(class'SuperShieldPack', bNoSuperShieldPacks);
-                break;
-            case "bNoUDamagePacks":
-                ModifyPickupBases(class'UDamagePack', bNoUDamagePacks);
-                ModifyPickups(class'UDamagePack', bNoUDamagePacks);
-                break;
-            case "bNoAmmoPacks":
-                ModifyPickups(class'Ammo', bNoAmmoPacks);
-                break;
-        }
+        case "bNoAdrenalinePills":
+            ModifyPickups(class'AdrenalinePickup', bNoAdrenalinePills);
+            break;
+        case "bNoHealthVials":
+            ModifyPickups(class'MiniHealthPack', bNoHealthVials);
+            break;
+        case "bNoHealthPacks":
+            ModifyPickupBases(class'HealthPack', bNoHealthPacks);
+            ModifyPickups(class'HealthPack', bNoHealthPacks);
+            break;
+        case "bNoSuperHealthPacks":
+            ModifyPickupBases(class'SuperHealthPack', bNoSuperHealthPacks);
+            ModifyPickups(class'SuperHealthPack', bNoSuperHealthPacks);
+            break;
+        case "bNoShieldPacks":
+            ModifyPickupBases(class'ShieldPack', bNoShieldPacks);
+            ModifyPickups(class'ShieldPack', bNoShieldPacks);
+            break;
+        case "bNoSuperShieldPacks":
+            ModifyPickupBases(class'SuperShieldPack', bNoSuperShieldPacks);
+            ModifyPickups(class'SuperShieldPack', bNoSuperShieldPacks);
+            break;
+        case "bNoUDamagePacks":
+            ModifyPickupBases(class'UDamagePack', bNoUDamagePacks);
+            ModifyPickups(class'UDamagePack', bNoUDamagePacks);
+            break;
+        case "bNoAmmoPacks":
+            ModifyPickups(class'Ammo', bNoAmmoPacks);
+            break;
     }
 }
 
