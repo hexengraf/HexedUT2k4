@@ -9,6 +9,8 @@ enum EHxScopeOverlay
     HX_SCOPE_Hidden,
 };
 
+const EVEN_MASK = 0x7ffffffe;
+
 var EHxScopeOverlay ScopeOverlay;
 var bool bSoundEffects;
 var bool bShowChargeBar;
@@ -23,40 +25,36 @@ var string CustomZoomCrosshairTextureName;
 
 #include Classes\Include\MutableFireRateSuperShockRIfle.uci
 
-delegate Test();
-
 simulated function DrawCustomScopeOverlay(Canvas C)
 {
-    local float X;
-    local float Y;
-    local float W;
-    local float H;
+    local int Size;
+    local int PosX;
+    local int PosY;
 
     C.Style = ERenderStyle.STY_Alpha;
-    H = ReticleScale * C.SizeY;
-    W = H;
-    X = (C.SizeX - W) / 2;
-    Y = (C.SizeY - H) / 2;
+    Size = int(ReticleScale * C.SizeY) & EVEN_MASK;
+    PosX = (C.SizeX - Size) / 2;
+    PosY = (C.SizeY - Size) / 2;
     if (BackgroundOpacity > 0.001)
     {
         SetZoomBlendColor(C);
-        C.SetPos(X, Y);
+        C.SetPos(PosX, PosY);
         C.DrawColor.A = 255;
-        C.DrawTileJustified(Texture'HxScopeLense', 1, W, H);
+        C.DrawTileJustified(Texture'HxScopeLense', 1, Size, Size);
         C.DrawColor.A = 255 * BackgroundOpacity;
-        C.DrawTileJustified(Texture'HxScopeBG', 1, W, H);
+        C.DrawTileJustified(Texture'HxScopeBG', 1, Size, Size);
         C.SetPos(0, 0);
-        C.DrawTileStretched(Texture'Engine.BlackTexture', C.SizeX, Y);
-        C.SetPos(0, Y);
-        C.DrawTileStretched(Texture'Engine.BlackTexture', X, H);
-        C.SetPos(X + W, Y);
-        C.DrawTileStretched(Texture'Engine.BlackTexture', X, H);
-        C.SetPos(0, Y + H);
-        C.DrawTileStretched(Texture'Engine.BlackTexture', C.SizeX, Y);
+        C.DrawTileStretched(Texture'Engine.BlackTexture', C.SizeX, PosY);
+        C.SetPos(0, PosY);
+        C.DrawTileStretched(Texture'Engine.BlackTexture', PosX, Size);
+        C.SetPos(PosX + Size, PosY);
+        C.DrawTileStretched(Texture'Engine.BlackTexture', PosX, Size);
+        C.SetPos(0, PosY + Size);
+        C.DrawTileStretched(Texture'Engine.BlackTexture', C.SizeX, PosY);
     }
     C.DrawColor = ReticleColor;
-    C.SetPos(X, Y);
-    C.DrawTileJustified(Texture'HxScopeReticle', 1, W, H);
+    C.SetPos(PosX, PosY);
+    C.DrawTileJustified(Texture'HxScopeReticle', 1, Size, Size);
 }
 
 simulated function DrawChargeBar(Canvas C)
