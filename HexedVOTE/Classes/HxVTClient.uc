@@ -1,4 +1,5 @@
-class HxVTClient extends HxClientReplicationInfo;
+class HxVTClient extends HxClientReplicationInfo
+    config(User);
 
 const MIN_VERSION = 6;
 
