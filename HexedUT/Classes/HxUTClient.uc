@@ -220,7 +220,7 @@ defaultproperties
     bFirstRun=true
     MutatorClass=class'MutHexedUT'
 
-    Properties(0)=(Name="ViewSmoothing",Section="Camera",Caption="View smoothing",Hint="Choose which type of view smoothing to apply.",Type=PIT_Select,Data="HX_VS_Default;Strong (default);HX_VS_Weak;Weak;HX_VS_Disabled;Disabled",Dependency="bAllowCustomViewSmoothing",bAdvanced=true)
+    Properties(0)=(Name="ViewSmoothing",Section="Camera",Caption="View smoothing",Hint="Choose which type of view smoothing to apply.",Type=PIT_Select,Data="HX_VS_Default;Strong (default);HX_VS_Weak;Weak;HX_VS_Disabled;Disabled",Dependency="bAllowCustomViewSmoothing")
     Properties(1)=(Name="bEnabled",Section="Spawn Protection Timer",Caption="Enable spawn protection timer",Hint="Show timer indicating remaining spawn protection duration.",Type=PIT_Check,Dependency="bAllowSpawnProtectionTimer")
     Properties(2)=(Name="bUseHUDColor",Section="Spawn Protection Timer",Caption="Use HUD's color",Hint="Use the same color as the HUD for the timer's icon.",Type=PIT_Check,Dependency="bAllowSpawnProtectionTimer",bAdvanced=true)
     Properties(3)=(Name="bPulsingDigits",Section="Spawn Protection Timer",Caption="Use pulsing digits",Hint="Use pulsing digits for the timer.",Type=PIT_Check,Dependency="bAllowSpawnProtectionTimer",bAdvanced=true)
