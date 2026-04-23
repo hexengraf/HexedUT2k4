@@ -76,8 +76,8 @@ function InitSections()
 
     if (bDoubleColumn)
     {
-        ShrinkToFit(0, 2);
         ShrinkToFit(1, 2);
+        ShrinkToFit(0, 2);
     }
     else
     {
