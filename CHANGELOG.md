@@ -1,3 +1,53 @@
+# v7.0
+
+This version adds a new package with three mutators:
+* HexedARENA:
+  * MutHexedCONTROL - provides enhanced control over game mechanics: modify starting values, disable specific combos, disable specific pick-ups, modify movement parameters, and more.
+  * MutHexedARENA - similar to the built-in Arena mutator, but allows changing the weapon via URL option.
+  * MutHexedINSTAGIB - similar to the built-in Instagib mutator, but provides a custom zoom overlay and an option to change the fire rate.
+
+General changes:
+* Added a first run notification to let players know how to access the configuration menu.
+
+HexedUT changes:
+* Added view smoothing option.
+* Removed features that were moved to HexedCONTROL.
+* Added server actor to enable the mutator.
+
+HexedVOTE changes:
+* Moved list of liked/disliked maps to a separate INI file (`HexedFavorites.ini`).
+
+HexedNET changes:
+* Removed new EyeHeight algorithm (use the view smoothing option in HexedUT instead).
+* Fixed issues with round-based game types.
+* Simplified internal mechanism to track client timestamps.
+* Added support to HexedINSTAGIB's super shock rifle.
+
+> [!WARNING]
+> If you're not following the required steps to activate automatic copy your configuration to the new version, manual intervention is required to keep your map favorites.
+>
+> As an example, assume you have something like this in `User.ini`:
+> ```ini
+> [HexedVOTEv6.HxMapFavorites]
+> Maps=(Map="DM-1on1-Aerowalk",Tag=HX_TAG_Like)
+> Maps=(Map="DM-1on1-Alpu3",Tag=HX_TAG_Dislike)
+> Maps=(Map="DM-1on1-Crash",Tag=HX_TAG_Dislike)
+> Maps=(Map="DM-1on1-Viridian2k4",Tag=HX_TAG_Dislike)
+> Maps=(Map="DM-Contrived",Tag=HX_TAG_Like)
+> ```
+>
+> You need to create a new file called `HexedFavorites.ini` and add add your favorites inside it as follows:
+> ```ini
+> [Maps HxFavorites]
+> List=(Name="DM-1on1-Aerowalk",Tag=HX_TAG_Like)
+> List=(Name="DM-1on1-Alpu3",Tag=HX_TAG_Dislike)
+> List=(Name="DM-1on1-Crash",Tag=HX_TAG_Dislike)
+> List=(Name="DM-1on1-Viridian2k4",Tag=HX_TAG_Dislike)
+> List=(Name="DM-Contrived",Tag=HX_TAG_Like)
+> ```
+>
+> After this change, you will never need to worry about loosing your favorites when upgrading to a new version.
+
 # v6.0
 
 Major changes:
