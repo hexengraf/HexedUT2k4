@@ -3,7 +3,7 @@ class HxGUITableSearchBar extends HxGUIBackground;
 var automated GUILabel l_Search;
 
 var int FirstColumn;
-var array<HxDataHandler.EHxDataType> Types;
+var array<HxTypes.EHxDataType> Types;
 var localized array<string> Hints;
 
 var private HxGUITable Table;
@@ -29,7 +29,7 @@ function SetTable(HxGUITable T)
     Table = T;
 }
 
-function AddSearchBox(HxDataHandler.EHxDataType Type, optional string Hint)
+function AddSearchBox(HxTypes.EHxDataType Type, optional string Hint)
 {
     Types[Types.Length] = Type;
     Hints[Hints.Length] = Hint;
@@ -41,7 +41,7 @@ private function CreateSearchBox(int i)
 {
     ed_SearchBoxes[i] = GUIEditBox(AddComponent("XInterface.GUIEditBox", true));
     ed_SearchBoxes[i].TabOrder = i;
-    ed_SearchBoxes[i].AllowedCharSet = class'HxDataHandler'.static.GetDataCharset(Types[i]);
+    ed_SearchBoxes[i].AllowedCharSet = class'HxTypes'.static.GetDataCharset(Types[i]);
     ed_SearchBoxes[i].SetHint(Hints[i]@class'HxPatternMatch'.static.GetPatternHint(Types[i]));
     ed_SearchBoxes[i].ToolTip.ExpirationSeconds = 0.085 * Len(ed_SearchBoxes[i].Hint);
 }

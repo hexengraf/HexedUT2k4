@@ -1,19 +1,8 @@
 class HxMutator extends Mutator
-    abstract;
+    abstract
+    DependsOn(HxTypes);
 
-struct HxMutatorProperty
-{
-    var const string Name;
-    var const localized string Section;
-    var const localized string Caption;
-    var const localized string Hint;
-    var const string Type;
-    var const string Data;
-    var const bool bMPOnly;
-    var const bool bAdvanced;
-};
-
-var const array<HxMutatorProperty> Properties;
+var const array<HxTypes.HxMutatorProperty> Properties;
 
 var protected const class<HxClientReplicationInfo> CRIClass;
 var protected array<HxClientReplicationInfo> CRIs;
@@ -116,7 +105,7 @@ function OpenConfigurationMenu(PlayerController Sender)
 
 static function FillPlayInfo(PlayInfo PlayInfo)
 {
-    local HxMutatorProperty Prop;
+    local HxTypes.HxMutatorProperty Prop;
     local int i;
 
     super.FillPlayInfo(PlayInfo);

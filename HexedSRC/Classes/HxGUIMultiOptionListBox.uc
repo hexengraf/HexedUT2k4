@@ -179,7 +179,7 @@ function Refresh()
     }
 }
 
-function GUIMenuOption AddCRIOption(HxClientReplicationInfo.HxClientProperty Prop)
+function GUIMenuOption AddCRIOption(HxTypes.HxClientProperty Prop)
 {
     local GUIMenuOption Option;
     local array<string> Range;

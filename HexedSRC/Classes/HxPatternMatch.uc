@@ -1,4 +1,4 @@
-class HxPatternMatch extends HxDataHandler
+class HxPatternMatch extends HxTypes
     abstract;
 
 enum EHxFilterMode

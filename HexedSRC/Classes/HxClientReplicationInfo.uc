@@ -1,19 +1,7 @@
 class HxClientReplicationInfo extends ReplicationInfo
     abstract
+    DependsOn(HxTypes)
     DependsOn(PlayInfo);
-
-struct HxClientProperty
-{
-    var const string Name;
-    var const localized string Section;
-    var const localized string Caption;
-    var const localized string Hint;
-    var const PlayInfo.EPlayInfoType Type;
-    var const string Data;
-    var const float Step;
-    var const string Dependency;
-    var const bool bAdvanced;
-};
 
 struct HxPendingUpdate
 {
@@ -24,7 +12,7 @@ struct HxPendingUpdate
 const PARALLEL_REQUESTS = 16;
 
 var const class<HxMutator> MutatorClass;
-var const array<HxClientProperty> Properties;
+var const array<HxTypes.HxClientProperty> Properties;
 var const array<class<HxGUIMenuPanel> > PanelClasses;
 var const byte Order;
 
