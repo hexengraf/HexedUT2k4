@@ -61,24 +61,136 @@ List of features:
 
 In case there are more features you wish to see on HexedUT, open an issue so we can evaluate the viability of implementing them.
 
+### User INI options
+
+The following sections are saved in `User.ini`:
+```ini
+[HexedUTv6.HxHitEffects]
+; Play hit sounds.
+bHitSounds=True
+; Name of the hit sound to use.
+; Default hit sounds can be specified without the package name,
+; while external hit sounds require the fully qualified name: "PackedName.SoundName".
+HitSoundName=HxHitSound1
+; Hit sound volume.
+HitSoundVolume=1.000000
+; Pitch mode for the hit sounds:
+;   HX_PITCH_Disabled - constant pitch regardless of damage.
+;   HX_PITCH_Low2High - low pitch for low damage, high pitch for high damage.
+;   HX_PITCH_High2Low - high pitch for low damage, low pitch for high damage.
+PitchMode=HX_PITCH_High2Low
+; Show damage numbers.
+bDamageNumbers=True
+; Display mode for the damage numbers:
+;   HX_DISPLAY_Static - shows the damage of a single hit.
+;   HX_DISPLAY_StaticTotal - shows accumulated damage of hits with less than a second a part.
+;   HX_DISPLAY_StaticDual - shows the information of the two modes above at the same time.
+;   HX_DISPLAY_Float - shows the damage of every hit, animating it to float towards the top of the screen.
+;   HX_DISPLAY_FloatDual - same as Float, but adds an accumulated damage number at the end of the animation path.
+DisplayMode=HX_DISPLAY_StaticDual
+; Font name to be used to render the damage numbers. Custom fonts are supported.
+DisplayFontName=UT2003Fonts.FontEurostile37
+; X position of the damage numbers on the screen (between 0.0 and 1.0).
+DisplayPosX=0.500000
+; Y position of the damage numbers on the screen (between 0.0 and 1.0).
+DisplayPosY=0.450000
+; All hit effects are interpolated according to the damage dealt by the hit.
+; A linear interpolation is done between the values of two of the points listed below.
+; ZeroDamage's Value is always 0, regardless of any changes made here.
+; The meaning of Pitch varies according to the PitchMode, so 0 could be either high or low pitch.
+; Scale refers to the scale of the damage number, and Color to the color of the damage number.
+ZeroDamage=(Value=0,Pitch=0.000000,Scale=0.000000,Color=(B=255,G=255,R=255,A=255))
+LowDamage=(Value=30,Pitch=0.300000,Scale=0.300000,Color=(B=32,G=255,R=255,A=255))
+MediumDamage=(Value=70,Pitch=0.550000,Scale=0.550000,Color=(B=32,G=119,R=255,A=255))
+HighDamage=(Value=120,Pitch=0.750000,Scale=0.750000,Color=(B=32,G=32,R=255,A=255))
+ExtremeDamage=(Value=180,Pitch=1.000000,Scale=1.000000,Color=(B=245,G=32,R=143,A=255))
+; List of fonts to display as selectable options in the configuration menu.
+; You can add all your custom fonts here.
+FontNames=UT2003Fonts.FontEurostile29
+FontNames=UT2003Fonts.FontEurostile37
+FontNames=UT2003Fonts.FontNeuzeit29
+FontNames=UT2003Fonts.FontNeuzeit37
+FontNames=2K4Fonts.Verdana28
+FontNames=2K4Fonts.Verdana30
+FontNames=2K4Fonts.Verdana32
+FontNames=2K4Fonts.Verdana34
+; List of custom hit sounds to display as selectable options in the configuration menu.
+; You can add all your custom hit sounds here.
+; Remember to use the "PackageName.HitSoundName" syntax.
+CustomHitSounds=
+
+[HexedUTv6.HxSkinHighlight]
+; DEFAULT = normal game effects.
+; Color of your team in team games.
+YourTeam=DEFAULT
+; Color of the enemy team in team games.
+EnemyTeam=DEFAULT
+; Color of other players in solo games.
+; Use RANDOM to automatically assign random colors for each player.
+SoloPlayer=DEFAULT
+; Color to flash when hit when armor is active. Also used as spawn protection indicator.
+ShieldHit=DEFAULT
+; Color to flash when hit by link gun (and bio rifle, maybe others?).
+LinkHit=DEFAULT
+; Color to flash when hit by shock rifle.
+ShockHit=DEFAULT
+; Color to flash when hit by lightning gun.
+LightningHit=DEFAULT
+; Remove skin highlight from dead bodies.
+bDisableOnDeadBodies=False
+; Force normal skins in team games (i.e. don't use the variant with team colors baked-in).
+bForceNormalSkins=True
+; While spectating, assume this team's perspective to decide which colors to use:
+;   0: red team.
+;   1: blue team.
+SpectatorTeam=0
+; List of colors. Set bRandom to false if you don't want a color to be used on RANDOM.
+Colors=(Name="Red",Color=(B=0,G=0,R=255,A=255),bRandom=True)
+Colors=(Name="Blue",Color=(B=255,G=0,R=0,A=255),bRandom=True)
+Colors=(Name="Green",Color=(B=0,G=255,R=0,A=255),bRandom=True)
+Colors=(Name="Pink",Color=(B=255,G=0,R=255,A=255),bRandom=True)
+Colors=(Name="Teal",Color=(B=255,G=255,R=0,A=255),bRandom=True)
+Colors=(Name="Yellow",Color=(B=0,G=255,R=255,A=255),bRandom=True)
+Colors=(Name="Purple",Color=(B=255,G=0,R=64,A=255),bRandom=False)
+
+[HexedUTv6.HxSpawnProtectionTimer]
+; Show spawn protection timer.
+bEnabled=True
+; Paint the spawn protection timer with the same color as the HUD.
+bUseHUDColor=True
+; Use pulsing digits for the counter.
+bPulsingDigits=False
+; X position of the spawn protection timer on the screen (between 0.0 and 1.0).
+PosX=0.950000
+; Y position of the spawn protection timer on the screen (between 0.0 and 1.0).
+PosY=0.640000
+; Color to use if bUseHUDColor=false.
+DefaultColor=(B=4,G=191,R=239,A=255)
+```
+
+### Server INI options
+
+The following sections are saved in `UT2004.ini`:
+```ini
+[HexedUTv6.MutHexedUT]
+; Allow clients to enable/disable hit sound effects.
+bAllowHitSounds=True
+; Allow clients to enable/disable damage number effects.
+bAllowDamageNumbers=True
+; Allow clients to enable/disable skin highlights.
+bAllowSkinHighlight=True
+; Factor to multiply RGB values (between 0.0 and 1.0).
+SkinHighlightIntensity=0.300000
+; Allow clients to enable/disable the spawn protection timer.
+bAllowSpawnProtectionTimer=True
+; Use team colors in death messages (blue = killer and red = victim if no teams).
+bColoredDeathMessages=True
+```
+
 ## HexedVOTE
 
-HexedVOTE does not replace xVoting, it builds on top of it.
-In order to use it, you need to first enable and configure xVoting (UT2004's default voting system).
+HexedVOTE does not replace xVoting, it builds on top of it, so you need to first enable and configure xVoting (UT2004's default voting system).
 Enable HexedVOTE and it will replace the map vote menu automatically, no additional configuration needed.
-
-Servers may configure custom backgrounds to add their own flair to the map vote menu. The following backgrounds can be set:
-* `VoteListCustomBG`: background for the votes list (upper list). Use ~16:3 images.
-* `MapListCustomBG`: background for the maps list (lower list). Use ~9:5 images.
-* `PreviewCustomBG`: background for the map preview banner. Use ~9:10 images.
-* `ChatBoxCustomBG`: background for the chat box. Use ~22:7 images.
-
-Each variable should contain the fully qualified `PackageName.TextureName` string of the texture to be used.
-If the texture doesn't match the proportions of the background, it will be **centered and scaled** to fit.
-Make sure to include the package containing the custom backgrounds to your `ServerPackages` configuration.
-
-> [!TIP]
-> The textures are alpha-blended with the default background, so you can rely on transparency to create subtle logos/watermarks.
 
 List of features:
 * Enhanced map voting page:
@@ -90,6 +202,60 @@ List of features:
     * Map filters: create custom filters to quickly sort through the map list.
     * Several improvements to font size, line spacing, alignments, backgrounds and colors.
     * Server-defined custom backgrounds to add flair.
+
+### User INI options
+
+Map filters are saved in a separate file called `HexedFilters.ini` with the following structure:
+```ini
+[FilterName HxMapFilter]
+; Pattern to filter maps by name.
+MapName=
+; Pattern to filter maps by their author name(s).
+AuthorName=
+; Pattern to filter maps by the number of players.
+NumPlayers=
+; Pattern to filter maps by the number of times played.
+TimesPlayed=
+; Filter maps by their source:
+;   HX_MAP_SOURCE_Any - no filter, any source is allowed.
+;   HX_MAP_SOURCE_Official - only official maps are selected.
+;   HX_MAP_SOURCE_Custom - only custom maps are selected.
+MapSource=HX_MAP_SOURCE_Any
+; Filter maps by their tag:
+;   HX_TAG_Any - no filter, any tag is allowed.
+;   HX_TAG_Like - only liked maps are selected.
+;   HX_TAG_None - only maps with no tag are selected.
+;   HX_TAG_Dislike - only disliked maps are selected.
+MapTag=HX_TAG_Any
+; How the explicit filter list should be used:
+;   HX_FILTER_MODE_Include - include the listed maps in the result.
+;   HX_FILTER_MODE_Exclude - exclude the listed maps from the result.
+FilterListMode=HX_FILTER_MODE_Include
+; Explicit filter list, each entry should contain a valid map name.
+FilterList=
+```
+
+### Server INI options
+
+The following sections are saved in `UT2004.ini`:
+```ini
+[HexedVOTEv6.MutHexedVOTE]
+; Background for the votes list (upper list). Use ~16:3 images.
+VoteListCustomBG=
+; Background for the maps list (lower list). Use ~9:5 images.
+MapListCustomBG=
+; Background for the map preview banner. Use ~9:10 images.
+PreviewCustomBG=
+; Background for the chat box. Use ~22:7 images.
+ChatBoxCustomBG=
+```
+
+Each custom background should contain the fully qualified `PackageName.TextureName` string of the texture to be used.
+If the texture doesn't match the proportions of the background, it will be **centered and scaled** to fit.
+Make sure to include the package containing the custom backgrounds to your `ServerPackages` configuration.
+
+> [!TIP]
+> The textures are alpha-blended with the default background, so you can rely on transparency to create subtle logos/watermarks.
 
 ## HexedNET
 
@@ -149,20 +315,3 @@ MapVotingMenu=xVoting.MapVotingPage
 
 When the enhanced map vote menu was part of `HexedPatches`, it was directly set to be the `MapVotingMenu`.
 With the migration to HexedVOTE, this leftover configuration will unfortunately break your map vote menu and require this manual intervention.
-
-### Fonts are too big or too small
-
-Font size is automatically determined based on the current resolution.
-You can override the font size in the Patches tab (a restart is required). Try different values (between 0 and 6) to find the one that suites your needs.
-
-### HUD options are grayed out
-
-You have foxWSFix enabled. In order to use HexedPatches's HUDs, you need to disable foxWSFix.
-Restore all `InputClass` values in `System/User.ini` to the default value:
-```ini
-InputClass=Class'Engine.PlayerInput'
-```
-
-### Server Options buttons is grayed-out
-
-You need to log-in as administrator first. You may need to wait a bit before reopening the configuration menu for it to detect you have admin privileges.
