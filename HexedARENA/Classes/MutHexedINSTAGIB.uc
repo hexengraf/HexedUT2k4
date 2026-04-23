@@ -148,7 +148,7 @@ static function HidePickupBases(Actor Requester)
 
 defaultproperties
 {
-    FriendlyName="HexedINSTAGIB v7T1"
+    FriendlyName="HexedINSTAGIB v7preview1"
     Description="Instant-kill combat with modified Shock Rifles with options to enable zoom and change fire rate."
     GroupName="Arena"
     bAddToServerPackages=true
