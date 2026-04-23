@@ -2,14 +2,12 @@ class HxClientManager extends Actor
     config(User);
 
 var config bool bFirstRun;
-var config bool bNoFirstRunNotification;
-var config bool bNoAutoKeybinding;
+var config string MenuKeybind;
 
 var array<HxClientReplicationInfo> CRIs;
 
 var const private class<HxGUIFloatingWindow> MenuClass;
 var const private class<HxGUITheme> ThemeClass;
-var const private string AutoMenuKeybind;
 
 var private PlayerController PC;
 var private GUIController GC;
@@ -21,7 +19,7 @@ simulated event PreBeginPlay()
     Super.PreBeginPlay();
     if (bFirstRun)
     {
-        bShowFirstRunNotification = !bNoFirstRunNotification;
+        bShowFirstRunNotification = true;
         bFirstRun = false;
         SaveConfig();
     }
@@ -37,8 +35,6 @@ simulated event Tick(float DeltaTime)
 
 simulated function bool InitializeClient()
 {
-    local string KeyName;
-
     if (PC == None)
     {
         PC = Level.GetLocalPlayerController();
@@ -47,10 +43,10 @@ simulated function bool InitializeClient()
     {
         GC = GUIController(PC.Player.GUIController);
         ThemeClass.static.RegisterStyles(GC);
-        KeyName = CreateMenuKeybind();
+        ValidateMenuKeybind();
         if (bShowFirstRunNotification)
         {
-            ShowFirstTimeNotification(KeyName);
+            ShowFirstTimeNotification(MenuKeybind);
         }
     }
     return PC != None && GC != None;
@@ -138,45 +134,40 @@ simulated function ShowFirstTimeNotification(string KeyName)
     bShowFirstRunNotification = false;
 }
 
-simulated private function string CreateMenuKeybind()
-{
-    local string Keybind;
-
-    Keybind = FindMenuKeybind();
-    if (Keybind == "" && !bNoAutoKeybinding)
-    {
-        if (PC.ConsoleCommand("KEYBINDING"@AutoMenuKeybind) == "")
-        {
-            PC.ConsoleCommand("SET INPUT"@AutoMenuKeybind@"mutate HexedMenu");
-            return "H";
-        }
-    }
-    return Keybind;
-}
-
-simulated private function string FindMenuKeybind()
+simulated private function ValidateMenuKeybind()
 {
     local string KeyName;
     local int i;
 
-    if (IsMenuKeybind(AutoMenuKeybind))
+    if (MenuKeybind == "" || (!IsMenuKeybind(MenuKeybind) && !TrySetKeybind(MenuKeybind)))
     {
-        return AutoMenuKeybind;
-    }
-    for (i = 0; i < 255; ++i)
-    {
-        KeyName = PC.ConsoleCommand("KEYNAME"@i);
-        if (IsMenuKeybind(KeyName))
+        MenuKeybind = "";
+        for (i = 0; i < 255; ++i)
         {
-            return KeyName;
+            KeyName = PC.ConsoleCommand("KEYNAME"@i);
+            if (IsMenuKeybind(KeyName))
+            {
+                MenuKeybind = KeyName;
+                break;
+            }
         }
+        SaveConfig();
     }
-    return "";
 }
 
 simulated private function bool IsMenuKeybind(string KeyName)
 {
     return InStr(Caps(PC.ConsoleCommand("KEYBINDING"@KeyName)), "HEXEDMENU") > -1;
+}
+
+simulated private function bool TrySetKeybind(string Keybind)
+{
+    if (PC.ConsoleCommand("KEYBINDING"@Keybind) == "")
+    {
+        PC.ConsoleCommand("SET INPUT"@Keybind@"mutate HexedMenu");
+        return true;
+    }
+    return false;
 }
 
 static function HxClientManager Register(HxClientReplicationInfo CRI)
@@ -198,9 +189,7 @@ defaultproperties
     bHidden=true
     MenuClass=class'HxGUIMenu'
     ThemeClass=class'HxGUIThemeDefault'
-    AutoMenuKeybind="H"
 
     bFirstRun=true
-    bNoFirstRunNotification=false
-    bNoAutoKeybinding=false
+    MenuKeybind="H"
 }
