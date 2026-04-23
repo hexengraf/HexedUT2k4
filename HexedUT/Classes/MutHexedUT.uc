@@ -128,7 +128,6 @@ defaultproperties
     Properties(4)=(Name="bAllowCustomViewSmoothing",Section="Camera",Caption="Allow custom view smoothing",Hint="Allow clients to select different types of view smoothing.",Type="Check")
     Properties(5)=(Name="bAllowSpawnProtectionTimer",Section="Interface",Caption="Allow spawn protection timer",Hint="Allow clients to enable/disable the spawn protection timer.",Type="Check")
     Properties(6)=(Name="bColoredDeathMessages",Section="Interface",Caption="Colored death messages",Hint="Use team colors in death messages (blue = killer and red = victim if no teams).",Type="Check")
-    bAllowURLOptions=true
     bDisableTick=true
 
     bAllowHitSounds=true

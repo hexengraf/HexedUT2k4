@@ -299,4 +299,5 @@ static function string GetURLOptions(string FullURL)
 
 defaultproperties
 {
+    bAllowURLOptions=true
 }

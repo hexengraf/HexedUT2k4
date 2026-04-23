@@ -157,6 +157,5 @@ defaultproperties
     Properties(1)=(Name="bAllowBoost",Caption="Allow Teammate boosting",Hint="Teammates get a big boost when shot by the instagib rifle. Applied on restart/map change.",Type="Check")
     Properties(2)=(Name="bZoomInstagib",Caption="Allow Zoom",Hint="Instagib rifles have sniper scopes. Applied on restart/map change.",Type="Check")
     Properties(3)=(Name="FireRate",Caption="Fire rate",Hint="Change the default fire rate of shock rifles (0 = default). Applied instantly.",Type="Text",Data="8;0.0:2.0",bAdvanced=true)
-    bAllowURLOptions=true
     bDisableTick=true
 }
