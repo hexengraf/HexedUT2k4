@@ -133,7 +133,7 @@ defaultproperties
     bAllowHitSounds=true
     bAllowDamageNumbers=true
     bAllowSkinHighlight=true
-    SkinHighlightIntensity=0.3
+    SkinHighlightIntensity=0.42
     bAllowCustomViewSmoothing=true
     bAllowSpawnProtectionTimer=true
     bColoredDeathMessages=true
