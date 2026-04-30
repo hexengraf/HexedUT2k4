@@ -1,5 +1,6 @@
 class HxIGClient extends HxClientReplicationInfo;
 
+var private HxIGScopeConfig ScopeConfig;
 var private bool bPickupBasesDisabled;
 
 simulated event PreBeginPlay()
@@ -7,6 +8,7 @@ simulated event PreBeginPlay()
     Super.PreBeginPlay();
     if (Level.NetMode != NM_DedicatedServer)
     {
+        ScopeConfig = HxIGScopeConfig(class'HxIGScopeConfig'.static.Load());
         ApplyScopeConfiguration();
     }
 }
@@ -16,7 +18,7 @@ simulated function ApplyScopeConfiguration()
     local PlayerController PC;
     local Inventory Inv;
 
-    class'HxIGScope'.static.ApplyConfiguration(class'HxZoomSuperShockRifle');
+    ScopeConfig.ApplyConfiguration(class'HxZoomSuperShockRifle');
     PC = Level.GetLocalPlayerController();
     if (PC != None && PC.Pawn != None)
     {
@@ -44,39 +46,24 @@ simulated function string GetProperty(int Index)
 {
     switch (Index)
     {
-        case 0:
-            return string(
-                GetEnum(enum'EHxScopeOverlay', class'HxIGScope'.default.ScopeOverlay));
-        case 1:
-            return string(class'HxIGScope'.default.bSoundEffects);
-        case 2:
-            return string(class'HxIGScope'.default.bShowChargeBar);
         case 3:
-            return string(class'HxIGScope'.default.ReticleColor.R);
+            return string(ScopeConfig.ReticleColor.R);
         case 4:
-            return string(class'HxIGScope'.default.ReticleColor.G);
+            return string(ScopeConfig.ReticleColor.G);
         case 5:
-            return string(class'HxIGScope'.default.ReticleColor.B);
+            return string(ScopeConfig.ReticleColor.B);
         case 6:
-            return string(class'HxIGScope'.default.ReticleColor.A / 255.0);
-        case 7:
-            return string(class'HxIGScope'.default.ReticleScale);
-        case 8:
-            return string(class'HxIGScope'.default.BackgroundOpacity);
-        case 9:
-            return string(class'HxIGScope'.default.bCustomZoomCrosshair);
-        case 10:
-            return string(class'HxIGScope'.default.CustomZoomCrosshair);
+            return string(ScopeConfig.ReticleColor.A / 255.0);
         case 11:
-            return string(class'HxIGScope'.default.CustomZoomCrosshairColor.R);
+            return string(ScopeConfig.CustomZoomCrosshairColor.R);
         case 12:
-            return string(class'HxIGScope'.default.CustomZoomCrosshairColor.G);
+            return string(ScopeConfig.CustomZoomCrosshairColor.G);
         case 13:
-            return string(class'HxIGScope'.default.CustomZoomCrosshairColor.B);
+            return string(ScopeConfig.CustomZoomCrosshairColor.B);
         case 14:
-            return string(class'HxIGScope'.default.CustomZoomCrosshairColor.A / 255.0);
-        case 15:
-            return string(class'HxIGScope'.default.CustomZoomCrosshairScale);
+            return string(ScopeConfig.CustomZoomCrosshairColor.A / 255.0);
+        default:
+            return ScopeConfig.GetPropertyText(Properties[Index].Name);
     }
     return "";
 }
@@ -85,56 +72,38 @@ simulated function SetProperty(int Index, string Value)
 {
     switch (Index)
     {
-        case 0:
-            class'HxIGScope'.static.SetScopeOverlay(Value);
-            break;
-        case 1:
-            class'HxIGScope'.default.bSoundEffects = bool(Value);
-            break;
-        case 2:
-            class'HxIGScope'.default.bShowChargeBar = bool(Value);
-            break;
         case 3:
-            class'HxIGScope'.default.ReticleColor.R = byte(Value);
+            ScopeConfig.ReticleColor.R = byte(Value);
             break;
         case 4:
-            class'HxIGScope'.default.ReticleColor.G = byte(Value);
+            ScopeConfig.ReticleColor.G = byte(Value);
             break;
         case 5:
-            class'HxIGScope'.default.ReticleColor.B = byte(Value);
+            ScopeConfig.ReticleColor.B = byte(Value);
             break;
         case 6:
-            class'HxIGScope'.default.ReticleColor.A = float(Value) * 255;
-            break;
-        case 7:
-            class'HxIGScope'.default.ReticleScale = float(Value);
-            break;
-        case 8:
-            class'HxIGScope'.default.BackgroundOpacity = float(Value);
-            break;
-        case 9:
-            class'HxIGScope'.default.bCustomZoomCrosshair = bool(Value);
+            ScopeConfig.ReticleColor.A = float(Value) * 255;
             break;
         case 10:
-            class'HxIGScope'.static.SetCustomCrosshair(Value);
+            ScopeConfig.SetCustomCrosshair(Value);
             break;
         case 11:
-            class'HxIGScope'.default.CustomZoomCrosshairColor.R = byte(Value);
+            ScopeConfig.CustomZoomCrosshairColor.R = byte(Value);
             break;
         case 12:
-            class'HxIGScope'.default.CustomZoomCrosshairColor.G = byte(Value);
+            ScopeConfig.CustomZoomCrosshairColor.G = byte(Value);
             break;
         case 13:
-            class'HxIGScope'.default.CustomZoomCrosshairColor.B = byte(Value);
+            ScopeConfig.CustomZoomCrosshairColor.B = byte(Value);
             break;
         case 14:
-            class'HxIGScope'.default.CustomZoomCrosshairColor.A = float(Value) * 255;
+            ScopeConfig.CustomZoomCrosshairColor.A = float(Value) * 255;
             break;
-        case 15:
-            class'HxIGScope'.default.CustomZoomCrosshairScale = float(Value);
+        default:
+            ScopeConfig.SetPropertyText(Properties[Index].Name, Value);
             break;
     }
-    class'HxIGScope'.static.StaticSaveConfig();
+    ScopeConfig.SaveConfig();
     ApplyScopeConfiguration();
 }
 
