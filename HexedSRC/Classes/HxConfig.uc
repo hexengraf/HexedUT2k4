@@ -1,10 +1,18 @@
-class HxConfig extends Object;
+class HxConfig extends Object
+    abstract;
+
+var protected const string ObjectName;
 
 simulated function bool CopyPropertyFrom(Object OldObject,
                                          string PropertyName,
                                          optional string OldPropertyName)
 {
     return CopyProperty(Self, OldObject, PropertyName, OldPropertyName);
+}
+
+static function HxConfig Load()
+{
+    return new(None, default.ObjectName) default.Class;
 }
 
 static function Object FindOldVersionObject(coerce string FullName,
