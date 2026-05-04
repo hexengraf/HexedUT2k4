@@ -13,10 +13,10 @@ const DAMAGE_CLUSTERING_INTERVAL = 0.02;
 
 var config bool bFirstRun;
 
-var HxHitEffects HitEffects;
 var HxSpawnProtectionTimer SPTimer;
 var HxUTPlayer Player;
 
+var private HxHitEffects HitEffects;
 var private HxDamageInfo Damage;
 var private bool bInitialized;
 
@@ -72,6 +72,22 @@ simulated function ClientUpdateHitEffects(int Damage)
     if (Level.NetMode != NM_DedicatedServer && HitEffects != None)
     {
         HitEffects.Update(Damage);
+    }
+}
+
+simulated function PlayHitSoundPreview(int Index)
+{
+    if (HitEffects != None)
+    {
+        HitEffects.PlayHitSoundPreview(Index);
+    }
+}
+
+simulated function DrawDamageNumberPreview(Canvas C, int Index)
+{
+    if (HitEffects != None)
+    {
+        HitEffects.DrawPreview(C, Index);
     }
 }
 
@@ -159,6 +175,21 @@ simulated function string GetProperty(int Index)
     return "";
 }
 
+simulated function bool SetConfigProperty(int ConfigIndex, int PropertyIndex, string Value)
+{
+    if (Super.SetConfigProperty(ConfigIndex, PropertyIndex, Value))
+    {
+        switch (ConfigClasses[ConfigIndex])
+        {
+            case class'HxHitEffectsConfig':
+                HitEffects.SetProperty(Configs[ConfigIndex].Properties[PropertyIndex].Name, Value);
+                break;
+        }
+        return true;
+    }
+    return false;
+}
+
 simulated function SetProperty(int Index, string Value)
 {
     if (Index == 0)
@@ -208,7 +239,6 @@ simulated function SetProperty(int Index, string Value)
 
 simulated function RecoverConfigs()
 {
-    class'HxHitEffects'.static.StaticRecoverConfigs(Self);
     class'HxSkinHighlight'.static.StaticRecoverConfigs(Self);
     class'HxSpawnProtectionTimer'.static.StaticRecoverConfigs(Self);
     bFirstRun = false;
@@ -219,7 +249,7 @@ defaultproperties
 {
     bFirstRun=true
     MutatorClass=class'MutHexedUT'
-
+    ConfigClasses(0)=class'HxHitEffectsConfig'
     Properties(0)=(Name="ViewSmoothing",Section="Camera",Caption="View smoothing",Hint="Choose which type of view smoothing to apply.",Type=PIT_Select,Data="HX_VS_Default;Strong (default);HX_VS_Weak;Weak;HX_VS_Disabled;Disabled",Dependency="bAllowCustomViewSmoothing")
     Properties(1)=(Name="bEnabled",Section="Spawn Protection Timer",Caption="Enable spawn protection timer",Hint="Show timer indicating remaining spawn protection duration.",Type=PIT_Check,Dependency="bAllowSpawnProtectionTimer")
     Properties(2)=(Name="bUseHUDColor",Section="Spawn Protection Timer",Caption="Use HUD's color",Hint="Use the same color as the HUD for the timer's icon.",Type=PIT_Check,Dependency="bAllowSpawnProtectionTimer",bAdvanced=true)

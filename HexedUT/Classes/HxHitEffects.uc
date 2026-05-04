@@ -1,5 +1,4 @@
-class HxHitEffects extends HudOverlay
-    config(User);
+class HxHitEffects extends HudOverlay;
 
 #exec AUDIO IMPORT FILE=Sounds\HxHitSound1.wav
 #exec AUDIO IMPORT FILE=Sounds\HxHitSound2.wav
@@ -40,8 +39,6 @@ struct HxDamagePoint
     var Color Color;
 };
 
-const MIN_VERSION = 4;
-
 const ALAUDIO_PITCH_MIN = 0.5;
 const ALAUDIO_PITCH_MAX = 2.0;
 const ALAUDIO_PITCH_SPECTRUM = 1.5; // ALAUDIO_PITCH_MAX - ALAUDIO_PITCH_MIN
@@ -58,28 +55,28 @@ const DN_EXTENDED_DURATION = 1.5;
 const DN_TRAVEL = 0.15;
 const DN_DUAL_OFFSET = 0.025;
 
-var config bool bHitSounds;
-var config string HitSoundName;
-var config float HitSoundVolume;
-var config EHxPitchMode PitchMode;
-var config bool bDamageNumbers;
-var config EHxDisplayMode DisplayMode;
-var config string DisplayFontName;
-var config float DisplayPosX;
-var config float DisplayPosY;
-var config HxDamagePoint ZeroDamage;
-var config HxDamagePoint LowDamage;
-var config HxDamagePoint MediumDamage;
-var config HxDamagePoint HighDamage;
-var config HxDamagePoint ExtremeDamage;
-var config array<string> FontNames;
-var config array<string> CustomHitSounds;
+var bool bHitSounds;
+var string HitSoundName;
+var float HitSoundVolume;
+var EHxPitchMode PitchMode;
+var bool bDamageNumbers;
+var EHxDisplayMode DisplayMode;
+var string DisplayFontName;
+var float DisplayPosX;
+var float DisplayPosY;
+var HxDamagePoint ZeroDamage;
+var HxDamagePoint LowDamage;
+var HxDamagePoint MediumDamage;
+var HxDamagePoint HighDamage;
+var HxDamagePoint ExtremeDamage;
+var array<string> FontNames;
+var array<string> CustomHitSounds;
 
+var private const Sound BuiltInHitSounds[5];
 var private PlayerController PC;
 var private bool bAllowHitSounds;
 var private bool bAllowDamageNumbers;
 var private HxDamagePoint DamagePoints[5];
-var private Sound BuiltInHitSounds[5];
 var private array<HxDisplayWidget> Widgets;
 var private Sound LoadedHitSound;
 var private Font LoadedFont;
@@ -93,103 +90,12 @@ simulated event PreBeginPlay()
         PC = HUD(Owner).PlayerOwner;
     }
     InitializeWidgets();
-    ValidatePositions();
     LoadHitSound();
-    ValidateCustomHitSounds();
-    ValidateDamagePoints();
     LoadDamagePoints();
     LoadFont();
-    ValidateFontNames();
-    SaveConfig();
 }
 
-simulated function ValidatePositions()
-{
-    DisplayPosX = FClamp(DisplayPosX, 0.0, 1.0);
-    DisplayPosY = FClamp(DisplayPosY, 0.0, 1.0);
-}
-
-simulated function ValidateCustomHitSounds()
-{
-    local int i;
-
-    for (i = 0; i < ArrayCount(BuiltInHitSounds); ++i)
-    {
-        if (HitSoundName ~= GetItemName(string(BuiltInHitSounds[i])))
-        {
-            return;
-        }
-    }
-    for (i = 0; i < CustomHitSounds.Length; ++i)
-    {
-        if (HitSoundName ~= CustomHitSounds[i])
-        {
-            break;
-        }
-    }
-    if (i == CustomHitSounds.Length)
-    {
-        CustomHitSounds[CustomHitSounds.Length] = HitSoundName;
-    }
-}
-
-simulated function ValidateFontNames()
-{
-    local int i;
-
-    for (i = 0; i < FontNames.Length; ++i)
-    {
-        if (DisplayFontName ~= FontNames[i])
-        {
-            break;
-        }
-    }
-    if (i == FontNames.Length)
-    {
-        FontNames[FontNames.Length] = DisplayFontName;
-    }
-}
-
-simulated function ValidateDamagePoints()
-{
-    ZeroDamage.Color.A = 255;
-    ZeroDamage.Pitch = FClamp(ZeroDamage.Pitch, 0.0, 1.0);
-    ZeroDamage.Scale = FClamp(ZeroDamage.Scale, 0.0, 1.0);
-    ZeroDamage.Value = 0;
-    LowDamage.Color.A = 255;
-    LowDamage.Pitch = FClamp(LowDamage.Pitch, 0.0, 1.0);
-    LowDamage.Scale = FClamp(LowDamage.Scale, 0.0, 1.0);
-    MediumDamage.Color.A = 255;
-    MediumDamage.Pitch = FClamp(MediumDamage.Pitch, 0.0, 1.0);
-    MediumDamage.Scale = FClamp(MediumDamage.Scale, 0.0, 1.0);
-    HighDamage.Color.A = 255;
-    HighDamage.Pitch = FClamp(HighDamage.Pitch, 0.0, 1.0);
-    HighDamage.Scale = FClamp(HighDamage.Scale, 0.0, 1.0);
-    ExtremeDamage.Color.A = 255;
-    ExtremeDamage.Pitch = FClamp(ExtremeDamage.Pitch, 0.0, 1.0);
-    ExtremeDamage.Scale = FClamp(ExtremeDamage.Scale, 0.0, 1.0);
-}
-
-simulated function bool LoadHitSound()
-{
-    if (IsHitSoundChanged())
-    {
-        if (LoadHitSoundFromBuiltIn())
-        {
-            return true;
-        }
-        LoadedHitSound = Sound(DynamicLoadObject(HitSoundName, class'Sound', true));
-        if (LoadedHitSound == None)
-        {
-            ResetConfig("HitSoundName");
-            LoadHitSoundFromBuiltIn();
-            return false;
-        }
-    }
-    return true;
-}
-
-simulated function bool LoadHitSoundFromBuiltIn()
+simulated function LoadHitSound()
 {
     local int i;
 
@@ -198,25 +104,15 @@ simulated function bool LoadHitSoundFromBuiltIn()
         if (HitSoundName ~= GetItemName(string(BuiltInHitSounds[i])))
         {
             LoadedHitSound = BuiltInHitSounds[i];
-            return true;
+            return;
         }
     }
-    return false;
+    LoadedHitSound = Sound(DynamicLoadObject(HitSoundName, class'Sound'));
 }
 
-simulated function bool LoadFont()
+simulated function LoadFont()
 {
-    if (IsFontChanged())
-    {
-        LoadedFont = Font(DynamicLoadObject(DisplayFontName, class'Font', true));
-        if (LoadedFont == None)
-        {
-            ResetConfig("DisplayFontName");
-            LoadedFont = Font(DynamicLoadObject(DisplayFontName, class'Font'));
-            return false;
-        }
-    }
-    return true;
+    LoadedFont = Font(DynamicLoadObject(DisplayFontName, class'Font'));
 }
 
 simulated function LoadDamagePoints()
@@ -497,73 +393,39 @@ simulated function int GetFade(int DNIndex)
     return 255;
 }
 
-simulated function HxDamagePoint GetDamagePoint(int Index)
+simulated function SetProperty(string Name, string Value)
 {
-    return DamagePoints[Index];
-}
-
-simulated function SetDamagePointValue(int Index, int Value)
-{
-    DamagePoints[Index].Value = Value;
-    UpdateDamagePointConfig(Index);
-}
-
-simulated function SetDamagePointPitch(int Index, float Pitch)
-{
-    DamagePoints[Index].Pitch = Pitch;
-    UpdateDamagePointConfig(Index);
-}
-
-simulated function SetDamagePointScale(int Index, float Scale)
-{
-    DamagePoints[Index].Scale = Scale;
-    UpdateDamagePointConfig(Index);
-}
-
-simulated function SetDamagePointColorR(int Index, byte R)
-{
-    DamagePoints[Index].Color.R = R;
-    UpdateDamagePointConfig(Index);
-}
-
-simulated function SetDamagePointColorG(int Index, byte G)
-{
-    DamagePoints[Index].Color.G = G;
-    UpdateDamagePointConfig(Index);
-}
-
-simulated function SetDamagePointColorB(int Index, byte B)
-{
-    DamagePoints[Index].Color.B = B;
-    UpdateDamagePointConfig(Index);
+    SetPropertyText(Name, Value);
+    switch (Name)
+    {
+        case "HitSoundName":
+            LoadHitSound();
+            break;
+        case "DisplayFontName":
+            LoadFont();
+            break;
+        case "ZeroDamage":
+            DamagePoints[0] = ZeroDamage;
+            break;
+        case "LowDamage":
+            DamagePoints[1] = LowDamage;
+            break;
+        case "MediumDamage":
+            DamagePoints[2] = MediumDamage;
+            break;
+        case "HighDamage":
+            DamagePoints[3] = HighDamage;
+            break;
+        case "ExtremeDamage":
+            DamagePoints[4] = ExtremeDamage;
+            break;
+    }
 }
 
 simulated function ApplyServerConfiguration(HxUTClient Client)
 {
     bAllowHitSounds = bool(Client.GetServerProperty("bAllowHitSounds"));
     bAllowDamageNumbers = bool(Client.GetServerProperty("bAllowDamageNumbers"));
-}
-
-simulated function UpdateDamagePointConfig(int Index)
-{
-    switch (Index)
-    {
-        case 0:
-            ZeroDamage = DamagePoints[Index];
-            break;
-        case 1:
-            LowDamage = DamagePoints[Index];
-            break;
-        case 2:
-            MediumDamage = DamagePoints[Index];
-            break;
-        case 3:
-            HighDamage = DamagePoints[Index];
-            break;
-        case 4:
-            ExtremeDamage = DamagePoints[Index];
-            break;
-    }
 }
 
 simulated function Color InterpolateColor(int Damage, float MaxValue, Color First, Color Second)
@@ -591,44 +453,6 @@ simulated function bool IsFontChanged()
     return LoadedFont == None || !(string(LoadedFont) ~= DisplayFontName);
 }
 
-simulated function RecoverConfigs()
-{
-    local Actor OldActor;
-    local int Version;
-
-    OldActor = class'HxConfig'.static.FindOldVersionActor(Self, Class, MIN_VERSION, Version);
-    if (OldActor != None)
-    {
-        class'HxConfig'.static.CopyProperty(Self, OldActor, "bHitSounds");
-        class'HxConfig'.static.CopyProperty(Self, OldActor, "HitSoundVolume");
-        class'HxConfig'.static.CopyProperty(Self, OldActor, "PitchMode");
-        class'HxConfig'.static.CopyProperty(Self, OldActor, "bDamageNumbers");
-        class'HxConfig'.static.CopyProperty(Self, OldActor, "HitSoundName");
-        class'HxConfig'.static.CopyProperty(Self, OldActor, "DisplayMode");
-        class'HxConfig'.static.CopyProperty(Self, OldActor, "DisplayFontName");
-        class'HxConfig'.static.CopyProperty(Self, OldActor, "DisplayPosX");
-        class'HxConfig'.static.CopyProperty(Self, OldActor, "DisplayPosY");
-        class'HxConfig'.static.CopyProperty(Self, OldActor, "ZeroDamage");
-        class'HxConfig'.static.CopyProperty(Self, OldActor, "LowDamage");
-        class'HxConfig'.static.CopyProperty(Self, OldActor, "MediumDamage");
-        class'HxConfig'.static.CopyProperty(Self, OldActor, "HighDamage");
-        class'HxConfig'.static.CopyProperty(Self, OldActor, "ExtremeDamage");
-        class'HxConfig'.static.CopyProperty(Self, OldActor, "FontNames");
-        class'HxConfig'.static.CopyProperty(Self, OldActor, "CustomHitSounds");
-        OldActor.Destroy();
-        SaveConfig();
-    }
-}
-
-static function StaticRecoverConfigs(Actor Spawner)
-{
-    local HxHitEffects Temp;
-
-    Temp = Spawner.Spawn(class'HxHitEffects');
-    Temp.RecoverConfigs();
-    Temp.Destroy();
-}
-
 static function float ToAbsoluteScale(float NormalizedScale)
 {
     return FONT_SCALE_MIN + NormalizedScale * FONT_SCALE_SPECTRUM;
@@ -649,30 +473,22 @@ static function bool GetHitSoundNames(out array<string> Names)
     return Names.Length > 0;
 }
 
+static function bool IsBuiltInHitSound(string Name)
+{
+    local int i;
+
+    for (i = 0; i < ArrayCount(default.BuiltInHitSounds); ++i)
+    {
+        if (Name ~= GetItemName(string(default.BuiltInHitSounds[i])))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 defaultproperties
 {
-    bHitSounds=true
-    HitSoundName="HxHitSound1"
-    HitSoundVolume=1.0
-    PitchMode=HX_PITCH_High2Low
-    bDamageNumbers=true
-    DisplayMode=HX_DISPLAY_StaticDual
-    DisplayFontName="UT2003Fonts.FontEurostile37";
-    DisplayPosX=0.5
-    DisplayPosY=0.45
-    ZeroDamage=(Value=0,Pitch=0,Scale=0,Color=(R=255,G=255,B=255))
-    LowDamage=(Value=30,Pitch=0.30,Scale=0.30,Color=(R=255,G=255,B=32))
-    MediumDamage=(Value=70,Pitch=0.55,Scale=0.55,Color=(R=255,G=119,B=32))
-    HighDamage=(Value=120,Pitch=0.75,Scale=0.75,Color=(R=255,G=32,B=32))
-    ExtremeDamage=(Value=180,Pitch=1.00,Scale=1.00,Color=(R=143,G=32,B=245))
-    FontNames(0)="UT2003Fonts.FontEurostile29"
-    FontNames(1)="UT2003Fonts.FontEurostile37"
-    FontNames(2)="UT2003Fonts.FontNeuzeit29"
-    FontNames(3)="UT2003Fonts.FontNeuzeit37"
-    FontNames(4)="2K4Fonts.Verdana28"
-    FontNames(5)="2K4Fonts.Verdana30"
-    FontNames(6)="2K4Fonts.Verdana32"
-    FontNames(7)="2K4Fonts.Verdana34"
     BuiltInHitSounds(0)=Sound'HxHitSound1'
     BuiltInHitSounds(1)=Sound'HxHitSound2'
     BuiltInHitSounds(2)=Sound'HxHitSound3'

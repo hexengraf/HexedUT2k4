@@ -12,11 +12,13 @@ struct HxPendingUpdate
 const PARALLEL_REQUESTS = 16;
 
 var const class<HxMutator> MutatorClass;
+var const array<class<HxConfig> > ConfigClasses;
 var const array<HxTypes.HxClientProperty> Properties;
 var const array<class<HxGUIMenuPanel> > PanelClasses;
 var const byte Order;
 
 var PlayInfo ServerInfo;
+var array<HxConfig> Configs;
 
 var protected HxClientManager Manager;
 var private HxMutator MutatorOwner;
@@ -48,7 +50,19 @@ simulated event PreBeginPlay()
     MutatorClass.static.FillPlayInfo(ServerInfo);
     if (Level.NetMode != NM_DedicatedServer)
     {
+        LoadConfigs();
         Manager = class'HxClientManager'.static.Register(Self);
+    }
+}
+
+simulated function LoadConfigs()
+{
+    local int i;
+
+    for (i = 0; i < ConfigClasses.Length; ++i)
+    {
+        Configs[i] = ConfigClasses[i].static.Load();
+        Configs[i].Index = i;
     }
 }
 
@@ -73,6 +87,44 @@ simulated event Tick(float DeltaTime)
             RequestServerInfo();
         }
     }
+}
+
+simulated function string GetConfigProperty(int ConfigIndex, int PropertyIndex)
+{
+    if (IsValidConfigIndex(ConfigIndex))
+    {
+        return Configs[ConfigIndex].GetProperty(PropertyIndex);
+    }
+    return "";
+}
+
+simulated function bool SetConfigProperty(int ConfigIndex, int PropertyIndex, string Value)
+{
+    if (IsValidConfigIndex(ConfigIndex) && Configs[ConfigIndex].SetProperty(PropertyIndex, Value))
+    {
+        Configs[ConfigIndex].SaveConfig();
+        return true;
+    }
+    return false;
+}
+
+simulated final function HxConfig FindConfig(class<HxConfig> ConfigClass)
+{
+    local int i;
+
+    for (i = 0; i < ConfigClasses.Length; ++i)
+    {
+        if (ConfigClasses[i] == ConfigClass)
+        {
+            return Configs[i];
+        }
+    }
+    return None;
+}
+
+simulated final function bool IsValidConfigIndex(int Index)
+{
+    return Index > -1 && Index < Configs.Length;
 }
 
 function SetServerProperty(int Index, string Value)

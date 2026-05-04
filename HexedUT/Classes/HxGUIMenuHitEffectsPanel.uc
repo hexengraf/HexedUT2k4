@@ -28,6 +28,7 @@ var localized string DisplayModeNames[5];
 var localized string DamagePointNames[5];
 
 var private HxUTClient Client;
+var private HxHitEffectsConfig Config;
 var private int DPIndex;
 var private bool bAllowHitSounds;
 var private bool bAllowDamageNumbers;
@@ -35,6 +36,8 @@ var private bool bDamageNumbersEnabled;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
+    Client = HxUTClient(ClientManager.Find(class'HxUTClient'));
+    Config = HxHitEffectsConfig(Client.FindConfig(class'HxHitEffectsConfig'));
     super.InitComponent(MyController, MyOwner);
     Sections[SECTION_HIT_SOUNDS].Insert(ch_HitSounds);
     Sections[SECTION_HIT_SOUNDS].Insert(co_HitSoundNames);
@@ -52,7 +55,6 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     Sections[SECTION_INTERPOLATION_CURVE].Insert(sl_GreenColor);
     Sections[SECTION_INTERPOLATION_CURVE].Insert(sl_BlueColor);
     Sections[SECTION_INTERPOLATION_CURVE].Insert(b_Preview);
-    PrependClassNameToINIOptions();
     PopulateComboBoxes();
     sl_HitSoundVolume.MySlider.OnClickSound = CS_None;
     sl_Pitch.MySlider.OnClickSound = CS_None;
@@ -60,23 +62,17 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 
 function Refresh()
 {
-    if (Client == None)
-    {
-        Client = HxUTClient(ClientManager.Find(class'HxUTClient'));
-    }
-    if (Client != None)
-    {
-        bAllowHitSounds = bool(Client.GetServerProperty("bAllowHitSounds"));
-        bAllowDamageNumbers = bool(Client.GetServerProperty("bAllowDamageNumbers"));
-        HitSoundsAfterChange();
-        DamageNumbersAfterChange();
-        Sections[SECTION_HIT_SOUNDS].SetHide(!bAllowHitSounds, HideDueDisable);
-        Sections[SECTION_DAMAGE_NUMBERS].SetHide(!bAllowDamageNumbers, HideDueDisable);
-        fl_DisplayPosX.SetVisibility(bAllowDamageNumbers);
-        fl_DisplayPosY.SetVisibility(bAllowDamageNumbers);
-        Sections[SECTION_INTERPOLATION_CURVE].SetHide(
-            !bAllowHitSounds && !bAllowDamageNumbers, HideDueDisable);
-    }
+    bAllowHitSounds = bool(Client.GetServerProperty("bAllowHitSounds"));
+    bAllowDamageNumbers = bool(Client.GetServerProperty("bAllowDamageNumbers"));
+    HitSoundsAfterChange();
+    DamageNumbersAfterChange();
+    RefreshDamagePointEditorSection();
+    Sections[SECTION_HIT_SOUNDS].SetHide(!bAllowHitSounds, HideDueDisable);
+    Sections[SECTION_DAMAGE_NUMBERS].SetHide(!bAllowDamageNumbers, HideDueDisable);
+    fl_DisplayPosX.SetVisibility(bAllowDamageNumbers);
+    fl_DisplayPosY.SetVisibility(bAllowDamageNumbers);
+    Sections[SECTION_INTERPOLATION_CURVE].SetHide(
+        !bAllowHitSounds && !bAllowDamageNumbers, HideDueDisable);
     Super.Refresh();
 }
 
@@ -158,7 +154,7 @@ function DamagePointEditorAfterChange(bool bAnyEffectEnabled)
     SetEnable(nu_Value, bAnyEffectEnabled && DPIndex != 0);
 }
 
-function DamagePointEditorOnLoadINI(GUIComponent Sender, string s)
+function InternalOnLoadINI(GUIComponent Sender, string s)
 {
     switch (Sender)
     {
@@ -166,105 +162,117 @@ function DamagePointEditorOnLoadINI(GUIComponent Sender, string s)
             co_DamagePoints.SilentSetIndex(DPIndex);
             break;
         case nu_Value:
-            nu_Value.SetComponentValue(class'HxHitEffects'.default.ExtremeDamage.Value, true);
+            nu_Value.SetComponentValue(Config.ExtremeDamage.Value, true);
             break;
         case sl_Pitch:
-            sl_Pitch.SetComponentValue(class'HxHitEffects'.default.ExtremeDamage.Pitch, true);
+            sl_Pitch.SetComponentValue(Config.ExtremeDamage.Pitch, true);
             break;
         case sl_Scale:
-            sl_Scale.SetComponentValue(class'HxHitEffects'.default.ExtremeDamage.Scale, true);
+            sl_Scale.SetComponentValue(Config.ExtremeDamage.Scale, true);
             break;
         case sl_RedColor:
-            sl_RedColor.SetComponentValue(class'HxHitEffects'.default.ExtremeDamage.Color.R, true);
+            sl_RedColor.SetComponentValue(Config.ExtremeDamage.Color.R, true);
             break;
         case sl_GreenColor:
-            sl_GreenColor.SetComponentValue(class'HxHitEffects'.default.ExtremeDamage.Color.G, true);
+            sl_GreenColor.SetComponentValue(Config.ExtremeDamage.Color.G, true);
             break;
         case sl_BlueColor:
-            sl_BlueColor.SetComponentValue(class'HxHitEffects'.default.ExtremeDamage.Color.B, true);
+            sl_BlueColor.SetComponentValue(Config.ExtremeDamage.Color.B, true);
+            break;
+        default:
+            GUIMenuOption(Sender).SetComponentValue(Config.GetProperty(Sender.Tag), true);
             break;
     }
 }
 
 function HitEffectsOnChange(GUIComponent Sender)
 {
-    if (Client == None || Client.HitEffects == None)
-    {
-        return;
-    }
-    DefaultOnChange(Sender, Client.HitEffects);
+    Client.SetConfigProperty(
+        Config.Index, Sender.Tag, GUIMenuOption(Sender).GetComponentValue());
     switch (Sender)
     {
         case ch_HitSounds:
             HitSoundsAfterChange();
             break;
-        case co_HitSoundNames:
-            if (!Client.HitEffects.LoadHitSound())
-            {
-                co_HitSoundNames.LoadINI();
-            }
-            break;
         case sl_HitSoundVolume:
-            Client.HitEffects.PlayHitSoundPreview(DPIndex);
+            Client.PlayHitSoundPreview(DPIndex);
             break;
         case ch_DamageNumbers:
             DamageNumbersAfterChange();
-            break;
-        case co_DisplayFont:
-            if (!Client.HitEffects.LoadFont())
-            {
-                co_DisplayFont.LoadINI();
-            }
-            break;
-        default:
             break;
     }
 }
 
 function DamagePointEditorOnChange(GUIComponent Sender)
 {
-    if (Client == None || Client.HitEffects == None)
+    if (Sender == co_DamagePoints)
     {
-        return;
+        DPIndex = co_DamagePoints.GetIndex();
+        RefreshDamagePointEditorSection();
     }
-    switch(Sender)
+    else
     {
-        case co_DamagePoints:
-            DPIndex = co_DamagePoints.GetIndex();
-            RefreshDamagePointEditorSection();
-            break;
-        case nu_Value:
-            Client.HitEffects.SetDamagePointValue(DPIndex, nu_Value.GetValue());
-            break;
-        case sl_Pitch:
-            Client.HitEffects.SetDamagePointPitch(DPIndex, sl_Pitch.GetValue());
-            Client.HitEffects.PlayHitSoundPreview(DPIndex);
-            break;
-        case sl_Scale:
-            Client.HitEffects.SetDamagePointScale(DPIndex, sl_Scale.GetValue());
-            break;
-        case sl_RedColor:
-            Client.HitEffects.SetDamagePointColorR(DPIndex, sl_RedColor.GetValue());
-            break;
-        case sl_GreenColor:
-            Client.HitEffects.SetDamagePointColorG(DPIndex, sl_GreenColor.GetValue());
-            break;
-        case sl_BlueColor:
-            Client.HitEffects.SetDamagePointColorB(DPIndex, sl_BlueColor.GetValue());
-            break;
+        UpdateDamagePointConfig();
+        Client.SetConfigProperty(Config.Index, Sender.Tag, Config.GetProperty(Sender.Tag));
     }
-    Client.HitEffects.SaveConfig();
+    if (Sender == sl_Pitch)
+    {
+        Client.PlayHitSoundPreview(DPIndex);
+    }
 }
 
 function RefreshDamagePointEditorSection()
 {
     SetEnable(nu_Value, DPIndex != 0);
-    nu_Value.SetComponentValue(Client.HitEffects.GetDamagePoint(DPIndex).Value, true);
-    sl_Pitch.SetComponentValue(Client.HitEffects.GetDamagePoint(DPIndex).Pitch, true);
-    sl_Scale.SetComponentValue(Client.HitEffects.GetDamagePoint(DPIndex).Scale, true);
-    sl_RedColor.SetComponentValue(Client.HitEffects.GetDamagePoint(DPIndex).Color.R, true);
-    sl_GreenColor.SetComponentValue(Client.HitEffects.GetDamagePoint(DPIndex).Color.G, true);
-    sl_BlueColor.SetComponentValue(Client.HitEffects.GetDamagePoint(DPIndex).Color.B, true);
+    switch (DPIndex)
+    {
+        case 0:
+            nu_Value.SetComponentValue(Config.ZeroDamage.Value, true);
+            sl_Pitch.SetComponentValue(Config.ZeroDamage.Pitch, true);
+            sl_Scale.SetComponentValue(Config.ZeroDamage.Scale, true);
+            sl_RedColor.SetComponentValue(Config.ZeroDamage.Color.R, true);
+            sl_GreenColor.SetComponentValue(Config.ZeroDamage.Color.G, true);
+            sl_BlueColor.SetComponentValue(Config.ZeroDamage.Color.B, true);
+            break;
+        case 1:
+            nu_Value.SetComponentValue(Config.LowDamage.Value, true);
+            sl_Pitch.SetComponentValue(Config.LowDamage.Pitch, true);
+            sl_Scale.SetComponentValue(Config.LowDamage.Scale, true);
+            sl_RedColor.SetComponentValue(Config.LowDamage.Color.R, true);
+            sl_GreenColor.SetComponentValue(Config.LowDamage.Color.G, true);
+            sl_BlueColor.SetComponentValue(Config.LowDamage.Color.B, true);
+            break;
+        case 2:
+            nu_Value.SetComponentValue(Config.MediumDamage.Value, true);
+            sl_Pitch.SetComponentValue(Config.MediumDamage.Pitch, true);
+            sl_Scale.SetComponentValue(Config.MediumDamage.Scale, true);
+            sl_RedColor.SetComponentValue(Config.MediumDamage.Color.R, true);
+            sl_GreenColor.SetComponentValue(Config.MediumDamage.Color.G, true);
+            sl_BlueColor.SetComponentValue(Config.MediumDamage.Color.B, true);
+            break;
+        case 3:
+            nu_Value.SetComponentValue(Config.HighDamage.Value, true);
+            sl_Pitch.SetComponentValue(Config.HighDamage.Pitch, true);
+            sl_Scale.SetComponentValue(Config.HighDamage.Scale, true);
+            sl_RedColor.SetComponentValue(Config.HighDamage.Color.R, true);
+            sl_GreenColor.SetComponentValue(Config.HighDamage.Color.G, true);
+            sl_BlueColor.SetComponentValue(Config.HighDamage.Color.B, true);
+            break;
+        case 4:
+            nu_Value.SetComponentValue(Config.ExtremeDamage.Value, true);
+            sl_Pitch.SetComponentValue(Config.ExtremeDamage.Pitch, true);
+            sl_Scale.SetComponentValue(Config.ExtremeDamage.Scale, true);
+            sl_RedColor.SetComponentValue(Config.ExtremeDamage.Color.R, true);
+            sl_GreenColor.SetComponentValue(Config.ExtremeDamage.Color.G, true);
+            sl_BlueColor.SetComponentValue(Config.ExtremeDamage.Color.B, true);
+            break;
+    }
+    nu_Value.Tag = Config.GetPropertyIndex("ZeroDamage") + DPIndex;
+    sl_Pitch.Tag = nu_Value.Tag;
+    sl_Scale.Tag = nu_Value.Tag;
+    sl_RedColor.Tag = nu_Value.Tag;
+    sl_GreenColor.Tag = nu_Value.Tag;
+    sl_BlueColor.Tag = nu_Value.Tag;
 }
 
 function bool PositionFloatEditsOnPreDraw(Canvas C)
@@ -291,7 +299,7 @@ function DrawPreview(Canvas C)
     local float SavedFontScaleX;
     local float SavedFontScaleY;
 
-    if (Client != None && Client.HitEffects != None && bDamageNumbersEnabled)
+    if (bDamageNumbersEnabled)
     {
         SavedOrgX = C.OrgX;
         SavedOrgY = C.OrgY;
@@ -303,7 +311,7 @@ function DrawPreview(Canvas C)
         C.OrgY = b_Preview.ActualTop();
         C.ClipX = b_Preview.ActualWidth();
         C.ClipY = b_Preview.ActualHeight();
-        Client.HitEffects.DrawPreview(C, DPIndex);
+        Client.DrawDamageNumberPreview(C, DPIndex);
         C.OrgX = SavedOrgX;
         C.OrgY = SavedOrgY;
         C.ClipX = SavedClipX;
@@ -313,20 +321,50 @@ function DrawPreview(Canvas C)
     }
 }
 
-function PrependClassNameToINIOptions()
+simulated function UpdateDamagePointConfig()
 {
-    local string ClassName;
-
-    ClassName = string(class'HxHitEffects');
-    ch_HitSounds.INIOption = ClassName@ch_HitSounds.INIOption;
-    co_HitSoundNames.INIOption = ClassName@co_HitSoundNames.INIOption;
-    sl_HitSoundVolume.INIOption = ClassName@sl_HitSoundVolume.INIOption;
-    co_PitchMode.INIOption = ClassName@co_PitchMode.INIOption;
-    ch_DamageNumbers.INIOption = ClassName@ch_DamageNumbers.INIOption;
-    co_DisplayMode.INIOption = ClassName@co_DisplayMode.INIOption;
-    co_DisplayFont.INIOption = ClassName@co_DisplayFont.INIOption;
-    fl_DisplayPosX.INIOption = ClassName@fl_DisplayPosX.INIOption;
-    fl_DisplayPosY.INIOption = ClassName@fl_DisplayPosY.INIOption;
+    switch (DPIndex)
+    {
+        case 0:
+            Config.ZeroDamage.Pitch = sl_Pitch.GetValue();
+            Config.ZeroDamage.Scale = sl_Scale.GetValue();
+            Config.ZeroDamage.Color.R = sl_RedColor.GetValue();
+            Config.ZeroDamage.Color.G = sl_GreenColor.GetValue();
+            Config.ZeroDamage.Color.B = sl_BlueColor.GetValue();
+            break;
+        case 1:
+            Config.LowDamage.Value = nu_Value.GetValue();
+            Config.LowDamage.Pitch = sl_Pitch.GetValue();
+            Config.LowDamage.Scale = sl_Scale.GetValue();
+            Config.LowDamage.Color.R = sl_RedColor.GetValue();
+            Config.LowDamage.Color.G = sl_GreenColor.GetValue();
+            Config.LowDamage.Color.B = sl_BlueColor.GetValue();
+            break;
+        case 2:
+            Config.MediumDamage.Value = nu_Value.GetValue();
+            Config.MediumDamage.Pitch = sl_Pitch.GetValue();
+            Config.MediumDamage.Scale = sl_Scale.GetValue();
+            Config.MediumDamage.Color.R = sl_RedColor.GetValue();
+            Config.MediumDamage.Color.G = sl_GreenColor.GetValue();
+            Config.MediumDamage.Color.B = sl_BlueColor.GetValue();
+            break;
+        case 3:
+            Config.HighDamage.Value = nu_Value.GetValue();
+            Config.HighDamage.Pitch = sl_Pitch.GetValue();
+            Config.HighDamage.Scale = sl_Scale.GetValue();
+            Config.HighDamage.Color.R = sl_RedColor.GetValue();
+            Config.HighDamage.Color.G = sl_GreenColor.GetValue();
+            Config.HighDamage.Color.B = sl_BlueColor.GetValue();
+            break;
+        case 4:
+            Config.ExtremeDamage.Value = nu_Value.GetValue();
+            Config.ExtremeDamage.Pitch = sl_Pitch.GetValue();
+            Config.ExtremeDamage.Scale = sl_Scale.GetValue();
+            Config.ExtremeDamage.Color.R = sl_RedColor.GetValue();
+            Config.ExtremeDamage.Color.G = sl_GreenColor.GetValue();
+            Config.ExtremeDamage.Color.B = sl_BlueColor.GetValue();
+            break;
+    }
 }
 
 defaultproperties
@@ -351,8 +389,9 @@ defaultproperties
 
     Begin Object class=moCheckBox Name=HitSoundsCheckBox
         Caption="Enable hit sounds"
-        INIOption="bHitSounds"
-        OnLoadINI=DefaultOnLoadINI
+        INIOption="@INTERNAL"
+        Tag=0
+        OnLoadINI=InternalOnLoadINI
         OnChange=HitEffectsOnChange
         TabOrder=0
     End Object
@@ -360,10 +399,11 @@ defaultproperties
 
     Begin Object class=moComboBox Name=HitSoundNamesComboBox
         Caption="Sound"
-        INIOption="HitSoundName"
+        INIOption="@INTERNAL"
+        Tag=1
         ComponentWidth=0.64
         bReadOnly=true
-        OnLoadINI=DefaultOnLoadINI
+        OnLoadINI=InternalOnLoadINI
         OnChange=HitEffectsOnChange
         TabOrder=1
     End Object
@@ -371,11 +411,12 @@ defaultproperties
 
     Begin Object class=moSlider Name=HitSoundVolumeSlider
         Caption="Volume"
-        INIOption="HitSoundVolume"
+        INIOption="@INTERNAL"
+        Tag=2
         ComponentWidth=0.64
         MinValue=0.0
         MaxValue=1.0
-        OnLoadINI=DefaultOnLoadINI
+        OnLoadINI=InternalOnLoadINI
         OnChange=HitEffectsOnChange
         TabOrder=2
     End Object
@@ -383,10 +424,11 @@ defaultproperties
 
     Begin Object class=moComboBox Name=PitchModeComboBox
         Caption="Pitch mode"
-        INIOption="PitchMode"
+        INIOption="@INTERNAL"
+        Tag=3
         ComponentWidth=0.64
         bReadOnly=true
-        OnLoadINI=DefaultOnLoadINI
+        OnLoadINI=InternalOnLoadINI
         OnChange=HitEffectsOnChange
         TabOrder=3
     End Object
@@ -394,8 +436,9 @@ defaultproperties
 
     Begin Object class=moCheckBox Name=DamageNumbersCheckBox
         Caption="Enable damage numbers"
-        INIOption="bDamageNumbers"
-        OnLoadINI=DefaultOnLoadINI
+        INIOption="@INTERNAL"
+        Tag=4
+        OnLoadINI=InternalOnLoadINI
         OnChange=HitEffectsOnChange
         TabOrder=4
     End Object
@@ -403,10 +446,11 @@ defaultproperties
 
     Begin Object class=moComboBox Name=DisplayModeComboBox
         Caption="Mode"
-        INIOption="DisplayMode"
+        INIOption="@INTERNAL"
+        Tag=5
         ComponentWidth=0.64
         bReadOnly=true
-        OnLoadINI=DefaultOnLoadINI
+        OnLoadINI=InternalOnLoadINI
         OnChange=HitEffectsOnChange
         TabOrder=5
     End Object
@@ -414,10 +458,11 @@ defaultproperties
 
     Begin Object class=moComboBox Name=DisplayFontComboBox
         Caption="Font"
-        INIOption="DisplayFontName"
+        INIOption="@INTERNAL"
+        Tag=6
         ComponentWidth=0.64
         bReadOnly=true
-        OnLoadINI=DefaultOnLoadINI
+        OnLoadINI=InternalOnLoadINI
         OnChange=HitEffectsOnChange
         TabOrder=6
     End Object
@@ -437,12 +482,13 @@ defaultproperties
 
     Begin Object class=moFloatEdit Name=PosXFloatEdit
         Caption="X"
-        INIOption="DisplayPosX"
+        INIOption="@INTERNAL"
+        Tag=7
         MinValue=0.0
         MaxValue=1.0
         Step=0.01
         CaptionWidth=0.17
-        OnLoadINI=DefaultOnLoadINI
+        OnLoadINI=InternalOnLoadINI
         OnChange=HitEffectsOnChange
         TabOrder=7
     End Object
@@ -450,12 +496,13 @@ defaultproperties
 
     Begin Object class=moFloatEdit Name=PosYFloatEdit
         Caption="Y"
-        INIOption="DisplayPosY"
+        INIOption="@INTERNAL"
+        Tag=8
         MinValue=0.0
         MaxValue=1.0
         Step=0.01
         CaptionWidth=0.17
-        OnLoadINI=DefaultOnLoadINI
+        OnLoadINI=InternalOnLoadINI
         OnChange=HitEffectsOnChange
         TabOrder=8
     End Object
@@ -466,7 +513,7 @@ defaultproperties
         INIOption="@INTERNAL"
         ComponentWidth=0.64
         bReadOnly=true
-        OnLoadINI=DamagePointEditorOnLoadINI
+        OnLoadINI=InternalOnLoadINI
         OnChange=DamagePointEditorOnChange
         TabOrder=9
     End Object
@@ -479,7 +526,7 @@ defaultproperties
         MaxValue=300
         Step=1
         ComponentWidth=0.25
-        OnLoadINI=DamagePointEditorOnLoadINI
+        OnLoadINI=InternalOnLoadINI
         OnChange=DamagePointEditorOnChange
         TabOrder=11
     End Object
@@ -491,7 +538,7 @@ defaultproperties
         ComponentWidth=0.64
         MinValue=0.0
         MaxValue=1.0
-        OnLoadINI=DamagePointEditorOnLoadINI
+        OnLoadINI=InternalOnLoadINI
         OnChange=DamagePointEditorOnChange
         TabOrder=12
     End Object
@@ -503,7 +550,7 @@ defaultproperties
         ComponentWidth=0.64
         MinValue=0.0
         MaxValue=1.0
-        OnLoadINI=DamagePointEditorOnLoadINI
+        OnLoadINI=InternalOnLoadINI
         OnChange=DamagePointEditorOnChange
         TabOrder=14
     End Object
@@ -516,7 +563,7 @@ defaultproperties
         MinValue=0
         MaxValue=255
         bIntSlider=true
-        OnLoadINI=DamagePointEditorOnLoadINI
+        OnLoadINI=InternalOnLoadINI
         OnChange=DamagePointEditorOnChange
         TabOrder=15
     End Object
@@ -529,7 +576,7 @@ defaultproperties
         MinValue=0
         MaxValue=255
         bIntSlider=true
-        OnLoadINI=DamagePointEditorOnLoadINI
+        OnLoadINI=InternalOnLoadINI
         OnChange=DamagePointEditorOnChange
         TabOrder=16
     End Object
@@ -542,7 +589,7 @@ defaultproperties
         MinValue=0
         MaxValue=255
         bIntSlider=true
-        OnLoadINI=DamagePointEditorOnLoadINI
+        OnLoadINI=InternalOnLoadINI
         OnChange=DamagePointEditorOnChange
         TabOrder=17
     End Object
