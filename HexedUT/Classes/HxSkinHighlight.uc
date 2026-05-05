@@ -1,8 +1,6 @@
 class HxSkinHighlight extends Actor
     config(User);
 
-const MIN_VERSION = 3;
-
 const NO_HIGHLIGHT = "DISABLED";
 const RANDOM_HIGHLIGHT = "RANDOM";
 const DEFAULT_HIGHLIGHT = "DEFAULT";

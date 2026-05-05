@@ -1,43 +1,14 @@
-class HxConfig extends Object
+class HxConfig extends HxTypes
     abstract;
-
-enum HxPropertyType
-{
-    HX_PROPERTY_Bool,
-    HX_PROPERTY_Int,
-    HX_PROPERTY_Float,
-    HX_PROPERTY_Enum,
-    HX_PROPERTY_String,
-    HX_PROPERTY_Color,
-    HX_PROPERTY_Array,
-    HX_PROPERTY_Struct,
-};
-
-struct HxProperty
-{
-    var const string Name;
-    var const HxPropertyType Type;
-    var const string LowerLimit;
-    var const string UpperLimit;
-    var const string Step;
-};
-
-struct HxDisplayProperty
-{
-    var const bool bShow;
-    var const localized string Section;
-    var const localized string Caption;
-    var const localized string Hint;
-    var const bool bAdvanced;
-};
 
 var const string ObjectName;
 var const array<HxProperty> Properties;
-var const array<HxDisplayProperty> DisplayProperties;
-var const Class TargetClass;
+var const array<HxDisplayProperty> DisplayInfo;
 var int Index;
 
-function ApplyDefaultConfiguration();
+function ApplyAllProperties();
+function ApplyProperty(int Index);
+function string ValidateStruct(int Index, string Value);
 
 function Created()
 {
@@ -47,27 +18,19 @@ function Created()
     for (i = 0; i < Properties.Length; ++i)
     {
         SetPropertyText(
-            Properties[i].Name,
-            ClampProperty(
-                Properties[i].Type,
-                GetPropertyText(Properties[i].Name),
-                Properties[i].LowerLimit,
-                Properties[i].UpperLimit));
+            Properties[i].Name, ValidateProperty(i, GetPropertyText(Properties[i].Name)));
     }
-    ApplyDefaultConfiguration();
+    SaveConfig();
+    ApplyAllProperties();
 }
 
 function bool SetProperty(int Index, coerce string Value)
 {
-    if (IsValidPropertyIndex(Index))
+    if (IsValidPropertyIndex(Index)
+        && SetPropertyText(Properties[Index].Name, ValidateProperty(Index, Value)))
     {
-        return SetPropertyText(
-            Properties[Index].Name,
-            ClampProperty(
-                Properties[Index].Type,
-                Value,
-                Properties[Index].LowerLimit,
-                Properties[Index].UpperLimit));
+        ApplyProperty(Index);
+        return true;
     }
     return false;
 }
@@ -95,19 +58,44 @@ function int GetPropertyIndex(string Name)
     return -1;
 }
 
-function string ClampProperty(HxPropertyType Type,
-                              string Value,
-                              string LowerLimit,
-                              string UpperLimit)
+function string ValidateProperty(int Index, string Value)
 {
-    switch (Type)
+    switch (Properties[Index].Type)
     {
         case HX_PROPERTY_Int:
-            return string(Clamp(int(Value), int(LowerLimit), int(UpperLimit)));
+            return string(Clamp(
+                int(Value),
+                int(Properties[Index].LowerLimit),
+                int(Properties[Index].UpperLimit)));
         case HX_PROPERTY_Float:
-            return string(FClamp(float(Value), float(LowerLimit), float(UpperLimit)));
+            return string(FClamp(
+                float(Value),
+                float(Properties[Index].LowerLimit),
+                float(Properties[Index].UpperLimit)));
+        case HX_PROPERTY_Enum:
+            return ValidateEnum(Index, Value);
+        case HX_PROPERTY_Struct:
+            return ValidateStruct(Index, Value);
     }
     return Value;
+}
+
+function string ValidateEnum(int Index, string Value)
+{
+    local int i;
+
+    if (Properties[Index].EnumValues.Length == 0)
+    {
+        return Value;
+    }
+    for (i = 0; i < Properties[Index].EnumValues.Length; ++i)
+    {
+        if (Value ~= Properties[Index].EnumValues[i])
+        {
+            return Properties[Index].EnumValues[i];
+        }
+    }
+    return Properties[Index].EnumValues[0];
 }
 
 final function bool IsValidPropertyIndex(int Index)
@@ -128,121 +116,6 @@ function UpdateConfiguration(Object TargetObject)
 static function HxConfig Load()
 {
     return new(None, default.ObjectName) default.Class;
-}
-
-static function PlayInfo.EPlayInfoType ToPlayInfoType(HxPropertyType Type)
-{
-    switch (Type)
-    {
-        case HX_PROPERTY_Bool:
-            return PIT_Check;
-        case HX_PROPERTY_Enum:
-            return PIT_Select;
-    }
-    return PIT_Text;
-}
-
-function bool CopyPropertyFrom(Object OldObject,
-                               string PropertyName,
-                               optional string OldPropertyName)
-{
-    return CopyProperty(Self, OldObject, PropertyName, OldPropertyName);
-}
-
-static function Object FindOldVersionObject(coerce string FullName,
-                                            optional int MinVersion,
-                                            optional out int Version)
-{
-    local class<Object> OldClass;
-    local Object OldObject;
-    local string PackageName;
-    local string ClassName;
-    local string VersionName;
-
-    if (ExtractVersion(FullName, VersionName, PackageName, ClassName))
-    {
-        Version = int(VersionName);
-        while (Version > MinVersion)
-        {
-            --Version;
-            OldClass = class<Object>(DynamicLoadObject(
-                PackageName$"v"$string(Version)$"."$ClassName, class'Class', true));
-            if (OldClass != None)
-            {
-                OldObject = new() OldClass;
-                if (OldObject != None)
-                {
-                    return OldObject;
-                }
-            }
-        }
-    }
-    return None;
-}
-
-static function Actor FindOldVersionActor(Actor Owner,
-                                          coerce string FullName,
-                                          optional int MinVersion,
-                                          optional out int Version)
-{
-    local class<Actor> OldClass;
-    local Actor OldActor;
-    local string PackageName;
-    local string ClassName;
-    local string VersionName;
-
-    if (ExtractVersion(FullName, VersionName, PackageName, ClassName))
-    {
-        Version = int(VersionName);
-        while (Version > MinVersion)
-        {
-            --Version;
-            OldClass = class<Actor>(DynamicLoadObject(
-                PackageName$"v"$string(Version)$"."$ClassName, class'Class', true));
-            if (OldClass != None)
-            {
-                OldActor = Owner.Spawn(OldClass, Owner);
-                if (OldActor != None)
-                {
-                    OldActor.Disable('Tick');
-                    return OldActor;
-                }
-            }
-        }
-    }
-    return None;
-}
-
-static function bool CopyProperty(Object NewObject,
-                                  Object OldObject,
-                                  string PropertyName,
-                                  optional string OldPropertyName)
-{
-    local string Value;
-
-    Value = OldObject.GetPropertyText(PropertyName);
-    if (Value != "")
-    {
-        return NewObject.SetPropertyText(PropertyName, Value);
-    }
-    else if (OldPropertyName != "")
-    {
-        Value = OldObject.GetPropertyText(OldPropertyName);
-        if (Value != "")
-        {
-            return NewObject.SetPropertyText(PropertyName, Value);
-        }
-    }
-    return false;
-}
-
-static function bool ExtractVersion(coerce string FullName,
-                                    out string Version,
-                                    optional out string PackageName,
-                                    optional out string ClassName)
-{
-    return Divide(FullName, ".", PackageName, ClassName)
-        && Divide(PackageName, "v", PackageName, Version);
 }
 
 defaultproperties

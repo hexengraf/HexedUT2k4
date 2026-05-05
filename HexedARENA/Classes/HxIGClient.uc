@@ -1,36 +1,6 @@
 class HxIGClient extends HxClientReplicationInfo;
 
-var private HxIGScopeConfig ScopeConfig;
 var private bool bPickupBasesDisabled;
-
-simulated event PreBeginPlay()
-{
-    Super.PreBeginPlay();
-    if (Level.NetMode != NM_DedicatedServer)
-    {
-        ScopeConfig = HxIGScopeConfig(class'HxIGScopeConfig'.static.Load());
-        ApplyScopeConfiguration();
-    }
-}
-
-simulated function ApplyScopeConfiguration()
-{
-    local PlayerController PC;
-    local Inventory Inv;
-
-    ScopeConfig.ApplyConfiguration(class'HxZoomSuperShockRifle');
-    PC = Level.GetLocalPlayerController();
-    if (PC != None && PC.Pawn != None)
-    {
-        for (Inv = PC.Pawn.Inventory; Inv != None; Inv = Inv.inventory)
-        {
-            if (HxZoomSuperShockRifle(Inv) != None)
-            {
-                HxZoomSuperShockRifle(Inv).RefreshConfiguration();
-            }
-        }
-    }
-}
 
 simulated function Tick(float DeltaTime)
 {
@@ -42,88 +12,31 @@ simulated function Tick(float DeltaTime)
     Super.Tick(DeltaTime);
 }
 
-simulated function string GetProperty(int Index)
+simulated function bool SetConfigProperty(int ConfigIndex, int PropertyIndex, string Value)
 {
-    switch (Index)
-    {
-        case 3:
-            return string(ScopeConfig.ReticleColor.R);
-        case 4:
-            return string(ScopeConfig.ReticleColor.G);
-        case 5:
-            return string(ScopeConfig.ReticleColor.B);
-        case 6:
-            return string(ScopeConfig.ReticleColor.A / 255.0);
-        case 11:
-            return string(ScopeConfig.CustomZoomCrosshairColor.R);
-        case 12:
-            return string(ScopeConfig.CustomZoomCrosshairColor.G);
-        case 13:
-            return string(ScopeConfig.CustomZoomCrosshairColor.B);
-        case 14:
-            return string(ScopeConfig.CustomZoomCrosshairColor.A / 255.0);
-        default:
-            return ScopeConfig.GetPropertyText(Properties[Index].Name);
-    }
-    return "";
-}
+    local PlayerController PC;
+    local Inventory Inv;
 
-simulated function SetProperty(int Index, string Value)
-{
-    switch (Index)
+    if (Super.SetConfigProperty(ConfigIndex, PropertyIndex, Value))
     {
-        case 3:
-            ScopeConfig.ReticleColor.R = byte(Value);
-            break;
-        case 4:
-            ScopeConfig.ReticleColor.G = byte(Value);
-            break;
-        case 5:
-            ScopeConfig.ReticleColor.B = byte(Value);
-            break;
-        case 6:
-            ScopeConfig.ReticleColor.A = float(Value) * 255;
-            break;
-        case 10:
-            ScopeConfig.SetCustomCrosshair(Value);
-            break;
-        case 11:
-            ScopeConfig.CustomZoomCrosshairColor.R = byte(Value);
-            break;
-        case 12:
-            ScopeConfig.CustomZoomCrosshairColor.G = byte(Value);
-            break;
-        case 13:
-            ScopeConfig.CustomZoomCrosshairColor.B = byte(Value);
-            break;
-        case 14:
-            ScopeConfig.CustomZoomCrosshairColor.A = float(Value) * 255;
-            break;
-        default:
-            ScopeConfig.SetPropertyText(Properties[Index].Name, Value);
-            break;
+        PC = Level.GetLocalPlayerController();
+        if (PC != None && PC.Pawn != None)
+        {
+            for (Inv = PC.Pawn.Inventory; Inv != None; Inv = Inv.inventory)
+            {
+                if (HxZoomSuperShockRifle(Inv) != None)
+                {
+                    HxZoomSuperShockRifle(Inv).RefreshConfiguration();
+                }
+            }
+        }
+        return true;
     }
-    ScopeConfig.SaveConfig();
-    ApplyScopeConfiguration();
+    return false;
 }
 
 defaultproperties
 {
     MutatorClass=class'MutHexedINSTAGIB'
-    Properties(0)=(Name="ScopeOverlay",Caption="Scope overlay",Hint="Choose which scope overlay to use.",Type=PIT_Select,Data="HX_SCOPE_Default;Default;HX_SCOPE_Custom;Custom;HX_SCOPE_Hidden;Hidden",Dependency="bZoomInstagib")
-    Properties(1)=(Name="bSoundEffects",Section="Custom Scope Overlay",Caption="Zoom sound effects",Hint="Enable sound effects when zooming in/out.",Type=PIT_Check,Dependency="bZoomInstagib")
-    Properties(2)=(Name="bShowChargeBar",Section="Custom Scope Overlay",Caption="Show charge bar",Hint="Show charge bar to indicate when it is ready to shoot.",Type=PIT_Check,Dependency="bZoomInstagib")
-    Properties(3)=(Name="ReticleRed",Section="Custom Scope Overlay",Caption="Red",Hint="Change the color of the reticle.",Type=PIT_Text,Data="3;0:255",Step=5,Dependency="bZoomInstagib")
-    Properties(4)=(Name="ReticleGreen",Section="Custom Scope Overlay",Caption="Green",Hint="Change the color of the reticle.",Type=PIT_Text,Data="3;0:255",Step=5,Dependency="bZoomInstagib")
-    Properties(5)=(Name="ReticleBlue",Section="Custom Scope Overlay",Caption="Blue",Hint="Change the color of the reticle.",Type=PIT_Text,Data="3;0:255",Step=5,Dependency="bZoomInstagib")
-    Properties(6)=(Name="ReticleAlpha",Section="Custom Scope Overlay",Caption="Opacity",Hint="Change the opacity of the reticle.",Type=PIT_Text,Data="8;0.0:1.0",Step=0.05,Dependency="bZoomInstagib")
-    Properties(7)=(Name="ReticleScale",Section="Custom Scope Overlay",Caption="Scale",Hint="Change the scale of the reticle.",Type=PIT_Text,Data="8;0.0:1.0",Step=0.05,Dependency="bZoomInstagib")
-    Properties(8)=(Name="BackgroundOpacity",Section="Custom Scope Overlay",Caption="Background opacity",Hint="Change the opacity of the black background around the scope.",Type=PIT_Text,Data="8;0.0:1.0",Step=0.05,Dependency="bZoomInstagib")
-    Properties(9)=(Name="bCustomZoomCrosshair",Section="Custom Crosshair",Caption="Use custom crosshair",Hint="Use custom crosshair while zooming. Requires custom weapon crosshairs enabled to work.",Type=PIT_Check,Dependency="bZoomInstagib")
-    Properties(10)=(Name="CustomZoomCrosshair",Section="Custom Crosshair",Caption="Custom Crosshair",Hint="Choose which crosshair to use.",Type=PIT_Select,Data="CROSSHAIRS",Dependency="bZoomInstagib")
-    Properties(11)=(Name="CrosshairRed",Section="Custom Crosshair",Caption="Red",Hint="Change the color of the crosshair.",Type=PIT_Text,Data="3;0:255",Step=5,Dependency="bZoomInstagib")
-    Properties(12)=(Name="CrosshairGreen",Section="Custom Crosshair",Caption="Green",Hint="Change the color of the crosshair.",Type=PIT_Text,Data="3;0:255",Step=5,Dependency="bZoomInstagib")
-    Properties(13)=(Name="CrosshairBlue",Section="Custom Crosshair",Caption="Blue",Hint="Change the color of the crosshair.",Type=PIT_Text,Data="3;0:255",Step=5,Dependency="bZoomInstagib")
-    Properties(14)=(Name="CrosshairAlpha",Section="Custom Crosshair",Caption="Opacity",Hint="Change the opacity of the crosshair.",Type=PIT_Text,Data="8;0.0:1.0",Step=0.05,Dependency="bZoomInstagib")
-    Properties(15)=(Name="CustomZoomCrosshairScale",Section="Custom Crosshair",Caption="Scale",Hint="Change the scale of the crosshair.",Type=PIT_Text,Data="8;0.0:5.0",Step=0.05,Dependency="bZoomInstagib")
+    ConfigClasses(0)=class'HxZoomSuperShockRifleConfig'
 }

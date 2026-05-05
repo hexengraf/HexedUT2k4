@@ -8,7 +8,7 @@ enum EHxViewSmoothing
     HX_VS_Disabled,
 };
 
-var config EHxViewSmoothing ViewSmoothing;
+var EHxViewSmoothing ViewSmoothing;
 
 var private PlayerController PC;
 var private bool bAllowCustomViewSmoothing;
@@ -64,22 +64,6 @@ simulated function DisableViewSmoothing(Pawn P, float DeltaZ, float DeltaTime)
 simulated function ApplyServerConfiguration(HxUTClient Client)
 {
     bAllowCustomViewSmoothing = bool(Client.GetServerProperty("bAllowCustomViewSmoothing"));
-}
-
-static function SetViewSmoothing(string Value)
-{
-    switch (Value)
-    {
-        case "HX_VS_Default":
-            class'HxUTPlayer'.default.ViewSmoothing = HX_VS_Default;
-            break;
-        case "HX_VS_Weak":
-            class'HxUTPlayer'.default.ViewSmoothing = HX_VS_Weak;
-            break;
-        case "HX_VS_Disabled":
-            class'HxUTPlayer'.default.ViewSmoothing = HX_VS_Disabled;
-            break;
-    }
 }
 
 defaultproperties

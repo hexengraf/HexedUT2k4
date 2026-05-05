@@ -20,7 +20,7 @@ event HandleParameters(string Param1, string Param2)
     local string Highlight;
     local string Restore;
 
-    class'HxConfig'.static.ExtractVersion(Class, Version);
+    class'HxTypes'.static.ExtractVersion(Class, Version);
     Highlight = MakeColorCode(HighlightColor);
     Restore = MakeColorCode(l_Instructions.Style.FontColors[0]);
     ReplaceText(l_Introduction.Caption, "%", Highlight$ProjectName$Version$Restore);

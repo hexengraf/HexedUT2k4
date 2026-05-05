@@ -13,7 +13,6 @@ const PARALLEL_REQUESTS = 16;
 
 var const class<HxMutator> MutatorClass;
 var const array<class<HxConfig> > ConfigClasses;
-var const array<HxTypes.HxClientProperty> Properties;
 var const array<class<HxGUIMenuPanel> > PanelClasses;
 var const byte Order;
 
@@ -38,8 +37,6 @@ replication
         ServerUpdateProperty;
 }
 
-simulated function string GetProperty(int Index);
-simulated function SetProperty(int Index, string Value);
 simulated function ServerInfoReady();
 simulated function ServerPropertyChanged(int Index, string OldValue);
 

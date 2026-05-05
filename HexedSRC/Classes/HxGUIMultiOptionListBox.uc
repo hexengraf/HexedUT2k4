@@ -38,7 +38,7 @@ function PopulateWithCRIs(array<HxClientReplicationInfo> NewCRIs)
         }
         else
         {
-            ProcessCRI(NewCRIs[i]);
+            ProcessCRI(NewCRIs[i], i);
         }
     }
     Refresh();
@@ -58,48 +58,59 @@ function PopulateWithCRI(HxClientReplicationInfo NewCRI)
     Refresh();
 }
 
-function ProcessCRI(HxClientReplicationInfo CRI)
+function ProcessCRI(HxClientReplicationInfo CRI, optional int CRINumber)
 {
     local GUIMenuOption Option;
     local string SectionCaption;
     local bool bSavedCurMenuInitialized;
     local bool bSectionAdded;
     local int i;
+    local int j;
 
     CRIs[CRIs.Length] = CRI;
-    if (CRI.Properties.Length == 0)
+    if (CRI.ConfigClasses.Length == 0)
     {
         return;
     }
     bSavedCurMenuInitialized = Controller.bCurMenuInitialized;
     Controller.bCurMenuInitialized = false;
-    for (i = 0; i < CRI.Properties.Length; ++i)
+    for (i = 0; i < CRI.ConfigClasses.Length; ++i)
     {
-        if ((!Controller.bExpertMode && CRI.Properties[i].bAdvanced)
-            || (CRI.Properties[i].Dependency != ""
-                && !bool(CRI.GetServerProperty(CRI.Properties[i].Dependency))))
+        for (j = 0; j < CRI.ConfigClasses[i].default.DisplayInfo.Length; ++j)
         {
-            continue;
-        }
-        if (!bSectionAdded)
-        {
-            AddSection(CRI.MutatorClass.default.FriendlyName);
-            bSectionAdded = true;
-        }
-        if (CRI.Properties[i].Section != SectionCaption)
-        {
-            AddSubSection(CRI.Properties[i].Section);
-            SectionCaption = CRI.Properties[i].Section;
-        }
-        Option = AddCRIOption(CRI.Properties[i]);
-        if (Option != None)
-        {
-            Option.Tag = PropertyCount + i;
-            Options[Options.Length] = Option;
+            if (ShouldHideProperty(CRI, CRI.ConfigClasses[i], j))
+            {
+                continue;
+            }
+            if (!bSectionAdded)
+            {
+                AddSection(CRI.MutatorClass.default.FriendlyName);
+                bSectionAdded = true;
+            }
+            if (CRI.ConfigClasses[i].default.DisplayInfo[j].Section != SectionCaption)
+            {
+                AddSubSection(CRI.ConfigClasses[i].default.DisplayInfo[j].Section);
+                SectionCaption = CRI.ConfigClasses[i].default.DisplayInfo[j].Section;
+            }
+            Option = AddConfigOption(CRI.ConfigClasses[i], j);
+            if (Option != None)
+            {
+                Option.Tag = (CRINumber << 20) | (i << 10) | j;
+                Options[Options.Length] = Option;
+            }
         }
     }
-    PropertyCount += CRI.Properties.Length;
     Controller.bCurMenuInitialized = bSavedCurMenuInitialized;
+}
+
+function bool ShouldHideProperty(HxClientReplicationInfo CRI,
+                                 class<HxConfig> ConfigClass,
+                                 int Index)
+{
+    return ConfigClass.default.DisplayInfo[Index].bHidden
+        || (!Controller.bExpertMode && ConfigClass.default.DisplayInfo[Index].bAdvanced)
+        || (ConfigClass.default.DisplayInfo[Index].Dependency != ""
+            && !bool(CRI.GetServerProperty(ConfigClass.default.DisplayInfo[Index].Dependency)));
 }
 
 function ProcessPI(PlayInfo PI)
@@ -179,44 +190,45 @@ function Refresh()
     }
 }
 
-function GUIMenuOption AddCRIOption(HxTypes.HxClientProperty Prop)
+function GUIMenuOption AddConfigOption(class<HxConfig> ConfigClass, int Index)
 {
     local GUIMenuOption Option;
-    local array<string> Range;
-    local string Width;
-    local string Op;
 
-    switch (Prop.Type)
+    switch (ConfigClass.default.Properties[Index].Type)
     {
-        case PIT_Check:
-            Option = List.AddItem("XInterface.moCheckbox",, Prop.Caption);
+        case HX_PROPERTY_Bool:
+            Option = List.AddItem(
+                "XInterface.moCheckbox",, ConfigClass.default.DisplayInfo[Index].Caption);
             break;
-        case PIT_Select:
-            Option = AddComboBox(Prop.Caption, Prop.Data);
+        case HX_PROPERTY_Int:
+            Option = AddNumericEdit(
+                ConfigClass.default.DisplayInfo[Index].Caption,
+                ConfigClass.default.Properties[Index].LowerLimit,
+                ConfigClass.default.Properties[Index].UpperLimit,
+                ConfigClass.default.DisplayInfo[Index].Step);
             break;
-        case PIT_Text:
-            if (!Divide(Prop.Data, ";", Width, Op))
-            {
-                Width = Prop.Data;
-            }
-            Split(Op, ":", Range);
-            if (Range.Length < 2)
-            {
-                Option = AddEditBox(Prop.Caption, Width);
-            }
-            else if (InStr(Range[0], ".") != -1)
-            {
-                Option = AddFloatEdit(Prop.Caption, float(Range[0]), float(Range[1]), Prop.Step);
-            }
-            else
-            {
-                Option = AddNumericEdit(Prop.Caption, int(Range[0]), int(Range[1]), Prop.Step);
-            }
+        case HX_PROPERTY_Float:
+            Option = AddFloatEdit(
+                ConfigClass.default.DisplayInfo[Index].Caption,
+                ConfigClass.default.Properties[Index].LowerLimit,
+                ConfigClass.default.Properties[Index].UpperLimit,
+                ConfigClass.default.DisplayInfo[Index].Step);
             break;
-    }
-    if (Option != None)
-    {
-        Option.SetHint(Prop.Hint);
+        case HX_PROPERTY_String:
+            Option = AddEditBox(
+                ConfigClass.default.DisplayInfo[Index].Caption,
+                ConfigClass.default.Properties[Index].UpperLimit);
+            break;
+        case HX_PROPERTY_Enum:
+            Option = AddComboBoxConfig(
+                ConfigClass.default.DisplayInfo[Index].Caption,
+                ConfigClass.default.Properties[Index].EnumValues,
+                ConfigClass.default.DisplayInfo[Index].EnumLabels);
+            break;
+        if (Option != None)
+        {
+            Option.SetHint(ConfigClass.default.DisplayInfo[Index].Hint);
+        }
     }
     return Option;
 }
@@ -246,11 +258,11 @@ function GUIMenuOption AddPIOption(PlayInfo.PlayInfoData PID)
             {
                 if (InStr(Range[0], ".") != -1)
                 {
-                    Option = AddFloatEdit(PID.DisplayName, float(Range[0]), float(Range[1]));
+                    Option = AddFloatEdit(PID.DisplayName, Range[0], Range[1]);
                 }
                 else
                 {
-                    Option = AddNumericEdit(PID.DisplayName, int(Range[0]), int(Range[1]));
+                    Option = AddNumericEdit(PID.DisplayName, Range[0], Range[1]);
                 }
             }
             else if (PID.ArrayDim != -1)
@@ -311,7 +323,10 @@ function HxGUIMultiOptionListHeader AddHeader(string Caption)
     return Header;
 }
 
-function GUIMenuOption AddFloatEdit(string Caption, float Min, float Max, optional float Step)
+function GUIMenuOption AddFloatEdit(string Caption,
+                                    coerce float Min,
+                                    coerce float Max,
+                                    optional coerce float Step)
 {
     local moFloatEdit Option;
 
@@ -328,7 +343,10 @@ function GUIMenuOption AddFloatEdit(string Caption, float Min, float Max, option
     return Option;
 }
 
-function GUIMenuOption AddNumericEdit(string Caption, int Min, int Max,  optional int Step)
+function GUIMenuOption AddNumericEdit(string Caption,
+                                      coerce int Min,
+                                      coerce int Max,
+                                      optional coerce int Step)
 {
     local moNumericEdit Option;
 
@@ -403,6 +421,32 @@ function GUIMenuOption AddComboBox(string Caption, string Data)
             {
                 Option.AddItem(Range[i + 1],, Range[i]);
             }
+        }
+    }
+    return Option;
+}
+
+function GUIMenuOption AddComboBoxConfig(string Caption,
+                                         array<string> Values,
+                                         array<string> Captions)
+{
+    local moComboBox Option;
+    local int i;
+
+    Option = moComboBox(List.AddItem("XInterface.moComboBox",, Caption));
+    if (Option != None)
+    {
+        Option.ReadOnly(true);
+    }
+    if (Captions.Length == 1 && Captions[0] ~= "CROSSHAIRS")
+    {
+        PopulateCrosshairsComboBox(Option);
+    }
+    else
+    {
+        for (i = 0; i < Captions.Length; ++i)
+        {
+            Option.AddItem(Captions[i],, Values[i]);
         }
     }
     return Option;
@@ -492,13 +536,14 @@ function ListLoadINI(GUIComponent Sender, string s)
 function LoadFromCRI(GUIMenuOption Sender)
 {
     local HxClientReplicationInfo CRI;
-    local int Index;
+    local int ConfigIndex;
+    local int PropertyIndex;
 
-    Index = Sender.Tag;
-    CRI = FindCRI(Index);
+    ConfigIndex = Sender.Tag;
+    CRI = FindCRI(ConfigIndex, PropertyIndex);
     if (CRI != None)
     {
-        Sender.SetComponentValue(CRI.GetProperty(Index), true);
+        Sender.SetComponentValue(CRI.GetConfigProperty(ConfigIndex, PropertyIndex), true);
     }
 }
 
@@ -533,15 +578,18 @@ function ListCreateComponent(GUIMenuOption NewComp, GUIMultiOptionList Sender)
 function OptionOnChangeCRI(GUIComponent Sender)
 {
     local HxClientReplicationInfo CRI;
-    local int Index;
+    local int ConfigIndex;
+    local int PropertyIndex;
+
 
     if (Sender.Tag > -1)
     {
-        Index = Sender.Tag;
-        CRI = FindCRI(Index);
+        ConfigIndex = Sender.Tag;
+        CRI = FindCRI(ConfigIndex, PropertyIndex);
         if (CRI != None)
         {
-            CRI.SetProperty(Index, GUIMenuOption(Sender).GetComponentValue());
+            CRI.SetConfigProperty(
+                ConfigIndex, PropertyIndex, GUIMenuOption(Sender).GetComponentValue());
         }
     }
 }
@@ -554,19 +602,14 @@ function OptionOnChangePI(GUIComponent Sender)
     }
 }
 
-function HxClientReplicationInfo FindCRI(out int FullTag)
+function HxClientReplicationInfo FindCRI(out int ConfigIndex, out int PropertyIndex)
 {
-    local int i;
+    local int CRINumber;
 
-    for (i = 0; i < CRIs.Length; ++i)
-    {
-        if (FullTag < CRIs[i].Properties.Length)
-        {
-            return CRIs[i];
-        }
-        FullTag -= CRIs[i].Properties.Length;
-    }
-    return None;
+    PropertyIndex = ConfigIndex & 0x3ff;
+    CRINumber = ConfigIndex >> 20;
+    ConfigIndex = (ConfigIndex >> 10) & 0x3ff;
+    return CRIs[CRINumber];
 }
 
 function PlayInfo FindPI(out int FullTag)

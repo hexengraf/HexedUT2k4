@@ -121,7 +121,6 @@ function InternalOnChange(GUIComponent Sender)
 {
     Client.SetConfigProperty(
         Config.Index, Sender.Tag, GUIMenuOption(Sender).GetComponentValue());
-    Config.ApplyDefaultConfiguration();
     ApplyHighlightChanges(PlayerOwner());
 }
 

@@ -1,29 +1,16 @@
 class HxTypes extends Object
     abstract;
 
-struct HxMutatorProperty
+enum HxPropertyType
 {
-    var const string Name;
-    var const localized string Section;
-    var const localized string Caption;
-    var const localized string Hint;
-    var const string Type;
-    var const string Data;
-    var const bool bMPOnly;
-    var const bool bAdvanced;
-};
-
-struct HxClientProperty
-{
-    var const string Name;
-    var const localized string Section;
-    var const localized string Caption;
-    var const localized string Hint;
-    var const PlayInfo.EPlayInfoType Type;
-    var const string Data;
-    var const float Step;
-    var const string Dependency;
-    var const bool bAdvanced;
+    HX_PROPERTY_Bool,
+    HX_PROPERTY_Int,
+    HX_PROPERTY_Float,
+    HX_PROPERTY_String,
+    HX_PROPERTY_Enum,
+    HX_PROPERTY_Color,
+    HX_PROPERTY_Array,
+    HX_PROPERTY_Struct,
 };
 
 enum EHxDataType
@@ -42,6 +29,51 @@ enum EHxOperation
     HX_OPERATION_EqualTo_Implicit,
 };
 
+struct HxProperty
+{
+    var const string Name;
+    var const HxPropertyType Type;
+    var const string LowerLimit;
+    var const string UpperLimit;
+    var const array<string> EnumValues;
+};
+
+struct HxDisplayProperty
+{
+    var const localized string Section;
+    var const localized string Caption;
+    var const localized string Hint;
+    var const localized array<string> EnumLabels;
+    var const string Step;
+    var const string Dependency;
+    var const bool bAdvanced;
+    var const bool bHidden;
+};
+
+struct HxMutatorProperty
+{
+    var const string Name;
+    var const localized string Section;
+    var const localized string Caption;
+    var const localized string Hint;
+    var const string Type;
+    var const string Data;
+    var const bool bMPOnly;
+    var const bool bAdvanced;
+};
+
+static function PlayInfo.EPlayInfoType ToPlayInfoType(HxPropertyType Type)
+{
+    switch (Type)
+    {
+        case HX_PROPERTY_Bool:
+            return PIT_Check;
+        case HX_PROPERTY_Enum:
+            return PIT_Select;
+    }
+    return PIT_Text;
+}
+
 static function string GetDataCharset(EHxDataType Type)
 {
     switch (Type)
@@ -54,4 +86,13 @@ static function string GetDataCharset(EHxDataType Type)
             return "0123456789<=>*-";
     }
     return "";
+}
+
+static function bool ExtractVersion(coerce string FullName,
+                                    out string Version,
+                                    optional out string PackageName,
+                                    optional out string ClassName)
+{
+    return Divide(FullName, ".", PackageName, ClassName)
+        && Divide(PackageName, "v", PackageName, Version);
 }

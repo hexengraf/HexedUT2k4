@@ -19,23 +19,17 @@ var config HxHitEffects.HxDamagePoint ExtremeDamage;
 var config array<string> FontNames;
 var config array<string> CustomHitSounds;
 
+var private HxHitEffects.HxDamagePoint TempDamagePoint;
+
 function Created()
 {
-    local int Changes;
-
+    ValidateHitSounds();
+    ValidateFontNames();
     Super.Created();
-    Changes = ValidateHitSounds();
-    Changes += ValidateFontNames();
-    Changes += ValidateDamagePoints();
-    if (Changes > 0)
-    {
-        SaveConfig();
-    }
 }
 
-private function int ValidateHitSounds()
+private function ValidateHitSounds()
 {
-    local int Changes;
     local int i;
 
     if (!class'HxHitEffects'.static.IsBuiltInHitSound(HitSoundName))
@@ -52,13 +46,11 @@ private function int ValidateHitSounds()
             if (i == CustomHitSounds.Length)
             {
                 CustomHitSounds[CustomHitSounds.Length] = HitSoundName;
-                ++Changes;
             }
         }
         else
         {
             ResetConfig("HitSoundName");
-            ++Changes;
         }
     }
     for (i = CustomHitSounds.Length - 1; i >= 0; --i)
@@ -66,15 +58,12 @@ private function int ValidateHitSounds()
         if (DynamicLoadObject(CustomHitSounds[i], class'Sound', true) == None)
         {
             CustomHitSounds.Remove(i, 1);
-            ++Changes;
         }
     }
-    return Changes;
 }
 
-private function int ValidateFontNames()
+private function ValidateFontNames()
 {
-    local int Changes;
     local int i;
 
     if (DynamicLoadObject(DisplayFontName, class'Font', true) != None)
@@ -89,108 +78,121 @@ private function int ValidateFontNames()
         if (i == FontNames.Length)
         {
             FontNames[FontNames.Length] = DisplayFontName;
-            ++Changes;
         }
     }
     else
     {
         ResetConfig("DisplayFontName");
-        ++Changes;
     }
     for (i = FontNames.Length - 1; i >= 0; --i)
     {
         if (DynamicLoadObject(FontNames[i], class'Font', true) == None)
         {
             FontNames.Remove(i, 1);
-            ++Changes;
         }
     }
-    return Changes;
 }
 
-private function int ValidateDamagePoints()
+function string ValidateStruct(int Index, string Value)
 {
-    local int Changes;
-    local float ClampedValue;
-
-    Changes += int(ZeroDamage.Value != 0);
-    ZeroDamage.Value = 0;
-    Changes += int(ZeroDamage.Color.A != 255);
-    ZeroDamage.Color.A = 255;
-    ClampedValue = FClamp(ZeroDamage.Pitch, 0.0, 1.0);
-    Changes += int(ZeroDamage.Pitch != ClampedValue);
-    ZeroDamage.Pitch = ClampedValue;
-    ClampedValue = FClamp(ZeroDamage.Scale, 0.0, 1.0);
-    Changes += int(ZeroDamage.Scale != ClampedValue);
-    ZeroDamage.Scale = ClampedValue;
-    Changes += int(LowDamage.Color.A != 255);
-    LowDamage.Color.A = 255;
-    ClampedValue = FClamp(LowDamage.Pitch, 0.0, 1.0);
-    Changes += int(LowDamage.Pitch != ClampedValue);
-    LowDamage.Pitch = ClampedValue;
-    ClampedValue = FClamp(LowDamage.Scale, 0.0, 1.0);
-    Changes += int(LowDamage.Scale != ClampedValue);
-    LowDamage.Scale = ClampedValue;
-    Changes += int(MediumDamage.Color.A != 255);
-    MediumDamage.Color.A = 255;
-    ClampedValue = FClamp(MediumDamage.Pitch, 0.0, 1.0);
-    Changes += int(MediumDamage.Pitch != ClampedValue);
-    MediumDamage.Pitch = ClampedValue;
-    ClampedValue = FClamp(MediumDamage.Scale, 0.0, 1.0);
-    Changes += int(MediumDamage.Scale != ClampedValue);
-    MediumDamage.Scale = ClampedValue;
-    Changes += int(HighDamage.Color.A != 255);
-    HighDamage.Color.A = 255;
-    ClampedValue = FClamp(HighDamage.Pitch, 0.0, 1.0);
-    Changes += int(HighDamage.Pitch != ClampedValue);
-    HighDamage.Pitch = ClampedValue;
-    ClampedValue = FClamp(HighDamage.Scale, 0.0, 1.0);
-    Changes += int(HighDamage.Scale != ClampedValue);
-    HighDamage.Scale = ClampedValue;
-    Changes += int(ExtremeDamage.Color.A != 255);
-    ExtremeDamage.Color.A = 255;
-    ClampedValue = FClamp(ExtremeDamage.Pitch, 0.0, 1.0);
-    Changes += int(ExtremeDamage.Pitch != ClampedValue);
-    ExtremeDamage.Pitch = ClampedValue;
-    ClampedValue = FClamp(ExtremeDamage.Scale, 0.0, 1.0);
-    Changes += int(ExtremeDamage.Scale != ClampedValue);
-    ExtremeDamage.Scale = ClampedValue;
-    return Changes;
+    SetPropertyText("TempDamagePoint", Value);
+    if (Properties[Index].Name == "ZeroDamage")
+    {
+        TempDamagePoint.Value = 0;
+    }
+    TempDamagePoint.Color.A = 255;
+    TempDamagePoint.Pitch = FClamp(TempDamagePoint.Pitch, 0.0, 1.0);
+    TempDamagePoint.Scale = FClamp(TempDamagePoint.Scale, 0.0, 1.0);
+    return GetPropertyText("TempDamagePoint");
 }
 
-function ApplyDefaultConfiguration()
+function ApplyAllProperties()
 {
-    class<HxHitEffects>(TargetClass).default.bHitSounds = bHitSounds;
-    class<HxHitEffects>(TargetClass).default.HitSoundName = HitSoundName;
-    class<HxHitEffects>(TargetClass).default.HitSoundVolume = HitSoundVolume;
-    class<HxHitEffects>(TargetClass).default.PitchMode = PitchMode;
-    class<HxHitEffects>(TargetClass).default.bDamageNumbers = bDamageNumbers;
-    class<HxHitEffects>(TargetClass).default.DisplayMode = DisplayMode;
-    class<HxHitEffects>(TargetClass).default.DisplayFontName = DisplayFontName;
-    class<HxHitEffects>(TargetClass).default.DisplayPosX = DisplayPosX;
-    class<HxHitEffects>(TargetClass).default.DisplayPosY = DisplayPosY;
-    class<HxHitEffects>(TargetClass).default.ZeroDamage = ZeroDamage;
-    class<HxHitEffects>(TargetClass).default.LowDamage = LowDamage;
-    class<HxHitEffects>(TargetClass).default.MediumDamage = MediumDamage;
-    class<HxHitEffects>(TargetClass).default.HighDamage = HighDamage;
-    class<HxHitEffects>(TargetClass).default.ExtremeDamage = ExtremeDamage;
-    class<HxHitEffects>(TargetClass).default.FontNames = FontNames;
-    class<HxHitEffects>(TargetClass).default.CustomHitSounds = CustomHitSounds;
+    class'HxHitEffects'.default.bHitSounds = bHitSounds;
+    class'HxHitEffects'.default.HitSoundName = HitSoundName;
+    class'HxHitEffects'.default.HitSoundVolume = HitSoundVolume;
+    class'HxHitEffects'.default.PitchMode = PitchMode;
+    class'HxHitEffects'.default.bDamageNumbers = bDamageNumbers;
+    class'HxHitEffects'.default.DisplayMode = DisplayMode;
+    class'HxHitEffects'.default.DisplayFontName = DisplayFontName;
+    class'HxHitEffects'.default.DisplayPosX = DisplayPosX;
+    class'HxHitEffects'.default.DisplayPosY = DisplayPosY;
+    class'HxHitEffects'.default.ZeroDamage = ZeroDamage;
+    class'HxHitEffects'.default.LowDamage = LowDamage;
+    class'HxHitEffects'.default.MediumDamage = MediumDamage;
+    class'HxHitEffects'.default.HighDamage = HighDamage;
+    class'HxHitEffects'.default.ExtremeDamage = ExtremeDamage;
+    class'HxHitEffects'.default.FontNames = FontNames;
+    class'HxHitEffects'.default.CustomHitSounds = CustomHitSounds;
+}
+
+function ApplyProperty(int Index)
+{
+    switch (Index)
+    {
+        case 0:
+            class'HxHitEffects'.default.bHitSounds = bHitSounds;
+            break;
+        case 1:
+            class'HxHitEffects'.default.HitSoundName = HitSoundName;
+            break;
+        case 2:
+            class'HxHitEffects'.default.HitSoundVolume = HitSoundVolume;
+            break;
+        case 3:
+            class'HxHitEffects'.default.PitchMode = PitchMode;
+            break;
+        case 4:
+            class'HxHitEffects'.default.bDamageNumbers = bDamageNumbers;
+            break;
+        case 5:
+            class'HxHitEffects'.default.DisplayMode = DisplayMode;
+            break;
+        case 6:
+            class'HxHitEffects'.default.DisplayFontName = DisplayFontName;
+            break;
+        case 7:
+            class'HxHitEffects'.default.DisplayPosX = DisplayPosX;
+            break;
+        case 8:
+            class'HxHitEffects'.default.DisplayPosY = DisplayPosY;
+            break;
+        case 9:
+            class'HxHitEffects'.default.ZeroDamage = ZeroDamage;
+            break;
+        case 10:
+            class'HxHitEffects'.default.LowDamage = LowDamage;
+            break;
+        case 11:
+            class'HxHitEffects'.default.MediumDamage = MediumDamage;
+            break;
+        case 12:
+            class'HxHitEffects'.default.HighDamage = HighDamage;
+            break;
+        case 13:
+            class'HxHitEffects'.default.ExtremeDamage = ExtremeDamage;
+            break;
+        case 14:
+            class'HxHitEffects'.default.FontNames = FontNames;
+            break;
+        case 15:
+            class'HxHitEffects'.default.CustomHitSounds = CustomHitSounds;
+            break;
+    }
 }
 
 defaultproperties
 {
     ObjectName="HexedUT"
-    TargetClass=class'HxHitEffects'
     Properties(0)=(Name="bHitSounds",Type=HX_PROPERTY_Bool)
     Properties(1)=(Name="HitSoundName",Type=HX_PROPERTY_String)
-    Properties(2)=(Name="HitSoundVolume",Type=HX_PROPERTY_Float,LowerLimit="0.0",UpperLimit="1.0",Step="0.05")
+    Properties(2)=(Name="HitSoundVolume",Type=HX_PROPERTY_Float,LowerLimit="0.0",UpperLimit="1.0")
     Properties(3)=(Name="PitchMode",Type=HX_PROPERTY_Enum)
     Properties(4)=(Name="bDamageNumbers",Type=HX_PROPERTY_Bool)
     Properties(5)=(Name="DisplayMode",Type=HX_PROPERTY_Enum)
     Properties(6)=(Name="DisplayFontName",Type=HX_PROPERTY_String)
-    Properties(7)=(Name="DisplayPosX",Type=HX_PROPERTY_Float,LowerLimit="0.0",UpperLimit="1.0",Step="0.05")
-    Properties(8)=(Name="DisplayPosY",Type=HX_PROPERTY_Float,LowerLimit="0.0",UpperLimit="1.0",Step="0.05")
+    Properties(7)=(Name="DisplayPosX",Type=HX_PROPERTY_Float,LowerLimit="0.0",UpperLimit="1.0")
+    Properties(8)=(Name="DisplayPosY",Type=HX_PROPERTY_Float,LowerLimit="0.0",UpperLimit="1.0")
     Properties(9)=(Name="ZeroDamage",Type=HX_PROPERTY_Struct)
     Properties(10)=(Name="LowDamage",Type=HX_PROPERTY_Struct)
     Properties(11)=(Name="MediumDamage",Type=HX_PROPERTY_Struct)

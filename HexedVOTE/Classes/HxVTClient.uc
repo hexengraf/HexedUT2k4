@@ -1,8 +1,6 @@
 class HxVTClient extends HxClientReplicationInfo
     config(User);
 
-const MIN_VERSION = 6;
-
 var config bool bFirstRun;
 
 var HxFavorites Favorites;
@@ -21,10 +19,6 @@ simulated event PreBeginPlay()
     if (Level.NetMode != NM_DedicatedServer)
     {
         Favorites = new(None, "Maps") class'HxFavorites';
-        if (bFirstRun)
-        {
-            RecoverConfigs();
-        }
     }
 }
 
@@ -159,30 +153,6 @@ simulated function bool IsLoadingMapData()
 simulated function bool IsMapVoteEnabled()
 {
     return VRI.bMapVote;
-}
-
-// TODO: delete this function in v8
-simulated function RecoverConfigs()
-{
-    local HxMapFavorites NewObject;
-    local Object OldObject;
-    local int i;
-
-    NewObject = new() class'HxMapFavorites';
-    OldObject = NewObject.FindOldVersionObject(class'HxMapFavorites', MIN_VERSION);
-    if (OldObject != None)
-    {
-        NewObject.CopyPropertyFrom(OldObject, "Maps");
-    }
-    for (i = 0; i < NewObject.Maps.Length; ++i)
-    {
-        Favorites.Save(NewObject.Maps[i].Map, NewObject.Maps[i].Tag, true);
-    }
-    Favorites.SaveConfig();
-    NewObject = None;
-    OldObject = None;
-    bFirstRun = false;
-    SaveConfig();
 }
 
 defaultproperties

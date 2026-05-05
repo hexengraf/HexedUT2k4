@@ -1,9 +1,7 @@
-class HxSpawnProtectionTimer extends HudOverlay
+class HxSPTimer extends HudOverlay
     config(User);
 
 #exec texture Import File=Textures\HxSpawnProtectionTimer.tga Name=HxSPTimerIcon Mips=Off Alpha=1
-
-const MIN_VERSION = 4;
 
 var config bool bEnabled;
 var config bool bUseHUDColor;
@@ -99,42 +97,8 @@ simulated function Update()
     }
 }
 
-simulated function RecoverConfigs()
-{
-    local Actor OldActor;
-    local int Version;
-
-    OldActor = class'HxConfig'.static.FindOldVersionActor(Self, Class, MIN_VERSION, Version);
-    if (OldActor != None)
-    {
-        class'HxConfig'.static.CopyProperty(Self, OldActor, "bEnabled");
-        class'HxConfig'.static.CopyProperty(Self, OldActor, "bUseHUDColor");
-        class'HxConfig'.static.CopyProperty(Self, OldActor, "bPulsingDigits");
-        class'HxConfig'.static.CopyProperty(Self, OldActor, "PosX");
-        class'HxConfig'.static.CopyProperty(Self, OldActor, "PosY");
-        class'HxConfig'.static.CopyProperty(Self, OldActor, "DefaultColor");
-        OldActor.Destroy();
-        SaveConfig();
-    }
-}
-
-static function StaticRecoverConfigs(Actor Spawner)
-{
-    local HxSpawnProtectionTimer Temp;
-
-    Temp = Spawner.Spawn(class'HxSpawnProtectionTimer');
-    Temp.RecoverConfigs();
-    Temp.Destroy();
-}
-
 defaultproperties
 {
-    bEnabled=true
-    bUseHUDColor=true
-    bPulsingDigits=false
-    PosX=0.95
-    PosY=0.64
-    DefaultColor=(R=239,G=191,B=4,A=255)
     Counter=(TextureScale=0.49,DrawPivot=DP_UpperMiddle,RenderStyle=STY_Alpha,Tints[0]=(B=255,G=255,R=255,A=255),Tints[1]=(B=255,G=255,R=255,A=255))
     Icon=(WidgetTexture=Texture'HxSPTimerIcon',TextureScale=0.22,DrawPivot=DP_MiddleMiddle,RenderStyle=STY_Alpha,TextureCoords=(X1=0,Y1=0,X2=256,Y2=256))
 }

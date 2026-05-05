@@ -13,20 +13,6 @@ var config bool bDisableOnDeadBodies;
 var config bool bForceNormalSkins;
 var config int SpectatorTeam;
 
-function ApplyDefaultConfiguration()
-{
-    class<HxSkinHighlight>(TargetClass).default.YourTeam = YourTeam;
-    class<HxSkinHighlight>(TargetClass).default.EnemyTeam = EnemyTeam;
-    class<HxSkinHighlight>(TargetClass).default.SoloPlayer = SoloPlayer;
-    class<HxSkinHighlight>(TargetClass).default.ShieldHit = ShieldHit;
-    class<HxSkinHighlight>(TargetClass).default.LinkHit = LinkHit;
-    class<HxSkinHighlight>(TargetClass).default.ShockHit = ShockHit;
-    class<HxSkinHighlight>(TargetClass).default.LightningHit = LightningHit;
-    class<HxSkinHighlight>(TargetClass).default.bDisableOnDeadBodies = bDisableOnDeadBodies;
-    class<HxSkinHighlight>(TargetClass).default.bForceNormalSkins = bForceNormalSkins;
-    class<HxSkinHighlight>(TargetClass).default.SpectatorTeam = SpectatorTeam;
-}
-
 function ValidateColors(HxColors Colors)
 {
     local bool bSave;
@@ -41,7 +27,7 @@ function ValidateColors(HxColors Colors)
     }
     if (bSave)
     {
-        ApplyDefaultConfiguration();
+        ApplyAllProperties();
         SaveConfig();
     }
 }
@@ -61,15 +47,65 @@ function RenameColor(string OldColorName, string NewColorName)
     }
     if (bSave)
     {
-        ApplyDefaultConfiguration();
+        ApplyAllProperties();
         SaveConfig();
+    }
+}
+
+function ApplyAllProperties()
+{
+    class'HxSkinHighlight'.default.YourTeam = YourTeam;
+    class'HxSkinHighlight'.default.EnemyTeam = EnemyTeam;
+    class'HxSkinHighlight'.default.SoloPlayer = SoloPlayer;
+    class'HxSkinHighlight'.default.ShieldHit = ShieldHit;
+    class'HxSkinHighlight'.default.LinkHit = LinkHit;
+    class'HxSkinHighlight'.default.ShockHit = ShockHit;
+    class'HxSkinHighlight'.default.LightningHit = LightningHit;
+    class'HxSkinHighlight'.default.bDisableOnDeadBodies = bDisableOnDeadBodies;
+    class'HxSkinHighlight'.default.bForceNormalSkins = bForceNormalSkins;
+    class'HxSkinHighlight'.default.SpectatorTeam = SpectatorTeam;
+}
+
+function ApplyProperty(int Index)
+{
+    switch (Index)
+    {
+        case 0:
+            class'HxSkinHighlight'.default.YourTeam = YourTeam;
+            break;
+        case 1:
+            class'HxSkinHighlight'.default.EnemyTeam = EnemyTeam;
+            break;
+        case 2:
+            class'HxSkinHighlight'.default.SoloPlayer = SoloPlayer;
+            break;
+        case 3:
+            class'HxSkinHighlight'.default.ShieldHit = ShieldHit;
+            break;
+        case 4:
+            class'HxSkinHighlight'.default.LinkHit = LinkHit;
+            break;
+        case 5:
+            class'HxSkinHighlight'.default.ShockHit = ShockHit;
+            break;
+        case 6:
+            class'HxSkinHighlight'.default.LightningHit = LightningHit;
+            break;
+        case 7:
+            class'HxSkinHighlight'.default.bDisableOnDeadBodies = bDisableOnDeadBodies;
+            break;
+        case 8:
+            class'HxSkinHighlight'.default.bForceNormalSkins = bForceNormalSkins;
+            break;
+        case 9:
+            class'HxSkinHighlight'.default.SpectatorTeam = SpectatorTeam;
+            break;
     }
 }
 
 defaultproperties
 {
     ObjectName="HexedUT"
-    TargetClass=class'HxSkinHighlight'
     Properties(0)=(Name="YourTeam",Type=HX_PROPERTY_String)
     Properties(1)=(Name="EnemyTeam",Type=HX_PROPERTY_String)
     Properties(2)=(Name="SoloPlayer",Type=HX_PROPERTY_String)

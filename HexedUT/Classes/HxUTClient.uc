@@ -7,17 +7,12 @@ struct HxDamageInfo
     var float Timestamp;
 };
 
-const MIN_VERSION = 4;
-
 const DAMAGE_CLUSTERING_INTERVAL = 0.02;
-
-var config bool bFirstRun;
-
-var HxSpawnProtectionTimer SPTimer;
-var HxUTPlayer Player;
 
 var private HxHitEffects HitEffects;
 var private HxColors SkinHighlightColors;
+var private HxUTPlayer Player;
+var private HxSPTimer SPTimer;
 var private HxDamageInfo Damage;
 var private bool bInitialized;
 
@@ -33,10 +28,6 @@ simulated event PreBeginPlay()
     Super.PreBeginPlay();
     if (Level.NetMode != NM_DedicatedServer)
     {
-        if (bFirstRun)
-        {
-            RecoverConfigs();
-        }
         SkinHighlightColors = new (None, "HxSkinHighlight") class'HxColors';
         class'HxSkinHighlight'.static.PopulateReservedNames(SkinHighlightColors);
         HxSkinHighlightConfig(Configs[1]).ValidateColors(SkinHighlightColors);
@@ -133,7 +124,7 @@ simulated function bool InitializeClient()
             }
             if (SPTimer == None)
             {
-                SPTimer = Spawn(class'HxSpawnProtectionTimer', PC.myHUD);
+                SPTimer = Spawn(class'HxSPTimer', PC.myHUD);
                 PC.myHUD.AddHudOverlay(SPTimer);
             }
         }
@@ -158,27 +149,6 @@ simulated function ServerPropertyChanged(int Index, string OldValue)
     ServerInfoReady();
 }
 
-simulated function string GetProperty(int Index)
-{
-    switch (Index)
-    {
-        case 0:
-            return string(
-                GetEnum(enum'EHxViewSmoothing', class'HxUTPlayer'.default.ViewSmoothing));
-        case 1:
-            return string(class'HxSpawnProtectionTimer'.default.bEnabled);
-        case 2:
-            return string(class'HxSpawnProtectionTimer'.default.bUseHUDColor);
-        case 3:
-            return string(class'HxSpawnProtectionTimer'.default.bPulsingDigits);
-        case 4:
-            return string(class'HxSpawnProtectionTimer'.default.PosX);
-        case 5:
-            return string(class'HxSpawnProtectionTimer'.default.PosY);
-    }
-    return "";
-}
-
 simulated function bool SetConfigProperty(int ConfigIndex, int PropertyIndex, string Value)
 {
     if (Super.SetConfigProperty(ConfigIndex, PropertyIndex, Value))
@@ -186,7 +156,25 @@ simulated function bool SetConfigProperty(int ConfigIndex, int PropertyIndex, st
         switch (ConfigClasses[ConfigIndex])
         {
             case class'HxHitEffectsConfig':
-                HitEffects.SetProperty(Configs[ConfigIndex].Properties[PropertyIndex].Name, Value);
+                if (HitEffects != None)
+                {
+                    HitEffects.SetProperty(
+                        Configs[ConfigIndex].Properties[PropertyIndex].Name, Value);
+                }
+                break;
+            case class'HxUTPlayerConfig':
+                if (Player != None)
+                {
+                    Player.SetPropertyText(
+                        Configs[ConfigIndex].Properties[PropertyIndex].Name, Value);
+                }
+                break;
+            case class'HxSPTimerConfig':
+                if (SPTimer != None)
+                {
+                    SPTimer.SetPropertyText(
+                        Configs[ConfigIndex].Properties[PropertyIndex].Name, Value);
+                }
                 break;
         }
         return true;
@@ -194,77 +182,18 @@ simulated function bool SetConfigProperty(int ConfigIndex, int PropertyIndex, st
     return false;
 }
 
-simulated function SetProperty(int Index, string Value)
-{
-    if (Index == 0)
-    {
-        if (Player != None)
-        {
-            Player.SetPropertyText(Properties[Index].Name, Value);
-            Player.SaveConfig();
-        }
-        else
-        {
-            class'HxUTPlayer'.static.SetViewSmoothing(Value);
-            class'HxUTPlayer'.static.StaticSaveConfig();
-        }
-    }
-    else if (Index < Properties.Length)
-    {
-        if (SPTimer != None)
-        {
-            SPTimer.SetPropertyText(Properties[Index].Name, Value);
-            SPTimer.SaveConfig();
-        }
-        else
-        {
-            switch (Index)
-            {
-                case 1:
-                    class'HxSpawnProtectionTimer'.default.bEnabled = bool(Value);
-                    break;
-                case 2:
-                    class'HxSpawnProtectionTimer'.default.bUseHUDColor = bool(Value);
-                    break;
-                case 3:
-                    class'HxSpawnProtectionTimer'.default.bPulsingDigits = bool(Value);
-                    break;
-                case 4:
-                    class'HxSpawnProtectionTimer'.default.PosX = float(Value);
-                    break;
-                case 5:
-                    class'HxSpawnProtectionTimer'.default.PosY = float(Value);
-                    break;
-            }
-            class'HxSpawnProtectionTimer'.static.StaticSaveConfig();
-        }
-    }
-}
-
 simulated function HxColors GetSkinHighlightColors()
 {
     return SkinHighlightColors;
 }
 
-simulated function RecoverConfigs()
-{
-    class'HxSpawnProtectionTimer'.static.StaticRecoverConfigs(Self);
-    bFirstRun = false;
-    SaveConfig();
-}
-
 defaultproperties
 {
-    bFirstRun=true
     MutatorClass=class'MutHexedUT'
     ConfigClasses(0)=class'HxHitEffectsConfig'
     ConfigClasses(1)=class'HxSkinHighlightConfig'
-    Properties(0)=(Name="ViewSmoothing",Section="Camera",Caption="View smoothing",Hint="Choose which type of view smoothing to apply.",Type=PIT_Select,Data="HX_VS_Default;Strong (default);HX_VS_Weak;Weak;HX_VS_Disabled;Disabled",Dependency="bAllowCustomViewSmoothing")
-    Properties(1)=(Name="bEnabled",Section="Spawn Protection Timer",Caption="Enable spawn protection timer",Hint="Show timer indicating remaining spawn protection duration.",Type=PIT_Check,Dependency="bAllowSpawnProtectionTimer")
-    Properties(2)=(Name="bUseHUDColor",Section="Spawn Protection Timer",Caption="Use HUD's color",Hint="Use the same color as the HUD for the timer's icon.",Type=PIT_Check,Dependency="bAllowSpawnProtectionTimer",bAdvanced=true)
-    Properties(3)=(Name="bPulsingDigits",Section="Spawn Protection Timer",Caption="Use pulsing digits",Hint="Use pulsing digits for the timer.",Type=PIT_Check,Dependency="bAllowSpawnProtectionTimer",bAdvanced=true)
-    Properties(4)=(Name="PosX",Section="Spawn Protection Timer",Caption="X position",Hint="Adjust X position.",Type=PIT_Text,Data="8;0.0:1.0",Step=0.01,Dependency="bAllowSpawnProtectionTimer",bAdvanced=true)
-    Properties(5)=(Name="PosY",Section="Spawn Protection Timer",Caption="Y position",Hint="Adjust Y position.",Type=PIT_Text,Data="8;0.0:1.0",Step=0.01,Dependency="bAllowSpawnProtectionTimer",bAdvanced=true)
+    ConfigClasses(2)=class'HxUTPlayerConfig'
+    ConfigClasses(3)=class'HxSPTimerConfig'
     PanelClasses(0)=class'HxGUIMenuSkinHighlightPanel'
     PanelClasses(1)=class'HxGUIMenuHitEffectsPanel'
     Order=0
