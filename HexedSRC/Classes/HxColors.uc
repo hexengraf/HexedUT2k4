@@ -118,7 +118,7 @@ function int Find(string ColorName, optional out Color Color)
 {
     local int i;
 
-    if (!IsReservedName(ColorName))
+    if (ColorName != "" && !IsReservedName(ColorName))
     {
         for (i = 0; i < List.Length; ++i)
         {
@@ -136,7 +136,7 @@ function int FindEntry(string ColorName, optional out HxColor ColorEntry)
 {
     local int i;
 
-    if (IsReservedName(ColorName))
+    if (ColorName == "" || IsReservedName(ColorName))
     {
         return -1;
     }
@@ -255,6 +255,11 @@ function bool Reserve(string ColorName)
     return true;
 }
 
+function bool IsValidName(string ColorName)
+{
+    return IsReservedName(ColorName) || Find(ColorName) > -1;
+}
+
 function bool IsReservedName(string ColorName)
 {
     local int i;
@@ -333,7 +338,6 @@ static function string RandomName()
 
 defaultproperties
 {
-    ReservedNames(0)=""
     List(0)=(ColorName="Red",Color=(R=255,G=0,B=0,A=255),bRandom=true)
     List(1)=(ColorName="Blue",Color=(R=0,G=0,B=255,A=255),bRandom=true)
     List(2)=(ColorName="Green",Color=(R=0,G=255,B=0,A=255),bRandom=true)

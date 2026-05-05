@@ -42,6 +42,7 @@ var localized string SkinLabels[3];
 var localized string TeamLabels[2];
 
 var private HxUTClient Client;
+var private HxSkinHighlightConfig Config;
 var private HxColors Colors;
 var private xUtil.PlayerRecord PreviewRec;
 var private int PreviewSkinVariation;
@@ -57,6 +58,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     local int i;
 
     Client = HxUTClient(ClientManager.Find(class'HxUTClient'));
+    Config = HxSkinHighlightConfig(Client.FindConfig(class'HxSkinHighlightConfig'));
     Colors = Client.GetSkinHighlightColors();
     super.InitComponent(MyController, MyOwner);
     Sections[SECTION_HIGHLIGHTS].Insert(co_YourTeam);
@@ -81,7 +83,6 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     PreviewEffect = New(Self) class'ConstantColor';
     PreviewShader = New(Self) class'Shader';
     PreviewShader.Specular = PreviewEffect;
-    PrependClassNameToINIOptions();
     PopulateColorComboBoxes();
 
     for (i = 0; i < 3; ++i)
@@ -109,6 +110,19 @@ function Refresh()
     Sections[SECTION_HIGHLIGHTS].SetHide(
         !bool(Client.GetServerProperty("bAllowSkinHighlight")), HideDueDisable);
     Super.Refresh();
+}
+
+function InternalOnLoadINI(GUIComponent Sender, string s)
+{
+    GUIMenuOption(Sender).SetComponentValue(Config.GetProperty(Sender.Tag), true);
+}
+
+function InternalOnChange(GUIComponent Sender)
+{
+    Client.SetConfigProperty(
+        Config.Index, Sender.Tag, GUIMenuOption(Sender).GetComponentValue());
+    Config.ApplyDefaultConfiguration();
+    ApplyHighlightChanges(PlayerOwner());
 }
 
 function CustomizeColorOnLoadINI(GUIComponent Sender, string s)
@@ -139,44 +153,6 @@ function CustomizeColorOnLoadINI(GUIComponent Sender, string s)
     UpdatePreviewColor();
 }
 
-function InternalOnChange(GUIComponent Sender)
-{
-    switch (Sender)
-    {
-        case co_YourTeam:
-            class'HxSkinHighlight'.default.YourTeam = moComboBox(Sender).GetExtra();
-            break;
-        case co_EnemyTeam:
-            class'HxSkinHighlight'.default.EnemyTeam = moComboBox(Sender).GetExtra();
-            break;
-        case co_SoloPlayer:
-            class'HxSkinHighlight'.default.SoloPlayer = moComboBox(Sender).GetExtra();
-            break;
-        case co_ShieldHit:
-            class'HxSkinHighlight'.default.ShieldHit = moComboBox(Sender).GetExtra();
-            break;
-        case co_LinkHit:
-            class'HxSkinHighlight'.default.LinkHit = moComboBox(Sender).GetExtra();
-            break;
-        case co_ShockHit:
-            class'HxSkinHighlight'.default.ShockHit = moComboBox(Sender).GetExtra();
-            break;
-        case co_LightningHit:
-            class'HxSkinHighlight'.default.LightningHit = moComboBox(Sender).GetExtra();
-            break;
-        case ch_DisableOnDeadBodies:
-            class'HxSkinHighlight'.default.bDisableOnDeadBodies = moCheckBox(Sender).IsChecked();
-            break;
-        case ch_ForceNormalSkins:
-            class'HxSkinHighlight'.default.bForceNormalSkins = moCheckBox(Sender).IsChecked();
-            break;
-        case co_SpectateAs:
-            class'HxSkinHighlight'.default.SpectatorTeam = int(moComboBox(Sender).GetExtra());
-            break;
-    }
-    SaveHighlightChanges(PlayerOwner());
-}
-
 function CustomizeColorOnChange(GUIComponent Sender)
 {
     local int Index;
@@ -190,7 +166,7 @@ function CustomizeColorOnChange(GUIComponent Sender)
     {
         if (Colors.SetRandom(Index, ch_AllowOnRandom.IsChecked()))
         {
-            SaveHighlightChanges(PlayerOwner());
+            ApplyHighlightChanges(PlayerOwner());
         }
     }
     else if (Index < Colors.List.Length)
@@ -207,7 +183,7 @@ function CustomizeColorOnChange(GUIComponent Sender)
                 Colors.List[Index].Color.B = sl_ColorBlue.GetValue();
                 break;
         }
-        SaveHighlightChanges(PlayerOwner());
+        ApplyHighlightChanges(PlayerOwner());
     }
     UpdatePreviewColor();
 }
@@ -272,7 +248,7 @@ function PopulateColorComboBoxes()
     co_EditColor.bIgnoreChange = false;
 }
 
-function SaveHighlightChanges(PlayerController PC)
+function ApplyHighlightChanges(PlayerController PC)
 {
     local HxSkinHighlight SkinHighlight;
 
@@ -283,7 +259,6 @@ function SaveHighlightChanges(PlayerController PC)
             SkinHighlight.Reinitialize();
         }
     }
-    class'HxSkinHighlight'.static.StaticSaveConfig();
 }
 
 function UpdateColorEditorSection(string ColorName)
@@ -501,9 +476,9 @@ function OnCloseRenameColor(optional bool bCancelled)
         {
             if (Colors.Rename(co_EditColor.GetIndex(), ColorName))
             {
-                class'HxSkinHighlight'.static.RenameColor(OldColorName, ColorName);
+                Config.RenameColor(OldColorName, ColorName);
                 PopulateColorComboBoxes();
-                SaveHighlightChanges(PlayerOwner());
+                ApplyHighlightChanges(PlayerOwner());
             }
             else
             {
@@ -530,7 +505,8 @@ function OnCloseDeleteColor(byte bButton)
     {
         PopulateColorComboBoxes();
         UpdateColorEditorSection(co_EditColor.GetComponentValue());
-        SaveHighlightChanges(PlayerOwner());
+        Config.ValidateColors(Colors);
+        ApplyHighlightChanges(PlayerOwner());
     }
 }
 
@@ -579,23 +555,6 @@ function Free()
     Super.Free();
 }
 
-function PrependClassNameToINIOptions()
-{
-    local string ClassName;
-
-    ClassName = string(class'HxSkinHighlight');
-    co_YourTeam.INIOption = ClassName@co_YourTeam.INIOption;
-    co_EnemyTeam.INIOption = ClassName@co_EnemyTeam.INIOption;
-    co_SoloPlayer.INIOption = ClassName@co_SoloPlayer.INIOption;
-    ch_DisableOnDeadBodies.INIOption = ClassName@ch_DisableOnDeadBodies.INIOption;
-    ch_ForceNormalSkins.INIOption = ClassName@ch_ForceNormalSkins.INIOption;
-    co_ShieldHit.INIOption = ClassName@co_ShieldHit.INIOption;
-    co_LinkHit.INIOption = ClassName@co_LinkHit.INIOption;
-    co_ShockHit.INIOption = ClassName@co_ShockHit.INIOption;
-    co_LightningHit.INIOption = ClassName@co_LightningHit.INIOption;
-    co_SpectateAs.INIOption = ClassName@co_SpectateAs.INIOption;
-}
-
 defaultproperties
 {
     Begin Object class=HxGUIFramedSection Name=HighlightsSection
@@ -616,10 +575,11 @@ defaultproperties
     Begin Object class=moComboBox Name=YourTeamComboBox
         Caption="Your team"
         Hint="Highlight color for your team."
-        INIOption="YourTeam"
+        INIOption="@INTERNAL"
+        Tag=0
         ComponentWidth=0.64
         bReadOnly=true
-        OnLoadINI=DefaultOnLoadINI
+        OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
         TabOrder=0
     End Object
@@ -628,10 +588,11 @@ defaultproperties
     Begin Object class=moComboBox Name=EnemyTeamComboBox
         Caption="Enemy team"
         Hint="Highlight color for the enemy team."
-        INIOption="EnemyTeam"
+        INIOption="@INTERNAL"
+        Tag=1
         ComponentWidth=0.64
         bReadOnly=true
-        OnLoadINI=DefaultOnLoadINI
+        OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
         TabOrder=1
     End Object
@@ -640,10 +601,11 @@ defaultproperties
     Begin Object class=moComboBox Name=SoloPlayerComboBox
         Caption="Solo player"
         Hint="Highlight color for players on game modes with no team. Random assigns a random color for each player."
-        INIOption="SoloPlayer"
+        INIOption="@INTERNAL"
+        Tag=2
         ComponentWidth=0.64
         bReadOnly=true
-        OnLoadINI=DefaultOnLoadINI
+        OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
         TabOrder=2
     End Object
@@ -652,9 +614,10 @@ defaultproperties
     Begin Object class=moCheckBox Name=DisableOnDeadBodiesCheckBox
         Caption="Disable highlight on dead bodies"
         Hint="Disable any active highlights on dead bodies."
-        INIOption="bDisableOnDeadBodies"
+        INIOption="@INTERNAL"
+        Tag=7
         CaptionWidth=0.8
-        OnLoadINI=DefaultOnLoadINI
+        OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
         TabOrder=3
     End Object
@@ -663,9 +626,10 @@ defaultproperties
     Begin Object class=moCheckBox Name=ForceNormalSkinsCheckBox
         Caption="Force normal skins"
         Hint="When highlight is enabled, force normal (uncolored) variation of the underlying skin."
-        INIOption="bForceNormalSkins"
+        INIOption="@INTERNAL"
+        Tag=8
         CaptionWidth=0.8
-        OnLoadINI=DefaultOnLoadINI
+        OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
         TabOrder=4
     End Object
@@ -674,10 +638,11 @@ defaultproperties
     Begin Object class=moComboBox Name=ShieldHitComboBox
         Caption="Shield hit"
         Hint="Highlight color to use when a shielded player is hit or has spawn protection."
-        INIOption="ShieldHit"
+        INIOption="@INTERNAL"
+        Tag=3
         ComponentWidth=0.64
         bReadOnly=true
-        OnLoadINI=DefaultOnLoadINI
+        OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
         TabOrder=5
     End Object
@@ -686,10 +651,11 @@ defaultproperties
     Begin Object class=moComboBox Name=LinkHitComboBox
         Caption="Link hit"
         Hint="Highlight color to use when a player is hit with a link gun."
-        INIOption="LinkHit"
+        INIOption="@INTERNAL"
+        Tag=4
         ComponentWidth=0.64
         bReadOnly=true
-        OnLoadINI=DefaultOnLoadINI
+        OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
         TabOrder=6
     End Object
@@ -698,10 +664,11 @@ defaultproperties
     Begin Object class=moComboBox Name=ShockHitComboBox
         Caption="Shock hit"
         Hint="Highlight color to use when a player is hit with a shock rifle."
-        INIOption="ShockHit"
+        INIOption="@INTERNAL"
+        Tag=5
         ComponentWidth=0.64
         bReadOnly=true
-        OnLoadINI=DefaultOnLoadINI
+        OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
         TabOrder=7
     End Object
@@ -710,10 +677,11 @@ defaultproperties
     Begin Object class=moComboBox Name=LightningHitComboBox
         Caption="Lightning hit"
         Hint="Highlight color to use when a player is hit with a lightning gun."
-        INIOption="LightningHit"
+        INIOption="@INTERNAL"
+        Tag=6
         ComponentWidth=0.64
         bReadOnly=true
-        OnLoadINI=DefaultOnLoadINI
+        OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
         TabOrder=8
     End Object
@@ -722,10 +690,11 @@ defaultproperties
     Begin Object class=moComboBox Name=SpectateAsComboBox
         Caption="Spectate as"
         Hint="Select which team's perspective to spectate as."
-        INIOption="SpectatorTeam"
+        INIOption="@INTERNAL"
+        Tag=9
         ComponentWidth=0.64
         bReadOnly=true
-        OnLoadINI=DefaultOnLoadINI
+        OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
         TabOrder=9
     End Object

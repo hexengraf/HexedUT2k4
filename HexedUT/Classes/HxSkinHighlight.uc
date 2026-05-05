@@ -109,7 +109,7 @@ simulated function bool Initialize(xPawn Pawn)
     {
         foreach DynamicActors(class'HxUTClient', Client) break;
     }
-    if (HighlightIntensity == -1 || Client == None)
+    if (HighlightIntensity < 0 || Client == None)
     {
         return false;
     }
@@ -126,58 +126,12 @@ simulated function bool Initialize(xPawn Pawn)
         && Pawn.PlayerReplicationInfo.PlayerName != "")
     {
         LocalPlayerTeam = GetLocalPlayerTeam();
-        ValidateColors();
         InitializeHighlight(Pawn);
         InitializeHitEffects(Pawn);
         InitializeSkins(Pawn);
         return true;
     }
     return false;
-}
-
-simulated function ValidateColors()
-{
-    local bool bSave;
-
-    if (!IsMetaColorName(YourTeam) && Colors.Find(YourTeam) < 0)
-    {
-        ResetConfig("YourTeam");
-        bSave = true;
-    }
-    if (!IsMetaColorName(EnemyTeam) && Colors.Find(EnemyTeam) < 0)
-    {
-        ResetConfig("EnemyTeam");
-        bSave = true;
-    }
-    if (!IsMetaColorName(SoloPlayer) && Colors.Find(SoloPlayer) < 0)
-    {
-        ResetConfig("SoloPlayer");
-        bSave = true;
-    }
-    if (!IsMetaColorName(ShieldHit) && Colors.Find(ShieldHit) < 0)
-    {
-        ResetConfig("ShieldHit");
-        bSave = true;
-    }
-    if (!IsMetaColorName(LinkHit) && Colors.Find(LinkHit) < 0)
-    {
-        ResetConfig("LinkHit");
-        bSave = true;
-    }
-    if (!IsMetaColorName(ShockHit) && Colors.Find(ShockHit) < 0)
-    {
-        ResetConfig("ShockHit");
-        bSave = true;
-    }
-    if (!IsMetaColorName(LightningHit) && Colors.Find(LightningHit) < 0)
-    {
-        ResetConfig("LightningHit");
-        bSave = true;
-    }
-    if (bSave)
-    {
-        SaveConfig();
-    }
 }
 
 simulated function InitializeHighlight(xPawn Pawn)
@@ -383,38 +337,6 @@ simulated function PawnBaseDied()
     }
 }
 
-simulated function RecoverConfigs()
-{
-    local Actor OldActor;
-    local int Version;
-
-    OldActor = class'HxConfig'.static.FindOldVersionActor(Self, Class, MIN_VERSION, Version);
-    if (OldActor != None)
-    {
-        class'HxConfig'.static.CopyProperty(Self, OldActor, "YourTeam");
-        class'HxConfig'.static.CopyProperty(Self, OldActor, "EnemyTeam");
-        class'HxConfig'.static.CopyProperty(Self, OldActor, "SoloPlayer");
-        class'HxConfig'.static.CopyProperty(Self, OldActor, "ShieldHit");
-        class'HxConfig'.static.CopyProperty(Self, OldActor, "LinkHit");
-        class'HxConfig'.static.CopyProperty(Self, OldActor, "ShockHit");
-        class'HxConfig'.static.CopyProperty(Self, OldActor, "LightningHit");
-        class'HxConfig'.static.CopyProperty(Self, OldActor, "bDisableOnDeadBodies");
-        class'HxConfig'.static.CopyProperty(Self, OldActor, "bForceNormalSkins");
-        class'HxConfig'.static.CopyProperty(Self, OldActor, "SpectatorTeam");
-        OldActor.Destroy();
-        SaveConfig();
-    }
-}
-
-static function StaticRecoverConfigs(Actor Spawner)
-{
-    local HxSkinHighlight Temp;
-
-    Temp = Spawner.Spawn(class'HxSkinHighlight');
-    Temp.RecoverConfigs();
-    Temp.Destroy();
-}
-
 static function Material GetNormalSkin(coerce string Name)
 {
     local Material Skin;
@@ -442,58 +364,6 @@ static function Material GetNormalSkin(coerce string Name)
     return Skin;
 }
 
-static function RenameColor(string OldColorName, string NewColorName)
-{
-    local bool bSave;
-
-    if (default.YourTeam == OldColorName)
-    {
-        default.YourTeam = NewColorName;
-        bSave = true;
-    }
-    if (default.EnemyTeam == OldColorName)
-    {
-        default.EnemyTeam = NewColorName;
-        bSave = true;
-    }
-    if (default.SoloPlayer == OldColorName)
-    {
-        default.SoloPlayer = NewColorName;
-        bSave = true;
-    }
-    if (default.ShieldHit == OldColorName)
-    {
-        default.ShieldHit = NewColorName;
-        bSave = true;
-    }
-    if (default.LinkHit == OldColorName)
-    {
-        default.LinkHit = NewColorName;
-        bSave = true;
-    }
-    if (default.ShockHit == OldColorName)
-    {
-        default.ShockHit = NewColorName;
-        bSave = true;
-    }
-    if (default.LightningHit == OldColorName)
-    {
-        default.LightningHit = NewColorName;
-        bSave = true;
-    }
-    if (bSave)
-    {
-        StaticSaveConfig();
-    }
-}
-
-static function bool IsMetaColorName(string ColorName)
-{
-    return ColorName == NO_HIGHLIGHT
-        || ColorName == RANDOM_HIGHLIGHT
-        || ColorName == DEFAULT_HIGHLIGHT;
-}
-
 static function PopulateReservedNames(HxColors Colors)
 {
     Colors.Reserve(NO_HIGHLIGHT);
@@ -503,21 +373,10 @@ static function PopulateReservedNames(HxColors Colors)
 
 defaultproperties
 {
-    EnemyTeam="DISABLED"
-    YourTeam="DISABLED"
-    SoloPlayer="DISABLED"
-    ShieldHit="DEFAULT"
-    LinkHit="DEFAULT"
-    ShockHit="DEFAULT"
-    LightningHit="DEFAULT"
-    bDisableOnDeadBodies=false
-    bForceNormalSkins=true
-    SpectatorTeam=0
-    HighlightIntensity=-1
-
     RemoteRole=ROLE_SimulatedProxy
     bHardAttach=true
     bHidden=true
     NetUpdateFrequency=100
     NetPriority=3
+    HighlightIntensity=-1
 }

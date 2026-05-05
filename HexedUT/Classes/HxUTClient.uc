@@ -39,6 +39,7 @@ simulated event PreBeginPlay()
         }
         SkinHighlightColors = new (None, "HxSkinHighlight") class'HxColors';
         class'HxSkinHighlight'.static.PopulateReservedNames(SkinHighlightColors);
+        HxSkinHighlightConfig(Configs[1]).ValidateColors(SkinHighlightColors);
     }
 }
 
@@ -247,7 +248,6 @@ simulated function HxColors GetSkinHighlightColors()
 
 simulated function RecoverConfigs()
 {
-    class'HxSkinHighlight'.static.StaticRecoverConfigs(Self);
     class'HxSpawnProtectionTimer'.static.StaticRecoverConfigs(Self);
     bFirstRun = false;
     SaveConfig();
@@ -258,6 +258,7 @@ defaultproperties
     bFirstRun=true
     MutatorClass=class'MutHexedUT'
     ConfigClasses(0)=class'HxHitEffectsConfig'
+    ConfigClasses(1)=class'HxSkinHighlightConfig'
     Properties(0)=(Name="ViewSmoothing",Section="Camera",Caption="View smoothing",Hint="Choose which type of view smoothing to apply.",Type=PIT_Select,Data="HX_VS_Default;Strong (default);HX_VS_Weak;Weak;HX_VS_Disabled;Disabled",Dependency="bAllowCustomViewSmoothing")
     Properties(1)=(Name="bEnabled",Section="Spawn Protection Timer",Caption="Enable spawn protection timer",Hint="Show timer indicating remaining spawn protection duration.",Type=PIT_Check,Dependency="bAllowSpawnProtectionTimer")
     Properties(2)=(Name="bUseHUDColor",Section="Spawn Protection Timer",Caption="Use HUD's color",Hint="Use the same color as the HUD for the timer's icon.",Type=PIT_Check,Dependency="bAllowSpawnProtectionTimer",bAdvanced=true)
