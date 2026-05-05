@@ -42,6 +42,7 @@ var localized string SkinLabels[3];
 var localized string TeamLabels[2];
 
 var private HxUTClient Client;
+var private HxColors Colors;
 var private xUtil.PlayerRecord PreviewRec;
 var private int PreviewSkinVariation;
 var private SpinnyWeap PreviewModel;
@@ -55,6 +56,8 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
     local int i;
 
+    Client = HxUTClient(ClientManager.Find(class'HxUTClient'));
+    Colors = Client.GetSkinHighlightColors();
     super.InitComponent(MyController, MyOwner);
     Sections[SECTION_HIGHLIGHTS].Insert(co_YourTeam);
     Sections[SECTION_HIGHLIGHTS].Insert(co_EnemyTeam);
@@ -102,31 +105,24 @@ event Opened(GUIComponent Sender)
 
 function Refresh()
 {
-    if (Client == None)
-    {
-        Client = HxUTClient(ClientManager.Find(class'HxUTClient'));
-    }
-    if (Client != None)
-    {
-        UpdatePreviewColor();
-        Sections[SECTION_HIGHLIGHTS].SetHide(
-            !bool(Client.GetServerProperty("bAllowSkinHighlight")), HideDueDisable);
-    }
+    UpdatePreviewColor();
+    Sections[SECTION_HIGHLIGHTS].SetHide(
+        !bool(Client.GetServerProperty("bAllowSkinHighlight")), HideDueDisable);
     Super.Refresh();
 }
 
 function CustomizeColorOnLoadINI(GUIComponent Sender, string s)
 {
-    local HxSkinHighlight.HxColorEntry ColorEntry;
+    local HxColors.HxColor ColorEntry;
 
     if (Sender == ch_AllowOnRandom)
     {
-        class'HxSkinHighlight'.static.FindColorEntry(co_EditColor.GetComponentValue(), ColorEntry);
+        Colors.FindEntry(co_EditColor.GetComponentValue(), ColorEntry);
         ch_AllowOnRandom.Checked(ColorEntry.bRandom);
     }
     else
     {
-        class'HxSkinHighlight'.static.FindColorEntry(co_EditColor.GetComponentValue(), ColorEntry);
+        Colors.FindEntry(co_EditColor.GetComponentValue(), ColorEntry);
         switch (Sender)
         {
             case sl_ColorRed:
@@ -192,23 +188,23 @@ function CustomizeColorOnChange(GUIComponent Sender)
     }
     else if (Sender == ch_AllowOnRandom)
     {
-        if (class'HxSkinHighlight'.static.SetColorRandom(Index, ch_AllowOnRandom.IsChecked()))
+        if (Colors.SetRandom(Index, ch_AllowOnRandom.IsChecked()))
         {
             SaveHighlightChanges(PlayerOwner());
         }
     }
-    else if (Index < class'HxSkinHighlight'.default.Colors.Length)
+    else if (Index < Colors.List.Length)
     {
         switch (Sender)
         {
             case sl_ColorRed:
-                class'HxSkinHighlight'.default.Colors[Index].Color.R = sl_ColorRed.GetValue();
+                Colors.List[Index].Color.R = sl_ColorRed.GetValue();
                 break;
             case sl_ColorGreen:
-                class'HxSkinHighlight'.default.Colors[Index].Color.G = sl_ColorGreen.GetValue();
+                Colors.List[Index].Color.G = sl_ColorGreen.GetValue();
                 break;
             case sl_ColorBlue:
-                class'HxSkinHighlight'.default.Colors[Index].Color.B = sl_ColorBlue.GetValue();
+                Colors.List[Index].Color.B = sl_ColorBlue.GetValue();
                 break;
         }
         SaveHighlightChanges(PlayerOwner());
@@ -257,14 +253,11 @@ function PopulateColorComboBoxes()
         ComboBoxes[i].AddItem(DefaultLabel,,DEFAULT_HIGHLIGHT);
     }
     co_SoloPlayer.AddItem("Random",,RANDOM_HIGHLIGHT);
-    for (i = 0; i < class'HxSkinHighlight'.default.Colors.Length; ++i)
+    for (i = 0; i < Colors.List.Length; ++i)
     {
         for (j = 0; j < ComboBoxes.Length; ++j)
         {
-            ComboBoxes[j].AddItem(
-                class'HxSkinHighlight'.default.Colors[i].Name,,
-                class'HxSkinHighlight'.default.Colors[i].Name);
-
+            ComboBoxes[j].AddItem(Colors.List[i].ColorName,, Colors.List[i].ColorName);
         }
     }
     for (i = 0; i < ComboBoxes.Length - 1; ++i)
@@ -295,9 +288,9 @@ function SaveHighlightChanges(PlayerController PC)
 
 function UpdateColorEditorSection(string ColorName)
 {
-    local HxSkinHighlight.HxColorEntry ColorEntry;
+    local HxColors.HxColor ColorEntry;
 
-    class'HxSkinHighlight'.static.FindColorEntry(ColorName, ColorEntry);
+    Colors.FindEntry(ColorName, ColorEntry);
     sl_ColorRed.SetComponentValue(ColorEntry.Color.R, true);
     sl_ColorGreen.SetComponentValue(ColorEntry.Color.G, true);
     sl_ColorBlue.SetComponentValue(ColorEntry.Color.B, true);
@@ -428,11 +421,8 @@ function UpdatePreviewColor()
 {
     local float ColorMultiplier;
 
-    if (Client != None)
-    {
-        ColorMultiplier = float(Client.GetServerProperty("SkinHighlightIntensity"));
-    }
-    class'HxSkinHighlight'.static.FindColor(co_EditColor.GetComponentValue(), PreviewEffect.Color);
+    ColorMultiplier = float(Client.GetServerProperty("SkinHighlightIntensity"));
+    Colors.Find(co_EditColor.GetComponentValue(), PreviewEffect.Color);
     PreviewEffect.Color.R = PreviewEffect.Color.R * ColorMultiplier;
     PreviewEffect.Color.G = PreviewEffect.Color.G * ColorMultiplier;
     PreviewEffect.Color.B = PreviewEffect.Color.B * ColorMultiplier;
@@ -460,7 +450,7 @@ function bool OnClickNewColor(GUIComponent Sender)
 {
     if (Controller.OpenMenu(string(class'HxGUIGetDataMenu'), NewColorPageCaption, NameLabel))
     {
-        Controller.ActivePage.SetDataString(class'HxSkinHighlight'.static.RandomColorName());
+        Controller.ActivePage.SetDataString(Colors.RandomName());
         Controller.ActivePage.OnClose = OnCloseNewColor;
     }
     return true;
@@ -474,10 +464,9 @@ function OnCloseNewColor(optional bool bCancelled)
     if (!bCancelled)
     {
         ColorName = Controller.ActivePage.GetDataString();
-        Index = class'HxSkinHighlight'.static.AllocateColor(ColorName);
+        Index = Colors.Insert(ColorName);
         if (Index != -1)
         {
-            class'HxSkinHighlight'.static.StaticSaveConfig();
             PopulateColorComboBoxes();
             co_EditColor.SilentSetIndex(Index);
             UpdateColorEditorSection(ColorName);
@@ -501,15 +490,18 @@ function bool OnClickRenameColor(GUIComponent Sender)
 
 function OnCloseRenameColor(optional bool bCancelled)
 {
+    local string OldColorName;
     local string ColorName;
 
     if (!bCancelled)
     {
+        OldColorName = co_EditColor.GetText();
         ColorName = Controller.ActivePage.GetDataString();
-        if (ColorName != co_EditColor.GetText())
+        if (ColorName != OldColorName)
         {
-            if (class'HxSkinHighlight'.static.ChangeColorName(co_EditColor.GetIndex(), ColorName))
+            if (Colors.Rename(co_EditColor.GetIndex(), ColorName))
             {
+                class'HxSkinHighlight'.static.RenameColor(OldColorName, ColorName);
                 PopulateColorComboBoxes();
                 SaveHighlightChanges(PlayerOwner());
             }
@@ -534,9 +526,8 @@ function bool OnClickDeleteColor(GUIComponent Sender)
 
 function OnCloseDeleteColor(byte bButton)
 {
-    if (bButton == QBTN_Yes && class'HxSkinHighlight'.static.DeleteColor(co_EditColor.GetIndex()))
+    if (bButton == QBTN_Yes && Colors.Remove(co_EditColor.GetIndex()))
     {
-        class'HxSkinHighlight'.static.StaticSaveConfig();
         PopulateColorComboBoxes();
         UpdateColorEditorSection(co_EditColor.GetComponentValue());
         SaveHighlightChanges(PlayerOwner());

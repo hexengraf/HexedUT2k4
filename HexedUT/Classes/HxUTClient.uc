@@ -17,6 +17,7 @@ var HxSpawnProtectionTimer SPTimer;
 var HxUTPlayer Player;
 
 var private HxHitEffects HitEffects;
+var private HxColors SkinHighlightColors;
 var private HxDamageInfo Damage;
 var private bool bInitialized;
 
@@ -36,6 +37,8 @@ simulated event PreBeginPlay()
         {
             RecoverConfigs();
         }
+        SkinHighlightColors = new (None, "HxSkinHighlight") class'HxColors';
+        class'HxSkinHighlight'.static.PopulateReservedNames(SkinHighlightColors);
     }
 }
 
@@ -235,6 +238,11 @@ simulated function SetProperty(int Index, string Value)
             class'HxSpawnProtectionTimer'.static.StaticSaveConfig();
         }
     }
+}
+
+simulated function HxColors GetSkinHighlightColors()
+{
+    return SkinHighlightColors;
 }
 
 simulated function RecoverConfigs()
