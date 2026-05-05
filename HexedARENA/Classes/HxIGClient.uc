@@ -39,4 +39,5 @@ defaultproperties
 {
     MutatorClass=class'MutHexedINSTAGIB'
     ConfigClasses(0)=class'HxZoomSuperShockRifleConfig'
+    PanelClasses(0)=class'HxGUIMenuInstagibPanel'
 }

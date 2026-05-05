@@ -36,35 +36,36 @@ function ApplyProperty(int Index)
     {
         case 0:
             class'HxZoomSuperShockRifle'.default.ScopeOverlay = ScopeOverlay;
+            break;
         case 1:
-            break;
             class'HxZoomSuperShockRifle'.default.bSoundEffects = bSoundEffects;
+            break;
         case 2:
-            break;
             class'HxZoomSuperShockRifle'.default.bShowChargeBar = bShowChargeBar;
+            break;
         case 3:
-            break;
             class'HxZoomSuperShockRifle'.default.ReticleColor = ReticleColor;
+            break;
         case 4:
-            break;
             class'HxZoomSuperShockRifle'.default.ReticleScale = ReticleScale;
+            break;
         case 5:
-            break;
             class'HxZoomSuperShockRifle'.default.BackgroundOpacity = BackgroundOpacity;
+            break;
         case 6:
-            break;
             class'HxZoomSuperShockRifle'.default.bCustomZoomCrosshair = bCustomZoomCrosshair;
+            break;
         case 7:
-            break;
             class'HxZoomSuperShockRifle'.default.CustomZoomCrosshair = CustomZoomCrosshair;
-        case 8:
             break;
+        case 8:
             class'HxZoomSuperShockRifle'.default.CustomZoomCrosshairColor =
                 CustomZoomCrosshairColor;
-        case 9:
             break;
+        case 9:
             class'HxZoomSuperShockRifle'.default.CustomZoomCrosshairScale =
                 CustomZoomCrosshairScale;
+            break;
         case 10:
             class'HxZoomSuperShockRifle'.default.CustomZoomCrosshairTextureName =
                 CustomZoomCrosshairTextureName;
@@ -93,71 +94,6 @@ function SetCustomCrosshair(coerce int Index)
     SetProperty(10, string(Crosshairs[Index].CrosshairTexture));
 }
 
-// simulated function string GetProperty(int Index)
-// {
-//     switch (Index)
-//     {
-//         case 3:
-//             return string(ScopeConfig.ReticleColor.R);
-//         case 4:
-//             return string(ScopeConfig.ReticleColor.G);
-//         case 5:
-//             return string(ScopeConfig.ReticleColor.B);
-//         case 6:
-//             return string(ScopeConfig.ReticleColor.A / 255.0);
-//         case 11:
-//             return string(ScopeConfig.CustomZoomCrosshairColor.R);
-//         case 12:
-//             return string(ScopeConfig.CustomZoomCrosshairColor.G);
-//         case 13:
-//             return string(ScopeConfig.CustomZoomCrosshairColor.B);
-//         case 14:
-//             return string(ScopeConfig.CustomZoomCrosshairColor.A / 255.0);
-//         default:
-//             return ScopeConfig.GetPropertyText(Properties[Index].Name);
-//     }
-//     return "";
-// }
-
-// simulated function SetProperty(int Index, string Value)
-// {
-//     switch (Index)
-//     {
-//         case 3:
-//             ReticleColor.R = byte(Value);
-//             break;
-//         case 4:
-//             ReticleColor.G = byte(Value);
-//             break;
-//         case 5:
-//             ReticleColor.B = byte(Value);
-//             break;
-//         case 6:
-//             ReticleColor.A = float(Value) * 255;
-//             break;
-//         case 10:
-//             SetCustomCrosshair(Value);
-//             break;
-//         case 11:
-//             CustomZoomCrosshairColor.R = byte(Value);
-//             break;
-//         case 12:
-//             CustomZoomCrosshairColor.G = byte(Value);
-//             break;
-//         case 13:
-//             CustomZoomCrosshairColor.B = byte(Value);
-//             break;
-//         case 14:
-//             CustomZoomCrosshairColor.A = float(Value) * 255;
-//             break;
-//         default:
-//             SetPropertyText(Properties[Index].Name, Value);
-//             break;
-//     }
-//     ScopeConfig.SaveConfig();
-//     ApplyScopeConfiguration();
-// }
-
 defaultproperties
 {
     ObjectName="HexedARENA"
@@ -170,26 +106,15 @@ defaultproperties
     Properties(6)=(Name="bCustomZoomCrosshair",Type=HX_PROPERTY_Bool)
     Properties(7)=(Name="CustomZoomCrosshair",Type=HX_PROPERTY_Enum)
     Properties(8)=(Name="CustomZoomCrosshairColor",Type=HX_PROPERTY_Color)
-    Properties(9)=(Name="CustomZoomCrosshairScale",Type=HX_PROPERTY_Float,LowerLimit="0.0",UpperLimit="5.0")
+    Properties(9)=(Name="CustomZoomCrosshairScale",Type=HX_PROPERTY_Float,LowerLimit="0.0",UpperLimit="2.0")
     Properties(10)=(Name="CustomZoomCrosshairTextureName",Type=HX_PROPERTY_String)
-    // DisplayInfo(0)=(Caption="Scope overlay",Hint="Choose which scope overlay to use.",EnumLabels=("Default","Custom","Hidden"),Dependency="bZoomInstagib")
-    // DisplayInfo(1)=(Section="Custom Scope Overlay",Caption="Zoom sound effects",Hint="Enable sound effects when zooming in/out.",Dependency="bZoomInstagib")
-    // DisplayInfo(2)=(Section="Custom Scope Overlay",Caption="Show charge bar",Hint="Show charge bar to indicate when it is ready to shoot.",Dependency="bZoomInstagib")
-    // DisplayInfo(3)=(Section="Custom Scope Overlay",Hint="reticle",Dependency="bZoomInstagib")
-    // DisplayInfo(4)=(Section="Custom Scope Overlay",Caption="Scale",Hint="Change the scale of the reticle.",Step="0.05",Dependency="bZoomInstagib")
-    // DisplayInfo(5)=(Section="Custom Scope Overlay",Caption="Background opacity",Hint="Change the opacity of the black background around the scope.",Dependency="bZoomInstagib")
-    // DisplayInfo(6)=(Section="Custom Crosshair",Caption="Use custom crosshair",Hint="Use custom crosshair while zooming. Requires custom weapon crosshairs enabled to work.",Dependency="bZoomInstagib")
-    // DisplayInfo(7)=(Section="Custom Crosshair",Section="Custom Crosshair",Caption="Custom Crosshair",Hint="Choose which crosshair to use.",EnumLabels=("CROSSHAIRS"),Dependency="bZoomInstagib")
-    // DisplayInfo(8)=(Section="Custom Crosshair",Hint="crosshair",Dependency="bZoomInstagib")
-    // DisplayInfo(9)=(Section="Custom Crosshair",Caption="Scale",Hint="Change the scale of the crosshair.",Step="0.05",Dependency="bZoomInstagib")
-    // DisplayInfo(10)=(bHidden=true)
 
     ScopeOverlay=HX_SCOPE_Custom
     bSoundEffects=true
     bShowChargeBar=true
     ReticleColor=(R=32,G=32,B=32,A=255)
     ReticleScale=0.5
-    BackgroundOpacity=0.35
+    BackgroundOpacity=0.3
     bCustomZoomCrosshair=false
     CustomZoomCrosshair=7
     CustomZoomCrosshairColor=(R=255,G=32,B=32,A=230)
