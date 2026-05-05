@@ -169,18 +169,18 @@ function CustomizeColorOnChange(GUIComponent Sender)
             ApplyHighlightChanges(PlayerOwner());
         }
     }
-    else if (Index < Colors.List.Length)
+    else if (Index < Colors.ColorList.Length)
     {
         switch (Sender)
         {
             case sl_ColorRed:
-                Colors.List[Index].Color.R = sl_ColorRed.GetValue();
+                Colors.ColorList[Index].Color.R = sl_ColorRed.GetValue();
                 break;
             case sl_ColorGreen:
-                Colors.List[Index].Color.G = sl_ColorGreen.GetValue();
+                Colors.ColorList[Index].Color.G = sl_ColorGreen.GetValue();
                 break;
             case sl_ColorBlue:
-                Colors.List[Index].Color.B = sl_ColorBlue.GetValue();
+                Colors.ColorList[Index].Color.B = sl_ColorBlue.GetValue();
                 break;
         }
         ApplyHighlightChanges(PlayerOwner());
@@ -229,11 +229,11 @@ function PopulateColorComboBoxes()
         ComboBoxes[i].AddItem(DefaultLabel,,DEFAULT_HIGHLIGHT);
     }
     co_SoloPlayer.AddItem("Random",,RANDOM_HIGHLIGHT);
-    for (i = 0; i < Colors.List.Length; ++i)
+    for (i = 0; i < Colors.ColorList.Length; ++i)
     {
         for (j = 0; j < ComboBoxes.Length; ++j)
         {
-            ComboBoxes[j].AddItem(Colors.List[i].ColorName,, Colors.List[i].ColorName);
+            ComboBoxes[j].AddItem(Colors.ColorList[i].Name,, Colors.ColorList[i].Name);
         }
     }
     for (i = 0; i < ComboBoxes.Length - 1; ++i)

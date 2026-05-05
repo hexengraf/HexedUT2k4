@@ -4,56 +4,59 @@ class HxColors extends Object
 
 struct HxColor
 {
-    var string ColorName;
+    var string Name;
     var Color Color;
     var bool bRandom;
 };
 
-struct HxColorAlias
+struct HxColorChoice
 {
-    var string Alias;
-    var string ColorName;
+    var string Key;
+    var string Value;
 };
 
-var config array<HxColor> List;
-var config array<HxColorAlias> Aliases;
-var config bool bPruneUnusedAliases;
-var array<string> ReservedNames;
+var config array<HxColor> ColorList;
+var config array<HxColorChoice> RandomChoices;
+var config bool bPruneUnusedChoices;
 
-var private array<HxColorAlias> OldAliases;
+var private array<string> ReservedNames;
 var private array<string> RandomPool;
+var private array<HxColorChoice> OldRandomChoices;
 
 function Created()
 {
     local int i;
 
-    ValidateAliases(Aliases);
-    PopulateRandomPool();
-    if (bPruneUnusedAliases)
+    if (ValidateMap(RandomChoices))
     {
-        OldAliases = Aliases;
-        Aliases.Remove(0, Aliases.Length);
+        SaveConfig();
+    }
+    PopulateRandomPool();
+    if (bPruneUnusedChoices)
+    {
+        OldRandomChoices = RandomChoices;
+        RandomChoices.Remove(0, RandomChoices.Length);
     }
     else
     {
-        for (i = 0; i < Aliases.Length; ++i)
+        for (i = 0; i < RandomChoices.Length; ++i)
         {
-            RemoveFromRandomPool(Aliases[i].ColorName);
+            RemoveFromRandomPool(RandomChoices[i].Value);
         }
     }
 }
 
-function int Insert(string ColorName, optional Color Color, optional bool bRandom)
+function int Insert(string Name, optional Color Color, optional bool bRandom)
 {
     local int Index;
 
-    if (Find(ColorName) < 0)
+    if (Find(Name) < 0)
     {
-        Index = List.Length;
-        List.Length = Index + 1;
-        List[Index].ColorName = ColorName;
-        List[Index].Color = Color;
-        List[Index].bRandom = bRandom;
+        Index = ColorList.Length;
+        ColorList.Length = Index + 1;
+        ColorList[Index].Name = Name;
+        ColorList[Index].Color = Color;
+        ColorList[Index].bRandom = bRandom;
         SaveConfig();
         return Index;
     }
@@ -64,67 +67,67 @@ function bool Remove(int Index)
 {
     if (IsValidIndex(Index))
     {
-        ValidateAliases(Aliases);
-        if (bPruneUnusedAliases)
+        ValidateMap(RandomChoices);
+        if (bPruneUnusedChoices)
         {
-            ValidateAliases(OldAliases);
+            ValidateMap(OldRandomChoices);
         }
-        RemoveFromRandomPool(List[Index].ColorName);
-        List.Remove(Index, 1);
+        RemoveFromRandomPool(ColorList[Index].Name);
+        ColorList.Remove(Index, 1);
         SaveConfig();
         return true;
     }
     return false;
 }
 
-function bool Rename(int Index, string ColorName)
+function bool Rename(int Index, string Name)
 {
     local int i;
 
-    if (!IsValidIndex(Index) || Find(ColorName) > -1)
+    if (!IsValidIndex(Index) || Find(Name) > -1)
     {
         return false;
     }
-    for (i = 0; i < Aliases.Length; ++i)
+    for (i = 0; i < RandomChoices.Length; ++i)
     {
-        if (Aliases[i].ColorName == List[Index].ColorName)
+        if (RandomChoices[i].Value == ColorList[Index].Name)
         {
-            Aliases[i].ColorName = ColorName;
+            RandomChoices[i].Value = Name;
         }
     }
-    if (bPruneUnusedAliases)
+    if (bPruneUnusedChoices)
     {
-        for (i = 0; i < OldAliases.Length; ++i)
+        for (i = 0; i < OldRandomChoices.Length; ++i)
         {
-            if (OldAliases[i].ColorName == List[Index].ColorName)
+            if (OldRandomChoices[i].Value == ColorList[Index].Name)
             {
-                OldAliases[i].ColorName = ColorName;
+                OldRandomChoices[i].Value = Name;
             }
         }
     }
     for (i = 0; i < RandomPool.Length; ++i)
     {
-        if (RandomPool[i] == List[Index].ColorName)
+        if (RandomPool[i] == ColorList[Index].Name)
         {
-            RandomPool[i] = ColorName;
+            RandomPool[i] = Name;
         }
     }
-    List[Index].ColorName = ColorName;
+    ColorList[Index].Name = Name;
     SaveConfig();
     return true;
 }
 
-function int Find(string ColorName, optional out Color Color)
+function int Find(string Name, optional out Color Color)
 {
     local int i;
 
-    if (ColorName != "" && !IsReservedName(ColorName))
+    if (Name != "" && !IsReservedName(Name))
     {
-        for (i = 0; i < List.Length; ++i)
+        for (i = 0; i < ColorList.Length; ++i)
         {
-            if (List[i].ColorName == ColorName)
+            if (ColorList[i].Name == Name)
             {
-                Color = List[i].Color;
+                Color = ColorList[i].Color;
                 return i;
             }
         }
@@ -132,70 +135,70 @@ function int Find(string ColorName, optional out Color Color)
     return -1;
 }
 
-function int FindEntry(string ColorName, optional out HxColor ColorEntry)
+function int FindEntry(string Name, optional out HxColor ColorEntry)
 {
     local int i;
 
-    if (ColorName == "" || IsReservedName(ColorName))
+    if (Name == "" || IsReservedName(Name))
     {
         return -1;
     }
-    for (i = 0; i < List.Length; ++i)
+    for (i = 0; i < ColorList.Length; ++i)
     {
-        if (List[i].ColorName == ColorName)
+        if (ColorList[i].Name == Name)
         {
-            ColorEntry = List[i];
+            ColorEntry = ColorList[i];
             return i;
         }
     }
     return -1;
 }
 
-function string AliasedRandom(string Alias)
+function string SavedRandom(string Key)
 {
     local int i;
 
-    for (i = 0; i < Aliases.Length; ++i)
+    for (i = 0; i < RandomChoices.Length; ++i)
     {
-        if (Aliases[i].Alias == Alias)
+        if (RandomChoices[i].Key == Key)
         {
-            return Aliases[i].ColorName;
+            return RandomChoices[i].Value;
         }
     }
-    if (bPruneUnusedAliases)
+    if (bPruneUnusedChoices)
     {
-        for (i = 0; i < OldAliases.Length; ++i)
+        for (i = 0; i < OldRandomChoices.Length; ++i)
         {
-            if  (OldAliases[i].Alias == Alias)
+            if  (OldRandomChoices[i].Key == Key)
             {
-                Aliases[Aliases.Length] = OldAliases[i];
-                RemoveFromRandomPool(OldAliases[i].ColorName);
+                RandomChoices[RandomChoices.Length] = OldRandomChoices[i];
+                RemoveFromRandomPool(OldRandomChoices[i].Value);
                 SaveConfig();
-                return OldAliases[i].ColorName;
+                return OldRandomChoices[i].Value;
             }
         }
     }
-    i = Aliases.Length;
-    Aliases.Length = i + 1;
-    Aliases[i].Alias = Alias;
-    Aliases[i].ColorName = UniqueRandom();
+    i = RandomChoices.Length;
+    RandomChoices.Length = i + 1;
+    RandomChoices[i].Key = Key;
+    RandomChoices[i].Value = UniqueRandom();
     SaveConfig();
-    return Aliases[i].ColorName;
+    return RandomChoices[i].Value;
 }
 
 function string UniqueRandom()
 {
     local int Index;
-    local string ColorName;
+    local string Name;
 
     Index = Rand(RandomPool.Length);
-    ColorName = RandomPool[Index];
+    Name = RandomPool[Index];
     RandomPool.Remove(Index, 1);
     if (RandomPool.Length == 0)
     {
         PopulateRandomPool();
     }
-    return ColorName;
+    return Name;
 }
 
 function bool SetRandom(int Index, bool bRandom)
@@ -206,67 +209,67 @@ function bool SetRandom(int Index, bool bRandom)
     {
         return false;
     }
-    if (List[Index].bRandom ^^ bRandom)
+    if (ColorList[Index].bRandom ^^ bRandom)
     {
-        for (i = 0; i < Aliases.Length; ++i)
+        for (i = 0; i < RandomChoices.Length; ++i)
         {
-            if (Aliases[i].ColorName == List[Index].ColorName)
+            if (RandomChoices[i].Value == ColorList[Index].Name)
             {
-                Aliases.Remove(i, 1);
+                RandomChoices.Remove(i, 1);
                 --i;
             }
         }
-        if (bPruneUnusedAliases)
+        if (bPruneUnusedChoices)
         {
-            for (i = 0; i < OldAliases.Length; ++i)
+            for (i = 0; i < OldRandomChoices.Length; ++i)
             {
-                if (OldAliases[i].ColorName == List[Index].ColorName)
+                if (OldRandomChoices[i].Value == ColorList[Index].Name)
                 {
-                    OldAliases.Remove(i, 1);
+                    OldRandomChoices.Remove(i, 1);
                     --i;
                 }
             }
         }
         for (i = 0; i < RandomPool.Length; ++i)
         {
-            if (RandomPool[i] == List[Index].ColorName)
+            if (RandomPool[i] == ColorList[Index].Name)
             {
                 RandomPool.Remove(i, 1);
                 break;
             }
         }
     }
-    List[Index].bRandom = bRandom;
+    ColorList[Index].bRandom = bRandom;
     return true;
 }
 
-function bool Reserve(string ColorName)
+function bool Reserve(string Name)
 {
     local int i;
 
     for (i = 0; i < ReservedNames.Length; ++i)
     {
-        if (ColorName ~= ReservedNames[i])
+        if (Name ~= ReservedNames[i])
         {
             return false;
         }
     }
-    ReservedNames[i] = ColorName;
+    ReservedNames[i] = Name;
     return true;
 }
 
-function bool IsValidName(string ColorName)
+function bool IsValidName(string Name)
 {
-    return IsReservedName(ColorName) || Find(ColorName) > -1;
+    return IsReservedName(Name) || Find(Name) > -1;
 }
 
-function bool IsReservedName(string ColorName)
+function bool IsReservedName(string Name)
 {
     local int i;
 
     for (i = 0; i < ReservedNames.Length; ++i)
     {
-        if (ColorName == ReservedNames[i])
+        if (Name == ReservedNames[i])
         {
             return true;
         }
@@ -274,47 +277,54 @@ function bool IsReservedName(string ColorName)
     return false;
 }
 
-private function ValidateAliases(out array<HxColorAlias> OtherAliases)
+private function bool ValidateMap(out array<HxColorChoice> Map)
 {
+    local bool bChanged;
     local int i;
     local int j;
 
-    for (i = OtherAliases.Length - 1; i >= 0; --i)
+    for (i = Map.Length - 1; i >= 0; --i)
     {
-        for (j = 0; j < List.Length; ++j)
+        for (j = 0; j < ColorList.Length; ++j)
         {
-            if (OtherAliases[i].ColorName == List[j].ColorName)
+            if (Map[i].Value == ColorList[j].Name)
             {
+                if (!ColorList[j].bRandom)
+                {
+                    j = ColorList.Length;
+                }
                 break;
             }
         }
-        if (j == List.Length)
+        if (j == ColorList.Length)
         {
-            OtherAliases.Remove(i, 1);
+            Map.Remove(i, 1);
+            bChanged = true;
         }
     }
+    return bChanged;
 }
 
 private function PopulateRandomPool()
 {
     local int i;
 
-    for (i = 0; i < List.Length; ++i)
+    for (i = 0; i < ColorList.Length; ++i)
     {
-        if (List[i].bRandom)
+        if (ColorList[i].bRandom)
         {
-            RandomPool[RandomPool.Length] = List[i].ColorName;
+            RandomPool[RandomPool.Length] = ColorList[i].Name;
         }
     }
 }
 
-private function RemoveFromRandomPool(string ColorName)
+private function RemoveFromRandomPool(string Name)
 {
     local int i;
 
     for (i = 0; i < RandomPool.Length; ++i)
     {
-        if (RandomPool[i] == ColorName)
+        if (RandomPool[i] == Name)
         {
             RandomPool.Remove(i, 1);
             break;
@@ -328,7 +338,7 @@ private function RemoveFromRandomPool(string ColorName)
 
 private function bool IsValidIndex(int Index)
 {
-    return Index >= 0 && Index < List.Length;
+    return Index >= 0 && Index < ColorList.Length;
 }
 
 static function string RandomName()
@@ -338,12 +348,12 @@ static function string RandomName()
 
 defaultproperties
 {
-    List(0)=(ColorName="Red",Color=(R=255,G=0,B=0,A=255),bRandom=true)
-    List(1)=(ColorName="Blue",Color=(R=0,G=0,B=255,A=255),bRandom=true)
-    List(2)=(ColorName="Green",Color=(R=0,G=255,B=0,A=255),bRandom=true)
-    List(3)=(ColorName="Pink",Color=(R=255,G=0,B=255,A=255),bRandom=true)
-    List(4)=(ColorName="Teal",Color=(R=0,G=255,B=255,A=255),bRandom=true)
-    List(5)=(ColorName="Yellow",Color=(R=255,G=255,B=0,A=255),bRandom=true)
-    List(6)=(ColorName="Purple",Color=(R=64,G=0,B=255,A=255),bRandom=false)
-    bPruneUnusedAliases=true
+    ColorList(0)=(Name="Red",Color=(R=255,G=0,B=0,A=255),bRandom=true)
+    ColorList(1)=(Name="Blue",Color=(R=0,G=0,B=255,A=255),bRandom=false)
+    ColorList(2)=(Name="Green",Color=(R=0,G=255,B=0,A=255),bRandom=true)
+    ColorList(3)=(Name="Pink",Color=(R=255,G=0,B=255,A=255),bRandom=true)
+    ColorList(4)=(Name="Teal",Color=(R=0,G=255,B=255,A=255),bRandom=true)
+    ColorList(5)=(Name="Yellow",Color=(R=255,G=255,B=0,A=255),bRandom=true)
+    ColorList(6)=(Name="Purple",Color=(R=64,G=0,B=255,A=255),bRandom=false)
+    bPruneUnusedChoices=true
 }

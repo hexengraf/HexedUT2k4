@@ -142,7 +142,7 @@ simulated function InitializeHighlight(xPawn Pawn)
     {
         if (SoloPlayer == RANDOM_HIGHLIGHT)
         {
-            Name = Colors.AliasedRandom(Pawn.PlayerReplicationInfo.PlayerName);
+            Name = Colors.SavedRandom(Pawn.PlayerReplicationInfo.PlayerName);
         }
         else
         {
