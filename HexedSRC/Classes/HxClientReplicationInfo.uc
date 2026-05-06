@@ -20,7 +20,7 @@ var PlayInfo ServerInfo;
 var array<HxConfig> Configs;
 
 var protected HxClientManager Manager;
-var private HxMutator MutatorOwner;
+var protected HxMutator MutatorOwner;
 var private int PropertyIndex;
 var private int ReceivedCount;
 var private array<HxPendingUpdate> PendingUpdates;
