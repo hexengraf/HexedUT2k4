@@ -30,6 +30,7 @@ HexedNET changes:
   * PingFrequency: Frequency to send pings, expressed in pings per second.
   * PingSmoothing: Factor to smooth out ping spikes from the average. Use low values for high smoothing (1.0 disables averaging completely).
 * Replaced PingFrequency server option with MaxPingFrequency.
+* Added option to backport OldUnreal's rubberbanding fix.
 * Added support to HexedINSTAGIB's super shock rifle.
 
 > [!WARNING]
