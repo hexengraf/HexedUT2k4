@@ -10,7 +10,7 @@ var automated moComboBox co_MapFilter;
 var automated GUIButton b_ManageFilters;
 var automated HxMapVotingMapListBox lb_MapList;
 var automated GUILabel l_RetrievingMapList;
-var automated HxGUIMapPreviewBanner MapBanner;
+var automated HxMapPreviewBanner MapBanner;
 var automated GUIButton b_Random;
 var automated GUIButton b_Vote;
 var automated HxGUIChatBox ChatBox;
@@ -485,7 +485,7 @@ defaultproperties
     End Object
     l_RetrievingMapList=RetrievingMapListLabel
 
-    Begin Object Class=HxGUIMapPreviewBanner Name=MapPreviewBanner
+    Begin Object Class=HxMapPreviewBanner Name=MapPreviewBanner
         WinLeft=0.6205
         WinTop=0.045
         WinWidth=0.3695

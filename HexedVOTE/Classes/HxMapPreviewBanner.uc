@@ -1,4 +1,4 @@
-class HxGUIMapPreviewBanner extends HxGUIBackground;
+class HxMapPreviewBanner extends HxGUIBackground;
 
 var automated GUILabel l_Header;
 var automated HxGUIBackground b_Preview;
