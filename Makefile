@@ -26,7 +26,7 @@ helpfiles:=README.md LICENSE CHANGELOG.md
 
 -include $(.versionfiles)
 
-.projectversion:=v7.0-preview2
+.projectversion:=v7.0
 .packages:=$(foreach p,$(packages),$p$($p.version))
 .intpackages:=$(foreach p,$(requiresint),$p$($p.version))
 .compressedpackages:=$(foreach p,$(requirescompressed),$p$($p.version))
