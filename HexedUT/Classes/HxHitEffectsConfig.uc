@@ -202,7 +202,7 @@ defaultproperties
     Properties(15)=(Name="CustomHitSounds",Type=HX_PROPERTY_Array)
 
     bHitSounds=true
-    HitSoundName="HxHitSound1"
+    HitSoundName="HxHitSound0"
     HitSoundVolume=1.0
     PitchMode=HX_PITCH_High2Low
     bDamageNumbers=true
@@ -210,11 +210,11 @@ defaultproperties
     DisplayFontName="UT2003Fonts.FontEurostile37";
     DisplayPosX=0.5
     DisplayPosY=0.45
-    ZeroDamage=(Value=0,Pitch=0,Scale=0,Color=(R=255,G=255,B=255))
-    LowDamage=(Value=30,Pitch=0.30,Scale=0.30,Color=(R=255,G=255,B=32))
-    MediumDamage=(Value=70,Pitch=0.55,Scale=0.55,Color=(R=255,G=119,B=32))
-    HighDamage=(Value=120,Pitch=0.75,Scale=0.75,Color=(R=255,G=32,B=32))
-    ExtremeDamage=(Value=180,Pitch=1.00,Scale=1.00,Color=(R=143,G=32,B=245))
+    ZeroDamage=(Value=0,Pitch=0.00,Scale=0.00,Color=(R=255,G=255,B=255))
+    LowDamage=(Value=20,Pitch=0.40,Scale=0.25,Color=(R=255,G=255,B=32))
+    MediumDamage=(Value=45,Pitch=0.60,Scale=0.50,Color=(R=255,G=119,B=32))
+    HighDamage=(Value=75,Pitch=0.82,Scale=0.75,Color=(R=255,G=32,B=32))
+    ExtremeDamage=(Value=110,Pitch=1.00,Scale=1.00,Color=(R=143,G=32,B=245))
     FontNames(0)="UT2003Fonts.FontEurostile29"
     FontNames(1)="UT2003Fonts.FontEurostile37"
     FontNames(2)="UT2003Fonts.FontNeuzeit29"

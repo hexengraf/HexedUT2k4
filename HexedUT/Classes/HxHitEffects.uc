@@ -1,5 +1,6 @@
 class HxHitEffects extends HudOverlay;
 
+#exec AUDIO IMPORT FILE=Sounds\HxHitSound0.wav
 #exec AUDIO IMPORT FILE=Sounds\HxHitSound1.wav
 #exec AUDIO IMPORT FILE=Sounds\HxHitSound2.wav
 #exec AUDIO IMPORT FILE=Sounds\HxHitSound3.wav
@@ -72,7 +73,7 @@ var HxDamagePoint ExtremeDamage;
 var array<string> FontNames;
 var array<string> CustomHitSounds;
 
-var private const Sound BuiltInHitSounds[5];
+var private const Sound BuiltInHitSounds[6];
 var private PlayerController PC;
 var private bool bAllowHitSounds;
 var private bool bAllowDamageNumbers;
@@ -489,9 +490,10 @@ static function bool IsBuiltInHitSound(string Name)
 
 defaultproperties
 {
-    BuiltInHitSounds(0)=Sound'HxHitSound1'
-    BuiltInHitSounds(1)=Sound'HxHitSound2'
-    BuiltInHitSounds(2)=Sound'HxHitSound3'
-    BuiltInHitSounds(3)=Sound'HxHitSound4'
-    BuiltInHitSounds(4)=Sound'HxHitSound5'
+    BuiltInHitSounds(0)=Sound'HxHitSound0'
+    BuiltInHitSounds(1)=Sound'HxHitSound1'
+    BuiltInHitSounds(2)=Sound'HxHitSound2'
+    BuiltInHitSounds(3)=Sound'HxHitSound3'
+    BuiltInHitSounds(4)=Sound'HxHitSound4'
+    BuiltInHitSounds(5)=Sound'HxHitSound5'
 }
