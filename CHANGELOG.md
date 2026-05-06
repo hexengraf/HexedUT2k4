@@ -8,9 +8,13 @@ This version adds a new package with three mutators:
 
 General changes:
 * Added a first run notification to let players know how to access the configuration menu.
+* Phased-out old method for automatically copying existing configurations to a new version.
+* Converted all user configuration to a version-independent format (using PerObjectConfig). From now on all user configuration will always properly transfer to new versions.
 
 HexedUT changes:
-* Added view smoothing option.
+* Added view smoothing option to change the level of view smoothing to reduce the "sinking" effect in ramps.
+* Added new (classic) hit sound.
+* Recalibrated the default hit effects interpolation curve to better represent single-hit damage values.
 * Removed features that were moved to HexedCONTROL.
 * Added server actor to enable the mutator.
 
@@ -20,11 +24,19 @@ HexedVOTE changes:
 HexedNET changes:
 * Removed new EyeHeight algorithm (use the view smoothing option in HexedUT instead).
 * Fixed issues with round-based game types.
-* Simplified internal mechanism to track client timestamps.
+* Removed counter + timestamp based ping sampling.
+* Reworked ping sampler and average ping calculation.
+* Added two new user options:
+  * PingFrequency: Frequency to send pings, expressed in pings per second.
+  * PingSmoothing: Factor to smooth out ping spikes from the average. Use low values for high smoothing (1.0 disables averaging completely).
+* Replaced PingFrequency server option with MaxPingFrequency.
 * Added support to HexedINSTAGIB's super shock rifle.
 
 > [!WARNING]
-> If you're not following the required steps to activate automatic copy your configuration to the new version, manual intervention is required to keep your map favorites.
+> All existing user configuration will not automatically transfer to v7.
+> This change is required to guarantee that your configuration will automatically apply to all future versions.
+>
+> It is possible to manually transfer your map favorites to v7.
 >
 > As an example, assume you have something like this in `User.ini`:
 > ```ini
@@ -46,7 +58,7 @@ HexedNET changes:
 > List=(Name="DM-Contrived",Tag=HX_TAG_Like)
 > ```
 >
-> After this change, you will never need to worry about loosing your favorites when upgrading to a new version.
+> To manually transfer other configurations, check the README to get the new section formats.
 
 # v6.0
 
