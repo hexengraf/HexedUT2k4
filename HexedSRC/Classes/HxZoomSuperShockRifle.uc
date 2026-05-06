@@ -25,6 +25,49 @@ var string CustomZoomCrosshairTextureName;
 
 #include Classes\Include\MutableFireRateSuperShockRIfle.uci
 
+simulated event DrawDefaultScopeOverlay(Canvas C, float Scale)
+{
+    local int SizeX;
+    local int SizeY;
+    local int PosX;
+    local int PosY;
+
+    SizeX = int(focusX * Scale * 2) & EVEN_MASK;
+    SizeY = int(focusY * Scale * 2) & EVEN_MASK;
+    PosX = (C.SizeX - SizeX) / 2;
+    PosY = (C.SizeY - SizeY) / 2;
+    C.Style = 255;
+    SetZoomBlendColor(C);
+    C.DrawColor.A = 255;
+    C.SetPos(0, 0);
+    C.DrawTile(Material'ZoomFB', C.SizeX, PosY, 0, 0, 512, 144);
+    C.SetPos(0, PosY);
+    C.DrawTile(Material'ZoomFB', PosX, SizeY, 0, 144, 148, 224);
+    C.DrawTile(Material'ZoomFB', SizeX, SizeY, 148, 144, 216, 224);
+    C.DrawTile(Material'ZoomFB', PosX, SizeY, 364, 144, 148, 224);
+    C.SetPos(0, PosY + SizeY);
+    C.DrawTile(Material'ZoomFB', C.SizeX, PosY, 0, 368, 512, 144);
+
+    C.Style = ERenderStyle.STY_Alpha;
+    C.DrawColor = FocusColor;
+    C.DrawColor.A = 255;
+    C.SetPos(PosX, PosY);
+    C.DrawTile(
+        Texture'SniperFocus',
+        SizeX,
+        SizeY,
+        0,
+        0,
+        Texture'SniperFocus'.USize,
+        Texture'SniperFocus'.VSize);
+
+    SizeX = int(innerArrowsX * Scale * 2) & EVEN_MASK;
+    SizeY = int(innerArrowsY * Scale * 2) & EVEN_MASK;
+    C.DrawColor = ArrowColor;
+    C.SetPos((C.SizeX - SizeX) / 2, (C.SizeY - SizeY) / 2);
+    C.DrawTileJustified(Texture'SniperArrows', 1, SizeX, SizeY);
+}
+
 simulated function DrawCustomScopeOverlay(Canvas C)
 {
     local int Size;
@@ -57,10 +100,8 @@ simulated function DrawCustomScopeOverlay(Canvas C)
     C.DrawTileJustified(Texture'HxScopeReticle', 1, Size, Size);
 }
 
-simulated function DrawChargeBar(Canvas C)
+simulated function DrawChargeBar(Canvas C, float Scale)
 {
-    local float ScaleX;
-    local float ScaleY;
     local float ChargeBar;
 
     C.DrawColor = ChargeColor;
@@ -80,13 +121,11 @@ simulated function DrawChargeBar(Canvas C)
         C.DrawColor.G = 255;
         C.DrawColor.B = 0;
     }
-    ScaleX = C.SizeX / 640.0f;
-    ScaleY = C.SizeY / 480.0f;
-    C.SetPos(RechargeOrigin.X * ScaleX, RechargeOrigin.Y * ScaleY);
+    C.SetPos(C.ClipX - ((640 - RechargeOrigin.X) * Scale), RechargeOrigin.Y * Scale);
     C.DrawTile(
         Texture'Engine.WhiteTexture',
-        RechargeSize.X * ScaleX,
-        RechargeSize.Y * ScaleY * ChargeBar,
+        RechargeSize.X * Scale,
+        RechargeSize.Y * Scale * ChargeBar,
         0,
         0,
         Texture'Engine.WhiteTexture'.USize,
@@ -97,44 +136,44 @@ simulated event RenderOverlays(Canvas C)
 {
     local PlayerController PC;
     local bool bLastZoomed;
+    local float Scale;
 
     bLastZoomed = Zoomed;
-    if (ScopeOverlay == HX_SCOPE_Default)
+    PC = PlayerController(Instigator.Controller);
+    if (bSoundEffects)
     {
-        Super.RenderOverlays(C);
+        if (LastFOV > PC.DesiredFOV)
+        {
+            PlaySound(Sound'WeaponSounds.LightningGun.LightningZoomIn', SLOT_Misc,,,,, false);
+        }
+        else if (LastFOV < PC.DesiredFOV)
+        {
+            PlaySound(Sound'WeaponSounds.LightningGun.LightningZoomOut', SLOT_Misc,,,,, false);
+        }
+    }
+    LastFOV = PC.DesiredFOV;
+    if (PC.DesiredFOV == PC.DefaultFOV)
+    {
+        Super(SuperShockRifle).RenderOverlays(C);
+        Zoomed = false;
     }
     else
     {
-        PC = PlayerController(Instigator.Controller);
-        if (bSoundEffects)
+        Scale = FMin(C.SizeX / 640.0f, C.SizeY / 480.0f);
+        switch (ScopeOverlay)
         {
-            if (LastFOV > PC.DesiredFOV)
-            {
-                PlaySound(Sound'WeaponSounds.LightningGun.LightningZoomIn', SLOT_Misc,,,,, false);
-            }
-            else if (LastFOV < PC.DesiredFOV)
-            {
-                PlaySound(Sound'WeaponSounds.LightningGun.LightningZoomOut', SLOT_Misc,,,,, false);
-            }
-        }
-        LastFOV = PC.DesiredFOV;
-        if (PC.DesiredFOV == PC.DefaultFOV)
-        {
-            Super(SuperShockRifle).RenderOverlays(C);
-            Zoomed = false;
-        }
-        else
-        {
-            if (ScopeOverlay == HX_SCOPE_Custom)
-            {
+            case HX_SCOPE_Default:
+                DrawDefaultScopeOverlay(C, Scale);
+                break;
+            case HX_SCOPE_Custom:
                 DrawCustomScopeOverlay(C);
-            }
-            if (bShowChargeBar)
-            {
-                DrawChargeBar(C);
-            }
-            Zoomed = true;
+                break;
         }
+        if (bShowChargeBar)
+        {
+            DrawChargeBar(C, Scale);
+        }
+        Zoomed = true;
     }
     if (bCustomZoomCrosshair && (bLastZoomed ^^ Zoomed))
     {
