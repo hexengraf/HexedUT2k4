@@ -225,10 +225,10 @@ function GUIMenuOption AddConfigOption(class<HxConfig> ConfigClass, int Index)
                 ConfigClass.default.Properties[Index].EnumValues,
                 ConfigClass.default.DisplayInfo[Index].EnumLabels);
             break;
-        if (Option != None)
-        {
-            Option.SetHint(ConfigClass.default.DisplayInfo[Index].Hint);
-        }
+    }
+    if (Option != None)
+    {
+        Option.SetHint(ConfigClass.default.DisplayInfo[Index].Hint);
     }
     return Option;
 }
