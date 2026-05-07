@@ -19,7 +19,7 @@ var config HxHitEffects.HxDamagePoint ExtremeDamage;
 var config array<string> FontNames;
 var config array<string> CustomHitSounds;
 
-var private HxHitEffects.HxDamagePoint TempDamagePoint;
+var HxHitEffects.HxDamagePoint ValidationPoint;
 
 function Created()
 {
@@ -95,15 +95,15 @@ private function ValidateFontNames()
 
 function string ValidateStruct(int Index, string Value)
 {
-    SetPropertyText("TempDamagePoint", Value);
+    SetPropertyText("ValidationPoint", Value);
     if (Properties[Index].Name == "ZeroDamage")
     {
-        TempDamagePoint.Value = 0;
+        ValidationPoint.Value = 0;
     }
-    TempDamagePoint.Color.A = 255;
-    TempDamagePoint.Pitch = FClamp(TempDamagePoint.Pitch, 0.0, 1.0);
-    TempDamagePoint.Scale = FClamp(TempDamagePoint.Scale, 0.0, 1.0);
-    return GetPropertyText("TempDamagePoint");
+    ValidationPoint.Color.A = 255;
+    ValidationPoint.Pitch = FClamp(ValidationPoint.Pitch, 0.0, 1.0);
+    ValidationPoint.Scale = FClamp(ValidationPoint.Scale, 0.0, 1.0);
+    return GetPropertyText("ValidationPoint");
 }
 
 function ApplyAllProperties()
