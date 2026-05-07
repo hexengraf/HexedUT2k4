@@ -5,6 +5,11 @@ var config string MapListCustomBG;
 var config string PreviewCustomBG;
 var config string ChatBoxCustomBG;
 
+function bool MutatorIsAllowed()
+{
+    return Super.MutatorIsAllowed() && Level.NetMode != NM_Standalone;
+}
+
 defaultproperties
 {
     FriendlyName="HexedVOTE v7"
