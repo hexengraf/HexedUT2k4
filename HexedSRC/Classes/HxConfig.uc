@@ -17,8 +17,11 @@ function Created()
     Super.Created();
     for (i = 0; i < Properties.Length; ++i)
     {
-        SetPropertyText(
-            Properties[i].Name, ValidateProperty(i, GetPropertyText(Properties[i].Name)));
+        if (Properties[i].Type != HX_PROPERTY_Array)
+        {
+            SetPropertyText(
+                Properties[i].Name, ValidateProperty(i, GetPropertyText(Properties[i].Name)));
+        }
     }
     SaveConfig();
     ApplyAllProperties();
