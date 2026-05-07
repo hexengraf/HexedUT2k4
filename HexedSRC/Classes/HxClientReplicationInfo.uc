@@ -9,7 +9,7 @@ struct HxPendingUpdate
     var string Value;
 };
 
-const PARALLEL_REQUESTS = 16;
+const REQUESTS_PER_TICK = 10;
 
 var const class<HxMutator> MutatorClass;
 var const array<class<HxConfig> > ConfigClasses;
@@ -174,7 +174,7 @@ simulated function RequestServerInfo()
     local int Limit;
     local int i;
 
-    Limit = Min(PropertyIndex + PARALLEL_REQUESTS, ServerInfo.Settings.Length);
+    Limit = Min(PropertyIndex + REQUESTS_PER_TICK, ServerInfo.Settings.Length);
     for (i = PropertyIndex; i < Limit; ++i)
     {
         ServerRequestProperty(i);
