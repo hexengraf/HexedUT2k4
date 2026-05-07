@@ -18,6 +18,7 @@
 project:=HexedUT2k4
 packages:=HexedSRC HexedUT HexedVOTE HexedARENA HexedNET HexedPatches
 requiresint:=HexedSRC HexedUT HexedVOTE HexedARENA HexedNET HexedPatches
+hastemplate:=HexedSRC
 requirescompressed:=HexedSRC HexedUT HexedVOTE HexedARENA HexedNET
 helpfiles:=README.md LICENSE CHANGELOG.md
 
@@ -28,6 +29,7 @@ helpfiles:=README.md LICENSE CHANGELOG.md
 
 .projectversion:=v7.0
 .packages:=$(foreach p,$(packages),$p$($p.version))
+.templatepackages:=$(foreach p,$(hastemplate),$p$($p.version))
 .intpackages:=$(foreach p,$(requiresint),$p$($p.version))
 .compressedpackages:=$(foreach p,$(requirescompressed),$p$($p.version))
 .archive:=$(.outdir)/$(project)$(.projectversion).zip
@@ -40,6 +42,7 @@ helpfiles:=README.md LICENSE CHANGELOG.md
 .findsources=$(wildcard $1/Classes/*.uc) $(wildcard $1/Classes/Include/*.uci)
 
 $(foreach p,$(packages),$(if $($p.version),$(eval $p$($p.version).name:=$p)))
+$(foreach p,$(hastemplate),$(eval $p$($p.version).template:=$p/template.int))
 $(foreach p,$(packages),$(eval $p$($p.version).sources:=$p/make.ini $(call .findsources,$p)))
 
 .SECONDEXPANSION:
@@ -77,6 +80,7 @@ $(.outdir)/System/%.int: $(.outdir)/System/%.u
 	@cd System
 	$(.winecmd) UCC.exe dumpint $*.u
 	@cd ../
+	if [ -n "$($*.template)" ]; then sed -r "s/%/$*/g" $($*.template) >> System/$*.int; fi
 	@cp System/$*.int $(@D)
 
 $(.outdir)/%.u.uz2: $(.outdir)/System/%.u
