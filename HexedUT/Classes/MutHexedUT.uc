@@ -125,9 +125,9 @@ defaultproperties
     Properties(1)=(Name="bAllowDamageNumbers",Section="Hit Effects",Caption="Allow damage numbers",Hint="Allow clients to enable/disable damage number effects.",Type="Check")
     Properties(2)=(Name="bAllowSkinHighlight",Section="Skin Highlight",Caption="Allow skin highlight",Hint="Allow clients to enable/disable skin highlights.",Type="Check")
     Properties(3)=(Name="SkinHighlightIntensity",Section="Skin Highlight",Caption="Skin highlight intensity",Hint="Factor to multiply RGB values (between 0.0 and 1.0).",Type="Text",Data="8;0.0:1.0",bAdvanced=true)
-    Properties(4)=(Name="bAllowCustomViewSmoothing",Section="Camera",Caption="Allow custom view smoothing",Hint="Allow clients to select different types of view smoothing.",Type="Check")
-    Properties(5)=(Name="bAllowSpawnProtectionTimer",Section="Interface",Caption="Allow spawn protection timer",Hint="Allow clients to enable/disable the spawn protection timer.",Type="Check")
-    Properties(6)=(Name="bColoredDeathMessages",Section="Interface",Caption="Colored death messages",Hint="Use team colors in death messages (blue = killer and red = victim if no teams).",Type="Check")
+    Properties(4)=(Name="bAllowCustomViewSmoothing",Section="Player",Caption="Allow custom view smoothing",Hint="Allow clients to select different types of view smoothing.",Type="Check")
+    Properties(5)=(Name="bAllowSpawnProtectionTimer",Section="HUD",Caption="Allow spawn protection timer",Hint="Allow clients to enable/disable the spawn protection timer.",Type="Check")
+    Properties(6)=(Name="bColoredDeathMessages",Section="HUD",Caption="Colored death messages",Hint="Use team colors in death messages (blue = killer and red = victim if no teams).",Type="Check")
     bDisableTick=true
 
     bAllowHitSounds=true
