@@ -1,8 +1,6 @@
 class HxVTClient extends HxClientReplicationInfo
     config(User);
 
-var config bool bFirstRun;
-
 var HxFavorites Favorites;
 var VotingReplicationInfo VRI;
 
@@ -158,5 +156,5 @@ simulated function bool IsMapVoteEnabled()
 defaultproperties
 {
     MutatorClass=class'MutHexedVOTE'
-    bFirstRun=true
+    Order=232
 }

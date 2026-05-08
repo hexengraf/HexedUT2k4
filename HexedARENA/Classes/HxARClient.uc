@@ -15,4 +15,5 @@ simulated function Tick(float DeltaTime)
 defaultproperties
 {
     MutatorClass=class'MutHexedARENA'
+    Order=127
 }

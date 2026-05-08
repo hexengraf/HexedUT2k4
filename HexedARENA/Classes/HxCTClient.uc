@@ -221,4 +221,5 @@ defaultproperties
 {
     MutatorClass=class'MutHexedCONTROL'
     NullComboClass=class'HxComboNull'
+    Order=128
 }
