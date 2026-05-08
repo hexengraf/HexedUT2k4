@@ -177,7 +177,14 @@ simulated function RequestServerInfo()
     Limit = Min(PropertyIndex + REQUESTS_PER_TICK, ServerInfo.Settings.Length);
     for (i = PropertyIndex; i < Limit; ++i)
     {
-        ServerRequestProperty(i);
+        if (MutatorClass.default.Properties[i].Type != HX_PROPERTY_Array)
+        {
+            ServerRequestProperty(i);
+        }
+        else
+        {
+            ++ReceivedCount;
+        }
     }
     PropertyIndex = Limit;
 }
