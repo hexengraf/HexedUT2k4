@@ -39,7 +39,7 @@ function bool InternalOnKeyEvent(out byte Key, out byte State, float Delta)
 {
     if (Key == Keybind && EInputAction(State) == IST_Release)
     {
-    	Controller.CloseMenu(False);
+        Controller.CloseMenu(False);
         ClientManager.OpenConfigurationMenu();
         return true;
     }

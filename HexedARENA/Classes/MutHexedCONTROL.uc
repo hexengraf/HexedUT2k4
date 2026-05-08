@@ -353,7 +353,7 @@ static function ModifyPickup(Pickup Pickup, coerce bool bDisabled)
     }
     else if (Pickup.IsInState('Disabled'))
     {
-	    Pickup.SetCollision(
+        Pickup.SetCollision(
             Pickup.default.bCollideActors,
             Pickup.default.bBlockActors,
             Pickup.default.bBlockPlayers);
