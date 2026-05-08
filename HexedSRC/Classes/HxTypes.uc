@@ -46,33 +46,10 @@ struct HxDisplayProperty
     var const localized array<string> EnumLabels;
     var const string Step;
     var const string Dependency;
+    var const bool bMPOnly;
     var const bool bAdvanced;
     var const bool bHidden;
 };
-
-struct HxMutatorProperty
-{
-    var const string Name;
-    var const localized string Section;
-    var const localized string Caption;
-    var const localized string Hint;
-    var const string Type;
-    var const string Data;
-    var const bool bMPOnly;
-    var const bool bAdvanced;
-};
-
-static function PlayInfo.EPlayInfoType ToPlayInfoType(HxPropertyType Type)
-{
-    switch (Type)
-    {
-        case HX_PROPERTY_Bool:
-            return PIT_Check;
-        case HX_PROPERTY_Enum:
-            return PIT_Select;
-    }
-    return PIT_Text;
-}
 
 static function string GetDataCharset(EHxDataType Type)
 {

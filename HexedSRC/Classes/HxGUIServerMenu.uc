@@ -1,10 +1,16 @@
 class HxGUIServerMenu extends HxGUIFloatingWindow;
 
+struct HxModifiedMutatorOptions
+{
+    var array<GUIMenuOption> Senders;
+};
+
 var automated HxGUIFramedSection Section;
 var automated HxGUIMultiOptionListBox lb_Options;
 var automated moCheckBox ch_Advanced;
 
-var HxClientManager ClientManager;
+var private HxClientManager ClientManager;
+var private array<HxModifiedMutatorOptions> ModifiedMutators;
 
 function InitComponent(GUIController MyController, GUIComponent MyComponent)
 {
@@ -32,32 +38,93 @@ event Closed(GUIComponent Sender, bool bCancelled)
 
 function UpdateServerProperties()
 {
-    local int FirstTag;
-    local int ActualTag;
     local int i;
     local int j;
 
-    for (i = 0; i < lb_Options.Options.Length; ++i)
+    for (i = 0; i < ModifiedMutators.Length; ++i)
     {
-        ActualTag = lb_Options.Options[i].Tag - FirstTag;
-        if (ActualTag >= ClientManager.CRIs[j].ServerInfo.Settings.Length)
+        for (j = 0; j < ModifiedMutators[i].Senders.Length; ++j)
         {
-            FirstTag += ClientManager.CRIs[j].ServerInfo.Settings.Length;
-            ActualTag = lb_Options.Options[i].Tag - FirstTag;
-            ++j;
-        }
-        if (lb_Options.IsModified(i))
-        {
-            lb_Options.ResetModified(i);
-            ClientManager.CRIs[j].ServerUpdateProperty(
-                ActualTag, lb_Options.Options[i].GetComponentValue());
+            if (ModifiedMutators[i].Senders[j] != None)
+            {
+                ClientManager.CRIs[i].ServerUpdateProperty(
+                    j, ModifiedMutators[i].Senders[j].GetComponentValue());
+                ModifiedMutators[i].Senders[j] = None;
+            }
         }
     }
 }
 
 function Refresh()
 {
-    lb_Options.PopulateWithCRIs(ClientManager.CRIs);
+    PopulateOptionList();
+}
+
+function PopulateOptionList()
+{
+    local bool bSavedCurMenuInitialized;
+    local int i;
+
+    lb_Options.Clear();
+    bSavedCurMenuInitialized = Controller.bCurMenuInitialized;
+    Controller.bCurMenuInitialized = false;
+    for (i = 0; i < ClientManager.CRIs.Length; ++i)
+    {
+        ModifiedMutators.Insert(ModifiedMutators.Length, 1);
+        ProcessMutatorOptions(ClientManager.CRIs[i], i);
+    }
+    Controller.bCurMenuInitialized = bSavedCurMenuInitialized;
+    lb_Options.Refresh();
+}
+
+function ProcessMutatorOptions(HxClientReplicationInfo CRI, optional int Index)
+{
+    local string SectionCaption;
+    local bool bSectionAdded;
+    local int i;
+
+    ModifiedMutators[Index].Senders.Length = CRI.MutatorClass.default.DisplayInfo.Length;
+    for (i = 0; i < CRI.MutatorClass.default.DisplayInfo.Length; ++i)
+    {
+        if (lb_Options.ShouldHideMutatorProperty(CRI.MutatorClass, i))
+        {
+            continue;
+        }
+        if (!bSectionAdded)
+        {
+            lb_Options.AddSection(CRI.MutatorClass.default.FriendlyName);
+            bSectionAdded = true;
+        }
+        if (CRI.MutatorClass.default.DisplayInfo[i].Section != SectionCaption)
+        {
+            lb_Options.AddSubSection(CRI.MutatorClass.default.DisplayInfo[i].Section);
+            SectionCaption = CRI.MutatorClass.default.DisplayInfo[i].Section;
+        }
+        lb_Options.AddMutatorOption(CRI.MutatorClass, i, ClientManager.EncodeTag(Index, i));
+    }
+}
+
+function OptionsOnLoadINI(GUIComponent Sender, string s)
+{
+    local int CRIIndex;
+    local int PropertyIndex;
+
+    if (ClientManager.DecodeTag(Sender.Tag, CRIIndex, PropertyIndex))
+    {
+        GUIMenuOption(Sender).SetComponentValue(
+            ClientManager.CRIs[CRIIndex].GetServerPropertyByIndex(PropertyIndex), true);
+    }
+}
+
+function OptionsOnChange(GUIComponent Sender)
+{
+    local int CRIIndex;
+    local int PropertyIndex;
+
+    if (ClientManager.DecodeTag(Sender.Tag, CRIIndex, PropertyIndex))
+    {
+        ModifiedMutators[CRIIndex].Senders[PropertyIndex] = GUIMenuOption(Sender);
+    }
 }
 
 function bool InternalOnKeyEvent(out byte Key, out byte State, float Delta)
@@ -115,8 +182,9 @@ defaultproperties
 
     Begin Object Class=HxGUIMultiOptionListBox Name=ConfigListBox
         bVisibleWhenEmpty=true
-        bUseServerInfo=true
         NumColumns=1
+        OnLoadINI=OptionsOnLoadINI
+        OnChange=OptionsOnChange
         TabOrder=1
     End Object
     lb_Options=ConfigListBox

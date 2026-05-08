@@ -20,10 +20,133 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 function Refresh()
 {
     Super.Refresh();
-    lb_Options.PopulateWithCRIs(ClientManager.CRIs);
-    lb_Status.PopulateWithCRIs(ClientManager.CRIs);
     ch_Advanced.Checked(Controller.bExpertMode);
     SetEnable(b_ServerMenu, IsAdmin());
+    PopulateOptionLists();
+}
+
+function PopulateOptionLists()
+{
+    local bool bSavedCurMenuInitialized;
+    local int i;
+
+    lb_Options.Clear();
+    lb_Status.Clear();
+    bSavedCurMenuInitialized = Controller.bCurMenuInitialized;
+    Controller.bCurMenuInitialized = false;
+    for (i = 0; i < ClientManager.CRIs.Length; ++i)
+    {
+        ProcessUserOptions(ClientManager.CRIs[i], i);
+        ProcessServerStatus(ClientManager.CRIs[i], i);
+    }
+    Controller.bCurMenuInitialized = bSavedCurMenuInitialized;
+    lb_Options.Refresh();
+    lb_Status.Refresh();
+}
+
+function ProcessUserOptions(HxClientReplicationInfo CRI, optional int Index)
+{
+    local string SectionCaption;
+    local bool bSectionAdded;
+    local int i;
+    local int j;
+
+    for (i = 0; i < CRI.ConfigClasses.Length; ++i)
+    {
+        for (j = 0; j < CRI.ConfigClasses[i].default.DisplayInfo.Length; ++j)
+        {
+            if (lb_Options.ShouldHideConfigProperty(CRI, CRI.ConfigClasses[i], j))
+            {
+                continue;
+            }
+            if (!bSectionAdded)
+            {
+                lb_Options.AddSection(CRI.MutatorClass.default.FriendlyName);
+                bSectionAdded = true;
+            }
+            if (CRI.ConfigClasses[i].default.DisplayInfo[j].Section != SectionCaption)
+            {
+                lb_Options.AddSubSection(CRI.ConfigClasses[i].default.DisplayInfo[j].Section);
+                SectionCaption = CRI.ConfigClasses[i].default.DisplayInfo[j].Section;
+            }
+            lb_Options.AddConfigOption(
+                CRI.ConfigClasses[i], j, ClientManager.EncodeTag(Index, j, i));
+        }
+    }
+}
+
+function ProcessServerStatus(HxClientReplicationInfo CRI, int Index)
+{
+    local string HeaderCaption;
+    local string SectionCaption;
+    local int i;
+
+    for (i = 0; i < CRI.MutatorClass.default.DisplayInfo.Length; ++i)
+    {
+        if (lb_Status.ShouldHideMutatorProperty(CRI.MutatorClass, i))
+        {
+            continue;
+        }
+        if (CRI.MutatorClass.default.FriendlyName != HeaderCaption)
+        {
+            lb_Status.AddSection(CRI.MutatorClass.default.FriendlyName);
+            HeaderCaption = CRI.MutatorClass.default.FriendlyName;
+        }
+        if (CRI.MutatorClass.default.DisplayInfo[i].Section != SectionCaption)
+        {
+            lb_Status.AddSubSection(CRI.MutatorClass.default.DisplayInfo[i].Section);
+            SectionCaption = CRI.MutatorClass.default.DisplayInfo[i].Section;
+        }
+        lb_Status.AddLabel(
+            CRI.MutatorClass.default.DisplayInfo[i].Caption, ClientManager.EncodeTag(Index, i));
+    }
+}
+
+function UserOptionOnLoadINI(GUIComponent Sender, string s)
+{
+    local int CRIIndex;
+    local int ConfigIndex;
+    local int PropertyIndex;
+
+    if (ClientManager.DecodeTag(Sender.Tag, CRIIndex, PropertyIndex, ConfigIndex))
+    {
+        GUIMenuOption(Sender).SetComponentValue(
+            ClientManager.CRIs[CRIIndex].GetConfigProperty(ConfigIndex, PropertyIndex), true);
+    }
+}
+
+function ServerStatusOnLoadINI(GUIComponent Sender, string s)
+{
+    local HxClientReplicationInfo CRI;
+    local int CRIIndex;
+    local int PropertyIndex;
+    local string Value;
+
+    if (ClientManager.DecodeTag(Sender.Tag, CRIIndex, PropertyIndex))
+    {
+        CRI = ClientManager.CRIs[CRIIndex];
+        Value = CRI.GetServerPropertyByIndex(PropertyIndex);
+        switch (CRI.MutatorClass.default.Properties[PropertyIndex].Type)
+        {
+            case HX_PROPERTY_Float:
+                Value = Left(Value, Len(Value) - 4);
+                break;
+        }
+        GUIMenuOption(Sender).SetComponentValue(Value, true);
+    }
+}
+
+function UserOptionOnChange(GUIComponent Sender)
+{
+    local int CRIIndex;
+    local int ConfigIndex;
+    local int PropertyIndex;
+
+    if (ClientManager.DecodeTag(Sender.Tag, CRIIndex, PropertyIndex, ConfigIndex))
+    {
+        ClientManager.CRIs[CRIIndex].SetConfigProperty(
+            ConfigIndex, PropertyIndex, GUIMenuOption(Sender).GetComponentValue());
+    }
 }
 
 function InternalOnChange(GUIComponent Sender)
@@ -32,8 +155,7 @@ function InternalOnChange(GUIComponent Sender)
     {
         Controller.bExpertMode = ch_Advanced.IsChecked();
         Controller.SaveConfig();
-        lb_Options.PopulateWithCRIs(ClientManager.CRIs);
-        lb_Status.PopulateWithCRIs(ClientManager.CRIs);
+        PopulateOptionLists();
     }
 }
 
@@ -100,14 +222,15 @@ defaultproperties
     Begin Object Class=HxGUIMultiOptionListBox Name=OptionsListBox
         bVisibleWhenEmpty=true
         NumColumns=1
+        OnLoadINI=UserOptionOnLoadINI
+        OnChange=UserOptionOnChange
         TabOrder=1
     End Object
     lb_Options=OptionsListBox
 
     Begin Object Class=HxGUIMultiOptionListBox Name=StatusListBox
         bVisibleWhenEmpty=true
-        bUseServerInfo=true
-        bStatusOnly=true
+        OnLoadINI=ServerStatusOnLoadINI
         NumColumns=1
         TabOrder=1
     End Object

@@ -2,7 +2,8 @@ class HxMutator extends Mutator
     abstract
     DependsOn(HxTypes);
 
-var const array<HxTypes.HxMutatorProperty> Properties;
+var const array<HxTypes.HxProperty> Properties;
+var const array<HxTypes.HxDisplayProperty> DisplayInfo;
 
 var protected const class<HxClientReplicationInfo> CRIClass;
 var protected array<HxClientReplicationInfo> CRIs;
@@ -105,24 +106,22 @@ function OpenConfigurationMenu(PlayerController Sender)
 
 static function FillPlayInfo(PlayInfo PlayInfo)
 {
-    local HxTypes.HxMutatorProperty Prop;
     local int i;
 
     super.FillPlayInfo(PlayInfo);
 
-    for (i = 0; i < default.Properties.Length; ++i)
+    for (i = 0; i < default.DisplayInfo.Length; ++i)
     {
-        Prop = default.Properties[i];
         PlayInfo.AddSetting(
             default.FriendlyName,
-            Prop.Name,
-            Prop.Caption,
+            default.Properties[i].Name,
+            default.DisplayInfo[i].Caption,
             0,
             i,
-            Prop.Type,
-            Prop.Data,,
-            Prop.bMPOnly,
-            Prop.bAdvanced);
+            GetPlayInfoType(i),
+            GetData(i),,
+            default.DisplayInfo[i].bMPOnly,
+            default.DisplayInfo[i].bAdvanced);
     }
 }
 
@@ -133,7 +132,7 @@ static event string GetDescriptionText(string PropertyName)
     i = GetPropertyIndex(PropertyName);
     if (i >= 0)
     {
-        return default.Properties[i].Hint;
+        return default.DisplayInfo[i].Hint;
     }
     return Super.GetDescriptionText(PropertyName);
 }
@@ -295,6 +294,51 @@ function bool DestroyLinkedPRI(PlayerReplicationInfo PRI,
 static function string GetURLOptions(string FullURL)
 {
     return Right(FullURL, Len(FullURL) - InStr(FullURL, "?"));
+}
+
+static final protected function string GetPlayInfoType(int Index)
+{
+    switch (default.Properties[Index].Type)
+    {
+        case HX_PROPERTY_Bool:
+            return "Check";
+        case HX_PROPERTY_Enum:
+            return "Select";
+    }
+    return "Text";
+}
+
+static final protected function string GetData(int Index)
+{
+    switch (default.Properties[Index].Type)
+    {
+        case HX_PROPERTY_Int:
+        case HX_PROPERTY_Float:
+            return GetNumericData(Index);
+        case HX_PROPERTY_String:
+            return default.Properties[Index].UpperLimit;
+        case HX_PROPERTY_Enum:
+            return GetEnumData(Index);
+    }
+    return "";
+}
+
+static final protected function string GetNumericData(int Index)
+{
+    return "8;"$default.Properties[Index].LowerLimit$":"$default.Properties[Index].UpperLimit;
+}
+
+static final protected function string GetEnumData(int Index)
+{
+    local string Data;
+    local int i;
+
+    for (i = 0; i < default.Properties[Index].EnumValues.Length; ++i)
+    {
+        Data $= default.Properties[Index].EnumValues[i]$";"
+            $default.DisplayInfo[Index].EnumLabels[i];
+    }
+    return Data;
 }
 
 defaultproperties

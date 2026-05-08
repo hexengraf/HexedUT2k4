@@ -91,7 +91,8 @@ defaultproperties
     GroupName="Arena"
     bAddToServerPackages=true
     CRIClass=class'HxARClient'
-    Properties(0)=(Name="ArenaWeaponClassName",Caption="Arena Weapon",Hint="Determines which weapon will be used in the arena match. Applied on restart/map change.",Type="Text",Data="1024")
+    Properties(0)=(Name="ArenaWeaponClassName",Type=HX_PROPERTY_String,UpperLimit="100")
+    DisplayInfo(0)=(Caption="Arena Weapon",Hint="Determines which weapon will be used in the arena match. Applied on restart/map change.")
     bDisableTick=true
 
     ArenaWeaponClassName="XWeapons.RocketLauncher"

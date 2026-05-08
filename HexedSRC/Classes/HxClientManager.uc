@@ -170,6 +170,26 @@ simulated private function bool TrySetKeybind(string Keybind)
     return false;
 }
 
+simulated final function int EncodeTag(int CRIIndex, int PropertyIndex, optional int ConfigIndex)
+{
+    return ((CRIIndex & 0x3ff) << 20) | ((ConfigIndex & 0x3ff) << 10) | (PropertyIndex & 0x3ff);
+}
+
+simulated final function bool DecodeTag(int Tag,
+                                        out int CRIIndex,
+                                        out int PropertyIndex,
+                                        optional out int ConfigIndex)
+{
+    if (Tag >= 0)
+    {
+        PropertyIndex = Tag & 0x3ff;
+        ConfigIndex = (Tag >> 10) & 0x3ff;
+        CRIIndex = (Tag >> 20) & 0x3ff;
+        return true;
+    }
+    return false;
+}
+
 static function HxClientManager Register(HxClientReplicationInfo CRI)
 {
     local HxClientManager Manager;

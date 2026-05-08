@@ -2,15 +2,6 @@ class HxGUIMultiOptionListBox extends GUIMultiOptionListBox;
 
 var float ComponentWidth;
 var float ScrollbarWidth;
-var bool bUseServerInfo;
-var bool bShowSections;
-var bool bStatusOnly;
-
-var array<GUIMenuOption> Options;
-var private array<HxClientReplicationInfo> CRIs;
-var private array<PlayInfo> PIs;
-var private array<byte> OptionModified;
-var private int PropertyCount;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
@@ -25,161 +16,6 @@ function InitBaseList(GUIListBase LocalList)
     List.OnClickSound = CS_None;
 }
 
-function PopulateWithCRIs(array<HxClientReplicationInfo> NewCRIs)
-{
-    local int i;
-
-    Clear();
-    for (i = 0; i < NewCRIs.Length; ++i)
-    {
-        if (bUseServerInfo)
-        {
-            ProcessPI(NewCRIs[i].ServerInfo);
-        }
-        else
-        {
-            ProcessCRI(NewCRIs[i], i);
-        }
-    }
-    Refresh();
-}
-
-function PopulateWithCRI(HxClientReplicationInfo NewCRI)
-{
-    Clear();
-    if (bUseServerInfo)
-    {
-        ProcessPI(NewCRI.ServerInfo);
-    }
-    else
-    {
-        ProcessCRI(NewCRI);
-    }
-    Refresh();
-}
-
-function ProcessCRI(HxClientReplicationInfo CRI, optional int CRINumber)
-{
-    local GUIMenuOption Option;
-    local string SectionCaption;
-    local bool bSavedCurMenuInitialized;
-    local bool bSectionAdded;
-    local int i;
-    local int j;
-
-    CRIs[CRIs.Length] = CRI;
-    if (CRI.ConfigClasses.Length == 0)
-    {
-        return;
-    }
-    bSavedCurMenuInitialized = Controller.bCurMenuInitialized;
-    Controller.bCurMenuInitialized = false;
-    for (i = 0; i < CRI.ConfigClasses.Length; ++i)
-    {
-        for (j = 0; j < CRI.ConfigClasses[i].default.DisplayInfo.Length; ++j)
-        {
-            if (ShouldHideProperty(CRI, CRI.ConfigClasses[i], j))
-            {
-                continue;
-            }
-            if (!bSectionAdded)
-            {
-                AddSection(CRI.MutatorClass.default.FriendlyName);
-                bSectionAdded = true;
-            }
-            if (CRI.ConfigClasses[i].default.DisplayInfo[j].Section != SectionCaption)
-            {
-                AddSubSection(CRI.ConfigClasses[i].default.DisplayInfo[j].Section);
-                SectionCaption = CRI.ConfigClasses[i].default.DisplayInfo[j].Section;
-            }
-            Option = AddConfigOption(CRI.ConfigClasses[i], j);
-            if (Option != None)
-            {
-                Option.Tag = (CRINumber << 20) | (i << 10) | j;
-                Options[Options.Length] = Option;
-            }
-        }
-    }
-    Controller.bCurMenuInitialized = bSavedCurMenuInitialized;
-}
-
-function bool ShouldHideProperty(HxClientReplicationInfo CRI,
-                                 class<HxConfig> ConfigClass,
-                                 int Index)
-{
-    return ConfigClass.default.DisplayInfo[Index].bHidden
-        || (!Controller.bExpertMode && ConfigClass.default.DisplayInfo[Index].bAdvanced)
-        || (ConfigClass.default.DisplayInfo[Index].Dependency != ""
-            && !bool(CRI.GetServerProperty(ConfigClass.default.DisplayInfo[Index].Dependency)));
-}
-
-function ProcessPI(PlayInfo PI)
-{
-    local class<HxMutator> MutatorClass;
-    local GUIMenuOption Option;
-    local string HeaderCaption;
-    local string SectionCaption;
-    local bool bSavedCurMenuInitialized;
-    local int i;
-
-    PIs[PIs.Length] = PI;
-    if (PI.Settings.Length == 0)
-    {
-        return;
-    }
-    bSavedCurMenuInitialized = Controller.bCurMenuInitialized;
-    Controller.bCurMenuInitialized = false;
-    for (i = 0; i < PI.Settings.Length; ++i)
-    {
-        if (!Controller.bExpertMode && PI.Settings[i].bAdvanced)
-        {
-            continue;
-        }
-        MutatorClass = class<HxMutator>(PI.Settings[i].ClassFrom);
-        if (bShowSections && MutatorClass != None)
-        {
-            if (MutatorClass.default.FriendlyName != HeaderCaption)
-            {
-                AddSection(MutatorClass.default.FriendlyName);
-                HeaderCaption = MutatorClass.default.FriendlyName;
-            }
-            if (MutatorClass.default.Properties[i].Section != SectionCaption)
-            {
-                AddSubSection(MutatorClass.default.Properties[i].Section);
-                SectionCaption = MutatorClass.default.Properties[i].Section;
-            }
-        }
-        else if (PI.Settings[i].Grouping != HeaderCaption)
-        {
-            AddSubSection(PI.Settings[i].Grouping);
-            HeaderCaption = PI.Settings[i].Grouping;
-        }
-        if (bStatusOnly)
-        {
-            Option = List.AddItem(
-                string(class'HxGUIMultiOptionListLabel'),, PI.Settings[i].DisplayName);
-            if (Option != None)
-            {
-                Option.CaptionWidth = 0.2;
-                Option.ComponentWidth = -1;
-                Option.bAutoSizeCaption = true;
-            }
-        }
-        else
-        {
-            Option = AddPIOption(PI.Settings[i]);
-        }
-        if (Option != None)
-        {
-            Option.Tag = PropertyCount + i;
-            Options[Options.Length] = Option;
-            OptionModified[OptionModified.Length] = 0;
-        }
-    }
-    PropertyCount += PI.Settings.Length;
-    Controller.bCurMenuInitialized = bSavedCurMenuInitialized;
-}
-
 function Refresh()
 {
     local int i;
@@ -190,7 +26,7 @@ function Refresh()
     }
 }
 
-function GUIMenuOption AddConfigOption(class<HxConfig> ConfigClass, int Index)
+function GUIMenuOption AddConfigOption(class<HxConfig> ConfigClass, int Index, int Tag)
 {
     local GUIMenuOption Option;
 
@@ -220,7 +56,7 @@ function GUIMenuOption AddConfigOption(class<HxConfig> ConfigClass, int Index)
                 ConfigClass.default.Properties[Index].UpperLimit);
             break;
         case HX_PROPERTY_Enum:
-            Option = AddComboBoxConfig(
+            Option = AddComboBox(
                 ConfigClass.default.DisplayInfo[Index].Caption,
                 ConfigClass.default.Properties[Index].EnumValues,
                 ConfigClass.default.DisplayInfo[Index].EnumLabels);
@@ -229,57 +65,69 @@ function GUIMenuOption AddConfigOption(class<HxConfig> ConfigClass, int Index)
     if (Option != None)
     {
         Option.SetHint(ConfigClass.default.DisplayInfo[Index].Hint);
+        Option.Tag = Tag;
     }
     return Option;
 }
 
-function GUIMenuOption AddPIOption(PlayInfo.PlayInfoData PID)
+function GUIMenuOption AddMutatorOption(class<HxMutator> MutatorClass, int Index, int Tag)
 {
     local GUIMenuOption Option;
-    local array<string> Range;
-    local string Width;
-    local string Op;
 
-    switch (PID.RenderType)
+    switch (MutatorClass.default.Properties[Index].Type)
     {
-        case PIT_Check:
-            Option = List.AddItem("XInterface.moCheckbox",, PID.DisplayName);
+        case HX_PROPERTY_Bool:
+            Option = List.AddItem(
+                "XInterface.moCheckbox",, MutatorClass.default.DisplayInfo[Index].Caption);
             break;
-        case PIT_Select:
-            Option = AddComboBox(PID.DisplayName, PID.Data);
+        case HX_PROPERTY_Int:
+            Option = AddNumericEdit(
+                MutatorClass.default.DisplayInfo[Index].Caption,
+                MutatorClass.default.Properties[Index].LowerLimit,
+                MutatorClass.default.Properties[Index].UpperLimit,
+                MutatorClass.default.DisplayInfo[Index].Step);
             break;
-        case PIT_Text:
-            if (!Divide(PID.Data, ";", Width, Op))
-            {
-                Width = PID.Data;
-            }
-            Split(Op, ":", Range);
-            if (Range.Length > 1)
-            {
-                if (InStr(Range[0], ".") != -1)
-                {
-                    Option = AddFloatEdit(PID.DisplayName, Range[0], Range[1]);
-                }
-                else
-                {
-                    Option = AddNumericEdit(PID.DisplayName, Range[0], Range[1]);
-                }
-            }
-            else if (PID.ArrayDim != -1)
-            {
-                Option = AddButton(PID.DisplayName);
-            }
-            else
-            {
-                Option = AddEditBox(PID.DisplayName, Width);
-            }
+        case HX_PROPERTY_Float:
+            Option = AddFloatEdit(
+                MutatorClass.default.DisplayInfo[Index].Caption,
+                MutatorClass.default.Properties[Index].LowerLimit,
+                MutatorClass.default.Properties[Index].UpperLimit,
+                MutatorClass.default.DisplayInfo[Index].Step);
+            break;
+        case HX_PROPERTY_String:
+            Option = AddEditBox(
+                MutatorClass.default.DisplayInfo[Index].Caption,
+                MutatorClass.default.Properties[Index].UpperLimit);
+            break;
+        case HX_PROPERTY_Enum:
+            Option = AddComboBox(
+                MutatorClass.default.DisplayInfo[Index].Caption,
+                MutatorClass.default.Properties[Index].EnumValues,
+                MutatorClass.default.DisplayInfo[Index].EnumLabels);
             break;
     }
     if (Option != None)
     {
-        Option.SetHint(PID.Description);
+        Option.SetHint(MutatorClass.default.DisplayInfo[Index].Hint);
+        Option.Tag = Tag;
     }
     return Option;
+}
+
+function HxGUIMultiOptionListLabel AddLabel(string Caption, int Tag)
+{
+    local HxGUIMultiOptionListLabel Label;
+
+    Label = HxGUIMultiOptionListLabel(
+        List.AddItem(string(class'HxGUIMultiOptionListLabel'),, Caption));
+    if (Label != None)
+    {
+        Label.Tag = Tag;
+        Label.CaptionWidth = 0.2;
+        Label.ComponentWidth = -1;
+        Label.bAutoSizeCaption = true;
+    }
+    return Label;
 }
 
 function HxGUIMultiOptionListHeader AddSection(string Caption)
@@ -363,19 +211,6 @@ function GUIMenuOption AddNumericEdit(string Caption,
     return Option;
 }
 
-function GUIMenuOption AddButton(string Caption)
-{
-    local GUIMenuOption Option;
-
-    Option = List.AddItem("XInterface.moButton",, Caption);
-    if (Option != None)
-    {
-        Option.ComponentWidth = ComponentWidth;
-        Option.OnChange = ArrayPropClicked;
-    }
-    return Option;
-}
-
 function GUIMenuOption AddEditBox(string Caption, string Width)
 {
     local moEditbox Option;
@@ -400,35 +235,9 @@ function GUIMenuOption AddEditBox(string Caption, string Width)
     return Option;
 }
 
-function GUIMenuOption AddComboBox(string Caption, string Data)
-{
-    local moComboBox Option;
-    local array<string> Range;
-    local int i;
-
-    Option = moComboBox(List.AddItem("XInterface.moComboBox",, Caption));
-    if (Option != None)
-    {
-        Option.ReadOnly(true);
-        if (Data ~= "CROSSHAIRS")
-        {
-            PopulateCrosshairsComboBox(Option);
-        }
-        else
-        {
-            Split(Data, ";", Range);
-            for (i = 0; i + 1 < Range.Length; i += 2)
-            {
-                Option.AddItem(Range[i + 1],, Range[i]);
-            }
-        }
-    }
-    return Option;
-}
-
-function GUIMenuOption AddComboBoxConfig(string Caption,
-                                         array<string> Values,
-                                         array<string> Captions)
+function GUIMenuOption AddComboBox(string Caption,
+                                   array<string> Values,
+                                   array<string> Captions)
 {
     local moComboBox Option;
     local int i;
@@ -438,219 +247,46 @@ function GUIMenuOption AddComboBoxConfig(string Caption,
     {
         Option.ReadOnly(true);
     }
-    if (Captions.Length == 1 && Captions[0] ~= "CROSSHAIRS")
+    for (i = 0; i < Captions.Length; ++i)
     {
-        PopulateCrosshairsComboBox(Option);
-    }
-    else
-    {
-        for (i = 0; i < Captions.Length; ++i)
-        {
-            Option.AddItem(Captions[i],, Values[i]);
-        }
+        Option.AddItem(Captions[i],, Values[i]);
     }
     return Option;
-}
-
-function PopulateCrosshairsComboBox(moComboBox Option)
-{
-    local array<CacheManager.CrosshairRecord> Crosshairs;
-    local int i;
-
-    class'CacheManager'.static.GetCrosshairList(Crosshairs);
-    Option.MyComboBox.MyListBox.MyList.bInitializeList = false;
-    for (i = 0; i < Crosshairs.Length; ++i)
-    {
-        Option.AddItem(Crosshairs[i].FriendlyName,, string(i));
-    }
-}
-
-function ArrayPropClicked(GUIComponent Sender)
-{
-    local PlayInfo PI;
-    local GUIArrayPropPage ArrayPage;
-    local string ArrayMenu;
-    local int i;
-
-    i = Sender.Tag;
-    if (i < 0)
-    {
-        return;
-    }
-    PI = FindPI(i);
-    if (PI == None)
-    {
-        return;
-    }
-    if (PI.Settings[i].ArrayDim > 1)
-    {
-        ArrayMenu = Controller.ArrayPropertyMenu;
-    }
-    else
-    {
-        ArrayMenu = Controller.DynArrayPropertyMenu;
-    }
-    if (Controller.OpenMenu(ArrayMenu, PI.Settings[i].DisplayName, PI.Settings[i].Value))
-    {
-        ArrayPage = GUIArrayPropPage(Controller.ActivePage);
-        ArrayPage.Item = PI.Settings[i];
-        ArrayPage.OnClose = ArrayPageClosed;
-        ArrayPage.SetOwner(Sender);
-    }
-}
-
-function ArrayPageClosed(optional bool bCancelled)
-{
-    local GUIArrayPropPage ArrayPage;
-    local moButton CompOwner;
-
-    if (!bCancelled)
-    {
-        ArrayPage = GUIArrayPropPage(Controller.ActivePage);
-        if (ArrayPage != None)
-        {
-            CompOwner = moButton(ArrayPage.GetOwner());
-            if (CompOwner != None)
-            {
-                CompOwner.SetComponentValue(ArrayPage.GetDataString());
-            }
-        }
-    }
-}
-
-function ListLoadINI(GUIComponent Sender, string s)
-{
-    if (Sender.Tag > -1)
-    {
-        if (PIs.Length > 0)
-        {
-            LoadFromPI(GUIMenuOption(Sender));
-        }
-        else if (CRIs.Length > 0)
-        {
-            LoadFromCRI(GUIMenuOption(Sender));
-        }
-    }
-}
-
-function LoadFromCRI(GUIMenuOption Sender)
-{
-    local HxClientReplicationInfo CRI;
-    local int ConfigIndex;
-    local int PropertyIndex;
-
-    ConfigIndex = Sender.Tag;
-    CRI = FindCRI(ConfigIndex, PropertyIndex);
-    if (CRI != None)
-    {
-        Sender.SetComponentValue(CRI.GetConfigProperty(ConfigIndex, PropertyIndex), true);
-    }
-}
-
-function LoadFromPI(GUIMenuOption Sender)
-{
-    local PlayInfo PI;
-    local int Index;
-
-    Index = Sender.Tag;
-    PI = FindPI(Index);
-    if (PI != None)
-    {
-        Sender.SetComponentValue(PI.Settings[Index].Value, true);
-    }
 }
 
 function ListCreateComponent(GUIMenuOption NewComp, GUIMultiOptionList Sender)
 {
     NewComp.LabelJustification = TXTA_Left;
     NewComp.ComponentJustification = TXTA_Right;
-    if (PIs.Length > 0)
-    {
-        NewComp.OnChange = OptionOnChangePI;
-    }
-    else if (CRIs.Length > 0)
-    {
-        NewComp.OnChange = OptionOnChangeCRI;
-    }
+    NewComp.OnChange = InternalOnChange;
     Super.ListCreateComponent(NewComp, Sender);
-}
-
-function OptionOnChangeCRI(GUIComponent Sender)
-{
-    local HxClientReplicationInfo CRI;
-    local int ConfigIndex;
-    local int PropertyIndex;
-
-
-    if (Sender.Tag > -1)
-    {
-        ConfigIndex = Sender.Tag;
-        CRI = FindCRI(ConfigIndex, PropertyIndex);
-        if (CRI != None)
-        {
-            CRI.SetConfigProperty(
-                ConfigIndex, PropertyIndex, GUIMenuOption(Sender).GetComponentValue());
-        }
-    }
-}
-
-function OptionOnChangePI(GUIComponent Sender)
-{
-    if (Sender.Tag > -1)
-    {
-        OptionModified[Sender.Tag] = 1;
-    }
-}
-
-function HxClientReplicationInfo FindCRI(out int ConfigIndex, out int PropertyIndex)
-{
-    local int CRINumber;
-
-    PropertyIndex = ConfigIndex & 0x3ff;
-    CRINumber = ConfigIndex >> 20;
-    ConfigIndex = (ConfigIndex >> 10) & 0x3ff;
-    return CRIs[CRINumber];
-}
-
-function PlayInfo FindPI(out int FullTag)
-{
-    local int i;
-
-    for (i = 0; i < PIs.Length; ++i)
-    {
-        if (FullTag < PIs[i].Settings.Length)
-        {
-            return PIs[i];
-        }
-        FullTag -= PIs[i].Settings.Length;
-    }
-    return None;
-}
-
-function bool IsModified(int Index)
-{
-    return OptionModified[Index] == 1;
-}
-
-function ResetModified(int Index)
-{
-    OptionModified[Index] = 0;
 }
 
 function Clear()
 {
-    Options.Remove(0, Options.Length);
-    CRIs.Remove(0, CRIs.Length);
-    PIs.Remove(0, PIs.Length);
-    OptionModified.Remove(0, OptionModified.Length);
-    PropertyCount = 0;
     List.Clear();
 }
 
-function LevelChanged()
+final function bool ShouldHideConfigProperty(HxClientReplicationInfo CRI,
+                                             class<HxConfig> ConfigClass,
+                                             int Index)
 {
-    Clear();
-    Super.LevelChanged();
+    return ConfigClass.default.DisplayInfo[Index].bHidden
+        || ConfigClass.default.Properties[Index].Type == HX_PROPERTY_Array
+        || ConfigClass.default.Properties[Index].Type == HX_PROPERTY_Color
+        || ConfigClass.default.Properties[Index].Type == HX_PROPERTY_Struct
+        || (!Controller.bExpertMode && ConfigClass.default.DisplayInfo[Index].bAdvanced)
+        || (ConfigClass.default.DisplayInfo[Index].Dependency != ""
+            && !bool(CRI.GetServerProperty(ConfigClass.default.DisplayInfo[Index].Dependency)));
+}
+
+final function bool ShouldHideMutatorProperty(class<HxMutator> MutatorClass, int Index)
+{
+    return MutatorClass.default.DisplayInfo[Index].bHidden
+        || MutatorClass.default.Properties[Index].Type == HX_PROPERTY_Array
+        || MutatorClass.default.Properties[Index].Type == HX_PROPERTY_Color
+        || MutatorClass.default.Properties[Index].Type == HX_PROPERTY_Struct
+        || (!Controller.bExpertMode && MutatorClass.default.DisplayInfo[Index].bAdvanced);
 }
 
 defaultproperties
@@ -664,5 +300,4 @@ defaultproperties
     StyleName="HxOptionList"
     ComponentWidth=0.25
     ScrollbarWidth=0.016
-    bShowSections=true
 }
