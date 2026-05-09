@@ -22,7 +22,7 @@ function ValidateColors(HxColors Colors)
     {
         if (!Colors.IsValidName(GetPropertyText(Properties[i].Name)))
         {
-            ResetConfig(Properties[i].Name);
+            ClearConfig(Properties[i].Name);
         }
     }
     if (bSave)

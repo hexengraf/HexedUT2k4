@@ -50,7 +50,7 @@ private function ValidateHitSounds()
         }
         else
         {
-            ResetConfig("HitSoundName");
+            ClearConfig("HitSoundName");
         }
     }
     for (i = CustomHitSounds.Length - 1; i >= 0; --i)
@@ -82,7 +82,7 @@ private function ValidateFontNames()
     }
     else
     {
-        ResetConfig("DisplayFontName");
+        ClearConfig("DisplayFontName");
     }
     for (i = FontNames.Length - 1; i >= 0; --i)
     {
