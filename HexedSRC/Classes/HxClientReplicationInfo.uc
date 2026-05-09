@@ -254,6 +254,56 @@ simulated private function DoUpdateServerProperty(int Index, string Value)
     Manager.NotifyServerInfoChanged(Self);
 }
 
+static final function int StringByteSize(string S)
+{
+    local int Size;
+    local int i;
+
+    for (i = 0; i < Len(S); ++i)
+    {
+        if (Asc(Mid(S, i, 1)) > 255)
+        {
+            Size += 4;
+        }
+        else
+        {
+            Size += 1;
+        }
+    }
+    return Size;
+}
+
+static final function string ExtractBytes(out string S, int ByteCount)
+{
+    local string Output;
+    local int Length;
+    local int i;
+
+    Length = Len(S);
+    for (i = 0; i < Length; ++i)
+    {
+        if (Asc(Mid(S, i, 1)) > 255)
+        {
+            ByteCount -= 4;
+        }
+        else
+        {
+            ByteCount -= 1;
+        }
+        if (ByteCount < 0)
+        {
+            if (i == 0)
+            {
+                return "";
+            }
+            break;
+        }
+    }
+    Output = Left(S, i);
+    S = Right(S, Length - i);
+    return Output;
+}
+
 defaultproperties
 {
     RemoteRole=ROLE_SimulatedProxy

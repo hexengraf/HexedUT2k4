@@ -136,6 +136,11 @@ function ApplyAlignment()
     NewHeight -= Offset;
 }
 
+function bool IsEmpty()
+{
+    return Content == "";
+}
+
 defaultproperties
 {
     VertAlign=TXTA_Left

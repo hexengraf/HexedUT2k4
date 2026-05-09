@@ -73,21 +73,19 @@ function CopySearchRules(HxMapFilter From)
     SearchRules = From.SearchRules;
 }
 
-function bool Match(VotingHandler.MapVoteMapList Entry, HxFavorites.EHxTag Tag)
+function bool Match(HxVTClient.HxMapEntry Entry)
 {
-    local CacheManager.MapRecord Record;
     local int i;
 
-    Record = class'CacheManager'.static.GetMapRecord(Entry.MapName);
-    if (!StringPatternMatch(Entry.MapName, SearchRules.Name)
-        || !RangePatternMatch(Record.PlayerCountMin, Record.PlayerCountMax, SearchRules.Players)
-        || !ValuePatternMatch(Entry.PlayCount, SearchRules.Played))
+    if (!StringPatternMatch(Entry.Name, SearchRules.Name)
+        || !RangePatternMatch(Entry.MinPlayers, Entry.MaxPlayers, SearchRules.Players)
+        || !ValuePatternMatch(Entry.Played, SearchRules.Played))
     {
         return false;
     }
     for (i = 0; i < FilterList.Length; ++i)
     {
-        if (FilterList[i] ~= Entry.MapName)
+        if (FilterList[i] ~= Entry.Name)
         {
             return FilterListMode == HX_FILTER_MODE_Include;
         }
@@ -97,12 +95,12 @@ function bool Match(VotingHandler.MapVoteMapList Entry, HxFavorites.EHxTag Tag)
         }
     }
     return !bExplicitList
-        && StringPatternMatch(Entry.MapName, Rules.Name)
-        && StringPatternMatch(Record.Author, Rules.Author)
-        && RangePatternMatch(Record.PlayerCountMin, Record.PlayerCountMax, Rules.Players)
-        && ValuePatternMatch(Entry.PlayCount, Rules.Played)
-        && SourceMatch(Entry.MapName, Rules.Source)
-        && Rules.Tag == HX_TAG_Any || Rules.Tag == Tag;
+        && StringPatternMatch(Entry.Name, Rules.Name)
+        && StringPatternMatch(Entry.Author, Rules.Author)
+        && RangePatternMatch(Entry.MinPlayers, Entry.MaxPlayers, Rules.Players)
+        && ValuePatternMatch(Entry.Played, Rules.Played)
+        && SourceMatch(Entry.Name, Rules.Source)
+        && Rules.Tag == HX_TAG_Any || Entry.Tag == Rules.Tag;
 }
 
 function bool SourceMatch(string MapName, EHxMapSource Source)

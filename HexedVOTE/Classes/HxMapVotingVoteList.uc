@@ -2,30 +2,23 @@ class HxMapVotingVoteList extends HxMapVotingBaseList;
 
 function PopulateList()
 {
-    local HxFavorites.EHxTag MapTag;
     local int i;
 
     for (i = 0; i < Client.VRI.MapVoteCount.Length; ++i)
     {
-        MapTag = Client.Favorites.Get(
-            Client.VRI.MapList[Client.VRI.MapVoteCount[i].MapIndex].MapName);
-        AddMap(Client.VRI.MapVoteCount[i].MapIndex, MapTag);
+        AddMap(Client.VRI.MapVoteCount[i].MapIndex);
     }
 }
 
-function UpdatedVoteCount(int UpdatedIndex, bool bRemoved)
+function UpdateVoteCount(int UpdatedIndex, bool bRemoved)
 {
-    local HxFavorites.EHxTag MapTag;
-
     if (bRemoved)
     {
         RemoveMap(UpdatedIndex);
     }
     else if (UpdatedIndex >= ItemCount)
     {
-        MapTag = Client.Favorites.Get(
-            Client.VRI.MapList[Client.VRI.MapVoteCount[UpdatedIndex].MapIndex].MapName);
-        AddMap(Client.VRI.MapVoteCount[UpdatedIndex].MapIndex, MapTag);
+        AddMap(Client.VRI.MapVoteCount[UpdatedIndex].MapIndex);
     }
     else
     {

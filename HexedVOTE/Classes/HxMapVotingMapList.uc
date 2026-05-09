@@ -5,16 +5,13 @@ var private array<string> Prefixes;
 
 function PopulateList()
 {
-    local HxFavorites.EHxTag MapTag;
     local int i;
 
-    for (i = 0; i < Client.VRI.MapList.Length; ++i)
+    for (i = 0; i < Client.Maps.Length; ++i)
     {
-        MapTag = Client.Favorites.Get(Client.VRI.MapList[i].MapName);
-        if (PrefixMatch(Client.VRI.MapList[i].MapName)
-            && ActiveFilter.Match(Client.VRI.MapList[i], MapTag))
+        if (PrefixMatch(Client.Maps[i].Name) && ActiveFilter.Match(Client.Maps[i]))
         {
-            AddMap(i, MapTag);
+            AddMap(i);
         }
     }
 }
@@ -75,52 +72,48 @@ function bool InternalOnPreDraw(Canvas C)
 
 function DrawRow(Canvas C, int Row, float X, float Y, float W, float H)
 {
-    local VotingHandler.MapVoteMapList Entry;
-    local CacheManager.MapRecord Record;
+    local HxVTClient.HxMapEntry Entry;
 
     Super.DrawRow(C, Row, X, Y, W, H);
-    Entry = Client.VRI.MapList[GetSortedMapIndex(Row)];
-    Record = class'CacheManager'.static.GetMapRecord(Entry.MapName);
+    Entry = Client.Maps[GetSortedMapIndex(Row)];
     GetCellLeftWidth(3, X, W);
     Style.DrawText(
         C, MenuState, X, Y, W, H, TXTA_Left,
-        GetMapSizeString(Record.PlayerCountMin, Record.PlayerCountMax), FontScale);
+        GetMapSizeString(Entry.MinPlayers, Entry.MaxPlayers), FontScale);
     GetCellLeftWidth(4, X, W);
-    Style.DrawText(C, MenuState, X, Y, W, H, TXTA_Left, string(Entry.PlayCount), FontScale);
+    Style.DrawText(C, MenuState, X, Y, W, H, TXTA_Left, string(Entry.Played), FontScale);
 }
 
 function string GetNormalizedSortString(int Row, int Column)
 {
-    local VotingHandler.MapVoteMapList Entry;
-    local CacheManager.MapRecord Record;
+    local HxVTClient.HxMapEntry Entry;
 
-    Entry = Client.VRI.MapList[MapIndices[Row]];
+    Entry = Client.Maps[MapIndices[Row]];
     switch (Column)
     {
         case 3:
-            Record = class'CacheManager'.static.GetMapRecord(Entry.MapName);
-            if (Record.PlayerCountMax == 0) {
+            if (Entry.MaxPlayers == 0) {
                 return "999999";
             }
-            return NormalizeInt(Record.PlayerCountMin, 3)$NormalizeInt(Record.PlayerCountMax, 3);
+            return NormalizeInt(Entry.MinPlayers, 3)$NormalizeInt(Entry.MaxPlayers, 3);
         case 4:
-            return NormalizeInt(Entry.PlayCount, 7);
+            return NormalizeInt(Entry.Played, 7);
         default:
             break;
     }
     return "";
 }
 
-static function string GetMapSizeString(int PlayerCountMin, int PlayerCountMax)
+static function string GetMapSizeString(int MinPlayers, int MaxPlayers)
 {
-    if (PlayerCountMax == 0) {
+    if (MaxPlayers == 0) {
         return "?";
     }
-    if (PlayerCountMin == PlayerCountMax)
+    if (MinPlayers == MaxPlayers)
     {
-        return string(PlayerCountMin);
+        return string(MinPlayers);
     }
-    return PlayerCountMin@"-"@PlayerCountMax;
+    return MinPlayers@"-"@MaxPlayers;
 }
 
 defaultproperties

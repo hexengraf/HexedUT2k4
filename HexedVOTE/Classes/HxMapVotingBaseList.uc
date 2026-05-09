@@ -9,7 +9,6 @@ var localized string DislikedMapsLabel;
 
 var protected HxVTClient Client;
 var protected array<int> MapIndices;
-var protected array<HxFavorites.EHxTag> MapTags;
 
 var private array<int> CurrentSortOrder;
 var private array<int> PreviousSortOrder;
@@ -17,7 +16,7 @@ var private string LastMapSelected;
 var private Color RecentColor;
 var private Color OldColor;
 
-delegate OnTagUpdated(int MapIndex, HxFavorites.EHxTag NewTag);
+delegate OnTagUpdated(int MapIndex);
 
 function PopulateList();
 function string GetNormalizedSortString(int Row, int Column);
@@ -71,17 +70,15 @@ function bool Refresh()
     return false;
 }
 
-function AddMap(int MapIndex, HxFavorites.EHxTag Tag)
+function AddMap(int MapIndex)
 {
     MapIndices[MapIndices.Length] = MapIndex;
-    MapTags[MapTags.Length] = Tag;
     AddedItem();
 }
 
 function RemoveMap(int Position)
 {
     MapIndices.Remove(Position, 1);
-    MapTags.Remove(Position, 1);
     RemovedItem(Position);
 }
 
@@ -94,19 +91,19 @@ function string GetSortString(int Row)
     switch (SortColumn)
     {
         case 0:
-            if (Client.VRI.MapList[MapIndex].Sequence == 0) {
+            if (Client.Maps[MapIndex].Sequence == 0) {
                 SortString = "999999";
             }
             else
             {
-                SortString = NormalizeInt(Client.VRI.MapList[MapIndex].Sequence, 6);
+                SortString = NormalizeInt(Client.Maps[MapIndex].Sequence, 6);
             }
             break;
         case 1:
-            SortString = string(int(MapTags[Row]));
+            SortString = string(int(Client.Maps[MapIndex].Tag));
             break;
         case 2:
-            SortString = NormalizeString(Client.VRI.MapList[MapIndex].MapName);
+            SortString = NormalizeString(Client.Maps[MapIndex].Name);
             break;
         default:
             SortString = GetNormalizedSortString(Row, SortColumn);
@@ -148,7 +145,7 @@ function SaveCurrentSortOrder()
 {
     local int i;
 
-    CurrentSortOrder.Length = Client.VRI.MapList.Length;
+    CurrentSortOrder.Length = Client.Maps.Length;
     for (i = 0; i < SortData.Length; ++i)
     {
         CurrentSortOrder[GetSortedMapIndex(i)] = i;
@@ -182,7 +179,7 @@ function string GetMapName()
 {
     if(Index > -1)
     {
-        return Client.VRI.MapList[MapIndices[SortData[Index].SortItem]].MapName;
+        return Client.Maps[MapIndices[SortData[Index].SortItem]].Name;
     }
     return "";
 }
@@ -195,7 +192,7 @@ function bool SetIndexByMapName(string MapName)
     {
         for (i = 0; i < SortData.Length; ++i)
         {
-            if (Client.VRI.MapList[GetSortedMapIndex(i)].MapName == MapName)
+            if (Client.Maps[GetSortedMapIndex(i)].Name == MapName)
             {
                 SetTopItem(i - ItemsPerPage / 2);
                 SetIndex(i);
@@ -209,7 +206,6 @@ function bool SetIndexByMapName(string MapName)
 function SoftClear()
 {
     MapIndices.Remove(0, MapIndices.Length);
-    MapTags.Remove(0, MapTags.Length);
     Super.Clear();
 }
 
@@ -221,39 +217,33 @@ function Clear()
     SoftClear();
 }
 
-function eMenuState GetMenuState(VotingHandler.MapVoteMapList Entry)
-{
-    if (!Entry.bEnabled)
-    {
-        return MSAT_Disabled;
-    }
-    return MenuState;
-}
-
 function DrawItem(Canvas C, int i, float X, float Y, float W, float H, bool bSelected, bool bPending)
 {
     local eMenuState SavedMenuState;
 
     SavedMenuState = MenuState;
-    MenuState = GetMenuState(Client.VRI.MapList[GetSortedMapIndex(i)]);
+    if (!Client.IsEnabled(GetSortedMapIndex(i)))
+    {
+        MenuState = MSAT_Disabled;
+    }
     Super.DrawItem(C, i, X, Y, W, H, bSelected, bPending);
     MenuState = SavedMenuState;
 }
 
 function DrawRow(Canvas C, int Row, float X, float Y, float W, float H)
 {
-    local VotingHandler.MapVoteMapList Entry;
     local float Offset;
+    local int MapIndex;
 
     Offset = C.ClipY * FrameThickness;
+    MapIndex = GetSortedMapIndex(Row);
     if (SortColumn == 0)
     {
         DrawLastPlayedIndicator(C, X, Y, H * 0.97, Offset);
     }
-    DrawMapTag(C, MapTags[SortData[Row].SortItem], X, Y, H * 0.97, Offset);
+    DrawMapTag(C, Client.Maps[MapIndex].Tag, X, Y, H * 0.97, Offset);
     GetCellLeftWidth(2, X, W);
-    Entry = Client.VRI.MapList[GetSortedMapIndex(Row)];
-    Style.DrawText(C, MenuState, X, Y, W, H, TXTA_Left, Entry.MapName, FontScale);
+    Style.DrawText(C, MenuState, X, Y, W, H, TXTA_Left, Client.Maps[MapIndex].Name, FontScale);
 }
 
 function DrawLastPlayedIndicator(Canvas C, float X, float Y, float Size, float Offset)
@@ -296,7 +286,7 @@ function bool OnOpenContextMenu(GUIContextMenu Sender)
 {
     if (Index > -1)
     {
-        switch (MapTags[SortData[Index].SortItem])
+        switch (Client.Maps[GetSortedMapIndex(Index)].Tag)
         {
             case HX_TAG_Like:
                 ContextMenu.ReplaceItem(0, RemoveFromLabel@LikedMapsLabel);
@@ -318,18 +308,13 @@ function bool OnOpenContextMenu(GUIContextMenu Sender)
 
 function OnSelectMapTag(GUIContextMenu Sender, int Option)
 {
-    local HxFavorites.EHxTag T;
+    local int MapIndex;
 
     if (Index > -1)
     {
-        T = EHxTag(1 + Option * 2);
-        if (MapTags[SortData[Index].SortItem] == T)
-        {
-            T = HX_TAG_None;
-        }
-        Client.Favorites.Save(GetMapName(), T);
-        MapTags[SortData[Index].SortItem] = T;
-        OnTagUpdated(GetMapIndex(), T);
+        MapIndex = GetSortedMapIndex(Index);
+        Client.SetMapTag(MapIndex, EHxTag(1 + Option * 2));
+        OnTagUpdated(MapIndex);
         UpdatedItem(SortData[Index].SortItem);
         if (SortColumn == 1)
         {
@@ -338,7 +323,7 @@ function OnSelectMapTag(GUIContextMenu Sender, int Option)
     }
 }
 
-function UpdateMapTag(int MapIndex, HxFavorites.EHxTag NewTag)
+function UpdateMapTag(int MapIndex)
 {
     local int i;
 
@@ -346,8 +331,12 @@ function UpdateMapTag(int MapIndex, HxFavorites.EHxTag NewTag)
     {
         if (MapIndices[i] == MapIndex)
         {
-            MapTags[SortData[i].SortItem] = NewTag;
             UpdatedItem(i);
+            if (SortColumn == 1)
+            {
+                Sort();
+            }
+            break;
         }
     }
 }

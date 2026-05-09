@@ -7,9 +7,9 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     Super.InitComponent(MyController, MyOwner);
 }
 
-function UpdatedVoteCount(int UpdatedIndex, bool bRemoved)
+function UpdateVoteCount(int UpdatedIndex, bool bRemoved)
 {
-    HxMapVotingVoteList(List).UpdatedVoteCount(UpdatedIndex, bRemoved);
+    HxMapVotingVoteList(List).UpdateVoteCount(UpdatedIndex, bRemoved);
 }
 
 function int GetGameTypeIndex()

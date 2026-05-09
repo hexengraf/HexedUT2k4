@@ -93,6 +93,11 @@ function float GetItemHeight(Canvas C)
     return ScrollText.GetItemHeight(C);
 }
 
+function bool IsEmpty()
+{
+    return ScrollText.IsEmpty();
+}
+
 defaultproperties
 {
     Begin Object Class=HxGUIVertScrollBar Name=NewTheScrollbar

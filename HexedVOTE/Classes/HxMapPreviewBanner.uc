@@ -12,15 +12,23 @@ var automated GUILabel l_NoInformation;
 
 var float MaxPreviewWidth;
 var localized string NoMapLabel;
-var localized string NoInfoLabel;
 var localized string PlayersLabel;
 var localized string AuthorLabel;
 
-var private string DisplayedMap;
+var private HxVTClient Client;
+var private int DisplayedMapIndex;
+
+function Refresh()
+{
+    if (DisplayedMapIndex > -1 && lb_Description.IsEmpty())
+    {
+        lb_Description.SetContent(Client.GetMapDescription(DisplayedMapIndex));
+    }
+}
 
 function ResetBanner(string Caption)
 {
-    DisplayedMap = "";
+    DisplayedMapIndex = -1;
     l_Header.SetVisibility(false);
     b_Preview.SetVisibility(false);
     i_Preview.SetVisibility(false);
@@ -35,35 +43,28 @@ function ResetBanner(string Caption)
     lb_Description.SetContent("");
 }
 
-function SetMap(string MapName)
+function SetClient(HxVTClient C)
 {
-    local CacheManager.MapRecord Record;
+    Client = C;
+}
 
-    if (MapName == "")
+function SetMap(int MapIndex)
+{
+    local HxVTClient.HxMapEntry Entry;
+
+    if (MapIndex == -1)
     {
         ResetBanner(NoMapLabel);
         return;
     }
-    if (MapName != DisplayedMap)
+    if (MapIndex != DisplayedMapIndex)
     {
-        DisplayedMap = MapName;
-        Record = class'CacheManager'.static.GetMapRecord(MapName);
-        if (Record.MapName == "")
-        {
-            ResetBanner(NoInfoLabel);
-            return;
-        }
-        if (Record.ScreenshotRef != "")
-        {
-            i_Preview.Image = Material(DynamicLoadObject(Record.ScreenshotRef, class'Material'));
-        }
-        else
-        {
-            i_Preview.Image = None;
-        }
-        l_Header.Caption = Record.FriendlyName;
-        SetMapInformation(Record);
-        lb_Description.SetContent(GetMapDescription(Record));
+        DisplayedMapIndex = MapIndex;
+        Entry = Client.Maps[MapIndex];
+        i_Preview.Image = Client.GetMapPreview(MapIndex);
+        l_Header.Caption = Entry.Label;
+        SetMapInformation(Entry.Author, Entry.MinPlayers, Entry.MaxPlayers);
+        lb_Description.SetContent(Client.GetMapDescription(MapIndex));
         l_Header.SetVisibility(true);
         b_Preview.SetVisibility(true);
         i_Preview.SetVisibility(true);
@@ -75,60 +76,28 @@ function SetMap(string MapName)
     }
 }
 
-function SetMapInformation(CacheManager.MapRecord Record)
+function SetMapInformation(string Author, int MinPlayers, int MaxPlayers)
 {
-    if (Record.PlayerCountMax == 0)
+    if (MaxPlayers == 0)
     {
         lb_Information.SetContent("?"@PlayersLabel);
     }
-    else if (Record.PlayerCountMin == Record.PlayerCountMax)
+    else if (MinPlayers == MaxPlayers)
     {
-        lb_Information.SetContent(Record.PlayerCountMin@PlayersLabel);
+        lb_Information.SetContent(MinPlayers@PlayersLabel);
     }
     else
     {
-        lb_Information.SetContent(Record.PlayerCountMin@"-"@Record.PlayerCountMax@PlayersLabel);
+        lb_Information.SetContent(MinPlayers@"-"@MaxPlayers@PlayersLabel);
     }
-    if (Record.Author != "")
+    if (Author != "")
     {
-        lb_Information.AddText(AuthorLabel$":"@Record.Author);
+        lb_Information.AddText(AuthorLabel$":"@Author);
     }
     else
     {
         lb_Information.AddText(AuthorLabel$": N/A");
     }
-}
-
-function string GetMapDescription(CacheManager.MapRecord Record)
-{
-    local DecoText Deco;
-    local string Description;
-    local string PackageName;
-    local string DecoTextName;
-    local int i;
-
-    if (class'CacheManager'.static.Is2003Content(Record.MapName) && Record.TextName != "")
-    {
-        if (!Divide(Record.TextName, ".", PackageName, DecoTextName))
-        {
-            PackageName = "XMaps";
-            DecoTextName = Record.TextName;
-        }
-        Deco = class'xUtil'.static.LoadDecoText(PackageName, DecoTextName);
-        if (Deco != None)
-        {
-            for (i = 0; i < Deco.Rows.Length; ++i)
-            {
-                if (Description != "")
-                {
-                    Description $= "|";
-                }
-                Description $= Deco.Rows[i];
-            }
-            return Description;
-        }
-    }
-    return Record.Description;
 }
 
 function bool InternalOnPreDrawInit(Canvas C)
@@ -284,7 +253,6 @@ defaultproperties
     StyleName="HxBackgroundGradient"
     MaxPreviewWidth=0.94
     NoMapLabel="No Map Selected"
-    NoInfoLabel="Map Information Unavailable"
     PlayersLabel="players"
     AuthorLabel="Author"
     OnPReDrawInit=InternalOnPreDrawInit

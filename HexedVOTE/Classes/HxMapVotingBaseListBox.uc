@@ -2,7 +2,7 @@ class HxMapVotingBaseListBox extends HxGUITableBox
     abstract
     DependsOn(HxFavorites);
 
-delegate OnTagUpdated(int MapIndex, HxFavorites.EHxTag NewTag);
+delegate OnTagUpdated(int MapIndex);
 delegate NotifySelection(GUIComponent Sender);
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
@@ -43,14 +43,14 @@ function string GetMapName()
     return HxMapVotingBaseList(List).GetMapName();
 }
 
-function UpdateMapTag(int MapIndex, HxFavorites.EHxTag NewTag)
+function UpdateMapTag(int MapIndex)
 {
-    HxMapVotingBaseList(List).UpdateMapTag(MapIndex, NewTag);
+    HxMapVotingBaseList(List).UpdateMapTag(MapIndex);
 }
 
-function InternalOnTagUpdated(int MapIndex, HxFavorites.EHxTag NewTag)
+function InternalOnTagUpdated(int MapIndex)
 {
-    OnTagUpdated(MapIndex, NewTag);
+    OnTagUpdated(MapIndex);
 }
 
 defaultproperties

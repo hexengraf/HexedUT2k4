@@ -47,6 +47,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     Client = HxVTClient(ClientManager.Find(class'HxVTClient'));
     lb_VoteList.SetClient(Client);
     lb_MapList.SetClient(Client);
+    MapBanner.SetClient(Client);
     UpdateMapFilter();
     ShowInitialState();
     SetTimer(0.02, true);
@@ -103,6 +104,7 @@ function InternalOnOpen()
     }
     lb_VoteList.Refresh();
     lb_MapList.Refresh();
+    MapBanner.Refresh();
 }
 
 function bool InternalOnKeyEvent(out byte Key, out byte State, float Delta)
@@ -186,7 +188,7 @@ function ShowInitialState()
     lb_VoteList.Clear();
     lb_MapList.Clear();
     co_GameType.ResetComponent();
-    MapBanner.SetMap("");
+    MapBanner.SetMap(-1);
     lb_VoteList.DisableMe();
     co_GameType.DisableMe();
     co_MapFilter.DisableMe();
@@ -246,7 +248,7 @@ function UpdateMapFilter()
 
 function UpdateMapVoteCount(int UpdatedIndex, bool bRemoved)
 {
-    lb_VoteList.UpdatedVoteCount(UpdatedIndex, bRemoved);
+    lb_VoteList.UpdateVoteCount(UpdatedIndex, bRemoved);
 }
 
 function OnChangeGameType(GUIComponent Sender)
@@ -324,7 +326,7 @@ function OnChangeSelectedMap(GUIComponent Sender)
                 break;
         }
         SelectedMap = NewSelectedMap;
-        MapBanner.SetMap(HxMapVotingBaseListBox(Sender).GetMapName());
+        MapBanner.SetMap(NewSelectedMap);
     }
 }
 
