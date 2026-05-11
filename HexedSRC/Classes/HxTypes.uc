@@ -46,6 +46,9 @@ struct HxDisplayProperty
     var const localized array<string> EnumLabels;
     var const string Step;
     var const string Dependency;
+    var const string ConfigPage;
+    var const string Privileges;
+    var const int SecLevel;
     var const bool bMPOnly;
     var const bool bAdvanced;
     var const bool bHidden;

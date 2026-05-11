@@ -116,10 +116,11 @@ static function FillPlayInfo(PlayInfo PlayInfo)
             default.FriendlyName,
             default.Properties[i].Name,
             default.DisplayInfo[i].Caption,
-            0,
+            default.DisplayInfo[i].SecLevel,
             i,
             GetPlayInfoType(i),
-            GetData(i),,
+            GetData(i),
+            default.DisplayInfo[i].Privileges,
             default.DisplayInfo[i].bMPOnly,
             default.DisplayInfo[i].bAdvanced);
     }
@@ -304,6 +305,8 @@ static final protected function string GetPlayInfoType(int Index)
             return "Check";
         case HX_PROPERTY_Enum:
             return "Select";
+        case HX_PROPERTY_Array:
+            return "Custom";
     }
     return "Text";
 }
@@ -319,6 +322,8 @@ static final protected function string GetData(int Index)
             return default.Properties[Index].UpperLimit;
         case HX_PROPERTY_Enum:
             return GetEnumData(Index);
+        case HX_PROPERTY_Array:
+            return ";;"$default.DisplayInfo[Index].ConfigPage;
     }
     return "";
 }
