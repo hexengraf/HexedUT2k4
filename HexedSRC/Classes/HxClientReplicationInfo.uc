@@ -9,7 +9,8 @@ struct HxPendingUpdate
     var string Value;
 };
 
-const REQUESTS_PER_TICK = 10;
+const PKG_STR_LIMIT = 480;
+const REQUESTS_PER_TICK = 16;
 
 var const class<HxMutator> MutatorClass;
 var const array<class<HxConfig> > ConfigClasses;

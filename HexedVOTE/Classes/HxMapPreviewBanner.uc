@@ -20,9 +20,17 @@ var private int DisplayedMapIndex;
 
 function Refresh()
 {
-    if (DisplayedMapIndex > -1 && lb_Description.IsEmpty())
+    if (DisplayedMapIndex > -1)
     {
-        lb_Description.SetContent(Client.GetMapDescription(DisplayedMapIndex));
+        if (lb_Description.IsEmpty())
+        {
+            lb_Description.SetContent(Client.GetMapDescription(DisplayedMapIndex));
+        }
+        if (i_Preview.Image == None)
+        {
+            i_Preview.Image = Client.GetMapPreview(DisplayedMapIndex);
+            l_NoPreview.SetVisibility(i_Preview.Image == None);
+        }
     }
 }
 

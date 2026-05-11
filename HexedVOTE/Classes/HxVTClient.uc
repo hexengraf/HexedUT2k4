@@ -1,8 +1,6 @@
 class HxVTClient extends HxClientReplicationInfo
     config(User);
 
-const STR_LIMIT = 480;
-
 struct HxMapEntry
 {
     var string Name;
@@ -20,8 +18,8 @@ struct HxMapResources
     var string PreviewName;
     var Material Preview;
     var string Description;
-    var bool bDescriptionLoaded;
-    var bool bPreviewLoaded;
+    var bool bDescriptionReady;
+    var bool bPreviewReady;
 };
 
 var VotingReplicationInfo VRI;
@@ -29,17 +27,20 @@ var array<HxMapEntry> Maps;
 
 var private PlayerController PC;
 var private GUIController GC;
-var private xVotingHandler VH;
 var private HxFavorites Favorites;
 var private array<HxMapResources> Resources;
+var private array<class<Object> > PreviewLoaders;
+var private int PreviewLoadersSent;
 var private int MapEntryResponseCount;
 var private string CustomMapVoteMenu;
+var private bool bPreviewLoadersReady;
 var private bool bReplaceMapVoteMenu;
 var private bool bInitialized;
 
 replication
 {
     reliable if (Role == ROLE_Authority)
+        ClientReceivePreviewLoader,
         ClientReceiveMapEntry,
         ClientReceivePreviewAndLabel,
         ClientReceivePlayersAndAuthor,
@@ -81,9 +82,9 @@ simulated event Tick(float DeltaTime)
             }
         }
     }
-    if (Level.NetMode != NM_Client && VH == None)
+    if (Level.NetMode != NM_Client && !bPreviewLoadersReady)
     {
-        VH = xVotingHandler(Level.Game.VotingHandler);
+        SendPreviewLoaders();
     }
 }
 
@@ -105,9 +106,11 @@ simulated function bool InitializeClient()
 simulated function PopulateMapEntries()
 {
     local CacheManager.MapRecord Record;
+    local int Limit;
     local int i;
 
-    for (i = Maps.Length; i < VRI.MapList.Length; ++i)
+    Limit = Maps.Length + Min(VRI.MapList.Length - Maps.Length, 8 * REQUESTS_PER_TICK);
+    for (i = Maps.Length; i < Limit; ++i)
     {
         Maps.Insert(Maps.Length, 1);
         Resources.Insert(Resources.Length, 1);
@@ -123,7 +126,7 @@ simulated function PopulateMapEntries()
             Maps[i].MinPlayers = Record.PlayerCountMin;
             Maps[i].MaxPlayers = Record.PlayerCountMax;
             Resources[i].Description = GetMapDescriptionFromRecord(Record);
-            Resources[i].bDescriptionLoaded = true;
+            Resources[i].bDescriptionReady = true;
             Resources[i].PreviewName = Record.ScreenshotRef;
             MapEntryResponseCount += 2;
         }
@@ -134,14 +137,61 @@ simulated function PopulateMapEntries()
     }
 }
 
+function SendPreviewLoaders()
+{
+    local MutHexedVOTE HexedVOTE;
+    local int Limit;
+    local int i;
+
+    HexedVOTE = MutHexedVOTE(MutatorOwner);
+    if (HexedVOTE.MapPreviewLoaders.Length > 0)
+    {
+        Limit = Min(HexedVOTE.MapPreviewLoaders.Length - PreviewLoadersSent, REQUESTS_PER_TICK);
+        for (i = 0; i < Limit; ++i)
+        {
+            ClientReceivePreviewLoader(
+                HexedVOTE.MapPreviewLoaders[PreviewLoadersSent + i],
+                PreviewLoadersSent + i == HexedVOTE.MapPreviewLoaders.Length - 1);
+        }
+        PreviewLoadersSent += Limit;
+        bPreviewLoadersReady = PreviewLoadersSent == HexedVOTE.MapPreviewLoaders.Length;
+    }
+    else
+    {
+        ClientReceivePreviewLoader("", true);
+        bPreviewLoadersReady = true;
+    }
+}
+
+simulated function ClientReceivePreviewLoader(string LoaderName, bool bLast)
+{
+    local class<Object> LoaderClass;
+
+    if (LoaderName != "")
+    {
+        LoaderClass = class<Object>(DynamicLoadObject(LoaderName, class'Class', true));
+        if (LoaderClass != None)
+        {
+            PreviewLoaders[PreviewLoaders.Length] = LoaderClass;
+        }
+    }
+    if (bLast)
+    {
+        bPreviewLoadersReady = true;
+        NotifyResourcesUpdated();
+    }
+}
+
 function ServerRequestMapEntry(int Index)
 {
+    local xVotingHandler VH;
     local CacheManager.MapRecord Record;
 
+    VH = xVotingHandler(Level.Game.VotingHandler);
     if (VH != None)
     {
         Record = class'CacheManager'.static.GetMapRecord(VH.MapList[Index].MapName);
-        if (StringByteSize(Record.FriendlyName$Record.ScreenshotRef$Record.Author) <= STR_LIMIT)
+        if (StringByteSize(Record.FriendlyName$Record.ScreenshotRef$Record.Author) <= PKG_STR_LIMIT)
         {
             ClientReceiveMapEntry(
                 Index,
@@ -191,11 +241,13 @@ simulated function ClientReceivePlayersAndAuthor(int MapIndex,
 
 function ServerRequestMapDescription(int MapIndex)
 {
+    local xVotingHandler VH;
     local CacheManager.MapRecord Record;
     local string Description;
     local int Remaining;
     local int PartSize;
 
+    VH = xVotingHandler(Level.Game.VotingHandler);
     if (VH != None)
     {
         Record = class'CacheManager'.static.GetMapRecord(VH.MapList[MapIndex].MapName);
@@ -205,7 +257,7 @@ function ServerRequestMapDescription(int MapIndex)
         {
             while (Remaining > 0)
             {
-                PartSize = Min(Remaining, STR_LIMIT);
+                PartSize = Min(Remaining, PKG_STR_LIMIT);
                 Remaining -= PartSize;
                 ClientReceiveMapDescription(
                     MapIndex, ExtractBytes(Description, PartSize), Remaining == 0);
@@ -218,21 +270,21 @@ function ServerRequestMapDescription(int MapIndex)
     }
 }
 
-simulated function ClientReceiveMapDescription(int MapIndex, string Description, bool bComplete)
+simulated function ClientReceiveMapDescription(int MapIndex, string Description, bool bLast)
 {
     Resources[MapIndex].Description $= Description;
-    Resources[MapIndex].bDescriptionLoaded = bComplete;
-    if (bComplete)
+    if (bLast)
     {
-        NotifyDescriptionLoaded(MapIndex);
+        Resources[MapIndex].bDescriptionReady = true;
+        NotifyResourcesUpdated();
     }
 }
 
-simulated function NotifyDescriptionLoaded(int MapIndex)
+simulated function NotifyResourcesUpdated()
 {
     local HxMapVotingPage VoteMenu;
 
-    if (GC.ActivePage != None)
+    if (GC != None && GC.ActivePage != None)
     {
         if (HxMapVotingPage(GC.ActivePage) != None)
         {
@@ -298,7 +350,7 @@ simulated function bool SendMapVote(int GameType, int Map)
 
 simulated final function string GetMapDescription(int MapIndex)
 {
-    if (!Resources[MapIndex].bDescriptionLoaded)
+    if (!Resources[MapIndex].bDescriptionReady)
     {
         ServerRequestMapDescription(MapIndex);
     }
@@ -307,18 +359,34 @@ simulated final function string GetMapDescription(int MapIndex)
 
 simulated final function Material GetMapPreview(int MapIndex)
 {
-    if (!Resources[MapIndex].bPreviewLoaded)
+    local int i;
+
+    if (!Resources[MapIndex].bPreviewReady)
     {
         if (Resources[MapIndex].PreviewName != "")
         {
             Resources[MapIndex].Preview = Material(
                 DynamicLoadObject(Resources[MapIndex].PreviewName, class'Material', true));
-            Resources[MapIndex].bPreviewLoaded = Resources[MapIndex].Preview != None;
+            Resources[MapIndex].bPreviewReady = Resources[MapIndex].Preview != None;
         }
-        if (!Resources[MapIndex].bPreviewLoaded)
+        if (!Resources[MapIndex].bPreviewReady)
         {
-            // TODO: get preview from custom packages here
-            Resources[MapIndex].bPreviewLoaded = true;
+            for (i = 0; i < PreviewLoaders.Length; ++i)
+            {
+                Resources[MapIndex].PreviewName =
+                    PreviewLoaders[i].static.GetItemName(Maps[MapIndex].Name);
+                if (Resources[MapIndex].PreviewName != "")
+                {
+                    break;
+                }
+            }
+            if (Resources[MapIndex].PreviewName != "")
+            {
+                Resources[MapIndex].Preview = Material(
+                    DynamicLoadObject(Resources[MapIndex].PreviewName, class'Material', true));
+            }
+            Resources[MapIndex].bPreviewReady =
+                Resources[MapIndex].Preview != None || bPreviewLoadersReady;
         }
     }
     return Resources[MapIndex].Preview;
