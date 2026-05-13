@@ -3,7 +3,6 @@ class HxGUIMenu extends HxGUIFloatingWindow;
 var automated GUITabControl t_TabControl;
 
 var HxClientManager ClientManager;
-var private array<HxClientReplicationInfo> CRIs;
 var private array<HxGUIMenuPanel> Panels;
 
 function InitComponent(GUIController MyController, GUIComponent MyComponent)
@@ -25,10 +24,14 @@ function UpdateTabControl()
 {
     local int i;
 
-    for (i = CRIs.Length; i < ClientManager.CRIs.Length; ++i)
+    for (i = 0; i < ClientManager.CRIs.Length; ++i)
     {
-        CRIs[i] = ClientManager.CRIs[i];
-        AddPanels(CRIs[i]);
+        if (!ClientManager.CRIs[i].bMenuReady)
+        {
+            AddPanels(ClientManager.CRIs[i]);
+            ClientManager.CRIs[i].bMenuReady = true;
+
+        }
     }
 }
 
