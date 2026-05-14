@@ -113,7 +113,7 @@ defaultproperties
     bSoundEffects=true
     bShowChargeBar=true
     ReticleColor=(R=32,G=32,B=32,A=255)
-    ReticleScale=0.5
+    ReticleScale=0.45
     BackgroundOpacity=0.3
     bCustomZoomCrosshair=false
     CustomZoomCrosshair=7
