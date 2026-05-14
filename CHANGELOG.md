@@ -10,6 +10,7 @@ General changes:
 * Added a first run notification to let players know how to access the configuration menu.
 * Phased-out old method for automatically copying existing configurations to a new version.
 * Converted all user configuration to a version-independent format (using PerObjectConfig). From now on all user configuration will always properly transfer to new versions.
+* Tightened up validation of user configuration.
 
 HexedUT changes:
 * Added view smoothing option to change the level of view smoothing to reduce the "sinking" effect in ramps.
@@ -19,7 +20,10 @@ HexedUT changes:
 * Added server actor to enable the mutator.
 
 HexedVOTE changes:
+* Added replication of missing map information (friendly names, authors, recommended number of players, and descriptions).
+* Added support for custom preview packages to cover for maps missing preview screenshots (see [HexedUT2k4 Map Previews](https://github.com/hexengraf/HexedUT2k4-Map-Previews)).
 * Moved list of liked/disliked maps to a separate INI file (`HexedFavorites.ini`).
+* Fixed bad map list order when switching game types (it didn't correctly apply the sort of the previous sorting column).
 
 HexedNET changes:
 * Removed new EyeHeight algorithm (use the view smoothing option in HexedUT instead).

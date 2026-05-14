@@ -266,6 +266,8 @@ MapListCustomBG=
 PreviewCustomBG=
 ; Background for the chat box. Use ~22:7 images.
 ChatBoxCustomBG=
+; List of map preview loaders
+MapPreviewLoaders=
 ```
 
 Each custom background should contain the fully qualified `PackageName.TextureName` string of the texture to be used.
@@ -274,6 +276,9 @@ Make sure to include the package containing the custom backgrounds to your `Serv
 
 > [!TIP]
 > The textures are alpha-blended with the default background, so you can rely on transparency to create subtle logos/watermarks.
+
+Map preview loaders allow you to specify custom loader classes to provide missing map previews.
+For more information on how to configure it check out [HexedUT2k4 Map Previews](https://github.com/hexengraf/HexedUT2k4-Map-Previews), a separate repository exclusively dedicated for map preview loaders.
 
 ### HexedCONTROL
 
@@ -438,7 +443,7 @@ The following section is saved in `User.ini`:
 ; Enable enhanced netcode on weapons.
 bEnhancedNetcode=True
 ; Frequency to send pings (pings/second).
-PingFrequency=1.500000
+PingFrequency=2.000000
 ; Factor to smooth out ping spikes from the average. Use low values for high smoothing (1.0 disables averaging completely).
 PingSmoothing=0.300000
 ```
