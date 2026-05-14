@@ -40,7 +40,7 @@ function SetPrefix(string Prefix)
 {
     Prefixes.Length = 0;
     Split(Prefix, ",", Prefixes);
-    Refresh();
+    Initialize();
 }
 
 function SearchName(string SearchTerm)
