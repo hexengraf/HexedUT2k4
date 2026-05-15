@@ -117,7 +117,7 @@ function RegisterSpawn(Pawn Spawned)
 
 defaultproperties
 {
-    FriendlyName="HexedUT v7"
+    FriendlyName="HexedUT v8dev"
     Description="Provides hit sounds, damage numbers, skin highlights, colored death messages, and more."
     bAddToServerPackages=true
     CRIClass=class'HxUTClient'
