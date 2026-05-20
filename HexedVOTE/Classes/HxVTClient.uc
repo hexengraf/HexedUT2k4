@@ -100,7 +100,7 @@ simulated function bool InitializeClient()
         }
         VRI = VotingReplicationInfo(PC.VoteReplicationInfo);
     }
-    return PC != None && GC != None;
+    return PC != None && GC != None && VRI != None;
 }
 
 simulated function PopulateMapEntries()
