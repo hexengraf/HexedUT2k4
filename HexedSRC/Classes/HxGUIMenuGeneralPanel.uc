@@ -36,6 +36,11 @@ function PopulateOptionLists()
     Controller.bCurMenuInitialized = false;
     for (i = 0; i < ClientManager.CRIs.Length; ++i)
     {
+        if (ClientManager.CRIs[i] == None)
+        {
+            Warn(Name$": CRIs["$i$"] is None! This should not happen!");
+            continue;
+        }
         ProcessUserOptions(ClientManager.CRIs[i], i);
         ProcessServerStatus(ClientManager.CRIs[i], i);
     }

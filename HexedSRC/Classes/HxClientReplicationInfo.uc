@@ -230,7 +230,14 @@ simulated function ProcessPendingUpdates()
 
 simulated function ClientOpenConfigurationMenu()
 {
-    Manager.OpenConfigurationMenu(Self);
+    if (Manager != None)
+    {
+        Manager.OpenConfigurationMenu(Self);
+    }
+    else
+    {
+        Warn("HxClientManager is None! This should not happen!");
+    }
 }
 
 simulated function bool IsAdmin()
