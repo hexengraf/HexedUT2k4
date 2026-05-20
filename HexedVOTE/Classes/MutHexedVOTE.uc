@@ -13,7 +13,7 @@ function bool MutatorIsAllowed()
 
 defaultproperties
 {
-    FriendlyName="HexedVOTE v8dev"
+    FriendlyName="HexedVOTE v8"
     Description="Provides an enhanced map vote menu on top of xVoting."
     bAddToServerPackages=true
     CRIClass=class'HxVTClient'

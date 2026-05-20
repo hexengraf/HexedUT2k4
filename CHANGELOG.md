@@ -1,3 +1,12 @@
+# v8.0
+
+This release fixes some issues with v7:
+* Fixed an issue that could break the map vote menu for high ping players (map list empty and combo boxes grayed out).
+* Fixed an issue with SuperShockRifle's netcode causing the beam to render in the incorrect position (slightly below the crosshair).
+* Fixed an issue with 3374 clients that would cause errors when switching from a map with HexedVOTE to a map without it.
+* Potentially fixed issue of multiple Instagib tabs.
+  * Added additional warnings to help identify what is happening in case multiple Instagib tabs still happens.
+
 # v7.0
 
 This version adds a new package with three mutators:

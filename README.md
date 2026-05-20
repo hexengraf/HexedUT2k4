@@ -1,12 +1,12 @@
 # HexedUT2k4 - Hexed Unreal Tournament 2004
 
 This is a collection of mutators for Unreal Tournament 2004:
-* **HexedUT** (`HexedUTv7.MutHexedUT`) - provides hit sounds, damage numbers, colored death messages, skin highlights, and more.
-* **HexedVOTE** (`HexedVOTEv7.MutHexedVOTE`) - provides an enhanced map vote menu on top of xVoting.
-* **HexedCONTROL** (`HexedARENAv7.MutHexedCONTROL`) - provides enhanced control over game mechanics: modify starting values, disable specific combos, disable specific pick-ups, modify movement parameters, and more.
-* **HexedARENA** (`HexedARENAv7.MutHexedARENA`) - similar to the built-in Arena mutator, but allows changing the weapon via URL option.
-* **HexedINSTAGIB** (`HexedARENAv7.MutHexedINSTAGIB`) - similar to the built-in Instagib mutator, but provides a custom zoom overlay and an option to change the fire rate.
-* **HexedNET** (`HexedNETv7.MutHexedNET`) - provides a modified version of WSUTComp's enhanced netcode (NewNet weapons).
+* **HexedUT** (`HexedUTv8.MutHexedUT`) - provides hit sounds, damage numbers, colored death messages, skin highlights, and more.
+* **HexedVOTE** (`HexedVOTEv8.MutHexedVOTE`) - provides an enhanced map vote menu on top of xVoting.
+* **HexedCONTROL** (`HexedARENAv8.MutHexedCONTROL`) - provides enhanced control over game mechanics: modify starting values, disable specific combos, disable specific pick-ups, modify movement parameters, and more.
+* **HexedARENA** (`HexedARENAv8.MutHexedARENA`) - similar to the built-in Arena mutator, but allows changing the weapon via URL option.
+* **HexedINSTAGIB** (`HexedARENAv8.MutHexedINSTAGIB`) - similar to the built-in Instagib mutator, but provides a custom zoom overlay and an option to change the fire rate.
+* **HexedNET** (`HexedNETv8.MutHexedNET`) - provides a modified version of WSUTComp's enhanced netcode (NewNet weapons).
 
 Additionally, some QoL improvements are provided in the form of a client-only package called HexedPatches.
 With the launch of OldUnreal patches, most of the features of this package are deprecated.
@@ -21,9 +21,9 @@ Files with the `.uz2` extension are safe to delete (you only need them if config
 
 There is no dependency between mutators, so you are free to decide which ones you want to enable.
 Some of the mutators can also be enabled through server actors:
-* `HexedUTv7.HxUTServerActor` - enables HexedUT.
-* `HexedVOTEv7.HxVTServerActor` - enables HexedVOTE.
-* `HexedARENAv7.HxCTServerActor` - enables HexedCONTROL.
+* `HexedUTv8.HxUTServerActor` - enables HexedUT.
+* `HexedVOTEv8.HxVTServerActor` - enables HexedVOTE.
+* `HexedARENAv8.HxCTServerActor` - enables HexedCONTROL.
 
 When one or more mutators are active, an in-game configuration menu is provided via the `mutate HexedMenu` command (if the letter `H` is available it will be automatically bound to this command).
 This menu gives access to all configurations (both user and server), so it is highly recommended to tweak your initial setup through it.
@@ -39,7 +39,7 @@ HexedUT is a completely new implementation of some of the features commonly offe
 While it is possible to enable HexedUT and UTComp at the same time, you probably want to disable equivalent features from one of the two mutators.
 To disable all equivalent features from HexedUT, use the following configuration:
 ```ini
-[HexedUTv7.MutHexedUT]
+[HexedUTv8.MutHexedUT]
 bAllowHitSounds=False
 bAllowDamageNumbers=False
 bColoredDeathMessages=False
@@ -180,7 +180,7 @@ DefaultColor=(B=4,G=191,R=239,A=255)
 
 The following section is saved in `UT2004.ini`:
 ```ini
-[HexedUTv7.MutHexedUT]
+[HexedUTv8.MutHexedUT]
 ; Allow clients to enable/disable hit sound effects.
 bAllowHitSounds=True
 ; Allow clients to enable/disable damage number effects.
@@ -257,7 +257,7 @@ FilterList="DM-1on1-Albatross"
 
 The following section is saved in `UT2004.ini`:
 ```ini
-[HexedVOTEv7.MutHexedVOTE]
+[HexedVOTEv8.MutHexedVOTE]
 ; Background for the votes list (upper list). Use ~16:3 images.
 VoteListCustomBG=
 ; Background for the maps list (lower list). Use ~9:5 images.
@@ -296,7 +296,7 @@ List of features:
 
 The following section is saved in `UT2004.ini`:
 ```ini
-[HexedARENAv7.MutHexedCONTROL]
+[HexedARENAv8.MutHexedCONTROL]
 ; Bonus to starting health (between -99 and 99).
 BonusHealth=0
 ; Bonus to starting shield (between 0 and 150).
@@ -361,8 +361,8 @@ bNoDodgeJump=False
 
 The main point of this mutator is to provide a way to define different Arenas using separate `GameConfig` entries in the `[xVoting.xVotingHandler]` section. For instance:
 ```ini
-GameConfig=(GameClass="XGame.xDeathMatch",Prefix="DM",Acronym="RADM",GameName="RocketArena DeathMatch",Mutators="HexedARENAv7.MutHexedARENA",Options="ArenaWeaponClassName=XWeapons.RocketLauncher")
-GameConfig=(GameClass="XGame.xDeathMatch",Prefix="DM",Acronym="FADM",GameName="FlakArena DeathMatch",Mutators="HexedARENAv7.MutHexedARENA",Options="ArenaWeaponClassName=XWeapons.FlakCannon")
+GameConfig=(GameClass="XGame.xDeathMatch",Prefix="DM",Acronym="RADM",GameName="RocketArena DeathMatch",Mutators="HexedARENAv8.MutHexedARENA",Options="ArenaWeaponClassName=XWeapons.RocketLauncher")
+GameConfig=(GameClass="XGame.xDeathMatch",Prefix="DM",Acronym="FADM",GameName="FlakArena DeathMatch",Mutators="HexedARENAv8.MutHexedARENA",Options="ArenaWeaponClassName=XWeapons.FlakCannon")
 ```
 
 All HexedUT2k4 mutators consume their URL options, so they're not "sticky" as it would usually be when passing options in the `GameConfig` entries, so you don't need to clean up options in unrelated entries.
@@ -371,7 +371,7 @@ All HexedUT2k4 mutators consume their URL options, so they're not "sticky" as it
 
 The following section is saved in `UT2004.ini`:
 ```ini
-[HexedARENAv7.MutHexedCONTROL]
+[HexedARENAv8.MutHexedCONTROL]
 ; Determines which weapon will be used in the arena match.
 ArenaWeaponClassName="XWeapons.RocketLauncher"
 ```
@@ -415,7 +415,7 @@ CustomZoomCrosshairScale=1.0
 
 The following section is saved in `UT2004.ini`:
 ```ini
-[HexedARENAv7.MutHexedINSTAGIB]
+[HexedARENAv8.MutHexedINSTAGIB]
 ; Players get a Translocator in their inventory.
 bAllowTranslocator=False
 ; Teammates get a big boost when shot by the instagib rifle.
@@ -456,7 +456,7 @@ PingSmoothing=0.300000
 
 The following section is saved in `UT2004.ini`:
 ```ini
-[HexedNETv7.MutHexedNET]
+[HexedNETv8.MutHexedNET]
 ; Maximum frequency to send pings (pings/second), between 0.2 and 20.
 MaxPingFrequency=10.0
 ; Time window (in seconds) to look back for pawn collisions.
