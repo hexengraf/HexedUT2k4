@@ -93,6 +93,17 @@ simulated function RegisterCRI(HxClientReplicationInfo CRI)
 
     for (i = 0; i < CRIs.Length; ++i)
     {
+        if (CRIs[i].Class == CRI.Class)
+        {
+            Warn("Multiple instances of"@CRIs[i].Class@"detected! This should not happen!");
+            if (CRIs[i].Owner != CRI.Owner)
+            {
+                Warn("The instances have different player controllers!");
+            }
+        }
+    }
+    for (i = 0; i < CRIs.Length; ++i)
+    {
         if (CRI.Order < CRIs[i].Order)
         {
             break;
@@ -197,7 +208,7 @@ static function HxClientManager Register(HxClientReplicationInfo CRI)
     ForEach CRI.DynamicActors(class'HxClientManager', Manager) break;
     if (Manager == None)
     {
-        Manager = CRI.Spawn(class'HxClientManager', CRI.Level);
+        Manager = CRI.Spawn(class'HxClientManager');
     }
     Manager.RegisterCRI(CRI);
     return Manager;
