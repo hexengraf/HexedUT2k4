@@ -96,7 +96,9 @@ simulated function bool InitializeClient()
         if (PC.Player != None)
         {
             GC = GUIController(PC.Player.GUIController);
-            bReplaceMapVoteMenu = !GC.SetPropertyText("CustomMapVotingMenu", CustomMapVoteMenu);
+            // TODO: give feedback to OldUnreal about level change issue.
+            // bReplaceMapVoteMenu = !GC.SetPropertyText("CustomMapVotingMenu", CustomMapVoteMenu);
+            bReplaceMapVoteMenu = true;
         }
         VRI = VotingReplicationInfo(PC.VoteReplicationInfo);
     }
