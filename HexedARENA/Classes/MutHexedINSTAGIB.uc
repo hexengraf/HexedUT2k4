@@ -135,6 +135,10 @@ static function HidePickupBases(Actor Requester)
     foreach Requester.AllActors(class'xPickupBase', P)
     {
         P.bHidden = true;
+        if (P.bStatic)
+        {
+            P.ResetStaticFilterState();
+        }
         if (P.myEmitter != None)
         {
             P.myEmitter.Destroy();
