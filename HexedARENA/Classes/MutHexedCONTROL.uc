@@ -377,7 +377,7 @@ static function ModifyPickupBase(xPickUpBase PickupBase, coerce bool bDisabled)
 
 defaultproperties
 {
-    FriendlyName="HexedCONTROL v8"
+    FriendlyName="HexedCONTROL v9dev"
     Description="Enhanced control over game mechanics: modify starting values, disable specific combos, disable specific pick-ups, modify movement parameters, and more."
     bAddToServerPackages=true
     CRIClass=class'HxCTClient'
