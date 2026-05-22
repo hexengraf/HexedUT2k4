@@ -44,14 +44,9 @@ var localized string TeamLabels[2];
 var private HxUTClient Client;
 var private HxSkinHighlightConfig Config;
 var private HxColors Colors;
-var private xUtil.PlayerRecord PreviewRec;
+var private HxSkinHighlightPreview Preview;
+var private string PreviewCharacterName;
 var private int PreviewSkinVariation;
-var private SpinnyWeap PreviewModel;
-var private ConstantColor PreviewEffect;
-var private Shader PreviewShader;
-var private Rotator PreviewRotation;
-var private vector PreviewOffset;
-var private float PreviewSpin;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
@@ -80,9 +75,6 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     Sections[SECTION_COLOR_EDITOR].Insert(co_PreviewSkin);
     Sections[SECTION_COLOR_EDITOR].Insert(b_PreviewBox);
     Sections[SECTION_COLOR_EDITOR].Insert(b_ChangeModel);
-    PreviewEffect = New(Self) class'ConstantColor';
-    PreviewShader = New(Self) class'Shader';
-    PreviewShader.Specular = PreviewEffect;
     PopulateColorComboBoxes();
 
     for (i = 0; i < 3; ++i)
@@ -97,9 +89,9 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 
 event Opened(GUIComponent Sender)
 {
-    if (PreviewModel != None)
+    if (Preview != None)
     {
-        UpdatePreviewModelRotation(PlayerOwner());
+        Preview.UpdateRotation(PlayerOwner());
     }
     Super.Opened(Sender);
 }
@@ -190,9 +182,9 @@ function CustomizeColorOnChange(GUIComponent Sender)
 function PreviewSkinOnChange(GUIComponent Sender)
 {
     PreviewSkinVariation = GUIComboBox(Sender).GetIndex() - 1;
-    if (PreviewModel != None)
+    if (Preview != None)
     {
-        UpdatePreviewModelSkins();
+        Preview.SetPreviewSkin(PreviewSkinVariation);
     }
 }
 
@@ -271,135 +263,59 @@ function UpdateColorEditorSection(string ColorName)
     ch_AllowOnRandom.Checked(ColorEntry.bRandom);
 }
 
-function bool PreviewOnDraw(canvas C)
+function bool PreviewOnDraw(Canvas C)
 {
-    local rotator CameraRotation;
-    local vector CameraPosition;
-    local vector X;
-    local vector Y;
-    local vector Z;
-
-    if (PreviewModel == None)
+    if (Preview == None)
     {
-        SpawnPreviewModel(PlayerOwner());
+        SpawnPreview(PlayerOwner());
     }
-    else
-    {
-        if (PreviewModel.OverlayMaterial == None)
-        {
-            PreviewModel.SetOverlayMaterial(PreviewShader, 300, false);
-        }
-        C.GetCameraLocation(CameraPosition, CameraRotation);
-        GetAxes(CameraRotation, X, Y, Z);
-        PreviewModel.SetLocation(
-            CameraPosition + (PreviewOffset.X * X) + (PreviewOffset.Y * Y) + (PreviewOffset.Z * Z));
-        C.DrawActorClipped(
-            PreviewModel,
-            false,
-            b_PreviewBox.ActualLeft(),
-            b_PreviewBox.ActualTop(),
-            b_PreviewBox.ActualWidth(),
-            b_PreviewBox.ActualHeight(),
-            true,
-            30);
-    }
+    Preview.DrawPreview(
+        C,
+        b_PreviewBox.ActualLeft(),
+        b_PreviewBox.ActualTop(),
+        b_PreviewBox.ActualWidth(),
+        b_PreviewBox.ActualHeight());
     return true;
 }
 
 function bool PreviewOnCapturedMouseMove(float DeltaX, float DeltaY)
 {
-    local Rotator Delta;
-    local Vector X;
-    local Vector Y;
-    local Vector Z;
-
-    PreviewSpin -= 256 * DeltaX;
-    Delta.Yaw = PreviewSpin;
-    GetAxes(PreviewRotation, X, Y, Z);
-    X = vector(Delta) >> PreviewRotation;
-    Delta.Yaw += 16384;
-    Y = vector(Delta) >> PreviewRotation;
-    PreviewModel.SetRotation(OrthoRotation(X, Y, Z));
+    if (Preview != None)
+    {
+        Preview.Spin(DeltaX);
+    }
     return true;
 }
 
-function SpawnPreviewModel(PlayerController PC)
+function SpawnPreview(PlayerController PC)
 {
     if (PC == None || PC.PlayerReplicationInfo == None)
     {
         return;
     }
+    Preview = PC.Spawn(class'HxSkinHighlightPreview');
     if (PC.PlayerReplicationInfo.CharacterName != "")
     {
-        PreviewRec = class'xUtil'.static.FindPlayerRecord(PC.PlayerReplicationInfo.CharacterName);
+        PreviewCharacterName = PC.PlayerReplicationInfo.CharacterName;
     }
     else
     {
-        PreviewRec = class'xUtil'.static.FindPlayerRecord(class'xPawn'.default.PlacedCharacterName);
+        PreviewCharacterName = class'xPawn'.default.PlacedCharacterName;
     }
-    PreviewModel = PC.spawn(class'XInterface.SpinnyWeap');
-    PreviewModel.SetDrawType(DT_Mesh);
-    PreviewModel.SetDrawScale(1.0);
-    PreviewModel.bHidden = true;
-    PreviewModel.bPlayCrouches = false;
-    PreviewModel.bPlayRandomAnims = false;
-    PreviewModel.SpinRate = 0;
-    PreviewModel.AmbientGlow = 40;
-    UpdatePreviewModelRotation(PC);
-    UpdatePreviewModelSkins();
-}
-
-function UpdatePreviewModelRotation(PlayerController PC)
-{
-    PreviewRotation = PC.Rotation;
-    PreviewRotation.Pitch += 32768;
-    PreviewRotation.Roll += 32768;
-    PreviewModel.SetRotation(PreviewRotation);
-    PreviewSpin = 0;
-}
-
-function UpdatePreviewModelSkins()
-{
-    local string BodySkinName;
-    local string FaceSkinName;
-    local Mesh ModelMesh;
-
-    ModelMesh = Mesh(DynamicLoadObject(PreviewRec.MeshName, class'Mesh'));
-    BodySkinName = PreviewRec.BodySkinName;
-    FaceSkinName = PreviewRec.FaceSkinName;
-    if (PreviewSkinVariation > -1)
-    {
-        if (class'DMMutator'.default.bBrightSkins && Left(BodySkinName, 12) ~= "PlayerSkins.")
-        {
-            BodySkinName = "Bright"$BodySkinName$"_"$PreviewSkinVariation$"B";
-        }
-        else
-        {
-            BodySkinName $= "_"$PreviewSkinVariation;
-        }
-        if (PreviewRec.TeamFace)
-        {
-            FaceSkinName $= "_"$PreviewSkinVariation;
-        }
-    }
-    PreviewModel.Skins[0] = Material(DynamicLoadObject(BodySkinName, class'Material', true));
-    PreviewModel.Skins[1] = Material(DynamicLoadObject(FaceSkinName, class'Material', true));
-    if(ModelMesh != None && PreviewModel.Skins[0] != None && PreviewModel.Skins[1] != None)
-    {
-        PreviewModel.LinkMesh(ModelMesh);
-        PreviewModel.LoopAnim('Idle_Rest', 1.0 / PreviewModel.Level.TimeDilation);
-    }
+    Preview.ActiveColor = co_EditColor.GetComponentValue();
+    Preview.HighlightIntensity = float(Client.GetServerProperty("SkinHighlightIntensity"));
+    Preview.Setup(PreviewCharacterName, PreviewSkinVariation);
+    Preview.UpdateRotation(PC);
 }
 
 function UpdatePreviewColor()
 {
-    local float ColorMultiplier;
-
-    ColorMultiplier = float(Client.GetServerProperty("SkinHighlightIntensity"));
-    Colors.Find(co_EditColor.GetComponentValue(), PreviewEffect.Color);
-    PreviewEffect.Color.R = PreviewEffect.Color.R * ColorMultiplier;
-    PreviewEffect.Color.G = PreviewEffect.Color.G * ColorMultiplier;
-    PreviewEffect.Color.B = PreviewEffect.Color.B * ColorMultiplier;
+    if (Preview != None)
+    {
+        Preview.ActiveColor = co_EditColor.GetComponentValue();
+        Preview.HighlightIntensity = float(Client.GetServerProperty("SkinHighlightIntensity"));
+        Preview.Reinitialize();
+    }
 }
 
 function bool ColorEditorButtonsOnPreDraw(Canvas C)
@@ -511,7 +427,7 @@ function OnCloseDeleteColor(byte bButton)
 
 function bool OnClickChangeModel(GUIComponent Sender)
 {
-    if (Controller.OpenMenu("GUI2K4.UT2K4ModelSelect", PreviewRec.DefaultName, ""))
+    if (Controller.OpenMenu("GUI2K4.UT2K4ModelSelect", PreviewCharacterName, ""))
     {
         Controller.ActivePage.OnClose = OnCloseChangeModel;
     }
@@ -527,8 +443,9 @@ function OnCloseChangeModel(optional bool bCancelled)
         CharName = Controller.ActivePage.GetDataString();
         if (CharName != "")
         {
-            PreviewRec = class'xUtil'.static.FindPlayerRecord(CharName);
-            UpdatePreviewModelSkins();
+            PreviewCharacterName = CharName;
+            Preview.HighlightIntensity = float(Client.GetServerProperty("SkinHighlightIntensity"));
+            Preview.Setup(PreviewCharacterName, PreviewSkinVariation);
         }
     }
 }
@@ -544,13 +461,11 @@ function ShowInvalidNameDialog(string Name)
 
 function Free()
 {
-    if (PreviewModel != None)
+    if (Preview != None)
     {
-        PreviewModel.Destroy();
-        PreviewModel = None;
+        Preview.Destroy();
+        Preview = None;
     }
-    PreviewEffect = None;
-    PreviewShader = None;
     Super.Free();
 }
 
@@ -858,5 +773,4 @@ defaultproperties
     TeamLabels(0)="Red Team"
     TeamLabels(1)="Blue Team"
     PreviewSkinVariation=-1
-    PreviewOffset=(X=425,Z=-3)
 }

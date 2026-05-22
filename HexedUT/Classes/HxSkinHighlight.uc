@@ -23,19 +23,20 @@ var float HighlightIntensity;
 var private PlayerController PC;
 var private HxUTClient Client;
 var private HxColors Colors;
-var private array<Material> OriginalSkins;
 var private array<Material> Materials;
-var private ConstantColor HighlightEffect;
-var private Shader HighlightShader;
+var private array<Material> OriginalSkins;
+var private array<Material> BaseSkins;
+var private array<Shader> SkinShaders;
+var private array<Combiner> WorkaroundCombiners;
+var private array<FinalBlend> SkinFinalBlends;
+var private ConstantColor HighlightTint;
+var private ConstantColor WorkaroundTint;
+var private Shader EmptyShader;
 var private Color MainColor;
 var private Color HitColors[4];
 var private Material HitMaterials[4];
-var private byte bDisableHitEffect[4];
-var private int HitIndex;
-var private bool bInitialized;
-var private bool bEnabled;
-var private bool bSkinUpdated;
-var private bool bOnSpawnProtection;
+var protected byte bDisableHitEffect[4];
+var protected int HitIndex;
 var private byte LocalPlayerTeam;
 
 replication
@@ -50,11 +51,9 @@ simulated event PreBeginPlay()
 
     if (Level.NetMode != NM_DedicatedServer)
     {
-        HighlightEffect = ConstantColor(AllocateMaterial(class'ConstantColor'));
-        HighlightShader = Shader(AllocateMaterial(class'Shader'));
-        HighlightShader.Specular = HighlightEffect;
-        LocalPlayerTeam = 255;
-        bInitialized = Initialize(xPawn(Base));
+        HighlightTint = ConstantColor(AllocateMaterial(class'ConstantColor'));
+        WorkaroundTint = ConstantColor(AllocateMaterial(class'ConstantColor'));
+        EmptyShader = Shader(AllocateMaterial(class'Shader'));
     }
 }
 
@@ -69,149 +68,296 @@ simulated event Destroyed()
     Super.Destroyed();
 }
 
-simulated event Tick(float DeltaTime)
+auto state Startup
 {
-    local xPawn Pawn;
-
-    if (Level.NetMode != NM_DedicatedServer)
+    simulated event BeginState()
     {
-        Pawn = xPawn(Base);
-        if (!bInitialized || LocalPlayerTeam != GetLocalPlayerTeam())
+        if (Level.NetMode != NM_DedicatedServer)
         {
-            bInitialized = Initialize(Pawn);
-        }
-        else if (Pawn != None)
-        {
-            if (bEnabled && Pawn.bAlreadySetup)
-            {
-                if (!Pawn.bInvis && !Pawn.bOldInvis && !Pawn.bDeRes)
-                {
-                    if (bForceNormalSkins && !bSkinUpdated)
-                    {
-                        ForceNormalSkin(Pawn);
-                    }
-                    UpdateOverlay(Pawn);
-                }
-                else if (Pawn.OverlayMaterial == HighlightShader)
-                {
-                    Pawn.SetOverlayMaterial(None, 0, true);
-                }
-            }
-        }
-    }
-}
-
-simulated function bool Initialize(xPawn Pawn)
-{
-    if (Client == None)
-    {
-        foreach DynamicActors(class'HxUTClient', Client) break;
-    }
-    if (HighlightIntensity < 0 || Client == None)
-    {
-        return false;
-    }
-    if (Colors == None)
-    {
-        Colors = Client.GetSkinHighlightColors();
-    }
-    if (PC == None)
-    {
-        PC = Level.GetLocalPlayerController();
-    }
-    if (Pawn != None && PC != None && Level.GRI != None
-        && PC.PlayerReplicationInfo != None && Pawn.PlayerReplicationInfo != None
-        && Pawn.PlayerReplicationInfo.PlayerName != "")
-    {
-        LocalPlayerTeam = GetLocalPlayerTeam();
-        InitializeHighlight(Pawn);
-        InitializeHitEffects(Pawn);
-        InitializeSkins(Pawn);
-        return true;
-    }
-    return false;
-}
-
-simulated function InitializeHighlight(xPawn Pawn)
-{
-    local string Name;
-
-    if (!Level.GRI.bTeamGame)
-    {
-        if (SoloPlayer == RANDOM_HIGHLIGHT)
-        {
-            Name = Colors.SavedRandom(Pawn.PlayerReplicationInfo.PlayerName);
+            Initialize();
         }
         else
         {
-            Name = SoloPlayer;
+            GotoState('Disabled');
         }
-        bSkinUpdated = true;
     }
-    else
-    {
-        Name = Eval(Pawn.GetTeamNum() != LocalPlayerTeam, EnemyTeam, YourTeam);
-    }
-    bEnabled = !Colors.IsReservedName(Name);
-    if (bEnabled)
-    {
-        Colors.Find(Name, MainColor);
-        MainColor.R = MainColor.R * HighlightIntensity;
-        MainColor.G = MainColor.G * HighlightIntensity;
-        MainColor.B = MainColor.B * HighlightIntensity;
-    }
-}
 
-simulated function InitializeHitEffects(xPawn Pawn)
-{
-    local int i;
+    simulated event Tick(float DeltaTime)
+    {
+        Initialize();
+    }
 
-    for (i = 0; i < ArrayCount(HitColors); ++i)
+    simulated function Initialize()
     {
-        HitMaterials[i] = None;
-    }
-    if (ShieldHit != DEFAULT_HIGHLIGHT)
-    {
-        HitColors[0] = GetHitColor(ShieldHit);
-        HitMaterials[0] = Pawn.ShieldHitMat;
-        bDisableHitEffect[0] = byte(ShieldHit == NO_HIGHLIGHT);
-    }
-    if (LinkHit != DEFAULT_HIGHLIGHT)
-    {
-        HitColors[1] = GetHitColor(LinkHit);
-        HitMaterials[1] = Shader'XGameShaders.PlayerShaders.LinkHit';
-        bDisableHitEffect[1] = byte(LinkHit == NO_HIGHLIGHT);
-    }
-    if (ShockHit != DEFAULT_HIGHLIGHT)
-    {
-        HitColors[2] = GetHitColor(ShockHit);
-        HitMaterials[2] = Shader'UT2004Weapons.Shaders.ShockHitShader';
-        bDisableHitEffect[2] = byte(ShockHit == NO_HIGHLIGHT);
-    }
-    if (LightningHit != DEFAULT_HIGHLIGHT)
-    {
-        HitColors[3] = GetHitColor(LightningHit);
-        HitMaterials[3] = Shader'XGameShaders.PlayerShaders.LightningHit';
-        bDisableHitEffect[3] = byte(LightningHit == NO_HIGHLIGHT);
-    }
-    HitIndex = -1;
-}
-
-simulated function InitializeSkins(xPawn Pawn)
-{
-    local int i;
-
-    if ((!bForceNormalSkins || !bEnabled) && OriginalSkins.Length > 0)
-    {
-        for (i = 0; i < OriginalSkins.Length; ++i)
+        if (Client == None)
         {
-            if (OriginalSkins[i] != None)
+            foreach DynamicActors(class'HxUTClient', Client) break;
+        }
+        if (PC == None)
+        {
+            PC = Level.GetLocalPlayerController();
+        }
+        if (IsReplicated() && IsSetupFinished())
+        {
+            if (Colors == None)
             {
-                Pawn.Skins[i] = OriginalSkins[i];
+                Colors = Client.GetSkinHighlightColors();
+            }
+            LocalPlayerTeam = GetLocalPlayerTeam();
+            InitializeHitEffects();
+            if (Colors.Find(GetHighlightColorName(), MainColor) > -1)
+            {
+                MainColor.R = MainColor.R * HighlightIntensity;
+                MainColor.G = MainColor.G * HighlightIntensity;
+                MainColor.B = MainColor.B * HighlightIntensity;
+                HighlightTint.Color = MainColor;
+                ReplaceSkins();
+                GotoState('Enabled');
+            }
+            else
+            {
+                GotoState('Disabled');
             }
         }
-        OriginalSkins.Remove(0, OriginalSkins.Length);
-        bSkinUpdated = false;
+    }
+
+    simulated function InitializeHitEffects()
+    {
+        local int i;
+
+        for (i = 0; i < ArrayCount(HitColors); ++i)
+        {
+            HitMaterials[i] = None;
+            bDisableHitEffect[i] = 0;
+        }
+        if (ShieldHit != DEFAULT_HIGHLIGHT)
+        {
+            HitColors[0] = GetHitColor(ShieldHit);
+            HitMaterials[0] = Shader'XGameShaders.PlayerShaders.PlayerShieldSh';
+            bDisableHitEffect[0] = byte(ShieldHit == NO_HIGHLIGHT);
+        }
+        if (LinkHit != DEFAULT_HIGHLIGHT)
+        {
+            HitColors[1] = GetHitColor(LinkHit);
+            HitMaterials[1] = Shader'XGameShaders.PlayerShaders.LinkHit';
+            bDisableHitEffect[1] = byte(LinkHit == NO_HIGHLIGHT);
+        }
+        if (ShockHit != DEFAULT_HIGHLIGHT)
+        {
+            HitColors[2] = GetHitColor(ShockHit);
+            HitMaterials[2] = Shader'UT2004Weapons.Shaders.ShockHitShader';
+            bDisableHitEffect[2] = byte(ShockHit == NO_HIGHLIGHT);
+        }
+        if (LightningHit != DEFAULT_HIGHLIGHT)
+        {
+            HitColors[3] = GetHitColor(LightningHit);
+            HitMaterials[3] = Shader'XGameShaders.PlayerShaders.LightningHit';
+            bDisableHitEffect[3] = byte(LightningHit == NO_HIGHLIGHT);
+        }
+        HitIndex = -1;
+    }
+
+    simulated function ReplaceSkins()
+    {
+        local Texture SkinTexture;
+        local int i;
+
+        OriginalSkins = Base.Skins;
+        if (bForceNormalSkins)
+        {
+            ReplaceTeamSkins();
+        }
+        BaseSkins = Base.Skins;
+        AllocateSkinMaterials();
+        for (i = 0; i < SkinShaders.Length; ++i)
+        {
+            SkinTexture = GetTextureFromMaterial(Base.Skins[i]);
+            if (SkinTexture != None)
+            {
+                WorkaroundCombiners[i].Material1 = SkinTexture;
+                // SkinShaders[i].Diffuse = SkinTexture;
+                if (SkinTexture.bAlphaTexture || SkinTexture.bMasked)
+                {
+                    SkinShaders[i].Opacity = SkinTexture;
+                    SkinShaders[i].SpecularityMask = SkinTexture;
+                    Base.Skins[i] = SkinFinalBlends[i];
+                }
+                else
+                {
+                    SkinShaders[i].Opacity = None;
+                    SkinShaders[i].SpecularityMask = None;
+                    Base.Skins[i] = SkinShaders[i];
+                }
+            }
+        }
+    }
+
+    simulated function ReplaceTeamSkins()
+    {
+        local int i;
+        local Material Skin;
+
+        for (i = 0; i < Base.Skins.Length; ++i)
+        {
+            Skin = GetNormalSkin(Base.Skins[i]);
+            if (Skin != None)
+            {
+                Base.Skins[i] = Skin;
+            }
+        }
+    }
+
+    simulated function AllocateSkinMaterials()
+    {
+        local int i;
+
+        if (SkinShaders.Length < Base.Skins.Length)
+        {
+            i = SkinShaders.Length;
+            SkinShaders.Length = Base.Skins.Length;
+            SkinFinalBlends.Length = Base.Skins.Length;
+            WorkaroundCombiners.Length = Base.Skins.Length;
+            for (i = i; i < Base.Skins.Length; ++i)
+            {
+                WorkaroundCombiners[i] = Combiner(AllocateMaterial(class'Combiner'));
+                WorkaroundCombiners[i].CombineOperation = CO_Add;
+                WorkaroundCombiners[i].AlphaOperation = AO_Use_Alpha_From_Material1;
+                WorkaroundCombiners[i].Material2 = WorkaroundTint;
+                SkinShaders[i] = Shader(AllocateMaterial(class'Shader'));
+                SkinShaders[i].Specular = HighlightTint;
+                SkinShaders[i].Diffuse = WorkaroundCombiners[i];
+                SkinShaders[i].OutputBlending = OB_Normal;
+                SkinFinalBlends[i] = FinalBlend(AllocateMaterial(class'FinalBlend'));
+                SkinFinalBlends[i].FrameBufferBlending = FB_AlphaBlend;
+                SkinFinalBlends[i].Material = SkinShaders[i];
+                SkinFinalBlends[i].AlphaTest = true;
+                SkinFinalBlends[i].TwoSided = true;
+            }
+        }
+    }
+}
+
+state Disabled
+{
+    simulated event Tick(float DeltaTime)
+    {
+        Disable('Tick');
+    }
+}
+
+state Enabled
+{
+    simulated event Tick(float DeltaTime)
+    {
+        if (LocalPlayerTeam != GetLocalPlayerTeam())
+        {
+            Reinitialize();
+        }
+        else if (Base.OverlayMaterial != None && IsHighlightable())
+        {
+            HitIndex = GetHitOverlayIndex();
+            if (xPawn(Base) != None && !xPawn(Base).bSpawnDone)
+            {
+                GotoState('SpawnProtected');
+            }
+            else if (HitIndex < 0 || bDisableHitEffect[HitIndex] == 0)
+            {
+                GotoState('Overlayed');
+            }
+        }
+    }
+
+    simulated function Reinitialize()
+    {
+        Global.Reinitialize();
+        if (OriginalSkins.Length > 0)
+        {
+            Base.Skins = OriginalSkins;
+            OriginalSkins.Length = 0;
+            BaseSkins.Length = 0;
+        }
+    }
+
+    simulated function PawnBaseDied()
+    {
+        if (bDisableOnDeadBodies)
+        {
+            if (Base != None)
+            {
+                ToggleBaseSkins();
+                if (Base.OverlayMaterial == EmptyShader)
+                {
+                    Base.SetOverlayMaterial(None, 0, true);
+                }
+            }
+            GotoState('Disabled');
+        }
+    }
+
+    simulated function ToggleBaseSkins()
+    {
+        local array<Material> TempSkins;
+
+        TempSkins = Base.Skins;
+        Base.Skins = BaseSkins;
+        BaseSkins = TempSkins;
+    }
+}
+
+state Overlayed extends Enabled
+{
+    simulated event BeginState()
+    {
+        if (HitIndex > -1)
+        {
+            Base.OverlayMaterial = EmptyShader;
+        }
+        else
+        {
+            ToggleBaseSkins();
+        }
+    }
+    simulated event EndState()
+    {
+        if (HitIndex < 0)
+        {
+            ToggleBaseSkins();
+        }
+        HighlightTint.Color = MainColor;
+    }
+
+    simulated event Tick(float DeltaTime)
+    {
+        local float Fade;
+
+        if (LocalPlayerTeam != GetLocalPlayerTeam())
+        {
+            Reinitialize();
+        }
+        else if (Base.OverlayMaterial == None)
+        {
+            if (IsHighlightable())
+            {
+                GotoState('Enabled');
+            }
+        }
+        else if (HitIndex > -1)
+        {
+            Fade = FClamp(Base.ClientOverlayCounter / HIT_COLOR_FADE_PERIOD, 0.0, 1.0);
+            HighlightTint.Color = (HitColors[HitIndex] * Fade) + (MainColor * (1.0 - Fade));
+        }
+    }
+}
+
+state SpawnProtected extends Overlayed
+{
+    simulated event Tick(float DeltaTime)
+    {
+        if (xPawn(Base).bSpawnDone && Base.OverlayMaterial != None)
+        {
+            Base.SetOverlayMaterial(None, 0, true);
+        }
+        Super.Tick(DeltaTime);
     }
 }
 
@@ -220,69 +366,30 @@ simulated function Reinitialize()
     YourTeam = default.YourTeam;
     EnemyTeam = default.EnemyTeam;
     SoloPlayer = default.SoloPlayer;
+    ShieldHit = default.ShieldHit;
+    LinkHit = default.LinkHit;
+    ShockHit = default.ShockHit;
+    LightningHit = default.LightningHit;
     bDisableOnDeadBodies = default.bDisableOnDeadBodies;
     bForceNormalSkins = default.bForceNormalSkins;
     SpectatorTeam = default.SpectatorTeam;
-    bInitialized = false;
-    DisableHighlight();
+    GotoState('Startup');
 }
 
-simulated function UpdateOverlay(xPawn Pawn)
+simulated function Material AllocateMaterial(class<Material> MaterialClass)
 {
-    local float Fade;
-    local int i;
+    local Material NewMaterial;
 
-    if (Pawn.OverlayMaterial == None || (bOnSpawnProtection && Pawn.bSpawnDone))
-    {
-        HighlightEffect.Color = MainColor;
-        Pawn.SetOverlayMaterial(HighlightShader, HIGHLIGHT_INTERVAL, true);
-        bOnSpawnProtection = false;
-        HitIndex = -1;
-    }
-    else
-    {
-        for (i = 0; i < ArrayCount(HitMaterials); ++i)
-        {
-            if (Pawn.OverlayMaterial == HitMaterials[i])
-            {
-                Pawn.OverlayMaterial = HighlightShader;
-                bOnSpawnProtection = !Pawn.bSpawnDone;
-                HitIndex = i;
-                break;
-            }
-        }
-    }
-    if (HitIndex > -1)
-    {
-        if (bDisableHitEffect[HitIndex] > 0)
-        {
-            HighlightEffect.Color = MainColor;
-        }
-        else
-        {
-            Fade = FClamp(Pawn.ClientOverlayCounter / HIT_COLOR_FADE_PERIOD, 0.0, 1.0);
-            HighlightEffect.Color = (HitColors[HitIndex] * Fade) + (MainColor * (1.0 - Fade));
-        }
-    }
+    NewMaterial = Material(Level.ObjectPool.AllocateObject(MaterialClass));
+    Materials[Materials.Length] = NewMaterial;
+    return NewMaterial;
 }
 
-simulated function ForceNormalSkin(xPawn Pawn)
+static function PopulateReservedNames(HxColors Colors)
 {
-    local Material Skin;
-    local int i;
-
-    for (i = 0; i < Pawn.Skins.Length; ++i)
-    {
-        Skin = GetNormalSkin(Pawn.Skins[i]);
-        if (Skin != None)
-        {
-            OriginalSkins.Length = i + 1;
-            OriginalSkins[i] = Pawn.Skins[i];
-            Pawn.Skins[i] = Skin;
-            Skin = None;
-        }
-    }
-    bSkinUpdated = true;
+    Colors.Reserve(NO_HIGHLIGHT);
+    Colors.Reserve(RANDOM_HIGHLIGHT);
+    Colors.Reserve(DEFAULT_HIGHLIGHT);
 }
 
 simulated function int GetLocalPlayerTeam()
@@ -293,6 +400,20 @@ simulated function int GetLocalPlayerTeam()
         return SpectatorTeam;
     }
     return PC.GetTeamNum();
+}
+
+simulated function string GetHighlightColorName()
+{
+
+    if (!Level.GRI.bTeamGame)
+    {
+        if (SoloPlayer == RANDOM_HIGHLIGHT)
+        {
+            return Colors.SavedRandom(xPawn(Base).PlayerReplicationInfo.PlayerName);
+        }
+        return SoloPlayer;
+    }
+    return Eval(xPawn(Base).GetTeamNum() != LocalPlayerTeam, EnemyTeam, YourTeam);
 }
 
 simulated function Color GetHitColor(string Name)
@@ -306,33 +427,44 @@ simulated function Color GetHitColor(string Name)
     return Color;
 }
 
-simulated function DisableHighlight()
+simulated function int GetHitOverlayIndex()
 {
-    local xPawn Pawn;
+    local int i;
 
-    Pawn = xPawn(Base);
-    if (Pawn != None && Pawn.OverlayMaterial == HighlightShader)
+    for (i = 0; i < ArrayCount(HitMaterials); ++i)
     {
-        Pawn.SetOverlayMaterial(None, 0, true);
+        if (Base.OverlayMaterial == HitMaterials[i])
+        {
+            return i;
+        }
     }
-    bEnabled = false;
+    return -1;
 }
 
-simulated function Material AllocateMaterial(class<Material> MaterialClass)
+simulated function bool IsReplicated()
 {
-    local Material NewMaterial;
-
-    NewMaterial = Material(Level.ObjectPool.AllocateObject(MaterialClass));
-    Materials[Materials.Length] = NewMaterial;
-    return NewMaterial;
+    return HighlightIntensity >= 0
+        && Base != None
+        && Client != None
+        && PC != None
+        && PC.PlayerReplicationInfo != None;
 }
 
-simulated function PawnBaseDied()
+simulated function bool IsSetupFinished()
 {
-    if (Level.NetMode != NM_DedicatedServer && bDisableOnDeadBodies)
-    {
-        DisableHighlight();
-    }
+    return xPawn(Base) != None
+        && xPawn(Base).bAlreadySetup
+        && xPawn(Base).PlayerReplicationInfo != None
+        && xPawn(Base).PlayerReplicationInfo.PlayerName != ""
+        && Level.GRI != None
+        && IsHighlightable();
+}
+
+simulated function bool IsHighlightable()
+{
+    return !xPawn(Base).bInvis
+        && !xPawn(Base).bOldInvis
+        && !xPawn(Base).bDeRes;
 }
 
 static function Material GetNormalSkin(coerce string Name)
@@ -362,11 +494,25 @@ static function Material GetNormalSkin(coerce string Name)
     return Skin;
 }
 
-static function PopulateReservedNames(HxColors Colors)
+static final function Texture GetTextureFromMaterial(Material Material)
 {
-    Colors.Reserve(NO_HIGHLIGHT);
-    Colors.Reserve(RANDOM_HIGHLIGHT);
-    Colors.Reserve(DEFAULT_HIGHLIGHT);
+    if (Texture(Material) != None)
+    {
+        return Texture(Material);
+    }
+    if (FinalBlend(Material) != None)
+    {
+        return GetTextureFromMaterial(FinalBlend(Material).Material);
+    }
+    if (Shader(Material) != None)
+    {
+        return GetTextureFromMaterial(Shader(Material).Diffuse);
+    }
+    if (Combiner(Material) != None)
+    {
+        return GetTextureFromMaterial(Combiner(Material).Material2);
+    }
+    return None;
 }
 
 defaultproperties
@@ -377,4 +523,5 @@ defaultproperties
     NetUpdateFrequency=100
     NetPriority=3
     HighlightIntensity=-1
+    LocalPlayerTeam=255
 }
