@@ -194,7 +194,7 @@ defaultproperties
     ConfigClasses(1)=class'HxSkinHighlightConfig'
     ConfigClasses(2)=class'HxUTPlayerConfig'
     ConfigClasses(3)=class'HxSPTimerConfig'
-    PanelClasses(0)=class'HxGUIMenuSkinHighlightPanel'
-    PanelClasses(1)=class'HxGUIMenuHitEffectsPanel'
+    PanelClasses(0)=class'HxGUIMenuHitEffectsPanel'
+    PanelClasses(1)=class'HxGUIMenuSkinHighlightPanel'
     Order=0
 }

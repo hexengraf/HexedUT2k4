@@ -11,7 +11,7 @@ function InitComponent(GUIController MyController, GUIComponent MyComponent)
     t_WindowTitle.DockedTabs = t_TabControl;
     t_WindowTitle.DockAlign = PGA_Top;
     ForEach PlayerOwner().DynamicActors(class'HxClientManager', ClientManager) break;
-    AddPanel(class'HxGUIMenuGeneralPanel');
+    AddPanel(class'HxGUIMenuGeneralPanel', 0);
 }
 
 event Opened(GUIComponent Sender)
@@ -31,36 +31,40 @@ function UpdateTabControl()
             Warn(Name$": CRIs["$i$"] is None! This should not happen!");
             continue;
         }
-        if (!ClientManager.CRIs[i].bMenuReady)
-        {
-            AddPanels(ClientManager.CRIs[i]);
-            ClientManager.CRIs[i].bMenuReady = true;
-
-        }
+        UpdatePanels(ClientManager.CRIs[i]);
     }
 }
 
-function AddPanels(HxClientReplicationInfo CRI)
+function UpdatePanels(HxClientReplicationInfo CRI)
 {
     local int i;
 
     for (i = 0; i < CRI.PanelClasses.Length; ++i)
     {
-        AddPanel(CRI.PanelClasses[i]);
+        if (!CRI.PanelClasses[i].static.CheckDependencies(CRI))
+        {
+            RemovePanel(FindPanel(CRI.PanelClasses[i]));
+        }
+        else if (FindPanel(CRI.PanelClasses[i]) < 0)
+        {
+            AddPanel(CRI.PanelClasses[i], (CRI.Order << 8 | i));
+        }
     }
 }
 
-function AddPanel(class<HxGUIMenuPanel> PanelClass)
+function AddPanel(class<HxGUIMenuPanel> PanelClass, int Order)
 {
     local int Position;
+    local int i;
 
-    if (PanelClass.default.bInsertFront)
+    Position = Panels.Length;
+    for (i = 1; i < Panels.Length; ++i)
     {
-        Position = 1;
-    }
-    else
-    {
-        Position = Panels.Length;
+        if (Order < Panels[i].Order)
+        {
+            Position = i;
+            break;
+        }
     }
     Panels.Insert(Position, 1);
     Panels[Position] = HxGUIMenuPanel(t_TabControl.InsertTab(
@@ -68,6 +72,30 @@ function AddPanel(class<HxGUIMenuPanel> PanelClass)
         PanelClass.default.PanelCaption,
         string(PanelClass),,
         PanelClass.default.PanelHint));
+    Panels[Position].Order = Order;
+}
+
+function RemovePanel(int Index)
+{
+    if (Index > -1 && Index < Panels.Length)
+    {
+        t_TabControl.RemoveTab(Panels[Index].PanelCaption);
+        Panels.Remove(Index, 1);
+    }
+}
+
+function int FindPanel(class<HxGUIMenuPanel> PanelClass)
+{
+    local int i;
+
+    for (i = 1; i < Panels.Length; ++i)
+    {
+        if (Panels[i].Class == PanelClass)
+        {
+            return i;
+        }
+    }
+    return -1;
 }
 
 function TabControlOnCreateComponent(GUIComponent NewComp, GUIComponent Sender)
@@ -86,6 +114,13 @@ function Refresh()
     {
         Panels[i].Refresh();
     }
+}
+
+function LevelChanged()
+{
+    ClientManager = None;
+    Panels.Length = 0;
+    Super.LevelChanged();
 }
 
 defaultproperties

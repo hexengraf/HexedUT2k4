@@ -85,18 +85,16 @@ function PopulateColorComboBoxes()
     local int i;
 
     Index = co_EditColor.GetIndex();
-    co_EditColor.bIgnoreChange = true;
     co_EditColor.ResetComponent();
+    co_EditColor.MyComboBox.MyListBox.MyList.bInitializeList = Index < 0;
     for (i = 0; i < Colors.ColorList.Length; ++i)
     {
         co_EditColor.AddItem(Colors.ColorList[i].Name,, Colors.ColorList[i].Name);
     }
-    co_EditColor.LoadINI();
     if (Index > -1)
     {
         co_EditColor.SilentSetIndex(Min(Index, co_EditColor.ItemCount() - 1));
     }
-    co_EditColor.bIgnoreChange = false;
 }
 
 function InternalOnLoadINI(GUIComponent Sender, string s)

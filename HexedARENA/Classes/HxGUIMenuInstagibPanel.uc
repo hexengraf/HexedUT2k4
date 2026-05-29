@@ -60,12 +60,13 @@ function PopulateComboBoxes()
     local array<CacheManager.CrosshairRecord> Crosshairs;
     local int i;
 
+    co_ScopeOverlay.MyComboBox.MyListBox.MyList.bInitializeList = false;
+    co_CustomCrosshair.MyComboBox.MyListBox.MyList.bInitializeList = false;
     for (i = 0; i < ArrayCount(ScopeOverlayNames); ++i)
     {
         co_ScopeOverlay.AddItem(ScopeOverlayNames[i],, string(GetEnum(enum'EHxScopeOverlay', i)));
     }
     class'CacheManager'.static.GetCrosshairList(Crosshairs);
-    co_CustomCrosshair.MyComboBox.MyListBox.MyList.bInitializeList = false;
     for (i = 0; i < Crosshairs.Length; ++i)
     {
         co_CustomCrosshair.AddItem(Crosshairs[i].FriendlyName,, string(i));
@@ -147,6 +148,13 @@ function InternalOnChange(GUIComponent Sender)
                 Config.Index, Sender.Tag, Config.GetProperty(Sender.Tag));
             break;
     }
+}
+
+event Free()
+{
+    Client = None;
+    Config = None;
+    Super.Free();
 }
 
 defaultproperties
@@ -397,7 +405,7 @@ defaultproperties
 
     PanelCaption="Instagib"
     PanelHint="Instagib options"
-    bInsertFront=false
+    Dependencies=("bZoomInstagib")
     bDoubleColumn=true
     bFillPanelHeight=false
     Sections(0)=ScopeOverlaySection

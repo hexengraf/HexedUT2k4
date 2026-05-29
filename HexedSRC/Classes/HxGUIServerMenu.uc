@@ -165,6 +165,12 @@ function bool IsAdmin()
             || (PC.PlayerReplicationInfo != None && PC.PlayerReplicationInfo.bAdmin));
 }
 
+function LevelChanged()
+{
+    ClientManager = None;
+    Super.LevelChanged();
+}
+
 defaultproperties
 {
     Begin Object class=HxGUIFramedSection Name=ConfigListSection

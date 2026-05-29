@@ -247,6 +247,7 @@ function GUIMenuOption AddComboBox(string Caption,
     {
         Option.ReadOnly(true);
     }
+    Option.MyComboBox.MyListBox.MyList.bInitializeList = false;
     for (i = 0; i < Captions.Length; ++i)
     {
         Option.AddItem(Captions[i],, Values[i]);

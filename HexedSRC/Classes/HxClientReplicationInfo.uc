@@ -19,7 +19,6 @@ var const byte Order;
 
 var PlayInfo ServerInfo;
 var array<HxConfig> Configs;
-var bool bMenuReady;
 
 var protected HxClientManager Manager;
 var protected HxMutator MutatorOwner;

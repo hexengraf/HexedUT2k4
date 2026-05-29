@@ -11,10 +11,12 @@ var automated array<HxGUIFramedSection> Sections;
 var localized string PanelHint;
 var localized string HideDueDisable;
 
+var const array<string> Dependencies;
+var int Order;
+
 var array<float> SectionHeights;
 var bool bDoubleColumn;
 var bool bFillPanelHeight;
-var bool bInsertFront;
 
 var HxClientManager ClientManager;
 var private float VerticalSpacing;
@@ -44,30 +46,6 @@ function bool InternalOnPreDraw(Canvas C)
         bInit = false;
     }
     return false;
-}
-
-function DefaultOnLoadINI(GUIComponent Sender, string s)
-{
-    if (GUIMenuOption(Sender) != None && StrCmp("Unrecognized property", s, 21) != 0)
-    {
-        GUIMenuOption(Sender).SetComponentValue(s, true);
-    }
-    else
-    {
-        Warn("Failed to initialize component:"@s);
-    }
-}
-
-function DefaultOnChange(GUIComponent Sender, object Target)
-{
-    local array<string> Parts;
-
-    if (Sender.INIOption != "")
-    {
-        Split(Sender.INIOption, " ", Parts);
-        Target.SetPropertyText(Parts[1], GUIMenuOption(Sender).GetComponentValue());
-        Target.SaveConfig();
-    }
 }
 
 function InitSections()
@@ -261,6 +239,26 @@ function bool IsAdmin()
     return PC != None
         && (PC.Level.NetMode == NM_Standalone
             || (PC.PlayerReplicationInfo != None && PC.PlayerReplicationInfo.bAdmin));
+}
+
+event Free()
+{
+    ClientManager = None;
+    Super.Free();
+}
+
+static function bool CheckDependencies(HxClientReplicationInfo CRI)
+{
+    local int i;
+
+    for (i = 0; i < default.Dependencies.Length; ++i)
+    {
+        if (bool(CRI.GetServerProperty(default.Dependencies[i])))
+        {
+            return true;
+        }
+    }
+    return default.Dependencies.Length == 0;
 }
 
 defaultproperties

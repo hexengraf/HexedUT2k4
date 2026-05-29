@@ -71,6 +71,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     PopulateColorComboBoxes();
     PopulateSkinVariantComboBox(co_TeammateSkin);
     PopulateSkinVariantComboBox(co_EnemySkin);
+    co_SpectateAs.MyComboBox.MyListBox.MyList.bInitializeList = false;
     for (i = 0; i < 2; ++i)
     {
         co_SpectateAs.AddItem(TeamLabels[i],,string(i));
@@ -160,7 +161,7 @@ function PopulateColorComboBoxes()
 
     for (i = 0; i < ComboBoxes.Length; ++i)
     {
-        ComboBoxes[i].bIgnoreChange = true;
+        ComboBoxes[i].MyComboBox.MyListBox.MyList.bInitializeList = false;
         ComboBoxes[i].ResetComponent();
         ComboBoxes[i].AddItem(DisabledLabel,,NO_HIGHLIGHT);
     }
@@ -175,7 +176,6 @@ function PopulateColorComboBoxes()
             ComboBoxes[i].AddItem(Colors.ColorList[j].Name,, Colors.ColorList[j].Name);
         }
         ComboBoxes[i].LoadINI();
-        ComboBoxes[i].bIgnoreChange = false;
     }
 }
 
@@ -310,13 +310,14 @@ function OnCloseCustomizeColors(optional bool bCancelled)
     Refresh();
 }
 
-static function PopulateSkinVariantComboBox(moComboBox Box)
+static function PopulateSkinVariantComboBox(moComboBox ComboBox, optional bool bInitializeList)
 {
     local int i;
 
+    ComboBox.MyComboBox.MyListBox.MyList.bInitializeList = bInitializeList;
     for (i = 0; i < 3; ++i)
     {
-        Box.AddItem(default.SkinLabels[i],,string(GetEnum(enum'EHxSkinVariant', i)));
+        ComboBox.AddItem(default.SkinLabels[i],,string(GetEnum(enum'EHxSkinVariant', i)));
     }
 }
 
@@ -329,6 +330,24 @@ static function AddModelName(GUIMenuOption Option, string Name)
     {
         Option.SetCaption(Left$"("$Name$")");
     }
+}
+
+event Free()
+{
+    Client = None;
+    Config = None;
+    Colors = None;
+    if (TeammatePreview != None)
+    {
+        TeammatePreview.Destroy();
+        TeammatePreview = None;
+    }
+    if (EnemyPreview != None)
+    {
+        EnemyPreview.Destroy();
+        EnemyPreview = None;
+    }
+    Super.Free();
 }
 
 defaultproperties
@@ -582,7 +601,7 @@ defaultproperties
 
     PanelCaption="Skin Highlight"
     PanelHint="Skin highlight options"
-    bInsertFront=true
+    Dependencies=("bAllowSkinHighlight")
     bDoubleColumn=true
     bFillPanelHeight=false
     Sections(0)=TeammatesSection

@@ -71,8 +71,6 @@ function Refresh()
     Sections[SECTION_DAMAGE_NUMBERS].SetHide(!bAllowDamageNumbers, HideDueDisable);
     fl_DisplayPosX.SetVisibility(bAllowDamageNumbers);
     fl_DisplayPosY.SetVisibility(bAllowDamageNumbers);
-    Sections[SECTION_INTERPOLATION_CURVE].SetHide(
-        !bAllowHitSounds && !bAllowDamageNumbers, HideDueDisable);
     Super.Refresh();
 }
 
@@ -82,6 +80,11 @@ function PopulateComboBoxes()
     local bool bFoundFont;
     local int i;
 
+    co_HitSoundNames.MyComboBox.MyListBox.MyList.bInitializeList = false;
+    co_PitchMode.MyComboBox.MyListBox.MyList.bInitializeList = false;
+    co_DisplayMode.MyComboBox.MyListBox.MyList.bInitializeList = false;
+    co_DamagePoints.MyComboBox.MyListBox.MyList.bInitializeList = false;
+    co_DisplayFont.MyComboBox.MyListBox.MyList.bInitializeList = false;
     if (class'HxHitEffects'.static.GetHitSoundNames(HitSoundNames))
     {
         for (i = 0; i < HitSoundNames.Length; ++i)
@@ -321,7 +324,7 @@ function DrawPreview(Canvas C)
     }
 }
 
-simulated function UpdateDamagePointConfig()
+function UpdateDamagePointConfig()
 {
     switch (DPIndex)
     {
@@ -365,6 +368,13 @@ simulated function UpdateDamagePointConfig()
             Config.ExtremeDamage.Color.B = sl_BlueColor.GetValue();
             break;
     }
+}
+
+event Free()
+{
+    Client = None;
+    Config = None;
+    Super.Free();
 }
 
 defaultproperties
@@ -603,7 +613,7 @@ defaultproperties
 
     PanelCaption="Hit Effects"
     PanelHint="Hit sound and damage number options"
-    bInsertFront=true
+    Dependencies=("bAllowHitSounds","bAllowDamageNumbers")
     bDoubleColumn=true
     bFillPanelHeight=false
     Sections(0)=HitSoundsSection

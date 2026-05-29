@@ -68,16 +68,13 @@ simulated function OpenConfigurationMenu(optional HxClientReplicationInfo Sender
     }
 }
 
-simulated function RefreshHexedMenu(optional bool bUpdateTabControl)
+simulated function RefreshHexedMenu()
 {
     if (GC != None)
     {
         if (HxGUIMenu(GC.ActivePage) != None)
         {
-            if (bUpdateTabControl)
-            {
-                HxGUIMenu(GC.ActivePage).UpdateTabControl();
-            }
+            HxGUIMenu(GC.ActivePage).UpdateTabControl();
             HxGUIMenu(GC.ActivePage).Refresh();
         }
         else if (HxGUIServerMenu(GC.ActivePage) != None)
@@ -93,6 +90,11 @@ simulated function RegisterCRI(HxClientReplicationInfo CRI)
 
     for (i = 0; i < CRIs.Length; ++i)
     {
+        if (CRIs[i] == CRI)
+        {
+            Warn("Repeated attempt to register"@CRIs[i].Class@"!");
+            return;
+        }
         if (CRIs[i].Class == CRI.Class)
         {
             Warn("Multiple instances of"@CRIs[i].Class@"detected! This should not happen!");
