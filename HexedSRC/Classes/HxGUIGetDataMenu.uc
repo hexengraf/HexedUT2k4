@@ -108,4 +108,6 @@ defaultproperties
     WinTop=0.4125
     WinWidth=0.45
     WinHeight=0.175
+    CurFade=60
+    DesiredFade=60
 }

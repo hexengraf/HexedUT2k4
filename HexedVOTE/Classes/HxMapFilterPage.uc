@@ -515,7 +515,7 @@ defaultproperties
         LeftPadding=0
         RightPadding=0
         LineSpacing=0.0134
-        ExpandIndex=2
+        ExpandIndices=(2)
     End Object
     Sections(1)=AllMapsSection
 
@@ -528,7 +528,7 @@ defaultproperties
         LeftPadding=0
         RightPadding=0
         LineSpacing=0.0134
-        ExpandIndex=2
+        ExpandIndices=(2)
     End Object
     Sections(2)=MapListSection
 

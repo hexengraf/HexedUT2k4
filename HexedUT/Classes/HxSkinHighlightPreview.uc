@@ -1,17 +1,21 @@
 class HxSkinHighlightPreview extends HxSkinHighlight;
 
 var string ActiveColor;
+var EHxSkinVariant ActiveSkin;
 var float DisplayFOV;
 var vector PreviewOffset;
 
 var private SpinnyWeap PreviewModel;
-var private xUtil.PlayerRecord PreviewRec;
+var private xUtil.PlayerRecord Record;
 var private Rotator PreviewRotation;
 var private float PreviewSpin;
 
-function Setup(string CharacterModelName, int Team)
+function Setup(string CharacterModelName)
 {
     local Mesh ModelMesh;
+    local string BodySkinName;
+    local string FaceSkinName;
+    local int Variant;
 
     if (PreviewModel == None)
     {
@@ -25,41 +29,35 @@ function Setup(string CharacterModelName, int Team)
         PreviewModel.AmbientGlow = 40;
         SetBase(PreviewModel);
     }
-    PreviewRec = class'xUtil'.static.FindPlayerRecord(CharacterModelName);
-    ModelMesh = Mesh(DynamicLoadObject(PreviewRec.MeshName, class'Mesh'));
-    if (ModelMesh != None)
+    if (CharacterModelName != Record.DefaultName)
     {
-        PreviewModel.LinkMesh(ModelMesh);
-        PreviewModel.LoopAnim('Idle_Rest', 1.0 / PreviewModel.Level.TimeDilation);
+        Record = class'xUtil'.static.FindPlayerRecord(CharacterModelName);
+        ModelMesh = Mesh(DynamicLoadObject(Record.MeshName, class'Mesh'));
+        if (ModelMesh != None)
+        {
+            PreviewModel.LinkMesh(ModelMesh);
+            PreviewModel.LoopAnim('Idle_Rest', 1.0 / PreviewModel.Level.TimeDilation);
+        }
     }
-    SetPreviewSkin(Team);
-}
-
-function SetPreviewSkin(int Team)
-{
-    local string BodySkinName;
-    local string FaceSkinName;
-
-    BodySkinName = PreviewRec.BodySkinName;
-    FaceSkinName = PreviewRec.FaceSkinName;
-    if (Team > -1)
+    BodySkinName = Record.BodySkinName;
+    FaceSkinName = Record.FaceSkinName;
+    Variant = Clamp(TeamNumber, 0, 1);
+    if (class'DMMutator'.default.bBrightSkins && Left(BodySkinName, 12) ~= "PlayerSkins.")
     {
-        if (class'DMMutator'.default.bBrightSkins && Left(BodySkinName, 12) ~= "PlayerSkins.")
-        {
-            BodySkinName = "Bright"$BodySkinName$"_"$Team$"B";
-        }
-        else
-        {
-            BodySkinName $= "_"$Team;
-        }
-        if (PreviewRec.TeamFace)
-        {
-            FaceSkinName $= "_"$Team;
-        }
+        BodySkinName = "Bright"$BodySkinName$"_"$Variant$"B";
+    }
+    else
+    {
+        BodySkinName $= "_"$Variant;
+    }
+    if (Record.TeamFace)
+    {
+        FaceSkinName $= "_"$Variant;
     }
     PreviewModel.Skins[0] = Material(DynamicLoadObject(BodySkinName, class'Material', true));
     PreviewModel.Skins[1] = Material(DynamicLoadObject(FaceSkinName, class'Material', true));
-    Reinitialize();
+    OriginalSkins.Length = 0;
+    Restart();
 }
 
 function UpdateRotation(PlayerController PC)
@@ -87,7 +85,6 @@ function Spin(float DeltaX)
     PreviewModel.SetRotation(OrthoRotation(X, Y, Z));
 }
 
-
 function bool DrawPreview(Canvas C, float Left, float Top, float Width, float Height)
 {
     local rotator CameraRotation;
@@ -114,43 +111,91 @@ simulated event Destroyed()
     Super.Destroyed();
 }
 
+auto state Startup
+{
+    simulated function bool ValidateCharacterModel()
+    {
+        LoadXanAbdomen();
+        return true;
+    }
+}
+
+state Reskin
+{
+    simulated function TryReplaceSkins()
+    {
+        ReplaceSkins();
+    }
+}
+
 state Enabled
 {
-    simulated event Tick(float DeltaTime)
+    simulated function TryGotoStateOverlayed()
     {
-        if (Base.OverlayMaterial != None)
+        HitIndex = GetHitOverlayIndex();
+        if (HitIndex < 0 || bDisableHitEffect[HitIndex] == 0)
         {
-            HitIndex = GetHitOverlayIndex();
-            if (HitIndex < 0 || bDisableHitEffect[HitIndex] == 0)
-            {
-                GotoState('Overlayed');
-            }
+            GotoState('Overlayed');
         }
     }
 
-    simulated function Reinitialize()
+    simulated function Restart()
     {
-        Global.Reinitialize();
+        if (OriginalSkins.Length > 0)
+        {
+            Base.Skins = OriginalSkins;
+        }
+        Global.Restart();
+    }
+
+    simulated function ToggleBaseSkins()
+    {
+        local array<Material> TempSkins;
+
+        TempSkins = Base.Skins;
+        Base.Skins = BaseSkins;
+        BaseSkins = TempSkins;
     }
 }
 
-simulated function bool IsSetupFinished()
+state Overlayed
 {
-    return true;
-}
-
-simulated function bool IsHighlightable()
-{
-    return true;
+    simulated function TryGotoEnableState()
+    {
+        GotoState('Enabled');
+    }
 }
 
 simulated function string GetHighlightColorName()
 {
+    if (TeamNumber == 0)
+    {
+        return Teammates;
+    }
+    if (TeamNumber == 1)
+    {
+        return Enemies;
+    }
     return ActiveColor;
+}
+
+simulated function EHxSkinVariant GetSkinVariant()
+{
+    if (TeamNumber == 0)
+    {
+        return TeammateSkin;
+    }
+    if (TeamNumber == 1)
+    {
+        return EnemySkin;
+    }
+    return ActiveSkin;
 }
 
 defaultproperties
 {
-    DisplayFOV=33
+    ActiveSkin=HX_SKIN_Normal
+    ActiveColor="DEFAULT"
+    DisplayFOV=36
     PreviewOffset=(X=425,Z=-3)
 }

@@ -176,7 +176,7 @@ defaultproperties
         TopPadding=0
         RightPadding=0
         bNoHeader=true
-        ExpandIndex=0
+        ExpandIndices=(0)
     End Object
     Section=ConfigListSection
 

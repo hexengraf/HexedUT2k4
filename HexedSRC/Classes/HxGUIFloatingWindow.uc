@@ -1,5 +1,7 @@
 class HxGUIFloatingWindow extends FloatingWindow;
 
+const SPACING = 0.007;
+
 var automated HxGUIBackground b_Background;
 
 function InitComponent(GUIController MyController, GUIComponent MyComponent)
@@ -58,11 +60,11 @@ function SetEnable(GUIComponent Comp, bool bEnable)
 
 defaultproperties
 {
-     Begin Object Class=HxGUIHeader Name=WindowTitleHeader
+    Begin Object Class=HxGUIHeader Name=WindowTitleHeader
         OnMousePressed=FloatingWindow.FloatingMousePressed
         OnMouseRelease=FloatingWindow.FloatingMouseRelease
-     End Object
-     t_WindowTitle=WindowTitleHeader
+    End Object
+    t_WindowTitle=WindowTitleHeader
 
     Begin Object Class=HxGUIBackground Name=HxBackground
         WinLeft=0

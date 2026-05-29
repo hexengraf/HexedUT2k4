@@ -384,7 +384,7 @@ defaultproperties
         WinHeight=0.6
         ColumnWidths=(0.5,0.5)
         MaxItemsPerColumn=7
-        ExpandIndex=7
+        ExpandIndices=(-1,7)
     End Object
 
     Begin Object class=moCheckBox Name=HitSoundsCheckBox

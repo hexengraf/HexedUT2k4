@@ -212,7 +212,7 @@ defaultproperties
         TopPadding=0
         RightPadding=0
         LineSpacing=0.015
-        ExpandIndex=0
+        ExpandIndices=(0)
     End Object
 
     Begin Object class=HxGUIFramedSection Name=ServerStatusSection
@@ -221,7 +221,7 @@ defaultproperties
         TopPadding=0
         RightPadding=0
         LineSpacing=0.015
-        ExpandIndex=0
+        ExpandIndices=(0)
     End Object
 
     Begin Object Class=HxGUIMultiOptionListBox Name=OptionsListBox

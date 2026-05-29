@@ -7,6 +7,7 @@ var automated GUILabel l_HideReason;
 
 var localized string Caption;
 var array<float> ColumnWidths;
+var array<int> ExpandIndices;
 var float LeftPadding;
 var float TopPadding;
 var float RightPadding;
@@ -17,7 +18,6 @@ var bool bAutoSpacing;
 var bool bShrinkToFit;
 var bool bNoHeader;
 var int MaxItemsPerColumn;
-var int ExpandIndex;
 
 var private array<GUIComponent> Grid;
 var private array<float> LeftIndents;
@@ -147,6 +147,10 @@ function float AlignColumns(Canvas C, float Left, float Top, float Width, float 
     local int i;
 
     Spacing = ColumnSpacing * C.ClipY;
+    for (i = ExpandIndices.Length; i < ColumnWidths.Length; ++i)
+    {
+        ExpandIndices[i] = -1;
+    }
     for (i = 0; i < ColumnWidths.Length; ++i)
     {
         ColumnWidth = (Width * ColumnWidths[i]);
@@ -169,7 +173,7 @@ function float AlignColumns(Canvas C, float Left, float Top, float Width, float 
             }
             Left += Spacing;
         }
-        Bottom = Max(Bottom, AlignColumn(C, Left, Top, ColumnWidth, Height, Index));
+        Bottom = Max(Bottom, AlignColumn(C, Left, Top, ColumnWidth, Height, Index, ExpandIndices[i]));
         if (Index >= Grid.Length)
         {
             break;
@@ -179,7 +183,13 @@ function float AlignColumns(Canvas C, float Left, float Top, float Width, float 
     return Bottom;
 }
 
-function float AlignColumn(Canvas C, float Left, float Top, float Width, float Height, out int Index)
+function float AlignColumn(Canvas C,
+                           float Left,
+                           float Top,
+                           float Width,
+                           float Height,
+                           out int Index,
+                           int ExpandIndex)
 {
     local int MaxLines;
     local float Spacing;
@@ -187,7 +197,7 @@ function float AlignColumn(Canvas C, float Left, float Top, float Width, float H
     local float LeftIndent;
 
     MaxLines = GetMaxLines(Index);
-    Spacing = GetLineSpacing(C, Index, MaxLines, Height);
+    Spacing = GetLineSpacing(C, Index, MaxLines, Height, ExpandIndex);
     Top -= Spacing / 2;
 
     Bottom = Top + Height;
@@ -203,13 +213,14 @@ function float AlignColumn(Canvas C, float Left, float Top, float Width, float H
         Grid[Index].WinWidth = Grid[Index].RelativeWidth(
             Width - LeftIndent - GetRightIndent(C, Index));
         Grid[Index].WinTop = Grid[Index].RelativeTop(Top + Spacing / 2);
+        Grid[Index].bInit = true;
         Top += Grid[Index].ActualHeight() + Spacing;
         ++Index;
     }
     return Top;
 }
 
-function float GetLineSpacing(Canvas C, int Index, int MaxLines, float Height)
+function float GetLineSpacing(Canvas C, int Index, int MaxLines, float Height, int ExpandIndex)
 {
     if (bAutoSpacing && !bShrinkToFit && (ExpandIndex < Index || ExpandIndex >= MaxLines))
     {
@@ -274,6 +285,12 @@ function int ColumnCount()
     return ColumnWidths.Length;
 }
 
+function SetCaption(coerce string NewCaption)
+{
+    Caption = NewCaption;
+    l_Header.Caption = Caption;
+}
+
 function Reset()
 {
     Grid.Remove(0, Grid.Length);
@@ -324,7 +341,6 @@ defaultproperties
     ColumnSpacing=0.039
     bAutoSpacing=true
     bShrinkToFit=false
-    ExpandIndex=-1
 
     StyleName="HxMenuSectionBackground"
     bScaleToParent=true

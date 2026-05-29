@@ -31,6 +31,7 @@ function ModifyPlayer(Pawn Pawn)
     if (Pawn.SpawnTime == Level.TimeSeconds)
     {
         RegisterSpawn(Pawn);
+        SpawnSkinHighlight(xPawn(Pawn));
     }
     Super.ModifyPlayer(Pawn);
 }
@@ -57,18 +58,10 @@ function SpawnSkinHighlight(xPawn Pawn)
     if (bAllowSkinHighlight && Pawn != None)
     {
         SkinHighlight = Pawn.Spawn(class'HxSkinHighlight', Pawn);
+        SkinHighlight.TeamNumber = SkinHighlight.GetTeamNum(Pawn);
         SkinHighlight.HighlightIntensity = SkinHighlightIntensity;
         Pawn.AttachToBone(SkinHighlight, 'spine');
     }
-}
-
-function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
-{
-    if (Other.IsA('xPawn'))
-    {
-        SpawnSkinHighlight(xPawn(Other));
-    }
-    return Super.CheckReplacement(Other, bSuperRelevant);
 }
 
 function PropertyChanged(int Index, string OldValue)
