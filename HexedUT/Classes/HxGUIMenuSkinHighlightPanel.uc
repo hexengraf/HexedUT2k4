@@ -298,7 +298,7 @@ function OnCloseChangeEnemyModel(optional bool bCancelled)
 function bool OnClickCustomizeColors(GUIComponent Sender)
 {
     bRenderPreviews = false;
-    Controller.OpenMenu(string(class'HxGUISkinHighlightColorsMenu'));
+    Controller.OpenMenu(string(class'HxGUISkinHighlightColorsWindow'));
     Controller.ActivePage.OnClose = OnCloseCustomizeColors;
     return true;
 }

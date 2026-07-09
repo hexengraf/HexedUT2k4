@@ -1,4 +1,4 @@
-class HxGUISkinHighlightColorsMenu extends HxGUIFloatingWindow;
+class HxGUISkinHighlightColorsWindow extends HxGUIFloatingWindow;
 
 var automated HxGUIFramedSection LeftSection;
 var automated HxGUIFramedSection RightSection;
