@@ -14,6 +14,8 @@ var private HxColors SkinHighlightColors;
 var private HxUTPlayer Player;
 var private HxSPTimer SPTimer;
 var private HxDamageInfo Damage;
+var private class<ScoreBoard> OriginalScoreBoardClass;
+var private bool bAllowEnhancedScoreBoards;
 var private bool bInitialized;
 
 replication
@@ -107,7 +109,7 @@ simulated function bool InitializeClient()
     local PlayerController PC;
 
     PC = PlayerController(Owner);
-    if (PC != None)
+    if (PC != None && PC.GameReplicationInfo != None)
     {
         if (Player == None)
         {
@@ -116,6 +118,10 @@ simulated function bool InitializeClient()
         }
         if (PC.myHUD != None)
         {
+            if (bAllowEnhancedScoreBoards && HxScoreBoardConfig(Configs[3]).bEnabled)
+            {
+                ReplaceScoreBoard();
+            }
             if (HitEffects == None)
             {
                 HitEffects = Spawn(class'HxHitEffects', PC.myHUD);
@@ -132,6 +138,120 @@ simulated function bool InitializeClient()
     return Player != None && HitEffects != None && SPTimer != None;
 }
 
+simulated function ReplaceScoreBoard()
+{
+    local PlayerController PC;
+
+    PC = PlayerController(Owner);
+    if (PC != None && PC.myHUD != None && PC.GameReplicationInfo != None
+        && !PC.myHUD.ScoreBoard.IsA('HxScoreBoard'))
+    {
+        OriginalScoreBoardClass = PC.myHUD.ScoreBoard.Class;
+        switch (PC.myHUD.ScoreBoard.Class)
+        {
+            case class'ScoreBoard_Assault':
+                PC.MyHUD.SetScoreBoardClass(class'HxSBAssault');
+                break;
+            case class'ScoreBoardDeathMatch':
+                PC.MyHUD.SetScoreBoardClass(class'HxSBDeathMatch');
+                break;
+            case class'ScoreBoardInvasion':
+                PC.MyHUD.SetScoreBoardClass(class'HxSBInvasion');
+                break;
+            case class'ScoreBoardLMS':
+                PC.MyHUD.SetScoreBoardClass(class'HxSBLastManStanding');
+                break;
+            case class'MutantScoreboard':
+                PC.MyHUD.SetScoreBoardClass(class'HxSBMutant');
+                break;
+            case class'ScoreBoardTeamDeathMatch':
+                if (PC.GameReplicationInfo.GameClass ~= "XGame.xTeamGame")
+                {
+                    PC.MyHUD.SetScoreBoardClass(class'HxSBTeamDeathMatch');
+                }
+                else if (PC.GameReplicationInfo.GameClass ~= "XGame.xBombingRun")
+                {
+                    PC.MyHUD.SetScoreBoardClass(class'HxSBBombingRun');
+                }
+                else if (PC.GameReplicationInfo.GameClass ~= "XGame.xDoubleDom")
+                {
+                    PC.MyHUD.SetScoreBoardClass(class'HxSBDoubleDomination');
+                }
+                else if (PC.GameReplicationInfo.GameClass ~= "Onslaught.ONSOnslaughtGame")
+                {
+                    PC.MyHUD.SetScoreBoardClass(class'HxSBOnslaught');
+                }
+                else if (PC.GameReplicationInfo.GameClass ~= "XGame.xCTFGame"
+                    || PC.GameReplicationInfo.GameClass ~= "XGame.InstagibCTF"
+                    || PC.GameReplicationInfo.GameClass ~= "XGame.xVehicleCTFGame")
+                {
+                    PC.MyHUD.SetScoreBoardClass(class'HxSBCaptureTheFlag');
+                }
+                break;
+        }
+    }
+}
+
+simulated function RestoreScoreBoard()
+{
+    local PlayerController PC;
+
+    PC = PlayerController(Owner);
+    if (PC != None && PC.myHUD != None && PC.myHUD.ScoreBoard.IsA('HxScoreBoard'))
+    {
+        if (OriginalScoreBoardClass != None)
+        {
+            PC.MyHUD.SetScoreBoardClass(OriginalScoreBoardClass);
+        }
+        else
+        {
+            switch (PC.myHUD.ScoreBoard.Class)
+            {
+                case class'HxSBAssault':
+                    break;
+                case class'HxSBDeathMatch':
+                    PC.MyHUD.SetScoreBoardClass(class'ScoreBoardDeathMatch');
+                    break;
+                case class'HxSBInvasion':
+                    PC.MyHUD.SetScoreBoardClass(class'ScoreBoardInvasion');
+                    break;
+                case class'HxSBLastManStanding':
+                    PC.MyHUD.SetScoreBoardClass(class'ScoreBoardLMS');
+                    break;
+                case class'HxSBMutant':
+                    PC.MyHUD.SetScoreBoardClass(class'MutantScoreboard');
+                    break;
+                case class'HxSBTeamDeathMatch':
+                case class'HxSBBombingRun':
+                case class'HxSBCaptureTheFlag':
+                case class'HxSBDoubleDomination':
+                case class'HxSBOnslaught':
+                    PC.MyHUD.SetScoreBoardClass(class'ScoreBoardTeamDeathMatch');
+                    break;
+            }
+        }
+    }
+}
+
+simulated function UpdateScoreBoard()
+{
+    local HxScoreBoardConfig Config;
+
+    bAllowEnhancedScoreBoards = bool(GetServerProperty("bAllowEnhancedScoreBoards"));
+    if (bAllowEnhancedScoreBoards)
+    {
+        Config = HxScoreBoardConfig(FindConfig(class'HxScoreBoardConfig'));
+        if (Config.bEnabled)
+        {
+            ReplaceScoreBoard();
+        }
+    }
+    else
+    {
+        RestoreScoreBoard();
+    }
+}
+
 simulated function ServerInfoReady()
 {
     if (Player != None)
@@ -142,6 +262,7 @@ simulated function ServerInfoReady()
     {
         HitEffects.ApplyServerConfiguration(Self);
     }
+    UpdateScoreBoard();
 }
 
 simulated function ServerPropertyChanged(int Index, string OldValue)
@@ -151,8 +272,11 @@ simulated function ServerPropertyChanged(int Index, string OldValue)
 
 simulated function bool SetConfigProperty(int ConfigIndex, int PropertyIndex, string Value)
 {
+    local PlayerController PC;
+
     if (Super.SetConfigProperty(ConfigIndex, PropertyIndex, Value))
     {
+        PC = PlayerController(Owner);
         switch (ConfigClasses[ConfigIndex])
         {
             case class'HxHitEffectsConfig':
@@ -167,6 +291,24 @@ simulated function bool SetConfigProperty(int ConfigIndex, int PropertyIndex, st
                 {
                     Player.SetPropertyText(
                         Configs[ConfigIndex].Properties[PropertyIndex].Name, Value);
+                }
+                break;
+            case class'HxScoreBoardConfig':
+                if (bAllowEnhancedScoreBoards
+                    && Configs[ConfigIndex].Properties[PropertyIndex].Name ~= "bEnabled")
+                {
+                    if (HxScoreBoardConfig(Configs[ConfigIndex]).bEnabled)
+                    {
+                        ReplaceScoreBoard();
+                    }
+                    else
+                    {
+                        RestoreScoreBoard();
+                    }
+                }
+                else if (HxScoreBoard(PC.MyHUD.ScoreBoard) != None)
+                {
+                    HxScoreBoard(PC.MyHUD.ScoreBoard).Init();
                 }
                 break;
             case class'HxSPTimerConfig':
@@ -193,8 +335,10 @@ defaultproperties
     ConfigClasses(0)=class'HxHitEffectsConfig'
     ConfigClasses(1)=class'HxSkinHighlightConfig'
     ConfigClasses(2)=class'HxUTPlayerConfig'
-    ConfigClasses(3)=class'HxSPTimerConfig'
-    PanelClasses(0)=class'HxGUIMenuHitEffectsPanel'
-    PanelClasses(1)=class'HxGUIMenuSkinHighlightPanel'
+    ConfigClasses(3)=class'HxScoreBoardConfig'
+    ConfigClasses(4)=class'HxSPTimerConfig'
+    PanelClasses(0)=class'HxGUIMenuHUDPanel'
+    PanelClasses(1)=class'HxGUIMenuHitEffectsPanel'
+    PanelClasses(2)=class'HxGUIMenuSkinHighlightPanel'
     Order=0
 }

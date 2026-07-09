@@ -61,6 +61,11 @@ function int GetPropertyIndex(string Name)
     return -1;
 }
 
+function bool ResetProperty(int Index)
+{
+    return false;
+}
+
 function string ValidateProperty(int Index, string Value)
 {
     switch (Properties[Index].Type)

@@ -18,6 +18,6 @@ static function HxLinkedReplicationInfo Find(PlayerReplicationInfo PRI,
 
 defaultproperties
 {
-    NetUpdateFrequency=10
+    NetUpdateFrequency=1
     bOnlyDirtyReplication=true
 }

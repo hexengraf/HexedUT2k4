@@ -3,12 +3,12 @@ class HxSPTimer extends HudOverlay
 
 #exec texture Import File=Textures\HxSpawnProtectionTimer.tga Name=HxSPTimerIcon Mips=Off Alpha=1
 
-var config bool bEnabled;
-var config bool bUseHUDColor;
-var config bool bPulsingDigits;
-var config float PosX;
-var config float PosY;
-var config Color DefaultColor;
+var bool bEnabled;
+var bool bUseHUDColor;
+var bool bPulsingDigits;
+var float PosX;
+var float PosY;
+var Color CustomColor;
 
 var private Pawn Pawn;
 var private HudBase.DigitSet Digits;
@@ -74,8 +74,8 @@ simulated function Update()
 
     if (!bUseHUDColor)
     {
-        Icon.Tints[0] = DefaultColor;
-        Icon.Tints[1] = DefaultColor;
+        Icon.Tints[0] = CustomColor;
+        Icon.Tints[1] = CustomColor;
     }
     else if (HudBase(Owner).bUsingCustomHUDColor)
     {

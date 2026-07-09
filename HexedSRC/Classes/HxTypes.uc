@@ -54,6 +54,13 @@ struct HxDisplayProperty
     var const bool bHidden;
 };
 
+enum EHxVertAlignment
+{
+    HX_VALIGN_Top,
+    HX_VALIGN_Center,
+    HX_VALIGN_Bottom,
+};
+
 static function string GetDataCharset(EHxDataType Type)
 {
     switch (Type)
