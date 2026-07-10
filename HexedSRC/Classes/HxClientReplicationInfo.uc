@@ -43,24 +43,20 @@ simulated function ServerPropertyChanged(int Index, string OldValue);
 
 simulated event PreBeginPlay()
 {
+    local int i;
+
     Super.PreBeginPlay();
     ServerInfo = new(None) class'PlayInfo';
     MutatorClass.static.FillPlayInfo(ServerInfo);
     if (Level.NetMode != NM_DedicatedServer)
     {
-        LoadConfigs();
-        Manager = class'HxClientManager'.static.Register(Self);
-    }
-}
-
-simulated function LoadConfigs()
-{
-    local int i;
-
-    for (i = 0; i < ConfigClasses.Length; ++i)
-    {
-        Configs[i] = ConfigClasses[i].static.Load();
-        Configs[i].Index = i;
+        Manager = class'HxClientManager'.static.Get(Self);
+        for (i = 0; i < ConfigClasses.Length; ++i)
+        {
+            Configs[i] = Manager.LoadConfig(ConfigClasses[i]);
+            Configs[i].Index = i;
+        }
+        Manager.Register(Self);
     }
 }
 
@@ -87,7 +83,7 @@ simulated event Tick(float DeltaTime)
     }
 }
 
-simulated function string GetConfigProperty(int ConfigIndex, int PropertyIndex)
+simulated function string GetProperty(int ConfigIndex, int PropertyIndex)
 {
     if (IsValidConfigIndex(ConfigIndex))
     {
@@ -96,7 +92,7 @@ simulated function string GetConfigProperty(int ConfigIndex, int PropertyIndex)
     return "";
 }
 
-simulated function bool SetConfigProperty(int ConfigIndex, int PropertyIndex, string Value)
+simulated function bool SetProperty(int ConfigIndex, int PropertyIndex, string Value)
 {
     if (IsValidConfigIndex(ConfigIndex) && Configs[ConfigIndex].SetProperty(PropertyIndex, Value))
     {
@@ -229,14 +225,7 @@ simulated function ProcessPendingUpdates()
 
 simulated function ClientOpenConfigurationMenu()
 {
-    if (Manager != None)
-    {
-        Manager.OpenConfigurationMenu(Self);
-    }
-    else
-    {
-        Warn("HxClientManager is None! This should not happen!");
-    }
+    Manager.OpenConfigurationMenu(Self);
 }
 
 simulated function bool IsAdmin()
@@ -260,6 +249,39 @@ simulated private function DoUpdateServerProperty(int Index, string Value)
     ServerInfo.StoreSetting(Index, Value);
     ServerPropertyChanged(Index, OldValue);
     Manager.NotifyServerInfoChanged(Self);
+}
+
+simulated function Actor SpawnUnique(class<Actor> ActorClass, Actor Owner)
+{
+    local Actor Spawned;
+
+    ForEach DynamicActors(ActorClass, Spawned) break;
+    if (Spawned == None)
+    {
+        Spawned = Spawn(ActorClass, Owner);
+    }
+    else
+    {
+        Spawned.SetOwner(Owner);
+    }
+    return Spawned;
+}
+
+simulated function HudOverlay SpawnOverlay(HUD HUD, class<HudOverlay> OverlayClass)
+{
+    local HudOverlay Overlay;
+    local int i;
+
+    for (i = 0; i < HUD.Overlays.Length; ++i)
+    {
+        if (HUD.Overlays[i].Class == OverlayClass)
+        {
+            return HUD.Overlays[i];
+        }
+    }
+    Overlay = Spawn(OverlayClass, HUD);
+    HUD.AddHudOverlay(Overlay);
+    return Overlay;
 }
 
 static final function int StringByteSize(string S)

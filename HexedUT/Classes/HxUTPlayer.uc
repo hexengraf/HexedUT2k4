@@ -13,15 +13,11 @@ var EHxViewSmoothing ViewSmoothing;
 var private PlayerController PC;
 var private bool bAllowCustomViewSmoothing;
 
-simulated event PreBeginPlay()
-{
-    Super.PreBeginPlay();
-    PC = PlayerController(Owner);
-}
-
 simulated event Tick(float DeltaTime)
 {
-    if (PC.Pawn != None && bAllowCustomViewSmoothing && ViewSmoothing != HX_VS_Default)
+    PC = PlayerController(Owner);
+    if (bAllowCustomViewSmoothing && PC != None && PC.Pawn != None
+        && ViewSmoothing != HX_VS_Default)
     {
         ModifyViewSmoothing(PC.Pawn, DeltaTime);
     }

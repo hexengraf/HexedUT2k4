@@ -28,8 +28,6 @@ var private HxZoomSuperShockRifleConfig Config;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
-    Client = HxIGClient(ClientManager.Find(class'HxIGClient'));
-    Config = HxZoomSuperShockRifleConfig(Client.FindConfig(class'HxZoomSuperShockRifleConfig'));
     super.InitComponent(MyController, MyOwner);
     Sections[SECTION_SCOPE_OVERLAY].Insert(co_ScopeOverlay);
     Sections[SECTION_SCOPE_OVERLAY].Insert(ch_CustomCrosshair);
@@ -47,12 +45,14 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     Sections[SECTION_CROSSHAIR].Insert(sl_CrosshairBlueColor);
     Sections[SECTION_CROSSHAIR].Insert(sl_CrosshairOpacity);
     Sections[SECTION_CROSSHAIR].Insert(sl_CrosshairScale);
+    Client = HxIGClient(ClientManager.Find(class'HxIGClient'));
+    Config = HxZoomSuperShockRifleConfig(Client.FindConfig(class'HxZoomSuperShockRifleConfig'));
     PopulateComboBoxes();
 }
 
 function bool CanShowPanel()
 {
-    return bool(Client.GetServerProperty("bZoomInstagib"));
+    return Client != None;
 }
 
 function PopulateComboBoxes()
@@ -109,44 +109,47 @@ function InternalOnLoadINI(GUIComponent Sender, string s)
 
 function InternalOnChange(GUIComponent Sender)
 {
-    switch (Sender)
+    if (Client != None)
     {
-        case sl_ReticleRedColor:
-            Config.ReticleColor.R = byte(sl_ReticleRedColor.GetComponentValue());
-            break;
-        case sl_ReticleGreenColor:
-            Config.ReticleColor.G = byte(sl_ReticleGreenColor.GetComponentValue());
-            break;
-        case sl_ReticleBlueColor:
-            Config.ReticleColor.B = byte(sl_ReticleBlueColor.GetComponentValue());
-            break;
-        case sl_ReticleOpacity:
-            Config.ReticleColor.A = byte(sl_ReticleOpacity.GetComponentValue());
-            break;
-        case sl_CrosshairRedColor:
-            Config.CustomZoomCrosshairColor.R = byte(sl_CrosshairRedColor.GetComponentValue());
-            break;
-        case sl_CrosshairGreenColor:
-            Config.CustomZoomCrosshairColor.G = byte(sl_CrosshairGreenColor.GetComponentValue());
-            break;
-        case sl_CrosshairBlueColor:
-            Config.CustomZoomCrosshairColor.B = byte(sl_CrosshairBlueColor.GetComponentValue());
-            break;
-        case sl_CrosshairOpacity:
-            Config.CustomZoomCrosshairColor.A = byte(sl_CrosshairOpacity.GetComponentValue());
-            break;
-        default:
-            Client.SetConfigProperty(
-                Config.Index, Sender.Tag, GUIMenuOption(Sender).GetComponentValue());
-            break;
-    }
-    switch (Config.Properties[Sender.Tag].Name)
-    {
-        case "ReticleColor":
-        case "CustomZoomCrosshairColor":
-            Client.SetConfigProperty(
-                Config.Index, Sender.Tag, Config.GetProperty(Sender.Tag));
-            break;
+        switch (Sender)
+        {
+            case sl_ReticleRedColor:
+                Config.ReticleColor.R = byte(sl_ReticleRedColor.GetComponentValue());
+                break;
+            case sl_ReticleGreenColor:
+                Config.ReticleColor.G = byte(sl_ReticleGreenColor.GetComponentValue());
+                break;
+            case sl_ReticleBlueColor:
+                Config.ReticleColor.B = byte(sl_ReticleBlueColor.GetComponentValue());
+                break;
+            case sl_ReticleOpacity:
+                Config.ReticleColor.A = byte(sl_ReticleOpacity.GetComponentValue());
+                break;
+            case sl_CrosshairRedColor:
+                Config.CustomZoomCrosshairColor.R = byte(sl_CrosshairRedColor.GetComponentValue());
+                break;
+            case sl_CrosshairGreenColor:
+                Config.CustomZoomCrosshairColor.G = byte(sl_CrosshairGreenColor.GetComponentValue());
+                break;
+            case sl_CrosshairBlueColor:
+                Config.CustomZoomCrosshairColor.B = byte(sl_CrosshairBlueColor.GetComponentValue());
+                break;
+            case sl_CrosshairOpacity:
+                Config.CustomZoomCrosshairColor.A = byte(sl_CrosshairOpacity.GetComponentValue());
+                break;
+            default:
+                Client.SetProperty(
+                    Config.Index, Sender.Tag, GUIMenuOption(Sender).GetComponentValue());
+                break;
+        }
+        switch (Config.Properties[Sender.Tag].Name)
+        {
+            case "ReticleColor":
+            case "CustomZoomCrosshairColor":
+                Client.SetProperty(
+                    Config.Index, Sender.Tag, Config.GetProperty(Sender.Tag));
+                break;
+        }
     }
 }
 

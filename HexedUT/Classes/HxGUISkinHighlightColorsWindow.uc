@@ -30,6 +30,7 @@ var private HxColors Colors;
 var private HxSkinHighlightPreview Preview;
 var private string PreviewCharacterName;
 var private bool bRenderPreview;
+var private float HighlightIntensity;
 
 function InitComponent(GUIController MyController, GUIComponent MyComponent)
 {
@@ -48,6 +49,7 @@ function InitComponent(GUIController MyController, GUIComponent MyComponent)
     Config = HxSkinHighlightConfig(Client.FindConfig(class'HxSkinHighlightConfig'));
     Colors = Client.GetSkinHighlightColors();
     PreviewCharacterName = Config.EnemyModel;
+    HighlightIntensity = float(Client.GetServerProperty("SkinHighlightIntensity"));
     PopulateColorComboBoxes();
     class'HxGUIMenuSkinHighlightPanel'.static.PopulateSkinVariantComboBox(co_PreviewSkin);
     co_PreviewSkin.SetIndex(class'HxSkinHighlightPreview'.default.ActiveSkin);
@@ -57,9 +59,9 @@ event Opened(GUIComponent Sender)
 {
     if (Preview == None)
     {
-        Preview = Client.Spawn(class'HxSkinHighlightPreview');
+        Preview = ClientManager.Spawn(class'HxSkinHighlightPreview');
         Preview.DisplayFOV = 33;
-        Preview.HighlightIntensity = float(Client.GetServerProperty("SkinHighlightIntensity"));
+        Preview.HighlightIntensity = HighlightIntensity;
         Preview.TeamNumber = 2;
         Preview.SetPropertyText("ActiveColor", co_EditColor.GetComponentValue());
         Preview.SetPropertyText("ActiveSkin", co_PreviewSkin.GetComponentValue());
@@ -542,6 +544,7 @@ defaultproperties
     WinHeight=0.4
     WinLeft=0.125
     WinTop=0.275
+    bPersistent=false
 
     NameLabel="Name"
     NewColorPageCaption="New Color"

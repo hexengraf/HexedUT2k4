@@ -28,10 +28,12 @@ function UpdateTabControl()
     {
         if (ClientManager.CRIs[i] == None)
         {
-            Warn(Name$": CRIs["$i$"] is None! This should not happen!");
-            continue;
+            PurgePanels(ClientManager.CRIClasses[i]);
         }
-        UpdatePanels(ClientManager.CRIs[i]);
+        else
+        {
+            UpdatePanels(ClientManager.CRIs[i]);
+        }
     }
 }
 
@@ -49,6 +51,16 @@ function UpdatePanels(HxClientReplicationInfo CRI)
         {
             AddPanel(CRI.PanelClasses[i], (CRI.Order << 8 | i));
         }
+    }
+}
+
+function PurgePanels(class<HxClientReplicationInfo> CRIClass)
+{
+    local int i;
+
+    for (i = 0; i < CRIClass.default.PanelClasses.Length; ++i)
+    {
+        RemovePanel(FindPanel(CRIClass.default.PanelClasses[i]));
     }
 }
 

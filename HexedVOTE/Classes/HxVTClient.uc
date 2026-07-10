@@ -25,7 +25,6 @@ struct HxMapResources
 var VotingReplicationInfo VRI;
 var array<HxMapEntry> Maps;
 
-var private PlayerController PC;
 var private GUIController GC;
 var private HxFavorites Favorites;
 var private array<HxMapResources> Resources;
@@ -57,7 +56,7 @@ simulated event PreBeginPlay()
     CustomMapVoteMenu = string(class'HxMapVotingPage');
     if (Level.NetMode != NM_DedicatedServer)
     {
-        Favorites = new(None, "Maps") class'HxFavorites';
+        Favorites = HxFavorites(Manager.LoadObject(class'HxFavorites', "Maps"));
     }
 }
 
@@ -90,19 +89,21 @@ simulated event Tick(float DeltaTime)
 
 simulated function bool InitializeClient()
 {
+    local PlayerController PC;
+
     PC = PlayerController(Owner);
     if (PC != None)
     {
         if (PC.Player != None)
         {
             GC = GUIController(PC.Player.GUIController);
-            // TODO: give feedback to OldUnreal about level change issue.
+            // TODO: wait for new OU public release to fix CustomMapVotingMenu.
             // bReplaceMapVoteMenu = !GC.SetPropertyText("CustomMapVotingMenu", CustomMapVoteMenu);
             bReplaceMapVoteMenu = true;
         }
         VRI = VotingReplicationInfo(PC.VoteReplicationInfo);
     }
-    return PC != None && GC != None && VRI != None;
+    return GC != None && VRI != None;
 }
 
 simulated function PopulateMapEntries()
@@ -342,6 +343,9 @@ simulated function ServerPropertyChanged(int Index, string OldValue)
 
 simulated function bool SendMapVote(int GameType, int Map)
 {
+    local PlayerController PC;
+
+    PC = PlayerController(Owner);
     if (VRI.MapList[Map].bEnabled || PC.PlayerReplicationInfo.bAdmin)
     {
         VRI.SendMapVote(Map, GameType);

@@ -41,14 +41,12 @@ var private HxColors Colors;
 var private HxSkinHighlightPreview TeammatePreview;
 var private HxSkinHighlightPreview EnemyPreview;
 var private bool bRenderPreviews;
+var private float HighlightIntensity;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
     local int i;
 
-    Client = HxUTClient(ClientManager.Find(class'HxUTClient'));
-    Config = HxSkinHighlightConfig(Client.FindConfig(class'HxSkinHighlightConfig'));
-    Colors = Client.GetSkinHighlightColors();
     super.InitComponent(MyController, MyOwner);
     Sections[SECTION_TEAMMATES].Insert(co_Teammates);
     Sections[SECTION_TEAMMATES].Insert(co_TeammateSkin);
@@ -68,6 +66,10 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     Sections[SECTION_ADVANCED].Insert(ch_DisableOnDeadBodies);
     Sections[SECTION_ADVANCED].Insert(co_SpectateAs);
     Sections[SECTION_ADVANCED].Insert(b_CustomizeColors);
+    Client = HxUTClient(ClientManager.Find(class'HxUTClient'));
+    Config = HxSkinHighlightConfig(Client.FindConfig(class'HxSkinHighlightConfig'));
+    Colors = Client.GetSkinHighlightColors();
+    HighlightIntensity = float(Client.GetServerProperty("SkinHighlightIntensity"));
     PopulateColorComboBoxes();
     PopulateSkinVariantComboBox(co_TeammateSkin);
     PopulateSkinVariantComboBox(co_EnemySkin);
@@ -78,21 +80,24 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     }
 }
 
+function bool CanShowPanel()
+{
+    return Client != None;
+}
+
 event Opened(GUIComponent Sender)
 {
     if (TeammatePreview == None)
     {
-        TeammatePreview = Client.Spawn(class'HxSkinHighlightPreview');
-        TeammatePreview.HighlightIntensity = float(
-            Client.GetServerProperty("SkinHighlightIntensity"));
+        TeammatePreview = ClientManager.Spawn(class'HxSkinHighlightPreview');
+        TeammatePreview.HighlightIntensity = HighlightIntensity;
         TeammatePreview.TeamNumber = 0;
         TeammatePreview.Setup(Config.TeammateModel);
     }
     if (EnemyPreview == None)
     {
-        EnemyPreview = Client.Spawn(class'HxSkinHighlightPreview');
-        EnemyPreview.HighlightIntensity = float(
-            Client.GetServerProperty("SkinHighlightIntensity"));
+        EnemyPreview = ClientManager.Spawn(class'HxSkinHighlightPreview');
+        EnemyPreview.HighlightIntensity = HighlightIntensity;
         EnemyPreview.TeamNumber = 1;
         EnemyPreview.Setup(Config.EnemyModel);
     }
@@ -120,16 +125,17 @@ event Closed(GUIComponent Sender, bool bCancelled)
 
 function Refresh()
 {
-    local float SkinHighlightIntensity;
-
-    SkinHighlightIntensity = float(Client.GetServerProperty("SkinHighlightIntensity"));
-    if (TeammatePreview != None)
+    if (Client != None)
     {
-        TeammatePreview.HighlightIntensity = SkinHighlightIntensity;
-    }
-    if (EnemyPreview != None)
-    {
-        EnemyPreview.HighlightIntensity = SkinHighlightIntensity;
+        HighlightIntensity = float(Client.GetServerProperty("SkinHighlightIntensity"));
+        if (TeammatePreview != None)
+        {
+            TeammatePreview.HighlightIntensity = HighlightIntensity;
+        }
+        if (EnemyPreview != None)
+        {
+            EnemyPreview.HighlightIntensity = HighlightIntensity;
+        }
     }
     Super.Refresh();
 }
@@ -141,8 +147,12 @@ function InternalOnLoadINI(GUIComponent Sender, string s)
 
 function InternalOnChange(GUIComponent Sender)
 {
-    Client.SetConfigProperty(Config.Index, Sender.Tag, GUIMenuOption(Sender).GetComponentValue());
-    class'HxSkinHighlightConfig'.static.UpdateDynamicActors(PlayerOwner());
+    if (Client != None)
+    {
+        Client.SetProperty(
+            Config.Index, Sender.Tag, GUIMenuOption(Sender).GetComponentValue());
+        class'HxSkinHighlightConfig'.static.UpdateDynamicActors(PlayerOwner());
+    }
 }
 
 function PopulateColorComboBoxes()
@@ -223,19 +233,13 @@ function bool EnemyPreviewOnDraw(Canvas C)
 
 function bool TeammatePreviewOnCapturedMouseMove(float DeltaX, float DeltaY)
 {
-    if (TeammatePreview != None)
-    {
-        TeammatePreview.Spin(DeltaX);
-    }
+    TeammatePreview.Spin(DeltaX);
     return true;
 }
 
 function bool EnemyPreviewOnCapturedMouseMove(float DeltaX, float DeltaY)
 {
-    if (EnemyPreview != None)
-    {
-        EnemyPreview.Spin(DeltaX);
-    }
+    EnemyPreview.Spin(DeltaX);
     return true;
 }
 
@@ -256,9 +260,9 @@ function OnCloseChangeTeammateModel(optional bool bCancelled)
     if (!bCancelled)
     {
         CharName = Controller.ActivePage.GetDataString();
-        if (CharName != "")
+        if (CharName != "" && Client != None)
         {
-            Client.SetConfigProperty(Config.Index, 11, CharName);
+            Client.SetProperty(Config.Index, 11, CharName);
             class'HxSkinHighlightConfig'.static.UpdateDynamicActors(PlayerOwner());
             TeammatePreview.Setup(Config.TeammateModel);
             AddModelName(ch_ForceTeammateModel, Config.TeammateModel);
@@ -284,9 +288,9 @@ function OnCloseChangeEnemyModel(optional bool bCancelled)
     if (!bCancelled)
     {
         CharName = Controller.ActivePage.GetDataString();
-        if (CharName != "")
+        if (CharName != "" && Client != None)
         {
-            Client.SetConfigProperty(Config.Index, 13, CharName);
+            Client.SetProperty(Config.Index, 13, CharName);
             class'HxSkinHighlightConfig'.static.UpdateDynamicActors(PlayerOwner());
             EnemyPreview.Setup(Config.EnemyModel);
             AddModelName(ch_ForceEnemyModel, Config.EnemyModel);

@@ -44,6 +44,8 @@ function InitComponent(GUIController MyController, GUIComponent MyComponent)
     RightSection.Insert(sl_ColorBlue);
     RightSection.Insert(sl_ColorAlpha);
     RightSection.Insert(b_RestoreColors);
+    Client = HxUTClient(ClientManager.Find(class'HxUTClient'));
+    Config = HxScoreBoardConfig(Client.FindConfig(class'HxScoreBoardConfig'));
     co_BoardAlignment.MyComboBox.MyListBox.MyList.bInitializeList = false;
     co_HeadingAlignment.MyComboBox.MyListBox.MyList.bInitializeList = false;
     for (i = 0; i < ArrayCount(AlignmentLabels); ++i)
@@ -65,22 +67,6 @@ function AdjustWindowSize(coerce float X, coerce float Y)
     DefaultHeight = WinHeight;
     DefaultLeft = WinLeft;
     DefaultTop = WinTop;
-}
-
-event Opened(GUIComponent Sender)
-{
-    if (Client == None)
-    {
-        Client = HxUTClient(ClientManager.Find(class'HxUTClient'));
-    }
-    if (Client != None)
-    {
-        if (Config == None)
-        {
-            Config = HxScoreBoardConfig(Client.FindConfig(class'HxScoreBoardConfig'));
-        }
-    }
-    Super.Opened(Sender);
 }
 
 function InternalOnLoadINI(GUIComponent Sender, string s)
@@ -123,9 +109,9 @@ function ColorOnLoadINI(GUIComponent Sender, string s)
 
 function InternalOnChange(GUIComponent Sender)
 {
-    if (Client != None && Config != None)
+    if (Client != None)
     {
-        Client.SetConfigProperty(
+        Client.SetProperty(
             Config.Index, Sender.Tag, GUIMenuOption(Sender).GetComponentValue());
     }
 }
@@ -149,21 +135,21 @@ function ColorOnChange(GUIComponent Sender)
         switch (Sender)
         {
             case sl_ColorRed:
-                SelectedColor.R = sl_ColorRed.GetValue();
+                SelectedColor.R = byte(sl_ColorRed.GetValue());
                 break;
             case sl_ColorGreen:
-                SelectedColor.G = sl_ColorGreen.GetValue();
+                SelectedColor.G = byte(sl_ColorGreen.GetValue());
                 break;
             case sl_ColorBlue:
-                SelectedColor.B = sl_ColorBlue.GetValue();
+                SelectedColor.B = byte(sl_ColorBlue.GetValue());
                 break;
             case sl_ColorAlpha:
-                SelectedColor.A = sl_ColorAlpha.GetValue();
+                SelectedColor.A = byte(sl_ColorAlpha.GetValue());
                 break;
         }
-        if (Client != None && Config != None)
+        if (Client != None)
         {
-            Client.SetConfigProperty(
+            Client.SetProperty(
                 Config.Index, Sender.Tag + SelectedColorIndex, GetPropertyText("SelectedColor"));
         }
     }
@@ -198,13 +184,13 @@ function bool OnClickRestoreColors(GUIComponent Sender)
     local int PropertyIndex;
     local int i;
 
-    if (Client != None && Config != None)
+    if (Client != None)
     {
         for (i = 0; i < ArrayCount(ColorNameLabels); ++i)
         {
             PropertyIndex = co_ChangeColor.Tag + i;
             Config.ResetProperty(PropertyIndex);
-            Client.SetConfigProperty(
+            Client.SetProperty(
                 Config.Index, PropertyIndex, Config.GetProperty(PropertyIndex));
         }
         ColorOnChange(co_ChangeColor);

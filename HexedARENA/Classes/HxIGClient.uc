@@ -12,12 +12,12 @@ simulated function Tick(float DeltaTime)
     Super.Tick(DeltaTime);
 }
 
-simulated function bool SetConfigProperty(int ConfigIndex, int PropertyIndex, string Value)
+simulated function bool SetProperty(int ConfigIndex, int PropertyIndex, string Value)
 {
     local PlayerController PC;
     local Inventory Inv;
 
-    if (Super.SetConfigProperty(ConfigIndex, PropertyIndex, Value))
+    if (Super.SetProperty(ConfigIndex, PropertyIndex, Value))
     {
         PC = Level.GetLocalPlayerController();
         if (PC != None && PC.Pawn != None)

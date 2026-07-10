@@ -43,6 +43,9 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     Sections[SECTION_SP_TIMER].Insert(sl_ColorGreen);
     Sections[SECTION_SP_TIMER].Insert(sl_ColorBlue);
     Sections[SECTION_SP_TIMER].Insert(sl_ColorAlpha);
+    Client = HxUTClient(ClientManager.Find(class'HxUTClient'));
+    ScoreboardConfig = HxScoreBoardConfig(Client.FindConfig(class'HxScoreBoardConfig'));
+    SPTimerConfig = HxSPTimerConfig(Client.FindConfig(class'HxSPTimerConfig'));
     co_TeamScoreStyle.MyComboBox.MyListBox.MyList.bInitializeList = false;
     for (i = 0; i < ArrayCount(TeamScoreStyleLabels); ++i)
     {
@@ -51,35 +54,23 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     }
 }
 
-event Opened(GUIComponent Sender)
+function bool CanShowPanel()
 {
-    if (Client == None)
-    {
-        Client = HxUTClient(ClientManager.Find(class'HxUTClient'));
-    }
-    if (Client != None)
-    {
-        if (ScoreboardConfig == None)
-        {
-            ScoreboardConfig = HxScoreBoardConfig(Client.FindConfig(class'HxScoreBoardConfig'));
-        }
-        if (SPTimerConfig == None)
-        {
-            SPTimerConfig = HxSPTimerConfig(Client.FindConfig(class'HxSPTimerConfig'));
-        }
-    }
-    Super.Opened(Sender);
+    return Client != None;
 }
 
 function Refresh()
 {
     local bool bAllowSpawnProtectionTimer;
 
-    bAllowSpawnProtectionTimer = bool(Client.GetServerProperty("bAllowSpawnProtectionTimer"));
-    Sections[SECTION_SP_TIMER].SetHide(!bAllowSpawnProtectionTimer, HideDueDisable);
-    fl_PosX.SetVisibility(bAllowSpawnProtectionTimer);
-    fl_PosY.SetVisibility(bAllowSpawnProtectionTimer);
-    SPTimerAfterChange();
+    if (Client != None)
+    {
+        bAllowSpawnProtectionTimer = bool(Client.GetServerProperty("bAllowSpawnProtectionTimer"));
+        Sections[SECTION_SP_TIMER].SetHide(!bAllowSpawnProtectionTimer, HideDueDisable);
+        fl_PosX.SetVisibility(bAllowSpawnProtectionTimer);
+        fl_PosY.SetVisibility(bAllowSpawnProtectionTimer);
+        SPTimerAfterChange();
+    }
     Super.Refresh();
 }
 
@@ -90,8 +81,11 @@ function ScoreboardOnLoadINI(GUIComponent Sender, string s)
 
 function ScoreboardOnChange(GUIComponent Sender)
 {
-    Client.SetConfigProperty(
-        ScoreboardConfig.Index, Sender.Tag, GUIMenuOption(Sender).GetComponentValue());
+    if (Client != None)
+    {
+        Client.SetProperty(
+            ScoreboardConfig.Index, Sender.Tag, GUIMenuOption(Sender).GetComponentValue());
+    }
 }
 
 function SPTimerOnLoadINI(GUIComponent Sender, string s)
@@ -118,33 +112,36 @@ function SPTimerOnLoadINI(GUIComponent Sender, string s)
 
 function SPTimerOnChange(GUIComponent Sender)
 {
-    switch (Sender)
+    if (Client != None)
     {
-        case sl_ColorRed:
-            SPTimerConfig.CustomColor.R = byte(sl_ColorRed.GetComponentValue());
-            Client.SetConfigProperty(
-                SPTimerConfig.Index, Sender.Tag, SPTimerConfig.GetProperty(Sender.Tag));
-            break;
-        case sl_ColorGreen:
-            SPTimerConfig.CustomColor.G = byte(sl_ColorGreen.GetComponentValue());
-            Client.SetConfigProperty(
-                SPTimerConfig.Index, Sender.Tag, SPTimerConfig.GetProperty(Sender.Tag));
-            break;
-        case sl_ColorBlue:
-            SPTimerConfig.CustomColor.B = byte(sl_ColorBlue.GetComponentValue());
-            Client.SetConfigProperty(
-                SPTimerConfig.Index, Sender.Tag, SPTimerConfig.GetProperty(Sender.Tag));
-            break;
-        case sl_ColorBlue:
-            SPTimerConfig.CustomColor.A = byte(sl_ColorAlpha.GetComponentValue());
-            Client.SetConfigProperty(
-                SPTimerConfig.Index, Sender.Tag, SPTimerConfig.GetProperty(Sender.Tag));
-            break;
-        default:
-            Client.SetConfigProperty(
-                SPTimerConfig.Index, Sender.Tag, GUIMenuOption(Sender).GetComponentValue());
-            SPTimerAfterChange();
-            break;
+        switch (Sender)
+        {
+            case sl_ColorRed:
+                SPTimerConfig.CustomColor.R = byte(sl_ColorRed.GetComponentValue());
+                Client.SetProperty(
+                    SPTimerConfig.Index, Sender.Tag, SPTimerConfig.GetProperty(Sender.Tag));
+                break;
+            case sl_ColorGreen:
+                SPTimerConfig.CustomColor.G = byte(sl_ColorGreen.GetComponentValue());
+                Client.SetProperty(
+                    SPTimerConfig.Index, Sender.Tag, SPTimerConfig.GetProperty(Sender.Tag));
+                break;
+            case sl_ColorBlue:
+                SPTimerConfig.CustomColor.B = byte(sl_ColorBlue.GetComponentValue());
+                Client.SetProperty(
+                    SPTimerConfig.Index, Sender.Tag, SPTimerConfig.GetProperty(Sender.Tag));
+                break;
+            case sl_ColorBlue:
+                SPTimerConfig.CustomColor.A = byte(sl_ColorAlpha.GetComponentValue());
+                Client.SetProperty(
+                    SPTimerConfig.Index, Sender.Tag, SPTimerConfig.GetProperty(Sender.Tag));
+                break;
+            default:
+                Client.SetProperty(
+                    SPTimerConfig.Index, Sender.Tag, GUIMenuOption(Sender).GetComponentValue());
+                SPTimerAfterChange();
+                break;
+        }
     }
 }
 
@@ -190,7 +187,6 @@ function OnCloseChangeAppearance(optional bool bCancelled)
 
 event Free()
 {
-    ClientManager = None;
     Client = None;
     ScoreBoardConfig = None;
     SPTimerConfig = None;

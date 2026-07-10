@@ -36,8 +36,6 @@ var private bool bDamageNumbersEnabled;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
-    Client = HxUTClient(ClientManager.Find(class'HxUTClient'));
-    Config = HxHitEffectsConfig(Client.FindConfig(class'HxHitEffectsConfig'));
     super.InitComponent(MyController, MyOwner);
     Sections[SECTION_HIT_SOUNDS].Insert(ch_HitSounds);
     Sections[SECTION_HIT_SOUNDS].Insert(co_HitSoundNames);
@@ -55,22 +53,32 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     Sections[SECTION_INTERPOLATION_CURVE].Insert(sl_GreenColor);
     Sections[SECTION_INTERPOLATION_CURVE].Insert(sl_BlueColor);
     Sections[SECTION_INTERPOLATION_CURVE].Insert(b_Preview);
+    Client = HxUTClient(ClientManager.Find(class'HxUTClient'));
+    Config = HxHitEffectsConfig(Client.FindConfig(class'HxHitEffectsConfig'));
     PopulateComboBoxes();
     sl_HitSoundVolume.MySlider.OnClickSound = CS_None;
     sl_Pitch.MySlider.OnClickSound = CS_None;
 }
 
+function bool CanShowPanel()
+{
+    return Client != None;
+}
+
 function Refresh()
 {
-    bAllowHitSounds = bool(Client.GetServerProperty("bAllowHitSounds"));
-    bAllowDamageNumbers = bool(Client.GetServerProperty("bAllowDamageNumbers"));
-    HitSoundsAfterChange();
-    DamageNumbersAfterChange();
-    RefreshDamagePointEditorSection();
-    Sections[SECTION_HIT_SOUNDS].SetHide(!bAllowHitSounds, HideDueDisable);
-    Sections[SECTION_DAMAGE_NUMBERS].SetHide(!bAllowDamageNumbers, HideDueDisable);
-    fl_DisplayPosX.SetVisibility(bAllowDamageNumbers);
-    fl_DisplayPosY.SetVisibility(bAllowDamageNumbers);
+    if (Client != None)
+    {
+        bAllowHitSounds = bool(Client.GetServerProperty("bAllowHitSounds"));
+        bAllowDamageNumbers = bool(Client.GetServerProperty("bAllowDamageNumbers"));
+        HitSoundsAfterChange();
+        DamageNumbersAfterChange();
+        RefreshDamagePointEditorSection();
+        Sections[SECTION_HIT_SOUNDS].SetHide(!bAllowHitSounds, HideDueDisable);
+        Sections[SECTION_DAMAGE_NUMBERS].SetHide(!bAllowDamageNumbers, HideDueDisable);
+        fl_DisplayPosX.SetVisibility(bAllowDamageNumbers);
+        fl_DisplayPosY.SetVisibility(bAllowDamageNumbers);
+    }
     Super.Refresh();
 }
 
@@ -190,37 +198,43 @@ function InternalOnLoadINI(GUIComponent Sender, string s)
 
 function HitEffectsOnChange(GUIComponent Sender)
 {
-    Client.SetConfigProperty(
-        Config.Index, Sender.Tag, GUIMenuOption(Sender).GetComponentValue());
-    switch (Sender)
+    if (Client != None)
     {
-        case ch_HitSounds:
-            HitSoundsAfterChange();
-            break;
-        case sl_HitSoundVolume:
-            Client.PlayHitSoundPreview(DPIndex);
-            break;
-        case ch_DamageNumbers:
-            DamageNumbersAfterChange();
-            break;
+        Client.SetProperty(
+            Config.Index, Sender.Tag, GUIMenuOption(Sender).GetComponentValue());
+        switch (Sender)
+        {
+            case ch_HitSounds:
+                HitSoundsAfterChange();
+                break;
+            case sl_HitSoundVolume:
+                Client.PlayHitSoundPreview(DPIndex);
+                break;
+            case ch_DamageNumbers:
+                DamageNumbersAfterChange();
+                break;
+        }
     }
 }
 
 function DamagePointEditorOnChange(GUIComponent Sender)
 {
-    if (Sender == co_DamagePoints)
+    if (Client != None)
     {
-        DPIndex = co_DamagePoints.GetIndex();
-        RefreshDamagePointEditorSection();
-    }
-    else
-    {
-        UpdateDamagePointConfig();
-        Client.SetConfigProperty(Config.Index, Sender.Tag, Config.GetProperty(Sender.Tag));
-    }
-    if (Sender == sl_Pitch)
-    {
-        Client.PlayHitSoundPreview(DPIndex);
+        if (Sender == co_DamagePoints)
+        {
+            DPIndex = co_DamagePoints.GetIndex();
+            RefreshDamagePointEditorSection();
+        }
+        else
+        {
+            UpdateDamagePointConfig();
+            Client.SetProperty(Config.Index, Sender.Tag, Config.GetProperty(Sender.Tag));
+        }
+        if (Sender == sl_Pitch)
+        {
+            Client.PlayHitSoundPreview(DPIndex);
+        }
     }
 }
 
@@ -314,7 +328,10 @@ function DrawPreview(Canvas C)
         C.OrgY = b_Preview.ActualTop();
         C.ClipX = b_Preview.ActualWidth();
         C.ClipY = b_Preview.ActualHeight();
-        Client.DrawDamageNumberPreview(C, DPIndex);
+        if (Client != None)
+        {
+            Client.DrawDamageNumberPreview(C, DPIndex);
+        }
         C.OrgX = SavedOrgX;
         C.OrgY = SavedOrgY;
         C.ClipX = SavedClipX;

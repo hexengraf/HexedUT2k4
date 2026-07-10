@@ -30,7 +30,7 @@ simulated event PreBeginPlay()
     Super.PreBeginPlay();
     if (Level.NetMode != NM_DedicatedServer)
     {
-        SkinHighlightColors = new (None, "HxSkinHighlight") class'HxColors';
+        SkinHighlightColors = HxColors(Manager.LoadObject(class'HxColors', "HxSkinHighlight"));
         class'HxSkinHighlight'.static.PopulateReservedNames(SkinHighlightColors);
         HxSkinHighlightConfig(Configs[1]).ValidateColors(SkinHighlightColors);
     }
@@ -113,25 +113,20 @@ simulated function bool InitializeClient()
     {
         if (Player == None)
         {
-            Player = Spawn(class'HxUTPlayer', PC);
+            Player = HxUTPlayer(SpawnUnique(class'HxUTPlayer', PC));
             Player.ApplyServerConfiguration(Self);
         }
         if (PC.myHUD != None)
         {
-            if (bAllowEnhancedScoreBoards && HxScoreBoardConfig(Configs[3]).bEnabled)
-            {
-                ReplaceScoreBoard();
-            }
+            UpdateScoreBoard();
             if (HitEffects == None)
             {
-                HitEffects = Spawn(class'HxHitEffects', PC.myHUD);
-                PC.myHUD.AddHudOverlay(HitEffects);
+                HitEffects = HxHitEffects(SpawnOverlay(PC.myHUD, class'HxHitEffects'));
                 HitEffects.ApplyServerConfiguration(Self);
             }
             if (SPTimer == None)
             {
-                SPTimer = Spawn(class'HxSPTimer', PC.myHUD);
-                PC.myHUD.AddHudOverlay(SPTimer);
+                SPTimer = HxSPTimer(SpawnOverlay(PC.myHUD, class'HxSPTimer'));
             }
         }
     }
@@ -237,7 +232,6 @@ simulated function UpdateScoreBoard()
 {
     local HxScoreBoardConfig Config;
 
-    bAllowEnhancedScoreBoards = bool(GetServerProperty("bAllowEnhancedScoreBoards"));
     if (bAllowEnhancedScoreBoards)
     {
         Config = HxScoreBoardConfig(FindConfig(class'HxScoreBoardConfig'));
@@ -262,6 +256,7 @@ simulated function ServerInfoReady()
     {
         HitEffects.ApplyServerConfiguration(Self);
     }
+    bAllowEnhancedScoreBoards = bool(GetServerProperty("bAllowEnhancedScoreBoards"));
     UpdateScoreBoard();
 }
 
@@ -270,11 +265,11 @@ simulated function ServerPropertyChanged(int Index, string OldValue)
     ServerInfoReady();
 }
 
-simulated function bool SetConfigProperty(int ConfigIndex, int PropertyIndex, string Value)
+simulated function bool SetProperty(int ConfigIndex, int PropertyIndex, string Value)
 {
     local PlayerController PC;
 
-    if (Super.SetConfigProperty(ConfigIndex, PropertyIndex, Value))
+    if (Super.SetProperty(ConfigIndex, PropertyIndex, Value))
     {
         PC = PlayerController(Owner);
         switch (ConfigClasses[ConfigIndex])
@@ -294,17 +289,9 @@ simulated function bool SetConfigProperty(int ConfigIndex, int PropertyIndex, st
                 }
                 break;
             case class'HxScoreBoardConfig':
-                if (bAllowEnhancedScoreBoards
-                    && Configs[ConfigIndex].Properties[PropertyIndex].Name ~= "bEnabled")
+                if (Configs[ConfigIndex].Properties[PropertyIndex].Name ~= "bEnabled")
                 {
-                    if (HxScoreBoardConfig(Configs[ConfigIndex]).bEnabled)
-                    {
-                        ReplaceScoreBoard();
-                    }
-                    else
-                    {
-                        RestoreScoreBoard();
-                    }
+                    UpdateScoreBoard();
                 }
                 else if (HxScoreBoard(PC.MyHUD.ScoreBoard) != None)
                 {

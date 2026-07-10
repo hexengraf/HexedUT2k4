@@ -36,13 +36,11 @@ function PopulateOptionLists()
     Controller.bCurMenuInitialized = false;
     for (i = 0; i < ClientManager.CRIs.Length; ++i)
     {
-        if (ClientManager.CRIs[i] == None)
+        if (ClientManager.CRIs[i] != None)
         {
-            Warn(Name$": CRIs["$i$"] is None! This should not happen!");
-            continue;
+            ProcessUserOptions(ClientManager.CRIs[i], i);
+            ProcessServerStatus(ClientManager.CRIs[i], i);
         }
-        ProcessUserOptions(ClientManager.CRIs[i], i);
-        ProcessServerStatus(ClientManager.CRIs[i], i);
     }
     Controller.bCurMenuInitialized = bSavedCurMenuInitialized;
     lb_Options.Refresh();
@@ -116,7 +114,7 @@ function UserOptionOnLoadINI(GUIComponent Sender, string s)
     if (ClientManager.DecodeTag(Sender.Tag, CRIIndex, PropertyIndex, ConfigIndex))
     {
         GUIMenuOption(Sender).SetComponentValue(
-            ClientManager.CRIs[CRIIndex].GetConfigProperty(ConfigIndex, PropertyIndex), true);
+            ClientManager.CRIs[CRIIndex].GetProperty(ConfigIndex, PropertyIndex), true);
     }
 }
 
@@ -149,7 +147,7 @@ function UserOptionOnChange(GUIComponent Sender)
 
     if (ClientManager.DecodeTag(Sender.Tag, CRIIndex, PropertyIndex, ConfigIndex))
     {
-        ClientManager.CRIs[CRIIndex].SetConfigProperty(
+        ClientManager.CRIs[CRIIndex].SetProperty(
             ConfigIndex, PropertyIndex, GUIMenuOption(Sender).GetComponentValue());
     }
 }
