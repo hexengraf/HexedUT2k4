@@ -458,13 +458,15 @@ state Enabled
     {
         local array<Material> TempSkins;
         local xPawn Pawn;
+        local int SkinCount;
         local int i;
 
         Pawn = xPawn(Base);
         if (Pawn.bOldInvis)
         {
             TempSkins.Length = Base.Skins.Length;
-            for (i = 0; i < TempSkins.Length; ++i)
+            SkinCount = Min(Base.Skins.Length, BaseSkins.Length);
+            for (i = 0; i < SkinCount; ++i)
             {
                 TempSkins[i] = Pawn.RealSkins[i];
                 Pawn.RealSkins[i] = BaseSkins[i];
