@@ -214,7 +214,7 @@ auto state Startup
                     }
                 }
             }
-            LoadXanAbdomen();
+            class'HxGUIModelSelect'.static.LoadXanAbdomen(Base);
             if (Pawn.bOldInvis)
             {
                 MakeInvisible(Pawn);
@@ -265,28 +265,6 @@ auto state Startup
         }
         return Pawn.PlayerReplicationInfo.CharacterName;
     }
-
-    simulated function LoadXanAbdomen()
-    {
-        local string SkinName;
-
-        SkinName = string(Base.Skins[0]);
-        if (Left(SkinName, 22) ~= "UT2004PlayerSkins.Xan.")
-        {
-            SkinName = Right(SkinName, Len(SkinName) - 22);
-            if (Left(SkinName, 5) ~= "XanM3")
-            {
-                Base.Skins[2] = Material(
-                    DynamicLoadObject("UT2004PlayerSkins.XanM3_abdomen", class'Material'));
-            }
-            else if (Left(SkinName, 8) ~= "XanMk3V2")
-            {
-                Base.Skins[2] = Material(
-                    DynamicLoadObject("UT2004PlayerSkins.XanMk3V2_abdomen", class'Material'));
-            }
-        }
-    }
-
 }
 
 state Reskin

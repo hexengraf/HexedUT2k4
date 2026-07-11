@@ -160,6 +160,7 @@ function UpdatePreview()
         PreviewModel.Skins[0] = Material(DynamicLoadObject(Record.BodySkinName, class'Material'));
         PreviewModel.Skins[1] = Material(DynamicLoadObject(Record.FaceSkinName, class'Material'));
         PreviewModel.LoopAnim('Idle_Rest', 1.0 / PreviewModel.Level.TimeDilation);
+        LoadXanAbdomen(PreviewModel);
     }
 }
 
@@ -322,6 +323,27 @@ function bool InternalOnClick(GUIComponent Sender)
 {
     Controller.CloseMenu(Sender == b_Cancel);
     return true;
+}
+
+static final function LoadXanAbdomen(Actor A)
+{
+    local string SkinName;
+
+    SkinName = string(A.Skins[0]);
+    if (Left(SkinName, 22) ~= "UT2004PlayerSkins.Xan.")
+    {
+        SkinName = Right(SkinName, Len(SkinName) - 22);
+        if (Left(SkinName, 5) ~= "XanM3")
+        {
+            A.Skins[2] = Material(
+                DynamicLoadObject("UT2004PlayerSkins.XanM3_abdomen", class'Material'));
+        }
+        else if (Left(SkinName, 8) ~= "XanMk3V2")
+        {
+            A.Skins[2] = Material(
+                DynamicLoadObject("UT2004PlayerSkins.XanMk3V2_abdomen", class'Material'));
+        }
+    }
 }
 
 defaultproperties

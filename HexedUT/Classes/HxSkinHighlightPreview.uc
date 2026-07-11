@@ -115,7 +115,7 @@ auto state Startup
 {
     simulated function bool ValidateCharacterModel()
     {
-        LoadXanAbdomen();
+        class'HxGUIModelSelect'.static.LoadXanAbdomen(Base);
         return true;
     }
 }
