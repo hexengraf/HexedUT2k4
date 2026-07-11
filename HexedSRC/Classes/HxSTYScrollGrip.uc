@@ -16,5 +16,5 @@ defaultproperties
     ImgColors(3)=(R=20,G=20,B=20,A=100)
     ImgColors(4)=(R=20,G=20,B=20,A=0)
 
-    Frames(0)=(Material=Material'engine.WhiteSquareTexture',Color=(R=128,G=128,B=128,A=48),Thickness=0.001)
+    Frames(0)=(Material=Material'engine.WhiteSquareTexture',Color=(R=128,G=128,B=128,A=48),Thickness=0.0012)
 }

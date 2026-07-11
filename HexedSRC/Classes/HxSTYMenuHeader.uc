@@ -36,5 +36,5 @@ defaultproperties
     ImgStyle(3)=ISTY_Scaled
     ImgStyle(4)=ISTY_Scaled
 
-    Frames(0)=(Material=Material'engine.WhiteSquareTexture',Color=(R=18,G=68,B=133,A=255),Thickness=0.001)
+    Frames(0)=(Material=Material'engine.WhiteSquareTexture',Color=(R=18,G=68,B=133,A=255),Thickness=0.0012)
 }

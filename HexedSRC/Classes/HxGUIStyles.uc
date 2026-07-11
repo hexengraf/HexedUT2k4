@@ -74,7 +74,7 @@ function bool UpdateBorderOffsets()
         FrameThickness = ActualFrameThickness();
         for (i = 0; i < ArrayCount(BorderOffsets); ++i)
         {
-            BorderOffsets[i] = RelativeBorderOffsets[i] * Controller.ResY;
+            BorderOffsets[i] = Round(RelativeBorderOffsets[i] * Controller.ResY);
             if (SkipFrameParts[i] == 0)
             {
                 BorderOffsets[i] += FrameThickness;
@@ -167,7 +167,7 @@ function float ActualFrameThickness()
 
     for (i = 0; i < Frames.Length; ++i)
     {
-        Thickness += Controller.ResY * Frames[i].Thickness;
+        Thickness += Round(Controller.ResY * Frames[i].Thickness);
     }
     return Thickness;
 }
