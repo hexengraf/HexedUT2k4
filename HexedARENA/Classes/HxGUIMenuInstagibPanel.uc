@@ -165,8 +165,8 @@ defaultproperties
     Begin Object class=HxGUIFramedSection Name=ScopeOverlaySection
         Caption="Scope Overlay"
         WinHeight=0.3
-        TopPadding=0.03
-        BottomPadding=0.03
+        TopPadding=0.02
+        BottomPadding=0.02
         ColumnWidths=(0.5,0.5)
         MaxItemsPerColumn=2
     End Object
@@ -174,15 +174,15 @@ defaultproperties
     Begin Object class=HxGUIFramedSection Name=CustomScopeOverlaySection
         Caption="Custom Scope Overlay"
         WinHeight=0.7
-        TopPadding=0.03
-        BottomPadding=0.03
+        TopPadding=0.02
+        BottomPadding=0.02
     End Object
 
     Begin Object class=HxGUIFramedSection Name=CrosshairSection
         Caption="Custom Crosshair"
         WinHeight=0.7
-        TopPadding=0.03
-        BottomPadding=0.03
+        TopPadding=0.02
+        BottomPadding=0.02
     End Object
 
     Begin Object class=moComboBox Name=ScopeOverlayComboBox

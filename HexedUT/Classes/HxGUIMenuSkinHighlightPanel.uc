@@ -94,7 +94,7 @@ event Opened(GUIComponent Sender)
         TeammatePreview = ClientManager.Spawn(class'HxSkinHighlightPreview');
         TeammatePreview.HighlightIntensity = HighlightIntensity;
         TeammatePreview.TeamNumber = 0;
-        TeammatePreview.DisplayFOV = 12;
+        TeammatePreview.DisplayFOV = 15;
         TeammatePreview.Setup(Config.TeammateModel);
     }
     if (EnemyPreview == None)
@@ -102,7 +102,7 @@ event Opened(GUIComponent Sender)
         EnemyPreview = ClientManager.Spawn(class'HxSkinHighlightPreview');
         EnemyPreview.HighlightIntensity = HighlightIntensity;
         EnemyPreview.TeamNumber = 1;
-        EnemyPreview.DisplayFOV = 12;
+        EnemyPreview.DisplayFOV = 15;
         EnemyPreview.Setup(Config.EnemyModel);
     }
     Sections[SECTION_TEAMMATES].SetHeader(TeammatesLabel@"("$Config.TeammateModel$")");
@@ -350,7 +350,7 @@ event Free()
 defaultproperties
 {
     Begin Object class=HxGUIFramedSection Name=TeammatesSection
-        WinHeight=0.5
+        WinHeight=0.52
         LineSpacing=0.012
         ColumnSpacing=0.01
         ColumnWidths=(0.6,0.4)
@@ -359,7 +359,7 @@ defaultproperties
     End Object
 
     Begin Object class=HxGUIFramedSection Name=EnemiesSection
-        WinHeight=0.5
+        WinHeight=0.52
         LineSpacing=0.012
         ColumnSpacing=0.01
         ColumnWidths=(0.6,0.4)
@@ -369,12 +369,12 @@ defaultproperties
 
     Begin Object class=HxGUIFramedSection Name=HitEffectsSection
         Caption="On-Hit Overlay Effects"
-        WinHeight=0.5
+        WinHeight=0.48
     End Object
 
     Begin Object class=HxGUIFramedSection Name=AdvancedSection
         Caption="Advanced Options"
-        WinHeight=0.5
+        WinHeight=0.48
     End Object
 
     Begin Object class=moComboBox Name=TeammatesComboBox

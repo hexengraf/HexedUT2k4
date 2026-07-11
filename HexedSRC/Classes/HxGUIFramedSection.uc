@@ -201,7 +201,7 @@ function float AlignColumn(Canvas C,
     local float Bottom;
     local float LeftIndent;
 
-    MaxLines = GetMaxLines(Index);
+    MaxLines = GetMaxLines(Index, ExpandIndex);
     Spacing = GetLineSpacing(C, Index, MaxLines, Height, ExpandIndex);
     Top -= Spacing / 2;
 
@@ -256,11 +256,18 @@ function float GetFilledHeight(Canvas C, int Index, int MaxLines, optional float
     return FilledHeight - Spacing;
 }
 
-function int GetMaxLines(optional int Index)
+function int GetMaxLines(int Index, int ExpandIndex)
 {
+    local int MaxLines;
+
     if (MaxItemsPerColumn > 0)
     {
-        return Min(Index + MaxItemsPerColumn, Grid.Length);
+        MaxLines = Min(Index + MaxItemsPerColumn, Grid.Length);
+        if (ExpandIndex > -1)
+        {
+            MaxLines = Min(MaxLines, Index + MaxLines - ExpandIndex);
+        }
+        return MaxLines;
     }
     return Grid.Length;
 }

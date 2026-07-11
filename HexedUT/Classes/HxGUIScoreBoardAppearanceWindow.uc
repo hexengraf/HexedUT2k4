@@ -383,7 +383,7 @@ defaultproperties
     WinWidth=0.75
     WinHeight=0.35
     WinLeft=0.125
-    WinTop=0.35
+    WinTop=0.325
     bPersistent=false
     bMoveAllowed=true
 

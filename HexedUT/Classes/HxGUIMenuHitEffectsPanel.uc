@@ -47,12 +47,12 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     Sections[SECTION_DAMAGE_NUMBERS].Insert(l_PositionAnchor);
     Sections[SECTION_INTERPOLATION_CURVE].Insert(co_DamagePoints);
     Sections[SECTION_INTERPOLATION_CURVE].Insert(nu_Value);
+    Sections[SECTION_INTERPOLATION_CURVE].Insert(b_Preview);
     Sections[SECTION_INTERPOLATION_CURVE].Insert(sl_Pitch);
     Sections[SECTION_INTERPOLATION_CURVE].Insert(sl_Scale);
     Sections[SECTION_INTERPOLATION_CURVE].Insert(sl_RedColor);
     Sections[SECTION_INTERPOLATION_CURVE].Insert(sl_GreenColor);
     Sections[SECTION_INTERPOLATION_CURVE].Insert(sl_BlueColor);
-    Sections[SECTION_INTERPOLATION_CURVE].Insert(b_Preview);
     Client = HxUTClient(ClientManager.Find(class'HxUTClient'));
     Config = HxHitEffectsConfig(Client.FindConfig(class'HxHitEffectsConfig'));
     PopulateComboBoxes();
@@ -398,20 +398,21 @@ defaultproperties
 {
     Begin Object class=HxGUIFramedSection Name=HitSoundsSection
         Caption="Hit Sounds"
-        WinHeight=0.4
+        WinHeight=0.46
     End Object
 
     Begin Object class=HxGUIFramedSection Name=DamageNumbersSection
         Caption="Damage Numbers"
-        WinHeight=0.4
+        WinHeight=0.46
     End Object
 
     Begin Object class=HxGUIFramedSection Name=InterpolationCurveSection
         Caption="Hit Effects Interpolation Curve"
-        WinHeight=0.6
+        WinHeight=0.54
         ColumnWidths=(0.5,0.5)
-        MaxItemsPerColumn=7
-        ExpandIndices=(-1,7)
+        LineSpacing=0.017
+        MaxItemsPerColumn=5
+        ExpandIndices=(2,-1)
     End Object
 
     Begin Object class=moCheckBox Name=HitSoundsCheckBox
@@ -428,7 +429,7 @@ defaultproperties
         Caption="Sound"
         INIOption="@INTERNAL"
         Tag=1
-        ComponentWidth=0.64
+        CaptionWidth=0.35
         bReadOnly=true
         OnLoadINI=InternalOnLoadINI
         OnChange=HitEffectsOnChange
@@ -440,7 +441,7 @@ defaultproperties
         Caption="Volume"
         INIOption="@INTERNAL"
         Tag=2
-        ComponentWidth=0.64
+        CaptionWidth=0.35
         MinValue=0.0
         MaxValue=1.0
         OnLoadINI=InternalOnLoadINI
@@ -453,7 +454,7 @@ defaultproperties
         Caption="Pitch mode"
         INIOption="@INTERNAL"
         Tag=3
-        ComponentWidth=0.64
+        CaptionWidth=0.35
         bReadOnly=true
         OnLoadINI=InternalOnLoadINI
         OnChange=HitEffectsOnChange
@@ -475,7 +476,7 @@ defaultproperties
         Caption="Mode"
         INIOption="@INTERNAL"
         Tag=5
-        ComponentWidth=0.64
+        CaptionWidth=0.35
         bReadOnly=true
         OnLoadINI=InternalOnLoadINI
         OnChange=HitEffectsOnChange
@@ -487,7 +488,7 @@ defaultproperties
         Caption="Font"
         INIOption="@INTERNAL"
         Tag=6
-        ComponentWidth=0.64
+        CaptionWidth=0.35
         bReadOnly=true
         OnLoadINI=InternalOnLoadINI
         OnChange=HitEffectsOnChange
@@ -538,7 +539,7 @@ defaultproperties
     Begin Object class=moComboBox Name=DamagePointsComboBox
         Caption="Point"
         INIOption="@INTERNAL"
-        ComponentWidth=0.64
+        CaptionWidth=0.35
         bReadOnly=true
         OnLoadINI=InternalOnLoadINI
         OnChange=DamagePointEditorOnChange
@@ -562,7 +563,7 @@ defaultproperties
     Begin Object class=moSlider Name=PitchSlider
         Caption="Pitch"
         INIOption="@INTERNAL"
-        ComponentWidth=0.64
+        CaptionWidth=0.35
         MinValue=0.0
         MaxValue=1.0
         OnLoadINI=InternalOnLoadINI
@@ -574,7 +575,7 @@ defaultproperties
     Begin Object class=moSlider Name=ScaleSlider
         Caption="Scale"
         INIOption="@INTERNAL"
-        ComponentWidth=0.64
+        CaptionWidth=0.35
         MinValue=0.0
         MaxValue=1.0
         OnLoadINI=InternalOnLoadINI
@@ -586,7 +587,7 @@ defaultproperties
     Begin Object class=moSlider Name=RedColorSlider
         Caption="Red"
         INIOption="@INTERNAL"
-        ComponentWidth=0.64
+        CaptionWidth=0.35
         MinValue=0
         MaxValue=255
         bIntSlider=true
@@ -599,7 +600,7 @@ defaultproperties
     Begin Object class=moSlider Name=GreenColorSlider
         Caption="Green"
         INIOption="@INTERNAL"
-        ComponentWidth=0.64
+        CaptionWidth=0.35
         MinValue=0
         MaxValue=255
         bIntSlider=true
@@ -612,7 +613,7 @@ defaultproperties
     Begin Object class=moSlider Name=BlueColorSlider
         Caption="Blue"
         INIOption="@INTERNAL"
-        ComponentWidth=0.64
+        CaptionWidth=0.35
         MinValue=0
         MaxValue=255
         bIntSlider=true

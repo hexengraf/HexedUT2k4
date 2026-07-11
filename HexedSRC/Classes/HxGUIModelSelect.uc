@@ -412,7 +412,7 @@ defaultproperties
 
     WindowName="Select Character"
     WinLeft=0.17
-    WinTop=0.165
+    WinTop=0.19
     WinWidth=0.66
     WinHeight=0.62
     bPersistent=false

@@ -543,7 +543,7 @@ defaultproperties
     WinWidth=0.75
     WinHeight=0.4
     WinLeft=0.125
-    WinTop=0.275
+    WinTop=0.3
     bPersistent=false
 
     NameLabel="Name"

@@ -210,6 +210,6 @@ defaultproperties
     WinWidth=0.41
     WinHeight=0.65
     WinLeft=0.295
-    WinTop=0.15
+    WinTop=0.175
     OnKeyEvent=InternalOnKeyEvent
 }

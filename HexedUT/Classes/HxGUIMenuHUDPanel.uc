@@ -198,14 +198,14 @@ defaultproperties
     Begin Object class=HxGUIFramedSection Name=ScoreboardSection
         Caption="Enhanced Scoreboards"
         WinHeight=1
-        LineSpacing=0.02
+        LineSpacing=0.0185
         bAutoSpacing=false
     End Object
 
     Begin Object class=HxGUIFramedSection Name=SPTimerSection
         Caption="Spawn Protection Timer"
         WinHeight=1
-        LineSpacing=0.02
+        LineSpacing=0.0185
         bAutoSpacing=false
     End Object
 
@@ -344,7 +344,7 @@ defaultproperties
         Caption="Red"
         INIOption="@INTERNAL"
         Tag=5
-        ComponentWidth=0.64
+        CaptionWidth=0.35
         MinValue=0
         MaxValue=255
         bIntSlider=true
@@ -358,7 +358,7 @@ defaultproperties
         Caption="Green"
         INIOption="@INTERNAL"
         Tag=5
-        ComponentWidth=0.64
+        CaptionWidth=0.35
         MinValue=0
         MaxValue=255
         bIntSlider=true
@@ -372,7 +372,7 @@ defaultproperties
         Caption="Blue"
         INIOption="@INTERNAL"
         Tag=5
-        ComponentWidth=0.64
+        CaptionWidth=0.35
         MinValue=0
         MaxValue=255
         bIntSlider=true
@@ -386,7 +386,7 @@ defaultproperties
         Caption="Alpha"
         INIOption="@INTERNAL"
         Tag=5
-        ComponentWidth=0.64
+        CaptionWidth=0.35
         MinValue=0
         MaxValue=255
         bIntSlider=true
