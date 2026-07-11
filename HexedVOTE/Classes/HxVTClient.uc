@@ -29,17 +29,14 @@ var private GUIController GC;
 var private HxFavorites Favorites;
 var private array<HxMapResources> Resources;
 var private array<class<Object> > PreviewLoaders;
-var private int PreviewLoadersSent;
 var private int MapEntryResponseCount;
 var private string CustomMapVoteMenu;
-var private bool bPreviewLoadersReady;
 var private bool bReplaceMapVoteMenu;
 var private bool bInitialized;
 
 replication
 {
     reliable if (Role == ROLE_Authority)
-        ClientReceivePreviewLoader,
         ClientReceiveMapEntry,
         ClientReceivePreviewAndLabel,
         ClientReceivePlayersAndAuthor,
@@ -81,10 +78,6 @@ simulated event Tick(float DeltaTime)
             }
         }
     }
-    if (Level.NetMode != NM_Client && !bPreviewLoadersReady)
-    {
-        SendPreviewLoaders();
-    }
 }
 
 simulated function bool InitializeClient()
@@ -112,8 +105,8 @@ simulated function PopulateMapEntries()
     local int Limit;
     local int i;
 
-    Limit = Maps.Length + Min(VRI.MapList.Length - Maps.Length, 8 * REQUESTS_PER_TICK);
-    for (i = Maps.Length; i < Limit; ++i)
+    Limit = 8 * MESSAGES_PER_TICK;
+    for (i = Maps.Length; i < VRI.MapList.Length && Limit > 0; ++i)
     {
         Maps.Insert(Maps.Length, 1);
         Resources.Insert(Resources.Length, 1);
@@ -136,52 +129,8 @@ simulated function PopulateMapEntries()
         else
         {
             ServerRequestMapEntry(i);
+            --Limit;
         }
-    }
-}
-
-function SendPreviewLoaders()
-{
-    local MutHexedVOTE HexedVOTE;
-    local int Limit;
-    local int i;
-
-    HexedVOTE = MutHexedVOTE(MutatorOwner);
-    if (HexedVOTE.MapPreviewLoaders.Length > 0)
-    {
-        Limit = Min(HexedVOTE.MapPreviewLoaders.Length - PreviewLoadersSent, REQUESTS_PER_TICK);
-        for (i = 0; i < Limit; ++i)
-        {
-            ClientReceivePreviewLoader(
-                HexedVOTE.MapPreviewLoaders[PreviewLoadersSent + i],
-                PreviewLoadersSent + i == HexedVOTE.MapPreviewLoaders.Length - 1);
-        }
-        PreviewLoadersSent += Limit;
-        bPreviewLoadersReady = PreviewLoadersSent == HexedVOTE.MapPreviewLoaders.Length;
-    }
-    else
-    {
-        ClientReceivePreviewLoader("", true);
-        bPreviewLoadersReady = true;
-    }
-}
-
-simulated function ClientReceivePreviewLoader(string LoaderName, bool bLast)
-{
-    local class<Object> LoaderClass;
-
-    if (LoaderName != "")
-    {
-        LoaderClass = class<Object>(DynamicLoadObject(LoaderName, class'Class', true));
-        if (LoaderClass != None)
-        {
-            PreviewLoaders[PreviewLoaders.Length] = LoaderClass;
-        }
-    }
-    if (bLast)
-    {
-        bPreviewLoadersReady = true;
-        NotifyResourcesUpdated();
     }
 }
 
@@ -323,22 +272,68 @@ simulated function TryReplaceMapVoteMenu()
     }
 }
 
-simulated function UpdateMapVoteMenuBackgrounds()
+simulated function UpdateResourcePreviews()
+{
+    local int i;
+
+    for (i = 0; i < Resources.Length; ++i)
+    {
+        Resources[i].bPreviewReady = Resources[i].Preview != None;
+    }
+    NotifyResourcesUpdated();
+}
+
+simulated function ParseArrayProperty(int Index, array<string> Values)
+{
+    local class<Object> LoaderClass;
+    local int i;
+
+    if (MutatorClass.default.Properties[Index].Name == "MapPreviewLoaders")
+    {
+        PreviewLoaders.Length = 0;
+        for (i = 0; i < Values.Length; ++i)
+        {
+            if (Values[i] != "")
+            {
+                LoaderClass = class<Object>(DynamicLoadObject(Values[i], class'Class', true));
+                if (LoaderClass != None)
+                {
+                    PreviewLoaders[PreviewLoaders.Length] = LoaderClass;
+                }
+            }
+        }
+    }
+}
+
+simulated function ServerPropertiesReady()
 {
     class'HxMapVotingPage'.default.VoteListCustomBG = GetServerProperty("VoteListCustomBG");
     class'HxMapVotingPage'.default.MapListCustomBG = GetServerProperty("MapListCustomBG");
     class'HxMapVotingPage'.default.PreviewCustomBG = GetServerProperty("PreviewCustomBG");
     class'HxMapVotingPage'.default.ChatBoxCustomBG = GetServerProperty("ChatBoxCustomBG");
-}
-
-simulated function ServerInfoReady()
-{
-    UpdateMapVoteMenuBackgrounds();
+    UpdateResourcePreviews();
 }
 
 simulated function ServerPropertyChanged(int Index, string OldValue)
 {
-    UpdateMapVoteMenuBackgrounds();
+    switch (MutatorClass.default.Properties[Index].Name)
+    {
+        case "VoteListCustomBG":
+            class'HxMapVotingPage'.default.VoteListCustomBG = GetServerProperty("VoteListCustomBG");
+            break;
+        case "MapListCustomBG":
+            class'HxMapVotingPage'.default.MapListCustomBG = GetServerProperty("MapListCustomBG");
+            break;
+        case "PreviewCustomBG":
+            class'HxMapVotingPage'.default.PreviewCustomBG = GetServerProperty("PreviewCustomBG");
+            break;
+        case "ChatBoxCustomBG":
+            class'HxMapVotingPage'.default.ChatBoxCustomBG = GetServerProperty("ChatBoxCustomBG");
+            break;
+        case "MapPreviewLoaders":
+            UpdateResourcePreviews();
+            break;
+    }
 }
 
 simulated function bool SendMapVote(int GameType, int Map)
@@ -367,34 +362,31 @@ simulated final function Material GetMapPreview(int MapIndex)
 {
     local int i;
 
-    if (!Resources[MapIndex].bPreviewReady)
+    if (Resources[MapIndex].bPreviewReady)
     {
+        return Resources[MapIndex].Preview;
+    }
+    if (Resources[MapIndex].PreviewName != "")
+    {
+        Resources[MapIndex].Preview = Material(
+            DynamicLoadObject(Resources[MapIndex].PreviewName, class'Material', true));
+        Resources[MapIndex].bPreviewReady = Resources[MapIndex].Preview != None;
+        if (Resources[MapIndex].bPreviewReady)
+        {
+            return Resources[MapIndex].Preview;
+        }
+    }
+    for (i = 0; i < PreviewLoaders.Length; ++i)
+    {
+        Resources[MapIndex].PreviewName = PreviewLoaders[i].static.GetItemName(Maps[MapIndex].Name);
         if (Resources[MapIndex].PreviewName != "")
         {
             Resources[MapIndex].Preview = Material(
                 DynamicLoadObject(Resources[MapIndex].PreviewName, class'Material', true));
-            Resources[MapIndex].bPreviewReady = Resources[MapIndex].Preview != None;
-        }
-        if (!Resources[MapIndex].bPreviewReady)
-        {
-            for (i = 0; i < PreviewLoaders.Length; ++i)
-            {
-                Resources[MapIndex].PreviewName =
-                    PreviewLoaders[i].static.GetItemName(Maps[MapIndex].Name);
-                if (Resources[MapIndex].PreviewName != "")
-                {
-                    break;
-                }
-            }
-            if (Resources[MapIndex].PreviewName != "")
-            {
-                Resources[MapIndex].Preview = Material(
-                    DynamicLoadObject(Resources[MapIndex].PreviewName, class'Material', true));
-            }
-            Resources[MapIndex].bPreviewReady =
-                Resources[MapIndex].Preview != None || bPreviewLoadersReady;
+            break;
         }
     }
+    Resources[MapIndex].bPreviewReady = true;
     return Resources[MapIndex].Preview;
 }
 

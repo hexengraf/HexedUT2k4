@@ -11,6 +11,15 @@ function bool MutatorIsAllowed()
     return Super.MutatorIsAllowed() && Level.NetMode != NM_Standalone;
 }
 
+function array<string> GetArrayProperty(int Index)
+{
+    if (Properties[Index].Name == "MapPreviewLoaders")
+    {
+        return MapPreviewLoaders;
+    }
+    return Super.GetArrayProperty(Index);
+}
+
 defaultproperties
 {
     FriendlyName="HexedVOTE v9dev"

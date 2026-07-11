@@ -239,6 +239,10 @@ simulated function UpdateScoreBoard()
         {
             ReplaceScoreBoard();
         }
+        else
+        {
+            RestoreScoreBoard();
+        }
     }
     else
     {
@@ -246,7 +250,7 @@ simulated function UpdateScoreBoard()
     }
 }
 
-simulated function ServerInfoReady()
+simulated function ServerPropertiesReady()
 {
     if (Player != None)
     {
@@ -262,7 +266,7 @@ simulated function ServerInfoReady()
 
 simulated function ServerPropertyChanged(int Index, string OldValue)
 {
-    ServerInfoReady();
+    ServerPropertiesReady();
 }
 
 simulated function bool SetProperty(int ConfigIndex, int PropertyIndex, string Value)

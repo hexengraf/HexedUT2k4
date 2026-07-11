@@ -167,6 +167,13 @@ function SetProperty(int Index, string Value)
     SaveConfig();
 }
 
+function array<string> GetArrayProperty(int Index)
+{
+    local array<string> ArrayProperty;
+
+    return ArrayProperty;
+}
+
 function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
 {
     if (Other.IsA('PlayerController') && !Other.IsA('MessagingSpectator'))

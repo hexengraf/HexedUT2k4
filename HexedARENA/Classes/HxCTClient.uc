@@ -32,7 +32,7 @@ simulated function bool InitializeClient()
     return false;
 }
 
-simulated function ServerInfoReady()
+simulated function ServerPropertiesReady()
 {
     local xPickUpBase PickupBase;
 

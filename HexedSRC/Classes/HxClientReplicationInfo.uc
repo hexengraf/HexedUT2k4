@@ -3,14 +3,22 @@ class HxClientReplicationInfo extends ReplicationInfo
     DependsOn(HxTypes)
     DependsOn(PlayInfo);
 
-struct HxPendingUpdate
+enum EHxReplicationMessageType
 {
+    HX_RMSG_ServerProperty,
+    HX_RMSG_ArrayElement,
+    HX_RMSG_Custom,
+};
+
+struct HxReplicationMessage
+{
+    var EHxReplicationMessageType Type;
     var int Index;
     var string Value;
 };
 
 const PKG_STR_LIMIT = 480;
-const REQUESTS_PER_TICK = 16;
+const MESSAGES_PER_TICK = 16;
 
 var const class<HxMutator> MutatorClass;
 var const array<class<HxConfig> > ConfigClasses;
@@ -22,24 +30,26 @@ var array<HxConfig> Configs;
 
 var protected HxClientManager Manager;
 var protected HxMutator MutatorOwner;
-var private int PropertyIndex;
-var private int ReceivedCount;
-var private array<HxPendingUpdate> PendingUpdates;
+var private array<HxReplicationMessage> MessageQueue;
+var private array<string> ReplicatedArrayProperty;
+var private bool bServerPropertiesRequested;
+var private bool bServerPropertiesReady;
 
 replication
 {
     reliable if (Role == ROLE_Authority)
-        ClientReceiveServerProperty,
-        ClientUpdateServerProperty,
+        ClientReceiveMessage,
         ClientOpenConfigurationMenu;
 
     reliable if (Role < ROLE_Authority)
-        ServerRequestProperty,
+        ServerRequestProperties,
         ServerUpdateProperty;
 }
 
-simulated function ServerInfoReady();
+simulated function ServerPropertiesReady();
 simulated function ServerPropertyChanged(int Index, string OldValue);
+simulated function ParseArrayProperty(int Index, array<string> Values);
+simulated function ReceiveCustomMessage(HxReplicationMessage Message);
 
 simulated event PreBeginPlay()
 {
@@ -64,23 +74,158 @@ function SetupServer(HxMutator Mutator)
 {
     MutatorOwner = Mutator;
     MutatorOwner.UpdateServerInfo(ServerInfo);
-    PropertyIndex = ServerInfo.Settings.Length;
-    ReceivedCount = ServerInfo.Settings.Length;
-    if (Level.NetMode != NM_DedicatedServer)
-    {
-        ServerInfoReady();
-    }
+    bServerPropertiesRequested = (Level.NetMode == NM_DedicatedServer);
+    bServerPropertiesReady = bServerPropertiesRequested;
 }
 
 simulated event Tick(float DeltaTime)
 {
-    if (Level.NetMode == NM_Client)
+    if (!bServerPropertiesRequested)
     {
-        if (PropertyIndex < ServerInfo.Settings.Length)
+        if (Level.NetMode == NM_Client)
         {
-            RequestServerInfo();
+            ServerRequestProperties();
         }
+        else
+        {
+            bServerPropertiesReady = true;
+            ServerPropertiesReady();
+        }
+        bServerPropertiesRequested = true;
     }
+    ProcessMessageQueue();
+}
+
+function ProcessMessageQueue()
+{
+    local int Limit;
+    local int i;
+
+    if (MessageQueue.Length > 0)
+    {
+        Limit = Min(MESSAGES_PER_TICK, MessageQueue.Length);
+        for (i = 0; i < Limit; ++i)
+        {
+            ClientReceiveMessage(MessageQueue[i]);
+        }
+        MessageQueue.Remove(0, Limit);
+    }
+}
+
+function SetServerProperty(int Index, string Value)
+{
+    ServerInfo.StoreSetting(Index, Value);
+    EnqueueServerPropertyUpdate(Index);
+}
+
+function ServerUpdateProperty(int Index, string Value)
+{
+    if (IsAdmin() && ServerInfo.Settings[Index].Value != Value)
+    {
+        MutatorOwner.SetProperty(Index, Value);
+    }
+}
+
+function ServerRequestProperties()
+{
+    local int i;
+
+    for (i = 0; i < ServerInfo.Settings.Length; ++i)
+    {
+        EnqueueServerPropertyUpdate(i);
+    }
+}
+
+function EnqueueServerPropertyUpdate(int Index)
+{
+    local HxReplicationMessage Message;
+    local array<string> ArrayProperty;
+    local int i;
+
+    if (MutatorClass.default.Properties[Index].Type == HX_PROPERTY_Array)
+    {
+        ArrayProperty = MutatorOwner.GetArrayProperty(Index);
+        Message.Type = HX_RMSG_ArrayElement;
+        for (i = 0; i < ArrayProperty.Length; ++i)
+        {
+            Message.Index = i;
+            Message.Value = ArrayProperty[i];
+            MessageQueue[MessageQueue.Length] = Message;
+        }
+        Message.Value = string(ArrayProperty.Length);
+    }
+    else
+    {
+        Message.Value = ServerInfo.Settings[Index].Value;
+    }
+    Message.Type = HX_RMSG_ServerProperty;
+    Message.Index = Index;
+    MessageQueue[MessageQueue.Length] = Message;
+}
+
+simulated function ClientReceiveMessage(HxReplicationMessage Message)
+{
+    local string OldValue;
+
+    switch (Message.Type)
+    {
+        case HX_RMSG_ServerProperty:
+            if (MutatorClass.default.Properties[Message.Index].Type == HX_PROPERTY_Array)
+            {
+                ParseArrayProperty(Message.Index, ReplicatedArrayProperty);
+                ReplicatedArrayProperty.Remove(0, ReplicatedArrayProperty.Length);
+            }
+            else
+            {
+                OldValue = ServerInfo.Settings[Message.Index].Value;
+                ServerInfo.StoreSetting(Message.Index, Message.Value);
+            }
+            if (bServerPropertiesReady)
+            {
+                ServerPropertyChanged(Message.Index, OldValue);
+            }
+            else if (Message.Index == ServerInfo.Settings.Length - 1)
+            {
+                bServerPropertiesReady = true;
+                ServerPropertiesReady();
+            }
+            Manager.NotifyServerInfoChanged(Self);
+            break;
+        case HX_RMSG_ArrayElement:
+            ReplicatedArrayProperty[ReplicatedArrayProperty.Length] = Message.Value;
+            break;
+        case HX_RMSG_Custom:
+            ReceiveCustomMessage(Message);
+            break;
+    }
+}
+
+simulated function string GetServerPropertyByIndex(int Index)
+{
+    if (Index < ServerInfo.Settings.Length)
+    {
+        return ServerInfo.Settings[Index].Value;
+    }
+    return "";
+}
+
+simulated function string GetServerProperty(string Name)
+{
+    return GetServerPropertyByIndex(ServerInfo.FindIndex(Name));
+}
+
+simulated function string GetServerPropertyName(int Index)
+{
+    if (Index < ServerInfo.Settings.Length)
+    {
+        return GetItemName(ServerInfo.Settings[Index].SettingName);
+    }
+    return "";
+}
+
+simulated function ClientOpenConfigurationMenu()
+{
+    Manager.OpenConfigurationMenu(Self);
 }
 
 simulated function string GetProperty(int ConfigIndex, int PropertyIndex)
@@ -121,134 +266,12 @@ simulated final function bool IsValidConfigIndex(int Index)
     return Index > -1 && Index < Configs.Length;
 }
 
-function SetServerProperty(int Index, string Value)
-{
-    ClientUpdateServerProperty(Index, Value);
-    ServerInfo.StoreSetting(Index, Value);
-}
-
-function ServerUpdateProperty(int Index, string Value)
-{
-    if (IsAdmin() && ServerInfo.Settings[Index].Value != Value)
-    {
-        MutatorOwner.SetProperty(Index, Value);
-    }
-}
-
-function ServerRequestProperty(int Index)
-{
-    if (Index < ServerInfo.Settings.Length)
-    {
-        ClientReceiveServerProperty(Index, ServerInfo.Settings[Index].Value);
-    }
-}
-
-simulated function string GetServerPropertyByIndex(int Index)
-{
-    if (Index < ServerInfo.Settings.Length)
-    {
-        return ServerInfo.Settings[Index].Value;
-    }
-    return "";
-}
-
-simulated function string GetServerProperty(string Name)
-{
-    return GetServerPropertyByIndex(ServerInfo.FindIndex(Name));
-}
-
-simulated function string GetServerPropertyName(int Index)
-{
-    if (Index < ServerInfo.Settings.Length)
-    {
-        return GetItemName(ServerInfo.Settings[Index].SettingName);
-    }
-    return "";
-}
-
-simulated function RequestServerInfo()
-{
-    local int Limit;
-    local int i;
-
-    Limit = Min(PropertyIndex + REQUESTS_PER_TICK, ServerInfo.Settings.Length);
-    for (i = PropertyIndex; i < Limit; ++i)
-    {
-        if (MutatorClass.default.Properties[i].Type != HX_PROPERTY_Array)
-        {
-            ServerRequestProperty(i);
-        }
-        else
-        {
-            ++ReceivedCount;
-        }
-    }
-    PropertyIndex = Limit;
-}
-
-simulated function ClientReceiveServerProperty(int Index, string Value)
-{
-    ServerInfo.StoreSetting(Index, Value);
-    ++ReceivedCount;
-    if (IsServerInfoReady())
-    {
-        ServerInfoReady();
-        Manager.NotifyServerInfoChanged(Self);
-        ProcessPendingUpdates();
-    }
-}
-
-simulated function ClientUpdateServerProperty(int Index, string Value)
-{
-    if (IsServerInfoReady())
-    {
-        DoUpdateServerProperty(Index, Value);
-    }
-    else
-    {
-        PendingUpdates.Insert(PendingUpdates.Length, 1);
-        PendingUpdates[PendingUpdates.Length - 1].Index = Index;
-        PendingUpdates[PendingUpdates.Length - 1].Value = Value;
-    }
-}
-
-simulated function ProcessPendingUpdates()
-{
-    local int i;
-
-    for (i = 0; i < PendingUpdates.Length; ++i)
-    {
-        DoUpdateServerProperty(PendingUpdates[i].Index, PendingUpdates[i].Value);
-    }
-    PendingUpdates.Remove(0, PendingUpdates.Length);
-}
-
-simulated function ClientOpenConfigurationMenu()
-{
-    Manager.OpenConfigurationMenu(Self);
-}
-
-simulated function bool IsAdmin()
+simulated final function bool IsAdmin()
 {
     return Level.NetMode == NM_Standalone
         || (PlayerController(Owner) != None
             && PlayerController(Owner).PlayerReplicationInfo != None
             && PlayerController(Owner).PlayerReplicationInfo.bAdmin);
-}
-
-simulated function bool IsServerInfoReady()
-{
-    return ReceivedCount == ServerInfo.Settings.Length;
-}
-
-simulated private function DoUpdateServerProperty(int Index, string Value)
-{
-    local string OldValue;
-
-    OldValue = ServerInfo.Settings[Index].Value;
-    ServerInfo.StoreSetting(Index, Value);
-    ServerPropertyChanged(Index, OldValue);
-    Manager.NotifyServerInfoChanged(Self);
 }
 
 simulated function Actor SpawnUnique(class<Actor> ActorClass, Actor Owner)
