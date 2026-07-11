@@ -34,6 +34,8 @@ var localized string DisabledLabel;
 var localized string DefaultLabel;
 var localized string SkinLabels[3];
 var localized string TeamLabels[2];
+var localized string TeammatesLabel;
+var localized string EnemiesLabel;
 
 var private HxUTClient Client;
 var private HxSkinHighlightConfig Config;
@@ -51,13 +53,13 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     Sections[SECTION_TEAMMATES].Insert(co_Teammates);
     Sections[SECTION_TEAMMATES].Insert(co_TeammateSkin);
     Sections[SECTION_TEAMMATES].Insert(ch_ForceTeammateModel);
-    Sections[SECTION_TEAMMATES].Insert(b_TeammatePreviewBox);
     Sections[SECTION_TEAMMATES].Insert(b_ChangeTeammateModel);
+    Sections[SECTION_TEAMMATES].Insert(b_TeammatePreviewBox);
     Sections[SECTION_ENEMIES].Insert(co_Enemies);
     Sections[SECTION_ENEMIES].Insert(co_EnemySkin);
     Sections[SECTION_ENEMIES].Insert(ch_ForceEnemyModel);
-    Sections[SECTION_ENEMIES].Insert(b_EnemyPreviewBox);
     Sections[SECTION_ENEMIES].Insert(b_ChangeEnemyModel);
+    Sections[SECTION_ENEMIES].Insert(b_EnemyPreviewBox);
     Sections[SECTION_HIT_EFFECTS].Insert(co_ShieldHit);
     Sections[SECTION_HIT_EFFECTS].Insert(co_LinkHit);
     Sections[SECTION_HIT_EFFECTS].Insert(co_ShockHit);
@@ -71,8 +73,8 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     Colors = Client.GetSkinHighlightColors();
     HighlightIntensity = float(Client.GetServerProperty("SkinHighlightIntensity"));
     PopulateColorComboBoxes();
-    PopulateSkinVariantComboBox(co_TeammateSkin);
-    PopulateSkinVariantComboBox(co_EnemySkin);
+    PopulateSkinTypeComboBox(co_TeammateSkin);
+    PopulateSkinTypeComboBox(co_EnemySkin);
     co_SpectateAs.MyComboBox.MyListBox.MyList.bInitializeList = false;
     for (i = 0; i < 2; ++i)
     {
@@ -92,6 +94,7 @@ event Opened(GUIComponent Sender)
         TeammatePreview = ClientManager.Spawn(class'HxSkinHighlightPreview');
         TeammatePreview.HighlightIntensity = HighlightIntensity;
         TeammatePreview.TeamNumber = 0;
+        TeammatePreview.DisplayFOV = 12;
         TeammatePreview.Setup(Config.TeammateModel);
     }
     if (EnemyPreview == None)
@@ -99,10 +102,11 @@ event Opened(GUIComponent Sender)
         EnemyPreview = ClientManager.Spawn(class'HxSkinHighlightPreview');
         EnemyPreview.HighlightIntensity = HighlightIntensity;
         EnemyPreview.TeamNumber = 1;
+        EnemyPreview.DisplayFOV = 12;
         EnemyPreview.Setup(Config.EnemyModel);
     }
-    AddModelName(ch_ForceTeammateModel, Config.TeammateModel);
-    AddModelName(ch_ForceEnemyModel, Config.EnemyModel);
+    Sections[SECTION_TEAMMATES].SetHeader(TeammatesLabel@"("$Config.TeammateModel$")");
+    Sections[SECTION_ENEMIES].SetHeader(EnemiesLabel@"("$Config.EnemyModel$")");
     TeammatePreview.UpdateRotation(PlayerOwner());
     EnemyPreview.UpdateRotation(PlayerOwner());
     Super.Opened(Sender);
@@ -265,7 +269,7 @@ function OnCloseChangeTeammateModel(optional bool bCancelled)
             Client.SetProperty(Config.Index, 11, CharName);
             class'HxSkinHighlightConfig'.static.UpdateDynamicActors(PlayerOwner());
             TeammatePreview.Setup(Config.TeammateModel);
-            AddModelName(ch_ForceTeammateModel, Config.TeammateModel);
+            Sections[SECTION_TEAMMATES].SetHeader(TeammatesLabel@"("$Config.TeammateModel$")");
         }
     }
     bRenderPreviews = true;
@@ -293,7 +297,7 @@ function OnCloseChangeEnemyModel(optional bool bCancelled)
             Client.SetProperty(Config.Index, 13, CharName);
             class'HxSkinHighlightConfig'.static.UpdateDynamicActors(PlayerOwner());
             EnemyPreview.Setup(Config.EnemyModel);
-            AddModelName(ch_ForceEnemyModel, Config.EnemyModel);
+            Sections[SECTION_ENEMIES].SetHeader(EnemiesLabel@"("$Config.EnemyModel$")");
         }
     }
     bRenderPreviews = true;
@@ -314,25 +318,14 @@ function OnCloseCustomizeColors(optional bool bCancelled)
     Refresh();
 }
 
-static function PopulateSkinVariantComboBox(moComboBox ComboBox, optional bool bInitializeList)
+static function PopulateSkinTypeComboBox(moComboBox ComboBox, optional bool bInitializeList)
 {
     local int i;
 
     ComboBox.MyComboBox.MyListBox.MyList.bInitializeList = bInitializeList;
     for (i = 0; i < 3; ++i)
     {
-        ComboBox.AddItem(default.SkinLabels[i],,string(GetEnum(enum'EHxSkinVariant', i)));
-    }
-}
-
-static function AddModelName(GUIMenuOption Option, string Name)
-{
-    local string Left;
-    local string Right;
-
-    if (Divide(Option.Caption, "(", Left, Right))
-    {
-        Option.SetCaption(Left$"("$Name$")");
+        ComboBox.AddItem(default.SkinLabels[i],,string(GetEnum(enum'EHxSkinType', i)));
     }
 }
 
@@ -357,27 +350,31 @@ event Free()
 defaultproperties
 {
     Begin Object class=HxGUIFramedSection Name=TeammatesSection
-        Caption="Teammates"
-        WinHeight=0.645
+        WinHeight=0.5
         LineSpacing=0.012
-        ExpandIndices=(3)
+        ColumnSpacing=0.01
+        ColumnWidths=(0.6,0.4)
+        ExpandIndices=(-1,4)
+        MaxItemsPerColumn=4
     End Object
 
     Begin Object class=HxGUIFramedSection Name=EnemiesSection
-        Caption="Enemies"
-        WinHeight=0.645
+        WinHeight=0.5
         LineSpacing=0.012
-        ExpandIndices=(3)
+        ColumnSpacing=0.01
+        ColumnWidths=(0.6,0.4)
+        ExpandIndices=(-1,4)
+        MaxItemsPerColumn=4
     End Object
 
     Begin Object class=HxGUIFramedSection Name=HitEffectsSection
         Caption="On-Hit Overlay Effects"
-        WinHeight=0.355
+        WinHeight=0.5
     End Object
 
     Begin Object class=HxGUIFramedSection Name=AdvancedSection
         Caption="Advanced Options"
-        WinHeight=0.355
+        WinHeight=0.5
     End Object
 
     Begin Object class=moComboBox Name=TeammatesComboBox
@@ -385,7 +382,7 @@ defaultproperties
         Hint="Highlight color for you and your teammates."
         INIOption="@INTERNAL"
         Tag=0
-        ComponentWidth=0.64
+        CaptionWidth=0.42
         bReadOnly=true
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
@@ -394,11 +391,11 @@ defaultproperties
     co_Teammates=TeammatesComboBox
 
     Begin Object class=moComboBox Name=TeammateSkinComboBox
-        Caption="Skin variant"
-        Hint="Skin variant to use below the highlight color."
+        Caption="Skin type"
+        Hint="Skin type to use below the highlight color."
         INIOption="@INTERNAL"
         Tag=6
-        ComponentWidth=0.64
+        CaptionWidth=0.42
         bReadOnly=true
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
@@ -407,7 +404,7 @@ defaultproperties
     co_TeammateSkin=TeammateSkinComboBox
 
     Begin Object class=moCheckBox Name=ForceTeammateModel
-        Caption="Force model ()"
+        Caption="Force model"
         Hint="Force the selected model on teammates."
         INIOption="@INTERNAL"
         Tag=12
@@ -498,7 +495,7 @@ defaultproperties
         Hint="Highlight color for you and your enemies."
         INIOption="@INTERNAL"
         Tag=1
-        ComponentWidth=0.64
+        CaptionWidth=0.42
         bReadOnly=true
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
@@ -507,11 +504,11 @@ defaultproperties
     co_Enemies=EnemiesComboBox
 
     Begin Object class=moComboBox Name=EnemySkinComboBox
-        Caption="Skin variant"
-        Hint="Skin variant to use below the highlight color."
+        Caption="Skin type"
+        Hint="Skin type to use below the highlight color."
         INIOption="@INTERNAL"
         Tag=7
-        ComponentWidth=0.64
+        CaptionWidth=0.42
         bReadOnly=true
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
@@ -520,7 +517,7 @@ defaultproperties
     co_EnemySkin=EnemySkinComboBox
 
     Begin Object class=moCheckBox Name=ForceEnemyModel
-        Caption="Force model ()"
+        Caption="Force model"
         Hint="Force the selected model on enemies."
         INIOption="@INTERNAL"
         Tag=14
@@ -619,5 +616,7 @@ defaultproperties
     SkinLabels(2)="Normal"
     TeamLabels(0)="Red Team"
     TeamLabels(1)="Blue Team"
+    TeammatesLabel="Teammates"
+    EnemiesLabel="Enemies"
     bRenderPreviews=true
 }

@@ -1,6 +1,6 @@
 class HxSkinHighlight extends Actor;
 
-enum EHxSkinVariant
+enum EHxSkinType
 {
     HX_SKIN_RedTeam,
     HX_SKIN_BlueTeam,
@@ -19,8 +19,8 @@ var string ShieldHit;
 var string LinkHit;
 var string ShockHit;
 var string LightningHit;
-var EHxSkinVariant TeammateSkin;
-var EHxSkinVariant EnemySkin;
+var EHxSkinType TeammateSkin;
+var EHxSkinType EnemySkin;
 var bool bRandomize;
 var bool bDisableOnDeadBodies;
 var int SpectatorTeam;
@@ -34,7 +34,7 @@ var bool bForceEnemyModel;
 var protected PlayerController PC;
 var protected HxUTClient Client;
 var protected HxColors Colors;
-var protected EHxSkinVariant SkinVariant;
+var protected EHxSkinType SkinType;
 var protected array<Material> Materials;
 var protected array<Material> OriginalSkins;
 var protected array<Material> BaseSkins;
@@ -123,7 +123,7 @@ auto state Startup
             LocalPlayerTeam = GetLocalPlayerTeam();
             if (ValidateCharacterModel())
             {
-                SkinVariant = GetSkinVariant();
+                SkinType = GetSkinType();
                 ParseHitEffects();
                 if (Colors.Find(GetHighlightColorName(), MainColor) > -1)
                 {
@@ -654,7 +654,7 @@ simulated function string GetHighlightColorName()
     return Eval(TeamNumber != LocalPlayerTeam, Enemies, Teammates);
 }
 
-simulated function EHxSkinVariant GetSkinVariant()
+simulated function EHxSkinType GetSkinType()
 {
     if (!Level.GRI.bTeamGame || TeamNumber == 255 || TeamNumber != LocalPlayerTeam)
     {
@@ -697,9 +697,9 @@ simulated function Material GetSkinReplacement(coerce string Name)
     if (Suffix ~= "_0B" || Suffix ~= "_1B")
     {
         Name = Left(Name, Len(Name) - 3);
-        if (SkinVariant != HX_SKIN_Normal)
+        if (SkinType != HX_SKIN_Normal)
         {
-            Name = Name$"_"$int(SkinVariant)$"B";
+            Name = Name$"_"$int(SkinType)$"B";
         }
         else if (StrCmp(Name, "Bright", 6, false) == 0)
         {
@@ -713,9 +713,9 @@ simulated function Material GetSkinReplacement(coerce string Name)
         if (Suffix == "_0" || Suffix == "_1")
         {
             Name = Left(Name, Len(Name) - 2);
-            if (SkinVariant != HX_SKIN_Normal)
+            if (SkinType != HX_SKIN_Normal)
             {
-                Name = Name$"_"$int(SkinVariant);
+                Name = Name$"_"$int(SkinType);
             }
             Skin = Material(DynamicLoadObject(Name, class'Material', true));
         }

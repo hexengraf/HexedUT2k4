@@ -46,6 +46,11 @@ event SetVisibility(bool bIsVisible)
     }
 }
 
+function SetHeader(string Caption)
+{
+    l_Header.Caption = Caption;
+}
+
 function SetHide(bool bHide, optional string Reason)
 {
     local int i;

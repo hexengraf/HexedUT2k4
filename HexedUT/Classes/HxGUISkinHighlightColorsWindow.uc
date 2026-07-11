@@ -51,7 +51,7 @@ function InitComponent(GUIController MyController, GUIComponent MyComponent)
     PreviewCharacterName = Config.EnemyModel;
     HighlightIntensity = float(Client.GetServerProperty("SkinHighlightIntensity"));
     PopulateColorComboBoxes();
-    class'HxGUIMenuSkinHighlightPanel'.static.PopulateSkinVariantComboBox(co_PreviewSkin);
+    class'HxGUIMenuSkinHighlightPanel'.static.PopulateSkinTypeComboBox(co_PreviewSkin);
     co_PreviewSkin.SetIndex(class'HxSkinHighlightPreview'.default.ActiveSkin);
 }
 
@@ -514,8 +514,8 @@ defaultproperties
     b_PreviewBox=PreviewBoxButton
 
     Begin Object class=moComboBox Name=PreviewSkinComboBox
-        Caption="Skin variant"
-        Hint="Select skin variant to be used on the preview."
+        Caption="Skin type"
+        Hint="Select skin type to be used on the preview."
         INIOption="@INTERNAL"
         ComponentWidth=0.64
         StandardHeight=0.03

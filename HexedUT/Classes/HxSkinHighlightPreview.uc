@@ -1,7 +1,7 @@
 class HxSkinHighlightPreview extends HxSkinHighlight;
 
 var string ActiveColor;
-var EHxSkinVariant ActiveSkin;
+var EHxSkinType ActiveSkin;
 var float DisplayFOV;
 var vector PreviewOffset;
 
@@ -15,7 +15,7 @@ function Setup(string CharacterModelName)
     local Mesh ModelMesh;
     local string BodySkinName;
     local string FaceSkinName;
-    local int Variant;
+    local int Team;
 
     if (PreviewModel == None)
     {
@@ -41,18 +41,18 @@ function Setup(string CharacterModelName)
     }
     BodySkinName = Record.BodySkinName;
     FaceSkinName = Record.FaceSkinName;
-    Variant = Clamp(TeamNumber, 0, 1);
+    Team = Clamp(TeamNumber, 0, 1);
     if (class'DMMutator'.default.bBrightSkins && Left(BodySkinName, 12) ~= "PlayerSkins.")
     {
-        BodySkinName = "Bright"$BodySkinName$"_"$Variant$"B";
+        BodySkinName = "Bright"$BodySkinName$"_"$Team$"B";
     }
     else
     {
-        BodySkinName $= "_"$Variant;
+        BodySkinName $= "_"$Team;
     }
     if (Record.TeamFace)
     {
-        FaceSkinName $= "_"$Variant;
+        FaceSkinName $= "_"$Team;
     }
     PreviewModel.Skins[0] = Material(DynamicLoadObject(BodySkinName, class'Material', true));
     PreviewModel.Skins[1] = Material(DynamicLoadObject(FaceSkinName, class'Material', true));
@@ -179,7 +179,7 @@ simulated function string GetHighlightColorName()
     return ActiveColor;
 }
 
-simulated function EHxSkinVariant GetSkinVariant()
+simulated function EHxSkinType GetSkinType()
 {
     if (TeamNumber == 0)
     {
