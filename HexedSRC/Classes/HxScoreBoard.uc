@@ -137,6 +137,7 @@ var private int TopIndex;
 var private int FontIndex;
 var private int SpectatingRegionHeight;
 var private string SpectatingPlayers;
+var private string DetailedStatsHint;
 var private HxScoreBoardInteraction Interaction;
 
 simulated function ConfigureColumns();
@@ -220,6 +221,11 @@ simulated event DrawScoreboard(Canvas C)
             if (TimeSinceLastUpdate > 3 * Level.TimeDilation)
             {
                 CenterOnFocused();
+                DetailedStatsHint = class'GameInfo'.static.GetKeyBindName("ShowStats", PC);
+                if (DetailedStatsHint != "")
+                {
+                    DetailedStatsHint = Repl(DetailedStatsLabel, "%", DetailedStatsHint);
+                }
             }
             UpdatePRIs();
             bUpdateVisible = UpdateTables();
@@ -338,30 +344,40 @@ simulated function DrawMapInfo(Canvas C)
     local string StatusText;
     local float Left;
     local float Top;
-    local float Height;
     local float Right;
+    local float Bottom;
 
     C.DrawColor = HighlightTextColor;
     C.Font = BigFont;
     C.DrawTextJustified(GetTitleText(), 1, 0, 0, ScreenWidth, TableRegion[1]);
-    Height = MediumFontHeight * 1.25;
-    Top = ScreenHeight - Height;
-    Left = SmallFontHeight / 2;
+    Left = OuterSpacing;
+    Bottom = ScreenHeight - MediumFontHeight * 0.1;
+    Top = Bottom - MediumFontHeight;
     Right = ScreenWidth - Left;
     C.Font = MediumFont;
-    C.DrawTextJustified(GetLevelInfoText(), 1, 0, Top, ScreenWidth, ScreenHeight);
-    C.DrawTextJustified(GetTimestampText(), 2, 0, Top, Right, ScreenHeight);
+    C.DrawTextJustified(GetLevelInfoText(), 1, 0, Top, ScreenWidth, Bottom);
+    C.Font = SmallFont;
+    C.DrawTextJustified(GetTimestampText(), 2, 0, Top, Right, Bottom);
     if (Tables.Length > 1)
     {
-        C.DrawTextJustified(SwitchLayoutLabel, 0, Left, Top, Right, ScreenHeight);
+        C.DrawTextJustified(SwitchLayoutLabel, 0, Left, Top, Right, Bottom);
+        if (DetailedStatsHint != "")
+        {
+            C.DrawTextJustified(DetailedStatsHint, 0, Left, Top - SmallFontHeight, Right, Top);
+        }
+    }
+    else if (DetailedStatsHint != "")
+    {
+        C.DrawTextJustified(DetailedStatsHint, 0, Left, Top, Right, Bottom);
     }
     if (GetStatusText(StatusText))
     {
-        C.DrawTextJustified(StatusText, 1, 0, Top - Height, ScreenWidth, Top);
+        C.Font = MediumFont;
+        C.DrawTextJustified(StatusText, 1, 0, Top - MediumFontHeight * 1.25, ScreenWidth, Top);
     }
     if (GRI.MatchID != 0)
     {
-        C.DrawTextJustified(MatchIDLabel$GRI.MatchID, 2, 0, Top - Height, Right, Top);
+        C.DrawTextJustified(MatchIDLabel$GRI.MatchID, 2, 0, Top - SmallFontHeight, Right, Top);
     }
 }
 
@@ -1483,6 +1499,7 @@ defaultproperties
     ReadyColor=(R=64,G=255,B=64,A=255)
     PlayerColumn=1
     bVerticalLayout=true
+    LastUpdateTime=-5
 
     ReadyLabel="RDY"
     PlayerLabel="PLAYER (%)"
