@@ -16,6 +16,7 @@ var private array<HxConfig> ConfigPool;
 var private array<Object> ObjectPool;
 var private bool bInitialized;
 var private bool bShowFirstRunNotification;
+var private bool bIsFirstRun;
 
 simulated event PreBeginPlay()
 {
@@ -23,6 +24,7 @@ simulated event PreBeginPlay()
     if (bFirstRun)
     {
         bShowFirstRunNotification = true;
+        bIsFirstRun = true;
         bFirstRun = false;
         SaveConfig();
     }
@@ -245,6 +247,11 @@ simulated function bool DecodeTag(int Tag,
         return CRIs[CRIIndex] != None;
     }
     return false;
+}
+
+simulated function bool IsFirstRun()
+{
+    return bIsFirstRun;
 }
 
 simulated event Destroyed()
