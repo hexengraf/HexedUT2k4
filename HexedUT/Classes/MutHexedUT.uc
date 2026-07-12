@@ -2,6 +2,7 @@ class MutHexedUT extends HxMutator;
 
 var config bool bAllowHitSounds;
 var config bool bAllowDamageNumbers;
+var config bool bRequireLOS;
 var config bool bAllowSkinHighlight;
 var config float SkinHighlightIntensity;
 var config bool bAllowCustomViewSmoothing;
@@ -82,12 +83,16 @@ function RegisterDamage(int Damage, Pawn Injured, Pawn Inflictor, class<DamageTy
 
     if (bAllowHitSounds || bAllowDamageNumbers)
     {
-        for (i = 0; i < CRIs.Length; ++i)
+        if (!bRequireLOS
+            || FastTrace(Injured.Location, Inflictor.Location + Inflictor.EyePosition()))
         {
-            PC = PlayerController(CRIs[i].Owner);
-            if (PC != None && PC.ViewTarget == Inflictor)
+            for (i = 0; i < CRIs.Length; ++i)
             {
-                HxUTClient(CRIs[i]).UpdateDamage(Damage, Injured, Inflictor, Type);
+                PC = PlayerController(CRIs[i].Owner);
+                if (PC != None && PC.ViewTarget == Inflictor)
+                {
+                    HxUTClient(CRIs[i]).UpdateDamage(Damage, Injured, Inflictor, Type);
+                }
             }
         }
     }
@@ -119,25 +124,28 @@ defaultproperties
     CRIClass=class'HxUTClient'
     Properties(0)=(Name="bAllowHitSounds",Type=HX_PROPERTY_Bool)
     Properties(1)=(Name="bAllowDamageNumbers",Type=HX_PROPERTY_Bool)
-    Properties(2)=(Name="bAllowSkinHighlight",Type=HX_PROPERTY_Bool)
-    Properties(3)=(Name="SkinHighlightIntensity",Type=HX_PROPERTY_Float,LowerLimit="0.0",UpperLimit="1.0")
-    Properties(4)=(Name="bAllowCustomViewSmoothing",Type=HX_PROPERTY_Bool)
-    Properties(5)=(Name="bAllowEnhancedScoreBoards",Type=HX_PROPERTY_Bool)
-    Properties(6)=(Name="bAllowSpawnProtectionTimer",Type=HX_PROPERTY_Bool)
-    Properties(7)=(Name="bColoredDeathMessages",Type=HX_PROPERTY_Bool)
+    Properties(2)=(Name="bRequireLOS",Type=HX_PROPERTY_Bool)
+    Properties(3)=(Name="bAllowSkinHighlight",Type=HX_PROPERTY_Bool)
+    Properties(4)=(Name="SkinHighlightIntensity",Type=HX_PROPERTY_Float,LowerLimit="0.0",UpperLimit="1.0")
+    Properties(5)=(Name="bAllowCustomViewSmoothing",Type=HX_PROPERTY_Bool)
+    Properties(6)=(Name="bAllowEnhancedScoreBoards",Type=HX_PROPERTY_Bool)
+    Properties(7)=(Name="bAllowSpawnProtectionTimer",Type=HX_PROPERTY_Bool)
+    Properties(8)=(Name="bColoredDeathMessages",Type=HX_PROPERTY_Bool)
     DisplayInfo(0)=(Section="Hit Effects",Caption="Allow hit sounds",Hint="Allow clients to enable/disable hit sound effects.")
     DisplayInfo(1)=(Section="Hit Effects",Caption="Allow damage numbers",Hint="Allow clients to enable/disable damage number effects.")
-    DisplayInfo(2)=(Section="Skin Highlight",Caption="Allow skin highlight",Hint="Allow clients to enable/disable skin highlights.")
-    DisplayInfo(3)=(Section="Skin Highlight",Caption="Skin highlight intensity",Hint="Factor to multiply RGB values (between 0.0 and 1.0).",bAdvanced=true)
-    DisplayInfo(4)=(Section="Player",Caption="Allow custom view smoothing",Hint="Allow clients to select different types of view smoothing.")
-    DisplayInfo(5)=(Section="HUD",Caption="Allow enhanced scoreboards",Hint="Allow clients to enable/disable the enhanced scoreboards.")
-    DisplayInfo(6)=(Section="HUD",Caption="Allow spawn protection timer",Hint="Allow clients to enable/disable the spawn protection timer.")
-    DisplayInfo(7)=(Section="HUD",Caption="Colored death messages",Hint="Use team colors in death messages (blue = killer and red = victim if no teams).")
+    DisplayInfo(2)=(Section="Hit Effects",Caption="Require line of sight",Hint="Require line of sight between player and target to trigger hit effects.")
+    DisplayInfo(3)=(Section="Skin Highlight",Caption="Allow skin highlight",Hint="Allow clients to enable/disable skin highlights.")
+    DisplayInfo(4)=(Section="Skin Highlight",Caption="Skin highlight intensity",Hint="Factor to multiply RGB values (between 0.0 and 1.0).",bAdvanced=true)
+    DisplayInfo(5)=(Section="Player",Caption="Allow custom view smoothing",Hint="Allow clients to select different types of view smoothing.")
+    DisplayInfo(6)=(Section="HUD",Caption="Allow enhanced scoreboards",Hint="Allow clients to enable/disable the enhanced scoreboards.")
+    DisplayInfo(7)=(Section="HUD",Caption="Allow spawn protection timer",Hint="Allow clients to enable/disable the spawn protection timer.")
+    DisplayInfo(8)=(Section="HUD",Caption="Colored death messages",Hint="Use team colors in death messages (blue = killer and red = victim if no teams).")
     bDisableTick=true
 
     bAllowHitSounds=true
     bAllowDamageNumbers=true
     bAllowSkinHighlight=true
+    bRequireLOS=false
     SkinHighlightIntensity=0.42
     bAllowCustomViewSmoothing=true
     bAllowEnhancedScoreBoards=true
