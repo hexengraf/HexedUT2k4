@@ -4,6 +4,8 @@ const SECTION_HIT_SOUNDS = 0;
 const SECTION_DAMAGE_NUMBERS = 1;
 const SECTION_INTERPOLATION_CURVE = 2;
 
+const AUTO_FONT = "AUTOSELECT";
+
 var automated moCheckBox ch_HitSounds;
 var automated moComboBox co_HitSoundNames;
 var automated moSlider sl_HitSoundVolume;
@@ -23,9 +25,10 @@ var automated moSlider sl_RedColor;
 var automated moSlider sl_GreenColor;
 var automated moSlider sl_BlueColor;
 
-var localized string PitchModeNames[3];
-var localized string DisplayModeNames[5];
-var localized string DamagePointNames[5];
+var localized string PitchModeLabels[3];
+var localized string DisplayModeLabels[5];
+var localized string DamagePointLabels[5];
+var localized string AutoSelectFontLabel;
 
 var private HxUTClient Client;
 var private HxHitEffectsConfig Config;
@@ -100,33 +103,34 @@ function PopulateComboBoxes()
             co_HitSoundNames.AddItem(GetItemName(HitSoundNames[i]),,HitSoundNames[i]);
         }
     }
-    for (i = 0; i < ArrayCount(PitchModeNames); ++i)
+    for (i = 0; i < Config.CustomHitSounds.Length; ++i)
     {
-        co_PitchMode.AddItem(PitchModeNames[i],,string(GetEnum(enum'EHxPitchMode', i)));
+        co_HitSoundNames.AddItem(GetItemName(Config.CustomHitSounds[i]),,Config.CustomHitSounds[i]);
     }
-    for (i = 0; i < ArrayCount(DisplayModeNames); ++i)
+    for (i = 0; i < ArrayCount(PitchModeLabels); ++i)
     {
-        co_DisplayMode.AddItem(DisplayModeNames[i],,string(GetEnum(enum'EHxDisplayMode', i)));
+        co_PitchMode.AddItem(PitchModeLabels[i],,string(GetEnum(enum'EHxPitchMode', i)));
     }
-    for (i = 0; i < ArrayCount(DamagePointNames); ++i)
+    for (i = 0; i < ArrayCount(DisplayModeLabels); ++i)
     {
-        co_DamagePoints.AddItem(DamagePointNames[i],,string(i));
+        co_DisplayMode.AddItem(DisplayModeLabels[i],,string(GetEnum(enum'EHxDisplayMode', i)));
     }
-    for (i = 0; i < class'HxHitEffects'.default.FontNames.Length; ++i)
+    for (i = 0; i < ArrayCount(DamagePointLabels); ++i)
     {
-        if (class'HxHitEffects'.default.DisplayFontName ~= class'HxHitEffects'.default.FontNames[i])
+        co_DamagePoints.AddItem(DamagePointLabels[i],,string(i));
+    }
+    co_DisplayFont.AddItem(AutoSelectFontLabel,, AUTO_FONT);
+    for (i = 0; i < Config.FontNames.Length; ++i)
+    {
+        if (Config.DisplayFontName ~= Config.FontNames[i])
         {
             bFoundFont = true;
         }
-        co_DisplayFont.AddItem(
-            GetItemName(class'HxHitEffects'.default.FontNames[i]),,
-            class'HxHitEffects'.default.FontNames[i]);
+        co_DisplayFont.AddItem(GetItemName(Config.FontNames[i]),, Config.FontNames[i]);
     }
-    if (!bFoundFont)
+    if (!bFoundFont && Config.DisplayFontName != AUTO_FONT)
     {
-        co_DisplayFont.AddItem(
-            GetItemName(class'HxHitEffects'.default.DisplayFontName),,
-            class'HxHitEffects'.default.DisplayFontName);
+        co_DisplayFont.AddItem(GetItemName(Config.DisplayFontName),, Config.DisplayFontName);
     }
 }
 
@@ -638,18 +642,19 @@ defaultproperties
     Sections(1)=DamageNumbersSection
     Sections(2)=InterpolationCurveSection
     Sections(3)=None
-    PitchModeNames(0)="Disabled"
-    PitchModeNames(1)="Low to high"
-    PitchModeNames(2)="High to low"
-    DisplayModeNames(0)="Static per hit"
-    DisplayModeNames(1)="Static total"
-    DisplayModeNames(2)="Static per hit & total"
-    DisplayModeNames(3)="Float per hit"
-    DisplayModeNames(4)="Float per hit & total"
-    DamagePointNames(0)="Zero damage"
-    DamagePointNames(1)="Low damage"
-    DamagePointNames(2)="Medium damage"
-    DamagePointNames(3)="High damage"
-    DamagePointNames(4)="Extreme damage"
+    PitchModeLabels(0)="Disabled"
+    PitchModeLabels(1)="Low to high"
+    PitchModeLabels(2)="High to low"
+    DisplayModeLabels(0)="Static per hit"
+    DisplayModeLabels(1)="Static total"
+    DisplayModeLabels(2)="Static per hit & total"
+    DisplayModeLabels(3)="Float per hit"
+    DisplayModeLabels(4)="Float per hit & total"
+    DamagePointLabels(0)="Zero damage"
+    DamagePointLabels(1)="Low damage"
+    DamagePointLabels(2)="Medium damage"
+    DamagePointLabels(3)="High damage"
+    DamagePointLabels(4)="Extreme damage"
+    AutoSelectFontLabel="Auto-select"
     DPIndex=4
 }

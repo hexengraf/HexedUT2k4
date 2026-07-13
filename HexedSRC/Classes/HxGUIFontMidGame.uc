@@ -23,82 +23,89 @@ static final function PrecacheFonts()
     {
         if (default.BigFonts[Index] == None)
         {
-            default.BigFontNames[Index] = ValidateFontName(default.BigFontNames[Index]);
-            default.BigFonts[Index] = Font(
-                DynamicLoadObject(default.BigFontNames[Index], class'Font'));
+            default.BigFonts[Index] = InternalLoadFont(default.BigFontNames[Index]);
         }
         if (default.MediumFonts[Index] == None)
         {
-            default.MediumFontNames[Index] = ValidateFontName(default.MediumFontNames[Index]);
-            default.MediumFonts[Index] = Font(
-                DynamicLoadObject(default.MediumFontNames[Index], class'Font'));
+            default.MediumFonts[Index] = InternalLoadFont(default.MediumFontNames[Index]);
         }
         if (default.SmallFonts[Index] == None)
         {
-            default.SmallFontNames[Index] = ValidateFontName(default.SmallFontNames[Index]);
-            default.SmallFonts[Index] = Font(
-                DynamicLoadObject(default.SmallFontNames[Index], class'Font'));
+            default.SmallFonts[Index] = InternalLoadFont(default.SmallFontNames[Index]);
         }
         if (default.HugeNumericFonts[Index] == None)
         {
-            default.HugeNumericFontNames[Index] = ValidateFontName(
-                default.HugeNumericFontNames[Index]);
-            default.HugeNumericFonts[Index] = Font(
-                DynamicLoadObject(default.HugeNumericFontNames[Index], class'Font'));
+            default.HugeNumericFonts[Index] = InternalLoadFont(default.HugeNumericFontNames[Index]);
         }
     }
+}
+
+static final function Font GetBigFont(Canvas C)
+{
+    return GetBigFontFor(GetFontIndex(C));
 }
 
 static final function Font GetBigFontFor(int Index)
 {
     if (default.BigFonts[Index] == None)
     {
-        default.BigFontNames[Index] = ValidateFontName(default.BigFontNames[Index]);
-        default.BigFonts[Index] = Font(DynamicLoadObject(default.BigFontNames[Index], class'Font'));
+        default.BigFonts[Index] = InternalLoadFont(default.BigFontNames[Index]);
     }
     return default.BigFonts[Index];
+}
+
+static final function Font GetMediumFont(Canvas C)
+{
+    return GetMediumFontFor(GetFontIndex(C));
 }
 
 static final function Font GetMediumFontFor(int Index)
 {
     if (default.MediumFonts[Index] == None)
     {
-        default.MediumFontNames[Index] = ValidateFontName(default.MediumFontNames[Index]);
-        default.MediumFonts[Index] = Font(
-            DynamicLoadObject(default.MediumFontNames[Index], class'Font'));
+        default.MediumFonts[Index] = InternalLoadFont(default.MediumFontNames[Index]);
     }
     return default.MediumFonts[Index];
+}
+
+static final function Font GetSmallFont(Canvas C)
+{
+    return GetSmallFontFor(GetFontIndex(C));
 }
 
 static final function Font GetSmallFontFor(int Index)
 {
     if (default.SmallFonts[Index] == None)
     {
-        default.SmallFontNames[Index] = ValidateFontName(default.SmallFontNames[Index]);
-        default.SmallFonts[Index] = Font(
-            DynamicLoadObject(default.SmallFontNames[Index], class'Font'));
+        default.SmallFonts[Index] = InternalLoadFont(default.SmallFontNames[Index]);
     }
     return default.SmallFonts[Index];
+}
+
+static final function Font GetTinyFont(Canvas C)
+{
+    return GetTinyFontFor(GetFontIndex(C));
 }
 
 static final function Font GetTinyFontFor(int Index)
 {
     if (default.TinyFonts[Index] == None)
     {
-        default.TinyFontNames[Index] = ValidateFontName(default.TinyFontNames[Index]);
-        default.TinyFonts[Index] = Font(
-            DynamicLoadObject(default.TinyFontNames[Index], class'Font'));
+        default.TinyFonts[Index] = InternalLoadFont(default.TinyFontNames[Index]);
     }
     return default.TinyFonts[Index];
+}
+
+static final function Font GetHugeNumericFont(Canvas C)
+{
+    return GetHugeNumericFontFor(GetFontIndex(C));
 }
 
 static final function Font GetHugeNumericFontFor(int Index)
 {
     if (default.HugeNumericFonts[Index] == None)
     {
-        default.HugeNumericFontNames[Index] = ValidateFontName(default.HugeNumericFontNames[Index]);
-        default.HugeNumericFonts[Index] = Font(
-            DynamicLoadObject(default.HugeNumericFontNames[Index], class'Font'));
+        default.HugeNumericFonts[Index] = InternalLoadFont(default.HugeNumericFontNames[Index]);
     }
     return default.HugeNumericFonts[Index];
 }
@@ -130,6 +137,18 @@ static final function string ValidateFontName(string FontName)
         }
     }
     return FontName;
+}
+
+static final function Font DynamicLoadFont(string FontName, optional bool MayFail)
+{
+    FontName = ValidateFontName(FontName);
+    return Font(DynamicLoadObject(FontName, class'Font', MayFail));
+}
+
+static private final function Font InternalLoadFont(out string FontName)
+{
+    FontName = ValidateFontName(FontName);
+    return Font(DynamicLoadObject(FontName, class'Font'));
 }
 
 defaultproperties

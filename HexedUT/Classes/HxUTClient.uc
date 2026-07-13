@@ -32,7 +32,13 @@ simulated event PreBeginPlay()
     {
         SkinHighlightColors = HxColors(Manager.LoadObject(class'HxColors', "HxSkinHighlight"));
         class'HxSkinHighlight'.static.PopulateReservedNames(SkinHighlightColors);
-        HxSkinHighlightConfig(Configs[1]).ValidateColors(SkinHighlightColors);
+        HxSkinHighlightConfig(FindConfig(
+            class'HxSkinHighlightConfig')).ValidateColors(SkinHighlightColors);
+        if (Manager.IsFirstRun())
+        {
+            // TODO: remove this in v10
+            HxHitEffectsConfig(FindConfig(class'HxHitEffectsConfig')).TemporaryFirstRunFix();
+        }
     }
 }
 

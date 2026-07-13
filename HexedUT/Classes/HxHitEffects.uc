@@ -40,6 +40,8 @@ struct HxDamagePoint
     var Color Color;
 };
 
+const AUTO_FONT = "AUTOSELECT";
+
 const ALAUDIO_PITCH_MIN = 0.5;
 const ALAUDIO_PITCH_MAX = 2.0;
 const ALAUDIO_PITCH_SPECTRUM = 1.5; // ALAUDIO_PITCH_MAX - ALAUDIO_PITCH_MIN
@@ -54,7 +56,6 @@ const DN_TOTAL_INDEX = 1;
 const DN_NORMAL_DURATION = 1.0;
 const DN_EXTENDED_DURATION = 1.5;
 const DN_TRAVEL = 0.15;
-const DN_DUAL_OFFSET = 0.025;
 
 var bool bHitSounds;
 var string HitSoundName;
@@ -81,7 +82,9 @@ var private HxDamagePoint DamagePoints[5];
 var private array<HxDisplayWidget> Widgets;
 var private Sound LoadedHitSound;
 var private Font LoadedFont;
-var private float GlobalScale;
+var private float ScreenWidth;
+var private float ScreenHeight;
+var private float DualOffset;
 
 simulated event PreBeginPlay()
 {
@@ -93,7 +96,6 @@ simulated event PreBeginPlay()
     InitializeWidgets();
     LoadHitSound();
     LoadDamagePoints();
-    LoadFont();
 }
 
 simulated function LoadHitSound()
@@ -111,9 +113,20 @@ simulated function LoadHitSound()
     LoadedHitSound = Sound(DynamicLoadObject(HitSoundName, class'Sound'));
 }
 
-simulated function LoadFont()
+simulated function LoadFont(Canvas C)
 {
-    LoadedFont = Font(DynamicLoadObject(DisplayFontName, class'Font'));
+    local float Width;
+
+    if (DisplayFontName == AUTO_FONT)
+    {
+        LoadedFont = class'HxGUIFontMidGame'.static.GetBigFont(C);
+    }
+    else
+    {
+        LoadedFont = class'HXGUIFontMidGame'.static.DynamicLoadFont(DisplayFontName, true);
+    }
+    C.TextSize("0", Width, DualOffset);
+    DualOffset = DualOffset / C.ClipY;
 }
 
 simulated function LoadDamagePoints()
@@ -200,9 +213,14 @@ simulated function Render(Canvas C)
     local float SavedFontScaleY;
     local int i;
 
+    if (C.ClipX != ScreenWidth || C.ClipY != ScreenHeight)
+    {
+        LoadFont(C);
+        ScreenWidth = C.ClipX;
+        ScreenHeight = C.ClipY;
+    }
     SavedFontScaleX = C.FontScaleX;
     SavedFontScaleY = C.FontScaleY;
-    GlobalScale = C.ClipX / REFERENCE_SCREEN_X;
     for (i = 0; i < Widgets.Length; ++i)
     {
         if (Widgets[i].Value > 0)
@@ -221,7 +239,7 @@ simulated function DrawWidget(Canvas C, int i)
 
     C.DrawColor = Widgets[i].Color;
     C.Font = LoadedFont;
-    C.FontScaleX = GlobalScale * Widgets[i].Scale;
+    C.FontScaleX = Widgets[i].Scale;
     C.FontScaleY = C.FontScaleX;
     C.StrLen(Widgets[i].Value, XL, YL);
     C.SetPos((C.ClipX - XL) * DisplayPosX, (C.ClipY - YL) * (DisplayPosY + Widgets[i].DeltaY));
@@ -235,7 +253,7 @@ simulated function DrawPreview(Canvas C, int i)
 
     C.DrawColor = DamagePoints[i].Color;
     C.Font = LoadedFont;
-    C.FontScaleX = GlobalScale * ToAbsoluteScale(DamagePoints[i].Scale);
+    C.FontScaleX = ToAbsoluteScale(DamagePoints[i].Scale);
     C.FontScaleY = C.FontScaleX;
     C.StrLen(DamagePoints[i].Value, XL, YL);
     C.SetPos((C.ClipX - XL) * 0.5, (C.ClipY - YL) * 0.5);
@@ -313,7 +331,7 @@ simulated function UpdateWidgets(int Damage)
                 if (Widgets[DN_TOTAL_INDEX].Value == 0)
                 {
                     Widgets[DN_TOTAL_INDEX].Value = Widgets[DN_STATIC_INDEX].Value;
-                    Widgets[DN_TOTAL_INDEX].DeltaY -= DN_DUAL_OFFSET;
+                    Widgets[DN_TOTAL_INDEX].DeltaY -= DualOffset;
                 }
                 UpdateWidget(DN_TOTAL_INDEX, Damage);
                 Widgets[DN_STATIC_INDEX].Value = 0;
@@ -403,7 +421,8 @@ simulated function SetProperty(string Name, string Value)
             LoadHitSound();
             break;
         case "DisplayFontName":
-            LoadFont();
+            ScreenWidth = 0;
+            ScreenHeight = 0;
             break;
         case "ZeroDamage":
             DamagePoints[0] = ZeroDamage;
@@ -490,6 +509,35 @@ static function bool IsBuiltInHitSound(string Name)
 
 defaultproperties
 {
+    bHitSounds=true
+    HitSoundName="HxHitSound0"
+    HitSoundVolume=1.0
+    PitchMode=HX_PITCH_High2Low
+    bDamageNumbers=true
+    DisplayMode=HX_DISPLAY_StaticDual
+    DisplayFontName="AUTOSELECT";
+    DisplayPosX=0.5
+    DisplayPosY=0.45
+    ZeroDamage=(Value=0,Pitch=0.00,Scale=0.00,Color=(R=255,G=255,B=255))
+    LowDamage=(Value=20,Pitch=0.40,Scale=0.25,Color=(R=255,G=255,B=32))
+    MediumDamage=(Value=45,Pitch=0.60,Scale=0.50,Color=(R=255,G=119,B=32))
+    HighDamage=(Value=75,Pitch=0.82,Scale=0.75,Color=(R=255,G=32,B=32))
+    ExtremeDamage=(Value=110,Pitch=1.00,Scale=1.00,Color=(R=143,G=32,B=245))
+    FontNames(0)="UT2003Fonts.FontEurostile9"
+    FontNames(1)="UT2003Fonts.FontEurostile12"
+    FontNames(2)="UT2003Fonts.FontEurostile14"
+    FontNames(3)="UT2003Fonts.FontEurostile17"
+    FontNames(4)="HxFontEurostile18"
+    FontNames(5)="UT2003Fonts.FontEurostile21"
+    FontNames(6)="HxFontEurostile22"
+    FontNames(7)="UT2003Fonts.FontEurostile24"
+    FontNames(8)="HxFontEurostile27"
+    FontNames(9)="HxFontEurostile28"
+    FontNames(10)="UT2003Fonts.FontEurostile29"
+    FontNames(11)="HxFontEurostile32"
+    FontNames(12)="HxFontEurostile35"
+    FontNames(13)="UT2003Fonts.FontEurostile37"
+    FontNames(14)="HxFontEurostile42"
     BuiltInHitSounds(0)=Sound'HxHitSound0'
     BuiltInHitSounds(1)=Sound'HxHitSound1'
     BuiltInHitSounds(2)=Sound'HxHitSound2'

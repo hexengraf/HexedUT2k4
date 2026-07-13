@@ -2,6 +2,8 @@ class HxHitEffectsConfig extends HxConfig
     config(User)
     PerObjectConfig;
 
+const AUTO_FONT = "AUTOSELECT";
+
 var config bool bHitSounds;
 var config string HitSoundName;
 var config float HitSoundVolume;
@@ -50,7 +52,7 @@ private function ValidateHitSounds()
         }
         else
         {
-            ClearConfig("HitSoundName");
+            ResetProperty(1);
         }
     }
     for (i = CustomHitSounds.Length - 1; i >= 0; --i)
@@ -66,27 +68,30 @@ private function ValidateFontNames()
 {
     local int i;
 
-    if (DynamicLoadObject(DisplayFontName, class'Font', true) != None)
+    if (DisplayFontName != AUTO_FONT)
     {
-        for (i = 0; i < FontNames.Length; ++i)
+        if (class'HXGUIFontMidGame'.static.DynamicLoadFont(DisplayFontName, true) != None)
         {
-            if (DisplayFontName ~= FontNames[i])
+            for (i = 0; i < FontNames.Length; ++i)
             {
-                break;
+                if (DisplayFontName ~= FontNames[i])
+                {
+                    break;
+                }
+            }
+            if (i == FontNames.Length)
+            {
+                FontNames[FontNames.Length] = DisplayFontName;
             }
         }
-        if (i == FontNames.Length)
+        else
         {
-            FontNames[FontNames.Length] = DisplayFontName;
+            ResetProperty(6);
         }
-    }
-    else
-    {
-        ClearConfig("DisplayFontName");
     }
     for (i = FontNames.Length - 1; i >= 0; --i)
     {
-        if (DynamicLoadObject(FontNames[i], class'Font', true) == None)
+        if (class'HXGUIFontMidGame'.static.DynamicLoadFont(FontNames[i], true) == None)
         {
             FontNames.Remove(i, 1);
         }
@@ -181,6 +186,89 @@ function ApplyProperty(int Index)
     }
 }
 
+function bool ResetProperty(int Index)
+{
+    switch (Index)
+    {
+        case 0:
+            bHitSounds = default.bHitSounds;
+            return true;
+        case 1:
+            HitSoundName = default.HitSoundName;
+            return true;
+        case 2:
+            HitSoundVolume = default.HitSoundVolume;
+            return true;
+        case 3:
+            PitchMode = default.PitchMode;
+            return true;
+        case 4:
+            bDamageNumbers = default.bDamageNumbers;
+            return true;
+        case 5:
+            DisplayMode = default.DisplayMode;
+            return true;
+        case 6:
+            DisplayFontName = default.DisplayFontName;
+            return true;
+        case 7:
+            DisplayPosX = default.DisplayPosX;
+            return true;
+        case 8:
+            DisplayPosY = default.DisplayPosY;
+            return true;
+        case 9:
+            ZeroDamage = default.ZeroDamage;
+            return true;
+        case 10:
+            LowDamage = default.LowDamage;
+            return true;
+        case 11:
+            MediumDamage = default.MediumDamage;
+            return true;
+        case 12:
+            HighDamage = default.HighDamage;
+            return true;
+        case 13:
+            ExtremeDamage = default.ExtremeDamage;
+            return true;
+        case 14:
+            FontNames = default.FontNames;
+            return true;
+        case 15:
+            CustomHitSounds = default.CustomHitSounds;
+            return true;
+    }
+    return false;
+}
+
+function TemporaryFirstRunFix()
+{
+    local array<string> NewFontNames;
+    local int i;
+    local int j;
+
+    ResetProperty(6);
+    NewFontNames = default.FontNames;
+    for (i = 0; i < FontNames.Length; ++i)
+    {
+        for (j = 0; j < NewFontNames.Length; ++j)
+        {
+            if (FontNames[i] ~= NewFontNames[j])
+            {
+                break;
+            }
+        }
+        if (j == NewFontNames.Length)
+        {
+            NewFontNames[NewFontNames.Length] = FontNames[i];
+        }
+    }
+    FontNames = NewFontNames;
+    SaveConfig();
+    ApplyAllProperties();
+}
+
 defaultproperties
 {
     ObjectName="HexedUT"
@@ -207,7 +295,7 @@ defaultproperties
     PitchMode=HX_PITCH_High2Low
     bDamageNumbers=true
     DisplayMode=HX_DISPLAY_StaticDual
-    DisplayFontName="UT2003Fonts.FontEurostile37";
+    DisplayFontName="AUTOSELECT";
     DisplayPosX=0.5
     DisplayPosY=0.45
     ZeroDamage=(Value=0,Pitch=0.00,Scale=0.00,Color=(R=255,G=255,B=255))
@@ -215,12 +303,19 @@ defaultproperties
     MediumDamage=(Value=45,Pitch=0.60,Scale=0.50,Color=(R=255,G=119,B=32))
     HighDamage=(Value=75,Pitch=0.82,Scale=0.75,Color=(R=255,G=32,B=32))
     ExtremeDamage=(Value=110,Pitch=1.00,Scale=1.00,Color=(R=143,G=32,B=245))
-    FontNames(0)="UT2003Fonts.FontEurostile29"
-    FontNames(1)="UT2003Fonts.FontEurostile37"
-    FontNames(2)="UT2003Fonts.FontNeuzeit29"
-    FontNames(3)="UT2003Fonts.FontNeuzeit37"
-    FontNames(4)="2K4Fonts.Verdana28"
-    FontNames(5)="2K4Fonts.Verdana30"
-    FontNames(6)="2K4Fonts.Verdana32"
-    FontNames(7)="2K4Fonts.Verdana34"
+    FontNames(0)="UT2003Fonts.FontEurostile9"
+    FontNames(1)="UT2003Fonts.FontEurostile12"
+    FontNames(2)="UT2003Fonts.FontEurostile14"
+    FontNames(3)="UT2003Fonts.FontEurostile17"
+    FontNames(4)="HxFontEurostile18"
+    FontNames(5)="UT2003Fonts.FontEurostile21"
+    FontNames(6)="HxFontEurostile22"
+    FontNames(7)="UT2003Fonts.FontEurostile24"
+    FontNames(8)="HxFontEurostile27"
+    FontNames(9)="HxFontEurostile28"
+    FontNames(10)="UT2003Fonts.FontEurostile29"
+    FontNames(11)="HxFontEurostile32"
+    FontNames(12)="HxFontEurostile35"
+    FontNames(13)="UT2003Fonts.FontEurostile37"
+    FontNames(14)="HxFontEurostile42"
 }
