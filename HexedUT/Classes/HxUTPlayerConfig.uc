@@ -18,6 +18,16 @@ function ApplyProperty(int Index)
             break;
     }
 }
+function bool ResetProperty(int Index)
+{
+    switch (Index)
+    {
+        case 0:
+            ViewSmoothing = default.ViewSmoothing;
+            return true;
+    }
+    return false;
+}
 
 defaultproperties
 {

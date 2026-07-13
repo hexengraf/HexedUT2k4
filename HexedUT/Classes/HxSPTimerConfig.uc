@@ -44,6 +44,32 @@ function ApplyProperty(int Index)
     }
 }
 
+function bool ResetProperty(int Index)
+{
+    switch (Index)
+    {
+        case 0:
+            bEnabled = default.bEnabled;
+            return true;
+        case 1:
+            bUseHUDColor = default.bUseHUDColor;
+            return true;
+        case 2:
+            bPulsingDigits = default.bPulsingDigits;
+            return true;
+        case 3:
+            PosX = default.PosX;
+            return true;
+        case 4:
+            PosY = default.PosY;
+            return true;
+        case 5:
+            CustomColor = default.CustomColor;
+            return true;
+    }
+    return false;
+}
+
 defaultproperties
 {
     ObjectName="HexedUT"

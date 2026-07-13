@@ -73,6 +73,47 @@ function ApplyProperty(int Index)
     }
 }
 
+function bool ResetProperty(int Index)
+{
+    switch (Index)
+    {
+        case 0:
+            ScopeOverlay = default.ScopeOverlay;
+            return true;
+        case 1:
+            bSoundEffects = default.bSoundEffects;
+            return true;
+        case 2:
+            bShowChargeBar = default.bShowChargeBar;
+            return true;
+        case 3:
+            ReticleColor = default.ReticleColor;
+            return true;
+        case 4:
+            ReticleScale = default.ReticleScale;
+            return true;
+        case 5:
+            BackgroundOpacity = default.BackgroundOpacity;
+            return true;
+        case 6:
+            bCustomZoomCrosshair = default.bCustomZoomCrosshair;
+            return true;
+        case 7:
+            CustomZoomCrosshair = default.CustomZoomCrosshair;
+            return true;
+        case 8:
+            CustomZoomCrosshairColor = default.CustomZoomCrosshairColor;
+            return true;
+        case 9:
+            CustomZoomCrosshairScale = default.CustomZoomCrosshairScale;
+            return true;
+        case 10:
+            CustomZoomCrosshairTextureName = default.CustomZoomCrosshairTextureName;
+            return true;
+    }
+    return false;
+}
+
 function bool SetProperty(int Index, coerce string Value)
 {
     if (Super.SetProperty(Index, Value))

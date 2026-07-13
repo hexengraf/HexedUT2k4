@@ -27,7 +27,7 @@ function ValidateColors(HxColors Colors)
     {
         if (!Colors.IsValidName(GetPropertyText(Properties[i].Name)))
         {
-            ClearConfig(Properties[i].Name);
+            ResetProperty(i);
             bSave = true;
         }
     }
@@ -127,6 +127,59 @@ function ApplyProperty(int Index)
             class'HxSkinHighlight'.default.bForceEnemyModel = bForceEnemyModel;
             break;
     }
+}
+
+function bool ResetProperty(int Index)
+{
+    switch (Index)
+    {
+        case 0:
+            Teammates = default.Teammates;
+            return true;
+        case 1:
+            Enemies = default.Enemies;
+            return true;
+        case 2:
+            ShieldHit = default.ShieldHit;
+            return true;
+        case 3:
+            LinkHit = default.LinkHit;
+            return true;
+        case 4:
+            ShockHit = default.ShockHit;
+            return true;
+        case 5:
+            LightningHit = default.LightningHit;
+            return true;
+        case 6:
+            TeammateSkin = default.TeammateSkin;
+            return true;
+        case 7:
+            EnemySkin = default.EnemySkin;
+            return true;
+        case 8:
+            bRandomize = default.bRandomize;
+            return true;
+        case 9:
+            bDisableOnDeadBodies = default.bDisableOnDeadBodies;
+            return true;
+        case 10:
+            SpectatorTeam = default.SpectatorTeam;
+            return true;
+        case 11:
+            TeammateModel = default.TeammateModel;
+            return true;
+        case 12:
+            bForceTeammateModel = default.bForceTeammateModel;
+            return true;
+        case 13:
+            EnemyModel = default.EnemyModel;
+            return true;
+        case 14:
+            bForceEnemyModel = default.bForceEnemyModel;
+            return true;
+    }
+    return false;
 }
 
 static function UpdateDynamicActors(PlayerController PC)
