@@ -291,9 +291,9 @@ defaultproperties
 {
     ObjectName="HexedUT"
     Properties(0)=(Name="bEnabled",Type=HX_PROPERTY_Bool)
-    Properties(1)=(Name="BoardAlignment",Type=HX_PROPERTY_Enum,EnumValues=("HX_VALIGN_Top","HX_VALIGN_Center","HX_VALIGN_Bottom"))
-    Properties(2)=(Name="HeadingAlignment",Type=HX_PROPERTY_Enum,EnumValues=("HX_VALIGN_Top","HX_VALIGN_Center","HX_VALIGN_Bottom"))
-    Properties(3)=(Name="TeamScoreStyle",Type=HX_PROPERTY_Enum,EnumValues=("HX_SB_TSCORE_FullSize","HX_SB_TSCORE_Compact"))
+    Properties(1)=(Name="BoardAlignment",Type=HX_PROPERTY_Enum,UpperLimit="3",EnumType=enum'EHxVertAlignment')
+    Properties(2)=(Name="HeadingAlignment",Type=HX_PROPERTY_Enum,UpperLimit="3",EnumType=enum'EHxVertAlignment')
+    Properties(3)=(Name="TeamScoreStyle",Type=HX_PROPERTY_Enum,UpperLimit="2",EnumType=enum'EHxSBTeamScoreStyle')
     Properties(4)=(Name="BorderSize",Type=HX_PROPERTY_Float,LowerLimit="0",UpperLimit="0.5");
     Properties(5)=(Name="DividerSize",Type=HX_PROPERTY_Float,LowerLimit="0",UpperLimit="0.5");
     Properties(6)=(Name="FontSizeModifier",Type=HX_PROPERTY_Int,LowerLimit="-2",UpperLimit="2")

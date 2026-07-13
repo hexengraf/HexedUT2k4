@@ -90,20 +90,24 @@ function string ValidateProperty(int Index, string Value)
 
 function string ValidateEnum(int Index, string Value)
 {
+    local string EnumValue;
+    local int Limit;
     local int i;
 
-    if (Properties[Index].EnumValues.Length == 0)
+    if (Properties[Index].EnumType == None)
     {
         return Value;
     }
-    for (i = 0; i < Properties[Index].EnumValues.Length; ++i)
+    Limit = int(Properties[Index].UpperLimit);
+    for (i = int(Properties[Index].LowerLimit); i < Limit; ++i)
     {
-        if (Value ~= Properties[Index].EnumValues[i])
+        EnumValue = string(GetEnum(Properties[Index].EnumType, i));
+        if (Value ~= EnumValue)
         {
-            return Properties[Index].EnumValues[i];
+            return EnumValue;
         }
     }
-    return Properties[Index].EnumValues[0];
+    return string(GetEnum(Properties[Index].EnumType, int(Properties[Index].LowerLimit)));
 }
 
 final function bool IsValidPropertyIndex(int Index)

@@ -343,11 +343,13 @@ static final protected function string GetNumericData(int Index)
 static final protected function string GetEnumData(int Index)
 {
     local string Data;
+    local int Limit;
     local int i;
 
-    for (i = 0; i < default.Properties[Index].EnumValues.Length; ++i)
+    Limit = int(default.Properties[Index].UpperLimit);
+    for (i = int(default.Properties[Index].LowerLimit); i < Limit; ++i)
     {
-        Data $= default.Properties[Index].EnumValues[i]$";"
+        Data $= string(GetEnum(default.Properties[Index].EnumType, i))$";"
             $default.DisplayInfo[Index].EnumLabels[i];
     }
     return Data;

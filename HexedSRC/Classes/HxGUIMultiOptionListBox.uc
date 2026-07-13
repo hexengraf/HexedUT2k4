@@ -58,7 +58,8 @@ function GUIMenuOption AddConfigOption(class<HxConfig> ConfigClass, int Index, i
         case HX_PROPERTY_Enum:
             Option = AddComboBox(
                 ConfigClass.default.DisplayInfo[Index].Caption,
-                ConfigClass.default.Properties[Index].EnumValues,
+                int(ConfigClass.default.Properties[Index].LowerLimit),
+                ConfigClass.default.Properties[Index].EnumType,
                 ConfigClass.default.DisplayInfo[Index].EnumLabels);
             break;
     }
@@ -102,7 +103,8 @@ function GUIMenuOption AddMutatorOption(class<HxMutator> MutatorClass, int Index
         case HX_PROPERTY_Enum:
             Option = AddComboBox(
                 MutatorClass.default.DisplayInfo[Index].Caption,
-                MutatorClass.default.Properties[Index].EnumValues,
+                int(MutatorClass.default.Properties[Index].LowerLimit),
+                MutatorClass.default.Properties[Index].EnumType,
                 MutatorClass.default.DisplayInfo[Index].EnumLabels);
             break;
     }
@@ -236,7 +238,8 @@ function GUIMenuOption AddEditBox(string Caption, string Width)
 }
 
 function GUIMenuOption AddComboBox(string Caption,
-                                   array<string> Values,
+                                   int LowerLimit,
+                                   Object EnumType,
                                    array<string> Captions)
 {
     local moComboBox Option;
@@ -250,7 +253,7 @@ function GUIMenuOption AddComboBox(string Caption,
     Option.MyComboBox.MyListBox.MyList.bInitializeList = false;
     for (i = 0; i < Captions.Length; ++i)
     {
-        Option.AddItem(Captions[i],, Values[i]);
+        Option.AddItem(Captions[i],, string(GetEnum(EnumType, LowerLimit + i)));
     }
     return Option;
 }

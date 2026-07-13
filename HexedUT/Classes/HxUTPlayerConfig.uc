@@ -32,7 +32,7 @@ function bool ResetProperty(int Index)
 defaultproperties
 {
     ObjectName="HexedUT"
-    Properties(0)=(Name="ViewSmoothing",Type=HX_PROPERTY_Enum,EnumValues=("HX_VS_Default","HX_VS_Weak","HX_VS_Disabled"))
+    Properties(0)=(Name="ViewSmoothing",Type=HX_PROPERTY_Enum,UpperLimit="3",EnumType=enum'EHxViewSmoothing')
     DisplayInfo(0)=(Section="Player",Caption="View smoothing",Hint="Choose which type of view smoothing to apply.",EnumLabels=("Strong (default)","Weak","Disabled"),Dependency="bAllowCustomViewSmoothing")
 
     ViewSmoothing=HX_VS_Default

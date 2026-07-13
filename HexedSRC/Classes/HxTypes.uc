@@ -35,7 +35,7 @@ struct HxProperty
     var const HxPropertyType Type;
     var const string LowerLimit;
     var const string UpperLimit;
-    var const array<string> EnumValues;
+    var const Object EnumType;
 };
 
 struct HxDisplayProperty

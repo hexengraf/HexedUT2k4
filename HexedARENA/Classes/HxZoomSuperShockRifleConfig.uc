@@ -138,7 +138,7 @@ function SetCustomCrosshair(coerce int Index)
 defaultproperties
 {
     ObjectName="HexedARENA"
-    Properties(0)=(Name="ScopeOverlay",Type=HX_PROPERTY_Enum,EnumValues=("HX_SCOPE_Default","HX_SCOPE_Custom","HX_SCOPE_Hidden"))
+    Properties(0)=(Name="ScopeOverlay",Type=HX_PROPERTY_Enum,UpperLimit="3",EnumType=enum'EHxScopeOverlay')
     Properties(1)=(Name="bSoundEffects",Type=HX_PROPERTY_Bool)
     Properties(2)=(Name="bShowChargeBar",Type=HX_PROPERTY_Bool)
     Properties(3)=(Name="ReticleColor",Type=HX_PROPERTY_Color)
