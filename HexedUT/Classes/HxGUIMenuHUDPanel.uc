@@ -81,11 +81,7 @@ function ScoreboardOnLoadINI(GUIComponent Sender, string s)
 
 function ScoreboardOnChange(GUIComponent Sender)
 {
-    if (Client != None)
-    {
-        Client.SetProperty(
-            ScoreboardConfig.Index, Sender.Tag, GUIMenuOption(Sender).GetComponentValue());
-    }
+    ScoreboardConfig.SetProperty(Sender.Tag, GUIMenuOption(Sender).GetComponentValue());
 }
 
 function SPTimerOnLoadINI(GUIComponent Sender, string s)
@@ -112,36 +108,28 @@ function SPTimerOnLoadINI(GUIComponent Sender, string s)
 
 function SPTimerOnChange(GUIComponent Sender)
 {
-    if (Client != None)
+    switch (Sender)
     {
-        switch (Sender)
-        {
-            case sl_ColorRed:
-                SPTimerConfig.CustomColor.R = byte(sl_ColorRed.GetComponentValue());
-                Client.SetProperty(
-                    SPTimerConfig.Index, Sender.Tag, SPTimerConfig.GetProperty(Sender.Tag));
-                break;
-            case sl_ColorGreen:
-                SPTimerConfig.CustomColor.G = byte(sl_ColorGreen.GetComponentValue());
-                Client.SetProperty(
-                    SPTimerConfig.Index, Sender.Tag, SPTimerConfig.GetProperty(Sender.Tag));
-                break;
-            case sl_ColorBlue:
-                SPTimerConfig.CustomColor.B = byte(sl_ColorBlue.GetComponentValue());
-                Client.SetProperty(
-                    SPTimerConfig.Index, Sender.Tag, SPTimerConfig.GetProperty(Sender.Tag));
-                break;
-            case sl_ColorBlue:
-                SPTimerConfig.CustomColor.A = byte(sl_ColorAlpha.GetComponentValue());
-                Client.SetProperty(
-                    SPTimerConfig.Index, Sender.Tag, SPTimerConfig.GetProperty(Sender.Tag));
-                break;
-            default:
-                Client.SetProperty(
-                    SPTimerConfig.Index, Sender.Tag, GUIMenuOption(Sender).GetComponentValue());
-                SPTimerAfterChange();
-                break;
-        }
+        case sl_ColorRed:
+            SPTimerConfig.CustomColor.R = byte(sl_ColorRed.GetComponentValue());
+            SPTimerConfig.SetProperty(Sender.Tag, SPTimerConfig.GetProperty(Sender.Tag));
+            break;
+        case sl_ColorGreen:
+            SPTimerConfig.CustomColor.G = byte(sl_ColorGreen.GetComponentValue());
+            SPTimerConfig.SetProperty(Sender.Tag, SPTimerConfig.GetProperty(Sender.Tag));
+            break;
+        case sl_ColorBlue:
+            SPTimerConfig.CustomColor.B = byte(sl_ColorBlue.GetComponentValue());
+            SPTimerConfig.SetProperty(Sender.Tag, SPTimerConfig.GetProperty(Sender.Tag));
+            break;
+        case sl_ColorBlue:
+            SPTimerConfig.CustomColor.A = byte(sl_ColorAlpha.GetComponentValue());
+            SPTimerConfig.SetProperty(Sender.Tag, SPTimerConfig.GetProperty(Sender.Tag));
+            break;
+        default:
+            SPTimerConfig.SetProperty(Sender.Tag, GUIMenuOption(Sender).GetComponentValue());
+            SPTimerAfterChange();
+            break;
     }
 }
 

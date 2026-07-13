@@ -106,7 +106,7 @@ simulated function PopulateMapEntries()
     local int i;
 
     Limit = 8 * MESSAGES_PER_TICK;
-    for (i = Maps.Length; i < VRI.MapList.Length && Limit > 0; ++i)
+    for (i = Maps.Length; i < VRI.MapList.Length; ++i)
     {
         Maps.Insert(Maps.Length, 1);
         Resources.Insert(Resources.Length, 1);
@@ -126,10 +126,14 @@ simulated function PopulateMapEntries()
             Resources[i].PreviewName = Record.ScreenshotRef;
             MapEntryResponseCount += 2;
         }
-        else
+        else if (Limit > 0)
         {
             ServerRequestMapEntry(i);
             --Limit;
+        }
+        else
+        {
+            break;
         }
     }
 }
@@ -305,7 +309,7 @@ simulated function ParseArrayProperty(int Index, array<string> Values)
     }
 }
 
-simulated function ServerPropertiesReady()
+simulated function NotifyServerPropertiesReady()
 {
     class'HxMapVotingPage'.default.VoteListCustomBG = GetServerProperty("VoteListCustomBG");
     class'HxMapVotingPage'.default.MapListCustomBG = GetServerProperty("MapListCustomBG");
@@ -314,7 +318,7 @@ simulated function ServerPropertiesReady()
     UpdateResourcePreviews();
 }
 
-simulated function ServerPropertyChanged(int Index, string OldValue)
+simulated function NotifyServerPropertyChanged(int Index, string OldValue)
 {
     switch (MutatorClass.default.Properties[Index].Name)
     {
@@ -483,7 +487,6 @@ static private final function string GetMapDescriptionFromRecord(CacheManager.Ma
     }
     return Record.Description;
 }
-
 
 defaultproperties
 {

@@ -111,7 +111,7 @@ function string ValidateStruct(int Index, string Value)
     return GetPropertyText("ValidationPoint");
 }
 
-function ApplyAllProperties()
+function InitializeProperties()
 {
     class'HxHitEffects'.default.bHitSounds = bHitSounds;
     class'HxHitEffects'.default.HitSoundName = HitSoundName;
@@ -129,6 +129,7 @@ function ApplyAllProperties()
     class'HxHitEffects'.default.ExtremeDamage = ExtremeDamage;
     class'HxHitEffects'.default.FontNames = FontNames;
     class'HxHitEffects'.default.CustomHitSounds = CustomHitSounds;
+    UpdateDynamicActors(-1);
 }
 
 function ApplyProperty(int Index)
@@ -184,62 +185,107 @@ function ApplyProperty(int Index)
             class'HxHitEffects'.default.CustomHitSounds = CustomHitSounds;
             break;
     }
+    UpdateDynamicActors(Index);
 }
 
 function bool ResetProperty(int Index)
 {
+    local bool bReset;
+
     switch (Index)
     {
         case 0:
             bHitSounds = default.bHitSounds;
-            return true;
+            bReset = true;
+            break;
         case 1:
             HitSoundName = default.HitSoundName;
-            return true;
+            bReset = true;
+            break;
         case 2:
             HitSoundVolume = default.HitSoundVolume;
-            return true;
+            bReset = true;
+            break;
         case 3:
             PitchMode = default.PitchMode;
-            return true;
+            bReset = true;
+            break;
         case 4:
             bDamageNumbers = default.bDamageNumbers;
-            return true;
+            bReset = true;
+            break;
         case 5:
             DisplayMode = default.DisplayMode;
-            return true;
+            bReset = true;
+            break;
         case 6:
             DisplayFontName = default.DisplayFontName;
-            return true;
+            bReset = true;
+            break;
         case 7:
             DisplayPosX = default.DisplayPosX;
-            return true;
+            bReset = true;
+            break;
         case 8:
             DisplayPosY = default.DisplayPosY;
-            return true;
+            bReset = true;
+            break;
         case 9:
             ZeroDamage = default.ZeroDamage;
-            return true;
+            bReset = true;
+            break;
         case 10:
             LowDamage = default.LowDamage;
-            return true;
+            bReset = true;
+            break;
         case 11:
             MediumDamage = default.MediumDamage;
-            return true;
+            bReset = true;
+            break;
         case 12:
             HighDamage = default.HighDamage;
-            return true;
+            bReset = true;
+            break;
         case 13:
             ExtremeDamage = default.ExtremeDamage;
-            return true;
+            bReset = true;
+            break;
         case 14:
             FontNames = default.FontNames;
-            return true;
+            bReset = true;
+            break;
         case 15:
             CustomHitSounds = default.CustomHitSounds;
-            return true;
+            bReset = true;
+            break;
     }
-    return false;
+    if (bReset)
+    {
+        UpdateDynamicActors(Index);
+    }
+    return bReset;
+}
+
+function UpdateDynamicActors(int Index)
+{
+    local HxHitEffects HitEffects;
+
+    HitEffects = HxHitEffects(FindHudOverlay(class'HxHitEffects'));
+    if (HitEffects != None)
+    {
+        if (Index < 0)
+        {
+            for (Index = 0; Index < Properties.Length; ++Index)
+            {
+                HitEffects.SetProperty(
+                    Properties[Index].Name, GetPropertyText(Properties[Index].Name));
+            }
+        }
+        else
+        {
+            HitEffects.SetProperty(Properties[Index].Name, GetPropertyText(Properties[Index].Name));
+        }
+    }
 }
 
 function TemporaryFirstRunFix()
@@ -266,7 +312,7 @@ function TemporaryFirstRunFix()
     }
     FontNames = NewFontNames;
     SaveConfig();
-    ApplyAllProperties();
+    InitializeProperties();
 }
 
 defaultproperties

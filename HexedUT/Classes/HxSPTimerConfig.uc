@@ -9,7 +9,7 @@ var config float PosX;
 var config float PosY;
 var config Color CustomColor;
 
-function ApplyAllProperties()
+function InitializeProperties()
 {
     class'HxSPTimer'.default.bEnabled = bEnabled;
     class'HxSPTimer'.default.bUseHUDColor = bUseHUDColor;
@@ -17,6 +17,7 @@ function ApplyAllProperties()
     class'HxSPTimer'.default.PosX = PosX;
     class'HxSPTimer'.default.PosY = PosY;
     class'HxSPTimer'.default.CustomColor = CustomColor;
+    UpdateDynamicActors(-1);
 }
 
 function ApplyProperty(int Index)
@@ -42,32 +43,68 @@ function ApplyProperty(int Index)
             class'HxSPTimer'.default.CustomColor = CustomColor;
             break;
     }
+    UpdateDynamicActors(Index);
 }
 
 function bool ResetProperty(int Index)
 {
+    local bool bReset;
+
     switch (Index)
     {
         case 0:
             bEnabled = default.bEnabled;
-            return true;
+            bReset = true;
+            break;
         case 1:
             bUseHUDColor = default.bUseHUDColor;
-            return true;
+            bReset = true;
+            break;
         case 2:
             bPulsingDigits = default.bPulsingDigits;
-            return true;
+            bReset = true;
+            break;
         case 3:
             PosX = default.PosX;
-            return true;
+            bReset = true;
+            break;
         case 4:
             PosY = default.PosY;
-            return true;
+            bReset = true;
+            break;
         case 5:
             CustomColor = default.CustomColor;
-            return true;
+            bReset = true;
+            break;
     }
-    return false;
+    if (bReset)
+    {
+        UpdateDynamicActors(Index);
+    }
+    return bReset;
+}
+
+function UpdateDynamicActors(int Index)
+{
+    local HxSPTimer SPTimer;
+
+    SPTimer = HxSPTimer(FindHudOverlay(class'HxSPTimer'));
+    if (SPTimer != None)
+    {
+        if (Index < 0)
+        {
+            for (Index = 0; Index < Properties.Length; ++Index)
+            {
+                SPTimer.SetPropertyText(
+                    Properties[Index].Name, GetPropertyText(Properties[Index].Name));
+            }
+        }
+        else
+        {
+            SPTimer.SetPropertyText(
+                Properties[Index].Name, GetPropertyText(Properties[Index].Name));
+        }
+    }
 }
 
 defaultproperties

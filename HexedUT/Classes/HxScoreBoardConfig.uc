@@ -37,7 +37,10 @@ var config Color SecondTextColor;
 var config Color HighlightTextColor;
 var config Color ReadyColor;
 
-function ApplyAllProperties()
+var private bool bAllowed;
+var private class<ScoreBoard> OriginalScoreBoardClass;
+
+function InitializeProperties()
 {
     class'HxScoreBoard'.default.BoardAlignment = BoardAlignment;
     class'HxScoreBoard'.default.HeadingAlignment = HeadingAlignment;
@@ -72,6 +75,7 @@ function ApplyAllProperties()
     class'HxScoreBoard'.default.SecondTextColor = SecondTextColor;
     class'HxScoreBoard'.default.HighlightTextColor = HighlightTextColor;
     class'HxScoreBoard'.default.ReadyColor = ReadyColor;
+    UpdateDynamicActors();
 }
 
 function ApplyProperty(int Index)
@@ -178,113 +182,276 @@ function ApplyProperty(int Index)
             class'HxScoreBoard'.default.ReadyColor = ReadyColor;
             break;
     }
+    UpdateDynamicActors();
 }
 
 function bool ResetProperty(int Index)
 {
+    local bool bReset;
+
     switch (Index)
     {
+        case 0:
+            bEnabled = default.bEnabled;
+            bReset = true;
+            break;
         case 1:
             BoardAlignment = default.BoardAlignment;
-            return true;
+            bReset = true;
+            break;
         case 2:
             HeadingAlignment = default.HeadingAlignment;
-            return true;
+            bReset = true;
+            break;
         case 3:
             TeamScoreStyle = default.TeamScoreStyle;
-            return true;
+            bReset = true;
+            break;
         case 4:
             BorderSize = default.BorderSize;
-            return true;
+            bReset = true;
+            break;
         case 5:
             DividerSize = default.DividerSize;
-            return true;
+            bReset = true;
+            break;
         case 6:
             FontSizeModifier = default.FontSizeModifier;
-            return true;
+            bReset = true;
+            break;
         case 7:
             bAlternateRowColors = default.bAlternateRowColors;
-            return true;
+            bReset = true;
+            break;
         case 8:
             bShowBotCallSigns = default.bShowBotCallSigns;
-            return true;
+            bReset = true;
+            break;
         case 9:
             bShowBotOrders = default.bShowBotOrders;
-            return true;
+            bReset = true;
+            break;
         case 10:
             HeaderColor = default.HeaderColor;
-            return true;
+            bReset = true;
+            break;
         case 11:
             RedTeamHeaderColor = default.RedTeamHeaderColor;
-            return true;
+            bReset = true;
+            break;
         case 12:
             BlueTeamHeaderColor = default.BlueTeamHeaderColor;
-            return true;
+            bReset = true;
+            break;
         case 13:
             RowColor = default.RowColor;
-            return true;
+            bReset = true;
+            break;
         case 14:
             RedTeamRowColor = default.RedTeamRowColor;
-            return true;
+            bReset = true;
+            break;
         case 15:
             BlueTeamRowColor = default.BlueTeamRowColor;
-            return true;
+            bReset = true;
+            break;
         case 16:
             AltRowColor = default.AltRowColor;
-            return true;
+            bReset = true;
+            break;
         case 17:
             RedTeamAltRowColor = default.RedTeamAltRowColor;
-            return true;
+            bReset = true;
+            break;
         case 18:
             BlueTeamAltRowColor = default.BlueTeamAltRowColor;
-            return true;
+            bReset = true;
+            break;
         case 19:
             BorderColor = default.BorderColor;
-            return true;
+            bReset = true;
+            break;
         case 20:
             RedTeamBorderColor = default.RedTeamBorderColor;
-            return true;
+            bReset = true;
+            break;
         case 21:
             BlueTeamBorderColor = default.BlueTeamBorderColor;
-            return true;
+            bReset = true;
+            break;
         case 22:
             DividerColor = default.DividerColor;
-            return true;
+            bReset = true;
+            break;
         case 23:
             RedTeamDividerColor = default.RedTeamDividerColor;
-            return true;
+            bReset = true;
+            break;
         case 24:
             BlueTeamDividerColor = default.BlueTeamDividerColor;
-            return true;
+            bReset = true;
+            break;
         case 25:
             ScrollThumbColor = default.ScrollThumbColor;
-            return true;
+            bReset = true;
+            break;
         case 26:
             RedTeamScrollThumbColor = default.RedTeamScrollThumbColor;
-            return true;
+            bReset = true;
+            break;
         case 27:
             BlueTeamScrollThumbColor = default.BlueTeamScrollThumbColor;
-            return true;
+            bReset = true;
+            break;
         case 28:
             RedTeamColor = default.RedTeamColor;
-            return true;
+            bReset = true;
+            break;
         case 29:
             BlueTeamColor = default.BlueTeamColor;
-            return true;
+            bReset = true;
+            break;
         case 30:
             TextColor = default.TextColor;
-            return true;
+            bReset = true;
+            break;
         case 31:
             SecondTextColor = default.SecondTextColor;
-            return true;
+            bReset = true;
+            break;
         case 32:
             HighlightTextColor = default.HighlightTextColor;
-            return true;
+            bReset = true;
+            break;
         case 33:
             ReadyColor = default.ReadyColor;
-            return true;
+            bReset = true;
+            break;
     }
-    return false;
+    if (bReset)
+    {
+        UpdateDynamicActors();
+    }
+    return bReset;
+}
+
+function SetAllowed(coerce bool bValue)
+{
+    bAllowed = bValue;
+    UpdateDynamicActors();
+}
+
+function UpdateDynamicActors()
+{
+    local PlayerController PC;
+
+    if (Level != None)
+    {
+        PC = Level.GetLocalPlayerController();
+        if (PC != None && PC.myHUD != None && PC.GameReplicationInfo != None)
+        {
+            if (bAllowed && bEnabled)
+            {
+                ReplaceScoreBoard(PC);
+            }
+            else
+            {
+                RestoreScoreBoard(PC);
+            }
+            if (PC.myHUD.ScoreBoard.IsA('HxScoreBoard'))
+            {
+                HxScoreBoard(PC.MyHUD.ScoreBoard).Init();
+            }
+        }
+    }
+}
+
+function ReplaceScoreBoard(PlayerController PC)
+{
+    if (!PC.myHUD.ScoreBoard.IsA('HxScoreBoard'))
+    {
+        OriginalScoreBoardClass = PC.myHUD.ScoreBoard.Class;
+        switch (PC.myHUD.ScoreBoard.Class)
+        {
+            case class'ScoreBoard_Assault':
+                PC.MyHUD.SetScoreBoardClass(class'HxSBAssault');
+                break;
+            case class'ScoreBoardDeathMatch':
+                PC.MyHUD.SetScoreBoardClass(class'HxSBDeathMatch');
+                break;
+            case class'ScoreBoardInvasion':
+                PC.MyHUD.SetScoreBoardClass(class'HxSBInvasion');
+                break;
+            case class'ScoreBoardLMS':
+                PC.MyHUD.SetScoreBoardClass(class'HxSBLastManStanding');
+                break;
+            case class'MutantScoreboard':
+                PC.MyHUD.SetScoreBoardClass(class'HxSBMutant');
+                break;
+            case class'ScoreBoardTeamDeathMatch':
+                if (PC.GameReplicationInfo.GameClass ~= "XGame.xTeamGame")
+                {
+                    PC.MyHUD.SetScoreBoardClass(class'HxSBTeamDeathMatch');
+                }
+                else if (PC.GameReplicationInfo.GameClass ~= "XGame.xBombingRun")
+                {
+                    PC.MyHUD.SetScoreBoardClass(class'HxSBBombingRun');
+                }
+                else if (PC.GameReplicationInfo.GameClass ~= "XGame.xDoubleDom")
+                {
+                    PC.MyHUD.SetScoreBoardClass(class'HxSBDoubleDomination');
+                }
+                else if (PC.GameReplicationInfo.GameClass ~= "Onslaught.ONSOnslaughtGame")
+                {
+                    PC.MyHUD.SetScoreBoardClass(class'HxSBOnslaught');
+                }
+                else if (PC.GameReplicationInfo.GameClass ~= "XGame.xCTFGame"
+                    || PC.GameReplicationInfo.GameClass ~= "XGame.InstagibCTF"
+                    || PC.GameReplicationInfo.GameClass ~= "XGame.xVehicleCTFGame")
+                {
+                    PC.MyHUD.SetScoreBoardClass(class'HxSBCaptureTheFlag');
+                }
+                break;
+        }
+    }
+}
+
+function RestoreScoreBoard(PlayerController PC)
+{
+    if (PC.myHUD.ScoreBoard.IsA('HxScoreBoard'))
+    {
+        if (OriginalScoreBoardClass != None)
+        {
+            PC.MyHUD.SetScoreBoardClass(OriginalScoreBoardClass);
+        }
+        else
+        {
+            switch (PC.myHUD.ScoreBoard.Class)
+            {
+                case class'HxSBAssault':
+                    break;
+                case class'HxSBDeathMatch':
+                    PC.MyHUD.SetScoreBoardClass(class'ScoreBoardDeathMatch');
+                    break;
+                case class'HxSBInvasion':
+                    PC.MyHUD.SetScoreBoardClass(class'ScoreBoardInvasion');
+                    break;
+                case class'HxSBLastManStanding':
+                    PC.MyHUD.SetScoreBoardClass(class'ScoreBoardLMS');
+                    break;
+                case class'HxSBMutant':
+                    PC.MyHUD.SetScoreBoardClass(class'MutantScoreboard');
+                    break;
+                case class'HxSBTeamDeathMatch':
+                case class'HxSBBombingRun':
+                case class'HxSBCaptureTheFlag':
+                case class'HxSBDoubleDomination':
+                case class'HxSBOnslaught':
+                    PC.MyHUD.SetScoreBoardClass(class'ScoreBoardTeamDeathMatch');
+                    break;
+            }
+        }
+    }
 }
 
 defaultproperties

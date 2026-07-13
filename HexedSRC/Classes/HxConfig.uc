@@ -4,9 +4,11 @@ class HxConfig extends HxTypes
 var const string ObjectName;
 var const array<HxProperty> Properties;
 var const array<HxDisplayProperty> DisplayInfo;
-var int Index;
 
-function ApplyAllProperties();
+var protected LevelInfo Level;
+var protected HxClientReplicationInfo ClientOwner;
+
+function InitializeProperties();
 function ApplyProperty(int Index);
 function string ValidateStruct(int Index, string Value);
 
@@ -24,16 +26,32 @@ function Created()
         }
     }
     SaveConfig();
-    ApplyAllProperties();
+}
+
+function Setup(HxClientReplicationInfo Owner)
+{
+    Level = Owner.Level;
+    ClientOwner = Owner;
+    InitializeProperties();
 }
 
 function bool SetProperty(int Index, coerce string Value)
 {
-    if (IsValidPropertyIndex(Index)
-        && SetPropertyText(Properties[Index].Name, ValidateProperty(Index, Value)))
+    local string OldValue;
+
+    if (IsValidPropertyIndex(Index))
     {
-        ApplyProperty(Index);
-        return true;
+        OldValue = GetPropertyText(Properties[Index].Name);
+        if (SetPropertyText(Properties[Index].Name, ValidateProperty(Index, Value)))
+        {
+            ApplyProperty(Index);
+            if (ClientOwner != None)
+            {
+                ClientOwner.NotifyUserPropertyChanged(Self, Index, OldValue);
+            }
+            SaveConfig();
+            return true;
+        }
     }
     return false;
 }
@@ -125,6 +143,29 @@ function UpdateConfiguration(Object TargetObject)
     }
 }
 
+function HudOverlay FindHudOverlay(class<HudOverlay> OverlayClass)
+{
+    local PlayerController PC;
+    local int i;
+
+    if (Level != None)
+    {
+        PC = Level.GetLocalPlayerController();
+        if (PC != None && PC.MyHUD != None)
+        {
+            for (i = 0; i < PC.MyHUD.Overlays.Length; ++i)
+            {
+                if (PC.MyHUD.Overlays[i].Class == OverlayClass)
+                {
+                    return PC.MyHUD.Overlays[i];
+                }
+            }
+        }
+    }
+    return None;
+}
+
+
 static function HxConfig Load()
 {
     return new(None, default.ObjectName) default.Class;
@@ -132,5 +173,4 @@ static function HxConfig Load()
 
 defaultproperties
 {
-    Index=-1
 }

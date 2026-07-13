@@ -202,43 +202,39 @@ function InternalOnLoadINI(GUIComponent Sender, string s)
 
 function HitEffectsOnChange(GUIComponent Sender)
 {
-    if (Client != None)
+    Config.SetProperty(Sender.Tag, GUIMenuOption(Sender).GetComponentValue());
+    switch (Sender)
     {
-        Client.SetProperty(
-            Config.Index, Sender.Tag, GUIMenuOption(Sender).GetComponentValue());
-        switch (Sender)
-        {
-            case ch_HitSounds:
-                HitSoundsAfterChange();
-                break;
-            case sl_HitSoundVolume:
+        case ch_HitSounds:
+            HitSoundsAfterChange();
+            break;
+        case sl_HitSoundVolume:
+            if (Client != None)
+            {
                 Client.PlayHitSoundPreview(DPIndex);
-                break;
-            case ch_DamageNumbers:
-                DamageNumbersAfterChange();
-                break;
-        }
+            }
+            break;
+        case ch_DamageNumbers:
+            DamageNumbersAfterChange();
+            break;
     }
 }
 
 function DamagePointEditorOnChange(GUIComponent Sender)
 {
-    if (Client != None)
+    if (Sender == co_DamagePoints)
     {
-        if (Sender == co_DamagePoints)
-        {
-            DPIndex = co_DamagePoints.GetIndex();
-            RefreshDamagePointEditorSection();
-        }
-        else
-        {
-            UpdateDamagePointConfig();
-            Client.SetProperty(Config.Index, Sender.Tag, Config.GetProperty(Sender.Tag));
-        }
-        if (Sender == sl_Pitch)
-        {
-            Client.PlayHitSoundPreview(DPIndex);
-        }
+        DPIndex = co_DamagePoints.GetIndex();
+        RefreshDamagePointEditorSection();
+    }
+    else
+    {
+        UpdateDamagePointConfig();
+        Config.SetProperty(Sender.Tag, Config.GetProperty(Sender.Tag));
+    }
+    if (Sender == sl_Pitch && Client != None)
+    {
+        Client.PlayHitSoundPreview(DPIndex);
     }
 }
 

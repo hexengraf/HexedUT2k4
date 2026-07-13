@@ -109,24 +109,24 @@ function ProcessMutatorOptions(HxClientReplicationInfo CRI, optional int Index)
 
 function OptionsOnLoadINI(GUIComponent Sender, string s)
 {
-    local int CRIIndex;
-    local int PropertyIndex;
+    local HxClientReplicationInfo CRI;
+    local int Index;
 
-    if (ClientManager.DecodeTag(Sender.Tag, CRIIndex, PropertyIndex))
+    if (ClientManager.DecodeServerTag(Sender.Tag, CRI, Index) > -1)
     {
-        GUIMenuOption(Sender).SetComponentValue(
-            ClientManager.CRIs[CRIIndex].GetServerPropertyByIndex(PropertyIndex), true);
+        GUIMenuOption(Sender).SetComponentValue(CRI.GetServerPropertyByIndex(Index), true);
     }
 }
 
 function OptionsOnChange(GUIComponent Sender)
 {
-    local int CRIIndex;
-    local int PropertyIndex;
+    local int CRINumber;
+    local int Index;
 
-    if (ClientManager.DecodeTag(Sender.Tag, CRIIndex, PropertyIndex))
+    CRINumber = ClientManager.DecodeServerTag(Sender.Tag,, Index);
+    if (CRINumber > -1)
     {
-        ModifiedMutators[CRIIndex].Senders[PropertyIndex] = GUIMenuOption(Sender);
+        ModifiedMutators[CRINumber].Senders[Index] = GUIMenuOption(Sender);
     }
 }
 

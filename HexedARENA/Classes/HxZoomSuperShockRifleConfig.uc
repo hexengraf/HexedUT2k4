@@ -14,7 +14,7 @@ var config Color CustomZoomCrosshairColor;
 var config float CustomZoomCrosshairScale;
 var config string CustomZoomCrosshairTextureName;
 
-function ApplyAllProperties()
+function InitializeProperties()
 {
     class'HxZoomSuperShockRifle'.default.ScopeOverlay = ScopeOverlay;
     class'HxZoomSuperShockRifle'.default.bSoundEffects = bSoundEffects;
@@ -28,6 +28,7 @@ function ApplyAllProperties()
     class'HxZoomSuperShockRifle'.default.CustomZoomCrosshairScale = CustomZoomCrosshairScale;
     class'HxZoomSuperShockRifle'.default.CustomZoomCrosshairTextureName =
         CustomZoomCrosshairTextureName;
+    UpdateDynamicActors();
 }
 
 function ApplyProperty(int Index)
@@ -71,68 +72,98 @@ function ApplyProperty(int Index)
                 CustomZoomCrosshairTextureName;
             break;
     }
+    UpdateDynamicActors();
 }
 
 function bool ResetProperty(int Index)
 {
+    local bool bReset;
+
     switch (Index)
     {
         case 0:
             ScopeOverlay = default.ScopeOverlay;
-            return true;
+            bReset = true;
+            break;
         case 1:
             bSoundEffects = default.bSoundEffects;
-            return true;
+            bReset = true;
+            break;
         case 2:
             bShowChargeBar = default.bShowChargeBar;
-            return true;
+            bReset = true;
+            break;
         case 3:
             ReticleColor = default.ReticleColor;
-            return true;
+            bReset = true;
+            break;
         case 4:
             ReticleScale = default.ReticleScale;
-            return true;
+            bReset = true;
+            break;
         case 5:
             BackgroundOpacity = default.BackgroundOpacity;
-            return true;
+            bReset = true;
+            break;
         case 6:
             bCustomZoomCrosshair = default.bCustomZoomCrosshair;
-            return true;
+            bReset = true;
+            break;
         case 7:
             CustomZoomCrosshair = default.CustomZoomCrosshair;
-            return true;
+            bReset = true;
+            break;
         case 8:
             CustomZoomCrosshairColor = default.CustomZoomCrosshairColor;
-            return true;
+            bReset = true;
+            break;
         case 9:
             CustomZoomCrosshairScale = default.CustomZoomCrosshairScale;
-            return true;
+            bReset = true;
+            break;
         case 10:
             CustomZoomCrosshairTextureName = default.CustomZoomCrosshairTextureName;
-            return true;
+            bReset = true;
+            break;
     }
-    return false;
+    if (bReset)
+    {
+        UpdateDynamicActors();
+    }
+    return bReset;
 }
 
 function bool SetProperty(int Index, coerce string Value)
 {
-    if (Super.SetProperty(Index, Value))
-    {
-        if (Index == 7)
-        {
-            SetCustomCrosshair(Value);
-        }
-        return true;
-    }
-    return false;
-}
-
-function SetCustomCrosshair(coerce int Index)
-{
     local array<CacheManager.CrosshairRecord> Crosshairs;
 
-    class'CacheManager'.static.GetCrosshairList(Crosshairs);
-    SetProperty(10, string(Crosshairs[Index].CrosshairTexture));
+    if (Index == 7)
+    {
+        class'CacheManager'.static.GetCrosshairList(Crosshairs);
+        SetProperty(10, string(Crosshairs[int(ValidateProperty(Index, Value))].CrosshairTexture));
+    }
+    return Super.SetProperty(Index, Value);
+}
+
+function UpdateDynamicActors()
+{
+    local PlayerController PC;
+    local Inventory Inv;
+
+    if (Level != None)
+    {
+        PC = Level.GetLocalPlayerController();
+        if (PC != None && PC.Pawn != None)
+        {
+            for (Inv = PC.Pawn.Inventory; Inv != None; Inv = Inv.inventory)
+            {
+                if (HxZoomSuperShockRifle(Inv) != None)
+                {
+                    HxZoomSuperShockRifle(Inv).RefreshConfiguration();
+                }
+            }
+        }
+    }
 }
 
 defaultproperties

@@ -139,7 +139,7 @@ function InternalOnChange(GUIComponent Sender)
     {
         if (Colors.SetRandom(Index, ch_AllowOnRandom.IsChecked()))
         {
-            class'HxSkinHighlightConfig'.static.UpdateDynamicActors(PlayerOwner());
+            Config.UpdateDynamicActors();
         }
     }
     else if (Index < Colors.ColorList.Length)
@@ -156,7 +156,7 @@ function InternalOnChange(GUIComponent Sender)
                 Colors.ColorList[Index].Color.B = sl_ColorBlue.GetValue();
                 break;
         }
-        class'HxSkinHighlightConfig'.static.UpdateDynamicActors(PlayerOwner());
+        Config.UpdateDynamicActors();
     }
 }
 
@@ -281,7 +281,6 @@ function OnCloseRenameColor(optional bool bCancelled)
             {
                 Config.RenameColor(OldColorName, ColorName);
                 PopulateColorComboBoxes();
-                class'HxSkinHighlightConfig'.static.UpdateDynamicActors(PlayerOwner());
             }
             else
             {
@@ -312,7 +311,6 @@ function OnButtonClickDeleteColor(byte bButton)
         PopulateColorComboBoxes();
         UpdateDisplayedColor(co_EditColor.GetComponentValue());
         Config.ValidateColors(Colors);
-        class'HxSkinHighlightConfig'.static.UpdateDynamicActors(PlayerOwner());
     }
 }
 

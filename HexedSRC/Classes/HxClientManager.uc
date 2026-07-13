@@ -57,7 +57,7 @@ simulated function bool InitializeClient()
     return PC != None && GC != None;
 }
 
-simulated function NotifyServerInfoChanged(HxClientReplicationInfo Sender)
+simulated function NotifyServerPropertyChanged(HxClientReplicationInfo Sender)
 {
     if (Level.NetMode == NM_Client)
     {
@@ -229,22 +229,45 @@ simulated private function bool TrySetKeybind(string Keybind)
     return false;
 }
 
-simulated function int EncodeTag(int CRIIndex, int PropertyIndex, optional int ConfigIndex)
+simulated function int EncodeTag(int CRINumber, int Index, optional int ConfigNumber)
 {
-    return ((CRIIndex & 0x3ff) << 20) | ((ConfigIndex & 0x3ff) << 10) | (PropertyIndex & 0x3ff);
+    return ((CRINumber & 0x3ff) << 20) | ((ConfigNumber & 0x3ff) << 10) | (Index & 0x3ff);
 }
 
-simulated function bool DecodeTag(int Tag,
-                                  out int CRIIndex,
-                                  out int PropertyIndex,
-                                  optional out int ConfigIndex)
+simulated function int DecodeServerTag(int Tag,
+                                       optional out HxClientReplicationInfo CRI,
+                                       optional out int Index)
 {
+    local int CRINumber;
+
     if (Tag >= 0)
     {
-        PropertyIndex = Tag & 0x3ff;
-        ConfigIndex = (Tag >> 10) & 0x3ff;
-        CRIIndex = (Tag >> 20) & 0x3ff;
-        return CRIs[CRIIndex] != None;
+        Index = Tag & 0x3ff;
+        CRINumber = (Tag >> 20) & 0x3ff;
+        CRI = CRIs[CRINumber];
+        if (CRI != None)
+        {
+            return CRINumber;
+        }
+    }
+    return -1;
+}
+
+simulated function bool DecodeUserTag(int Tag, out HxConfig Config, out int Index)
+{
+    local int CRINumber;
+    local int ConfigNumber;
+
+    if (Tag >= 0)
+    {
+        Index = Tag & 0x3ff;
+        ConfigNumber = (Tag >> 10) & 0x3ff;
+        CRINumber = (Tag >> 20) & 0x3ff;
+        if (CRIs[CRINumber] != None)
+        {
+            Config = CRIs[CRINumber].Configs[ConfigNumber];
+            return Config != None;
+        }
     }
     return false;
 }

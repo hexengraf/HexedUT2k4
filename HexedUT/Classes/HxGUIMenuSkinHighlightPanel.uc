@@ -151,12 +151,7 @@ function InternalOnLoadINI(GUIComponent Sender, string s)
 
 function InternalOnChange(GUIComponent Sender)
 {
-    if (Client != None)
-    {
-        Client.SetProperty(
-            Config.Index, Sender.Tag, GUIMenuOption(Sender).GetComponentValue());
-        class'HxSkinHighlightConfig'.static.UpdateDynamicActors(PlayerOwner());
-    }
+    Config.SetProperty(Sender.Tag, GUIMenuOption(Sender).GetComponentValue());
 }
 
 function PopulateColorComboBoxes()
@@ -264,10 +259,9 @@ function OnCloseChangeTeammateModel(optional bool bCancelled)
     if (!bCancelled)
     {
         CharName = Controller.ActivePage.GetDataString();
-        if (CharName != "" && Client != None)
+        if (CharName != "")
         {
-            Client.SetProperty(Config.Index, 11, CharName);
-            class'HxSkinHighlightConfig'.static.UpdateDynamicActors(PlayerOwner());
+            Config.SetProperty(11, CharName);
             TeammatePreview.Setup(Config.TeammateModel);
             Sections[SECTION_TEAMMATES].SetHeader(TeammatesLabel@"("$Config.TeammateModel$")");
         }
@@ -292,10 +286,9 @@ function OnCloseChangeEnemyModel(optional bool bCancelled)
     if (!bCancelled)
     {
         CharName = Controller.ActivePage.GetDataString();
-        if (CharName != "" && Client != None)
+        if (CharName != "")
         {
-            Client.SetProperty(Config.Index, 13, CharName);
-            class'HxSkinHighlightConfig'.static.UpdateDynamicActors(PlayerOwner());
+            Config.SetProperty(13, CharName);
             EnemyPreview.Setup(Config.EnemyModel);
             Sections[SECTION_ENEMIES].SetHeader(EnemiesLabel@"("$Config.EnemyModel$")");
         }

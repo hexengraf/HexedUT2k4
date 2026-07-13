@@ -4,9 +4,10 @@ class HxUTPlayerConfig extends HxConfig
 
 var config HxUTPlayer.EHxViewSmoothing ViewSmoothing;
 
-function ApplyAllProperties()
+function InitializeProperties()
 {
     class'HxUTPlayer'.default.ViewSmoothing = ViewSmoothing;
+    UpdateDynamicActors(-1);
 }
 
 function ApplyProperty(int Index)
@@ -17,6 +18,7 @@ function ApplyProperty(int Index)
             class'HxUTPlayer'.default.ViewSmoothing = ViewSmoothing;
             break;
     }
+    UpdateDynamicActors(Index);
 }
 function bool ResetProperty(int Index)
 {
@@ -24,9 +26,35 @@ function bool ResetProperty(int Index)
     {
         case 0:
             ViewSmoothing = default.ViewSmoothing;
+            UpdateDynamicActors(Index);
             return true;
     }
     return false;
+}
+
+function UpdateDynamicActors(int Index)
+{
+    local HxUTPlayer Player;
+
+    if (Level != None)
+    {
+        ForEach Level.DynamicActors(class'HxUTPlayer', Player)
+        {
+            if (Index < 0)
+            {
+                for (Index = 0; Index < Properties.Length; ++Index)
+                {
+                    Player.SetPropertyText(
+                        Properties[Index].Name, GetPropertyText(Properties[Index].Name));
+                }
+            }
+            else
+            {
+                Player.SetPropertyText(
+                    Properties[Index].Name, GetPropertyText(Properties[Index].Name));
+            }
+        }
+    }
 }
 
 defaultproperties

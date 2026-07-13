@@ -32,7 +32,7 @@ simulated function bool InitializeClient()
     return false;
 }
 
-simulated function ServerPropertiesReady()
+simulated function NotifyServerPropertiesReady()
 {
     local xPickUpBase PickupBase;
 
@@ -50,7 +50,7 @@ simulated function ServerPropertiesReady()
     }
 }
 
-simulated function ServerPropertyChanged(int Index, string OldValue)
+simulated function NotifyServerPropertyChanged(int Index, string OldValue)
 {
     switch (GetServerPropertyName(Index))
     {

@@ -46,8 +46,9 @@ replication
         ServerUpdateProperty;
 }
 
-simulated function ServerPropertiesReady();
-simulated function ServerPropertyChanged(int Index, string OldValue);
+simulated function NotifyServerPropertiesReady();
+simulated function NotifyServerPropertyChanged(int Index, string OldValue);
+simulated function NotifyUserPropertyChanged(HxConfig Config, int Index, string OldValue);
 simulated function ParseArrayProperty(int Index, array<string> Values);
 simulated function ReceiveCustomMessage(HxReplicationMessage Message);
 
@@ -64,7 +65,7 @@ simulated event PreBeginPlay()
         for (i = 0; i < ConfigClasses.Length; ++i)
         {
             Configs[i] = Manager.LoadConfig(ConfigClasses[i]);
-            Configs[i].Index = i;
+            Configs[i].Setup(Self);
         }
         Manager.Register(Self);
     }
@@ -89,7 +90,7 @@ simulated event Tick(float DeltaTime)
         else
         {
             bServerPropertiesReady = true;
-            ServerPropertiesReady();
+            NotifyServerPropertiesReady();
         }
         bServerPropertiesRequested = true;
     }
@@ -182,14 +183,14 @@ simulated function ClientReceiveMessage(HxReplicationMessage Message)
             }
             if (bServerPropertiesReady)
             {
-                ServerPropertyChanged(Message.Index, OldValue);
+                NotifyServerPropertyChanged(Message.Index, OldValue);
             }
             else if (Message.Index == ServerInfo.Settings.Length - 1)
             {
                 bServerPropertiesReady = true;
-                ServerPropertiesReady();
+                NotifyServerPropertiesReady();
             }
-            Manager.NotifyServerInfoChanged(Self);
+            Manager.NotifyServerPropertyChanged(Self);
             break;
         case HX_RMSG_ArrayElement:
             ReplicatedArrayProperty[ReplicatedArrayProperty.Length] = Message.Value;
@@ -226,25 +227,6 @@ simulated function string GetServerPropertyName(int Index)
 simulated function ClientOpenConfigurationMenu()
 {
     Manager.OpenConfigurationMenu(Self);
-}
-
-simulated function string GetProperty(int ConfigIndex, int PropertyIndex)
-{
-    if (IsValidConfigIndex(ConfigIndex))
-    {
-        return Configs[ConfigIndex].GetProperty(PropertyIndex);
-    }
-    return "";
-}
-
-simulated function bool SetProperty(int ConfigIndex, int PropertyIndex, string Value)
-{
-    if (IsValidConfigIndex(ConfigIndex) && Configs[ConfigIndex].SetProperty(PropertyIndex, Value))
-    {
-        Configs[ConfigIndex].SaveConfig();
-        return true;
-    }
-    return false;
 }
 
 simulated final function HxConfig FindConfig(class<HxConfig> ConfigClass)

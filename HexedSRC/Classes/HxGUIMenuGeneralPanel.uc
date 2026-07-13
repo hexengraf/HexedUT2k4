@@ -107,29 +107,25 @@ function ProcessServerStatus(HxClientReplicationInfo CRI, int Index)
 
 function UserOptionOnLoadINI(GUIComponent Sender, string s)
 {
-    local int CRIIndex;
-    local int ConfigIndex;
-    local int PropertyIndex;
+    local HxConfig Config;
+    local int Index;
 
-    if (ClientManager.DecodeTag(Sender.Tag, CRIIndex, PropertyIndex, ConfigIndex))
+    if (ClientManager.DecodeUserTag(Sender.Tag, Config, Index))
     {
-        GUIMenuOption(Sender).SetComponentValue(
-            ClientManager.CRIs[CRIIndex].GetProperty(ConfigIndex, PropertyIndex), true);
+        GUIMenuOption(Sender).SetComponentValue(Config.GetProperty(Index), true);
     }
 }
 
 function ServerStatusOnLoadINI(GUIComponent Sender, string s)
 {
     local HxClientReplicationInfo CRI;
-    local int CRIIndex;
-    local int PropertyIndex;
+    local int Index;
     local string Value;
 
-    if (ClientManager.DecodeTag(Sender.Tag, CRIIndex, PropertyIndex))
+    if (ClientManager.DecodeServerTag(Sender.Tag, CRI, Index) > -1)
     {
-        CRI = ClientManager.CRIs[CRIIndex];
-        Value = CRI.GetServerPropertyByIndex(PropertyIndex);
-        switch (CRI.MutatorClass.default.Properties[PropertyIndex].Type)
+        Value = CRI.GetServerPropertyByIndex(Index);
+        switch (CRI.MutatorClass.default.Properties[Index].Type)
         {
             case HX_PROPERTY_Float:
                 Value = Left(Value, Len(Value) - 4);
@@ -141,14 +137,12 @@ function ServerStatusOnLoadINI(GUIComponent Sender, string s)
 
 function UserOptionOnChange(GUIComponent Sender)
 {
-    local int CRIIndex;
-    local int ConfigIndex;
-    local int PropertyIndex;
+    local HxConfig Config;
+    local int Index;
 
-    if (ClientManager.DecodeTag(Sender.Tag, CRIIndex, PropertyIndex, ConfigIndex))
+    if (ClientManager.DecodeUserTag(Sender.Tag, Config, Index))
     {
-        ClientManager.CRIs[CRIIndex].SetProperty(
-            ConfigIndex, PropertyIndex, GUIMenuOption(Sender).GetComponentValue());
+        Config.SetProperty(Index, GUIMenuOption(Sender).GetComponentValue());
     }
 }
 

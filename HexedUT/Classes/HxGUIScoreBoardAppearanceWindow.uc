@@ -109,11 +109,7 @@ function ColorOnLoadINI(GUIComponent Sender, string s)
 
 function InternalOnChange(GUIComponent Sender)
 {
-    if (Client != None)
-    {
-        Client.SetProperty(
-            Config.Index, Sender.Tag, GUIMenuOption(Sender).GetComponentValue());
-    }
+    Config.SetProperty(Sender.Tag, GUIMenuOption(Sender).GetComponentValue());
 }
 
 function ColorOnChange(GUIComponent Sender)
@@ -147,11 +143,7 @@ function ColorOnChange(GUIComponent Sender)
                 SelectedColor.A = byte(sl_ColorAlpha.GetValue());
                 break;
         }
-        if (Client != None)
-        {
-            Client.SetProperty(
-                Config.Index, Sender.Tag + SelectedColorIndex, GetPropertyText("SelectedColor"));
-        }
+        Config.SetProperty(Sender.Tag + SelectedColorIndex, GetPropertyText("SelectedColor"));
     }
 }
 
@@ -184,17 +176,13 @@ function bool OnClickRestoreColors(GUIComponent Sender)
     local int PropertyIndex;
     local int i;
 
-    if (Client != None)
+    for (i = 0; i < ArrayCount(ColorNameLabels); ++i)
     {
-        for (i = 0; i < ArrayCount(ColorNameLabels); ++i)
-        {
-            PropertyIndex = co_ChangeColor.Tag + i;
-            Config.ResetProperty(PropertyIndex);
-            Client.SetProperty(
-                Config.Index, PropertyIndex, Config.GetProperty(PropertyIndex));
-        }
-        ColorOnChange(co_ChangeColor);
+        PropertyIndex = co_ChangeColor.Tag + i;
+        Config.ResetProperty(PropertyIndex);
+        Config.SetProperty(PropertyIndex, Config.GetProperty(PropertyIndex));
     }
+    ColorOnChange(co_ChangeColor);
     return true;
 }
 

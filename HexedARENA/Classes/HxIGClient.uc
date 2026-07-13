@@ -12,29 +12,6 @@ simulated function Tick(float DeltaTime)
     Super.Tick(DeltaTime);
 }
 
-simulated function bool SetProperty(int ConfigIndex, int PropertyIndex, string Value)
-{
-    local PlayerController PC;
-    local Inventory Inv;
-
-    if (Super.SetProperty(ConfigIndex, PropertyIndex, Value))
-    {
-        PC = Level.GetLocalPlayerController();
-        if (PC != None && PC.Pawn != None)
-        {
-            for (Inv = PC.Pawn.Inventory; Inv != None; Inv = Inv.inventory)
-            {
-                if (HxZoomSuperShockRifle(Inv) != None)
-                {
-                    HxZoomSuperShockRifle(Inv).RefreshConfiguration();
-                }
-            }
-        }
-        return true;
-    }
-    return false;
-}
-
 defaultproperties
 {
     MutatorClass=class'MutHexedINSTAGIB'

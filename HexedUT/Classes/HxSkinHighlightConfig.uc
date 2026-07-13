@@ -33,7 +33,7 @@ function ValidateColors(HxColors Colors)
     }
     if (bSave)
     {
-        ApplyAllProperties();
+        InitializeProperties();
         SaveConfig();
     }
 }
@@ -53,12 +53,12 @@ function RenameColor(string OldColorName, string NewColorName)
     }
     if (bSave)
     {
-        ApplyAllProperties();
+        InitializeProperties();
         SaveConfig();
     }
 }
 
-function ApplyAllProperties()
+function InitializeProperties()
 {
     class'HxSkinHighlight'.default.Teammates = Teammates;
     class'HxSkinHighlight'.default.Enemies = Enemies;
@@ -75,6 +75,7 @@ function ApplyAllProperties()
     class'HxSkinHighlight'.default.bForceTeammateModel = bForceTeammateModel;
     class'HxSkinHighlight'.default.EnemyModel = EnemyModel;
     class'HxSkinHighlight'.default.bForceEnemyModel = bForceEnemyModel;
+    UpdateDynamicActors();
 }
 
 function ApplyProperty(int Index)
@@ -127,68 +128,90 @@ function ApplyProperty(int Index)
             class'HxSkinHighlight'.default.bForceEnemyModel = bForceEnemyModel;
             break;
     }
+    UpdateDynamicActors();
 }
 
 function bool ResetProperty(int Index)
 {
+    local bool bReset;
+
     switch (Index)
     {
         case 0:
             Teammates = default.Teammates;
-            return true;
+            bReset = true;
+            break;
         case 1:
             Enemies = default.Enemies;
-            return true;
+            bReset = true;
+            break;
         case 2:
             ShieldHit = default.ShieldHit;
-            return true;
+            bReset = true;
+            break;
         case 3:
             LinkHit = default.LinkHit;
-            return true;
+            bReset = true;
+            break;
         case 4:
             ShockHit = default.ShockHit;
-            return true;
+            bReset = true;
+            break;
         case 5:
             LightningHit = default.LightningHit;
-            return true;
+            bReset = true;
+            break;
         case 6:
             TeammateSkin = default.TeammateSkin;
-            return true;
+            bReset = true;
+            break;
         case 7:
             EnemySkin = default.EnemySkin;
-            return true;
+            bReset = true;
+            break;
         case 8:
             bRandomize = default.bRandomize;
-            return true;
+            bReset = true;
+            break;
         case 9:
             bDisableOnDeadBodies = default.bDisableOnDeadBodies;
-            return true;
+            bReset = true;
+            break;
         case 10:
             SpectatorTeam = default.SpectatorTeam;
-            return true;
+            bReset = true;
+            break;
         case 11:
             TeammateModel = default.TeammateModel;
-            return true;
+            bReset = true;
+            break;
         case 12:
             bForceTeammateModel = default.bForceTeammateModel;
-            return true;
+            bReset = true;
+            break;
         case 13:
             EnemyModel = default.EnemyModel;
-            return true;
+            bReset = true;
+            break;
         case 14:
             bForceEnemyModel = default.bForceEnemyModel;
-            return true;
+            bReset = true;
+            break;
     }
-    return false;
+    if (bReset)
+    {
+        UpdateDynamicActors();
+    }
+    return bReset;
 }
 
-static function UpdateDynamicActors(PlayerController PC)
+function UpdateDynamicActors()
 {
     local HxSkinHighlight SkinHighlight;
 
-    if (PC != None)
+    if (Level != None)
     {
-        ForEach PC.DynamicActors(class'HxSkinHighlight', SkinHighlight)
+        ForEach Level.DynamicActors(class'HxSkinHighlight', SkinHighlight)
         {
             SkinHighlight.Restart();
         }
