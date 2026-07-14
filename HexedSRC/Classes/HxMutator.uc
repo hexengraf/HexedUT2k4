@@ -304,6 +304,11 @@ static function string GetURLOptions(string FullURL)
     return Right(FullURL, Len(FullURL) - InStr(FullURL, "?"));
 }
 
+static function string GetEnumLabel(int Index, string Value)
+{
+    return Value;
+}
+
 static final protected function string GetPlayInfoType(int Index)
 {
     switch (default.Properties[Index].Type)

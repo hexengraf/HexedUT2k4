@@ -48,7 +48,7 @@ function InitComponent(GUIController MyController, GUIComponent MyComponent)
     Client = HxUTClient(ClientManager.Find(class'HxUTClient'));
     Config = HxSkinHighlightConfig(Client.FindConfig(class'HxSkinHighlightConfig'));
     Colors = Client.GetSkinHighlightColors();
-    PreviewCharacterName = Config.EnemyModel;
+    PreviewCharacterName = Config.CurrentEnemyModel;
     HighlightIntensity = float(Client.GetServerProperty("SkinHighlightIntensity"));
     PopulateColorComboBoxes();
     class'HxGUIMenuSkinHighlightPanel'.static.PopulateSkinTypeComboBox(co_PreviewSkin);

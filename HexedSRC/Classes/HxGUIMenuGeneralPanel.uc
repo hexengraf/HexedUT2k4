@@ -130,6 +130,9 @@ function ServerStatusOnLoadINI(GUIComponent Sender, string s)
             case HX_PROPERTY_Float:
                 Value = Left(Value, Len(Value) - 4);
                 break;
+            case HX_PROPERTY_Enum:
+                Value = CRI.MutatorClass.static.GetEnumLabel(Index, Value);
+                break;
         }
         GUIMenuOption(Sender).SetComponentValue(Value, true);
     }

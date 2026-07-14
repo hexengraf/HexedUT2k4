@@ -9,6 +9,9 @@ var automated GUILabel l_ButtonAnchor;
 var automated GUIButton b_Cancel;
 var automated GUIButton b_Ok;
 
+var bool bUseAllowedList;
+var array<string> AllowedList;
+
 var private array<xUtil.PlayerRecord> PlayerList;
 var private SpinnyWeap PreviewModel;
 var private vector PreviewOffset;
@@ -27,7 +30,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     MainSection.Insert(l_ButtonAnchor);
     ListSection.Insert(ModelList);
     class'xUtil'.static.GetPlayerList(PlayerList);
-    RefreshCharacterList(InvalidTypes);
+    RefreshCharacterList();
     PopulateRaces();
 }
 
@@ -81,7 +84,7 @@ function PopulateRaces()
     RaceOnChange(None);
 }
 
-function RefreshCharacterList(string ExcludedChars, optional string Race)
+function RefreshCharacterList(optional string Race)
 {
     local array<string> Excluded;
     local int i;
@@ -89,7 +92,7 @@ function RefreshCharacterList(string ExcludedChars, optional string Race)
 
     ModelList.List.bNotify = False;
     ModelList.Clear();
-    Split(ExcludedChars, ";", Excluded);
+    Split(InvalidTypes, ";", Excluded);
     for (i = 0; i < PlayerList.Length; ++i)
     {
         if (Race == "" || Race ~= PlayerList[i].Race)
@@ -104,6 +107,20 @@ function RefreshCharacterList(string ExcludedChars, optional string Race)
                     }
                 }
                 if (j < Excluded.Length)
+                {
+                    continue;
+                }
+            }
+            if (bUseAllowedList)
+            {
+                for (j = 0; j < AllowedList.Length; ++j)
+                {
+                    if (PlayerList[i].DefaultName ~= AllowedList[j])
+                    {
+                        break;
+                    }
+                }
+                if (j == AllowedList.Length)
                 {
                     continue;
                 }
@@ -144,7 +161,7 @@ function RaceOnChange(GUIComponent Sender)
     local string Race;
 
     Race = co_Race.GetText();
-    RefreshCharacterList(InvalidTypes, Eval(Race != "All", Race, ""));
+    RefreshCharacterList(Eval(Race != "All", Race, ""));
 }
 
 function UpdatePreview()

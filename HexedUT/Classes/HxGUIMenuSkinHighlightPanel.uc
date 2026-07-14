@@ -44,6 +44,7 @@ var private HxSkinHighlightPreview TeammatePreview;
 var private HxSkinHighlightPreview EnemyPreview;
 var private bool bRenderPreviews;
 var private float HighlightIntensity;
+var private bool bCanForceModels;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
@@ -95,7 +96,7 @@ event Opened(GUIComponent Sender)
         TeammatePreview.HighlightIntensity = HighlightIntensity;
         TeammatePreview.TeamNumber = 0;
         TeammatePreview.DisplayFOV = 15;
-        TeammatePreview.Setup(Config.TeammateModel);
+        TeammatePreview.Setup(Config.CurrentTeammateModel);
     }
     if (EnemyPreview == None)
     {
@@ -103,10 +104,10 @@ event Opened(GUIComponent Sender)
         EnemyPreview.HighlightIntensity = HighlightIntensity;
         EnemyPreview.TeamNumber = 1;
         EnemyPreview.DisplayFOV = 15;
-        EnemyPreview.Setup(Config.EnemyModel);
+        EnemyPreview.Setup(Config.CurrentEnemyModel);
     }
-    Sections[SECTION_TEAMMATES].SetHeader(TeammatesLabel@"("$Config.TeammateModel$")");
-    Sections[SECTION_ENEMIES].SetHeader(EnemiesLabel@"("$Config.EnemyModel$")");
+    Sections[SECTION_TEAMMATES].SetHeader(TeammatesLabel@"("$Config.CurrentTeammateModel$")");
+    Sections[SECTION_ENEMIES].SetHeader(EnemiesLabel@"("$Config.CurrentEnemyModel$")");
     TeammatePreview.UpdateRotation(PlayerOwner());
     EnemyPreview.UpdateRotation(PlayerOwner());
     Super.Opened(Sender);
@@ -132,15 +133,22 @@ function Refresh()
     if (Client != None)
     {
         HighlightIntensity = float(Client.GetServerProperty("SkinHighlightIntensity"));
-        if (TeammatePreview != None)
-        {
-            TeammatePreview.HighlightIntensity = HighlightIntensity;
-        }
-        if (EnemyPreview != None)
-        {
-            EnemyPreview.HighlightIntensity = HighlightIntensity;
-        }
     }
+    if (TeammatePreview != None)
+    {
+        TeammatePreview.HighlightIntensity = HighlightIntensity;
+        TeammatePreview.Setup(Config.CurrentTeammateModel);
+    }
+    if (EnemyPreview != None)
+    {
+        EnemyPreview.HighlightIntensity = HighlightIntensity;
+        EnemyPreview.Setup(Config.CurrentEnemyModel);
+    }
+    bCanForceModels = Config.CanForceModels();
+    SetEnable(ch_ForceTeammateModel, bCanForceModels);
+    SetEnable(b_ChangeTeammateModel, bCanForceModels);
+    SetEnable(ch_ForceEnemyModel, bCanForceModels);
+    SetEnable(b_ChangeEnemyModel, bCanForceModels);
     Super.Refresh();
 }
 
@@ -244,9 +252,14 @@ function bool EnemyPreviewOnCapturedMouseMove(float DeltaX, float DeltaY)
 
 function bool OnClickChangeTeammateModel(GUIComponent Sender)
 {
-    if (Controller.OpenMenu(string(class'HxGUIModelSelect'), Config.TeammateModel, ""))
+    local HxGUIModelSelect Page;
+
+    if (Controller.OpenMenu(string(class'HxGUIModelSelect'), Config.CurrentTeammateModel, ""))
     {
-        Controller.ActivePage.OnClose = OnCloseChangeTeammateModel;
+        Page = HxGUIModelSelect(Controller.ActivePage);
+        Page.OnClose = OnCloseChangeTeammateModel;
+        Page.bUseAllowedList = Config.GetAllowedModelList(Page.AllowedList);
+        Page.RefreshCharacterList();
         bRenderPreviews = false;
     }
     return true;
@@ -262,8 +275,9 @@ function OnCloseChangeTeammateModel(optional bool bCancelled)
         if (CharName != "")
         {
             Config.SetProperty(11, CharName);
-            TeammatePreview.Setup(Config.TeammateModel);
-            Sections[SECTION_TEAMMATES].SetHeader(TeammatesLabel@"("$Config.TeammateModel$")");
+            TeammatePreview.Setup(Config.CurrentTeammateModel);
+            Sections[SECTION_TEAMMATES].SetHeader(
+                TeammatesLabel@"("$Config.CurrentTeammateModel$")");
         }
     }
     bRenderPreviews = true;
@@ -271,9 +285,14 @@ function OnCloseChangeTeammateModel(optional bool bCancelled)
 
 function bool OnClickChangeEnemyModel(GUIComponent Sender)
 {
-    if (Controller.OpenMenu(string(class'HxGUIModelSelect'), Config.EnemyModel, ""))
+    local HxGUIModelSelect Page;
+
+    if (Controller.OpenMenu(string(class'HxGUIModelSelect'), Config.CurrentEnemyModel, ""))
     {
-        Controller.ActivePage.OnClose = OnCloseChangeEnemyModel;
+        Page = HxGUIModelSelect(Controller.ActivePage);
+        Page.OnClose = OnCloseChangeEnemyModel;
+        Page.bUseAllowedList = Config.GetAllowedModelList(Page.AllowedList);
+        Page.RefreshCharacterList();
         bRenderPreviews = false;
     }
     return true;
@@ -289,8 +308,8 @@ function OnCloseChangeEnemyModel(optional bool bCancelled)
         if (CharName != "")
         {
             Config.SetProperty(13, CharName);
-            EnemyPreview.Setup(Config.EnemyModel);
-            Sections[SECTION_ENEMIES].SetHeader(EnemiesLabel@"("$Config.EnemyModel$")");
+            EnemyPreview.Setup(Config.CurrentEnemyModel);
+            Sections[SECTION_ENEMIES].SetHeader(EnemiesLabel@"("$Config.CurrentEnemyModel$")");
         }
     }
     bRenderPreviews = true;

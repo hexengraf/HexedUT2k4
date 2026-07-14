@@ -13,10 +13,16 @@ var config HxSkinHighlight.EHxSkinType EnemySkin;
 var config bool bRandomize;
 var config bool bDisableOnDeadBodies;
 var config int SpectatorTeam;
-var config string TeammateModel;
+var config string PreferredTeammateModel;
+var config string CurrentTeammateModel;
 var config bool bForceTeammateModel;
-var config string EnemyModel;
+var config string PreferredEnemyModel;
+var config string CurrentEnemyModel;
 var config bool bForceEnemyModel;
+
+var MutHexedUT.EHxForcedModel AllowForcedModels;
+var private array<string> ModelList;
+var private const array<string> OfficialModelList;
 
 function ValidateColors(HxColors Colors)
 {
@@ -71,9 +77,9 @@ function InitializeProperties()
     class'HxSkinHighlight'.default.bRandomize = bRandomize;
     class'HxSkinHighlight'.default.bDisableOnDeadBodies = bDisableOnDeadBodies;
     class'HxSkinHighlight'.default.SpectatorTeam = SpectatorTeam;
-    class'HxSkinHighlight'.default.TeammateModel = TeammateModel;
+    class'HxSkinHighlight'.default.TeammateModel = CurrentTeammateModel;
     class'HxSkinHighlight'.default.bForceTeammateModel = bForceTeammateModel;
-    class'HxSkinHighlight'.default.EnemyModel = EnemyModel;
+    class'HxSkinHighlight'.default.EnemyModel = CurrentEnemyModel;
     class'HxSkinHighlight'.default.bForceEnemyModel = bForceEnemyModel;
     UpdateDynamicActors();
 }
@@ -116,13 +122,13 @@ function ApplyProperty(int Index)
             class'HxSkinHighlight'.default.SpectatorTeam = SpectatorTeam;
             break;
         case 11:
-            class'HxSkinHighlight'.default.TeammateModel = TeammateModel;
+            class'HxSkinHighlight'.default.TeammateModel = CurrentTeammateModel;
             break;
         case 12:
             class'HxSkinHighlight'.default.bForceTeammateModel = bForceTeammateModel;
             break;
         case 13:
-            class'HxSkinHighlight'.default.EnemyModel = EnemyModel;
+            class'HxSkinHighlight'.default.EnemyModel = CurrentEnemyModel;
             break;
         case 14:
             class'HxSkinHighlight'.default.bForceEnemyModel = bForceEnemyModel;
@@ -182,7 +188,8 @@ function bool ResetProperty(int Index)
             bReset = true;
             break;
         case 11:
-            TeammateModel = default.TeammateModel;
+            PreferredTeammateModel = default.PreferredTeammateModel;
+            CurrentTeammateModel = default.CurrentTeammateModel;
             bReset = true;
             break;
         case 12:
@@ -190,7 +197,8 @@ function bool ResetProperty(int Index)
             bReset = true;
             break;
         case 13:
-            EnemyModel = default.EnemyModel;
+            PreferredEnemyModel = default.PreferredEnemyModel;
+            CurrentEnemyModel = default.CurrentEnemyModel;
             bReset = true;
             break;
         case 14:
@@ -205,6 +213,141 @@ function bool ResetProperty(int Index)
     return bReset;
 }
 
+function string ValidateString(int Index, string Value)
+{
+    switch (Properties[Index].Name)
+    {
+        case "CurrentTeammateModel":
+            if (AllowForcedModels == HX_FM_Any || PreferredTeammateModel ~= CurrentTeammateModel)
+            {
+                PreferredTeammateModel = Value;
+            }
+            break;
+        case "CurrentEnemyModel":
+            if (AllowForcedModels == HX_FM_Any || PreferredEnemyModel ~= CurrentEnemyModel)
+            {
+                PreferredEnemyModel = Value;
+            }
+            break;
+    }
+    return Value;
+}
+
+function SetAllowed(string Value, array<string> Models)
+{
+    SetPropertyText("AllowForcedModels", Value);
+    ModelList = Models;
+    switch (AllowForcedModels)
+    {
+        case HX_FM_OfficialOnly:
+            ValidateOfficialModel(PreferredTeammateModel, CurrentTeammateModel);
+            ValidateOfficialModel(PreferredEnemyModel, CurrentEnemyModel);
+            break;
+        case HX_FM_FromList:
+            ValidateFromModelList(PreferredTeammateModel, CurrentTeammateModel);
+            ValidateFromModelList(PreferredEnemyModel, CurrentEnemyModel);
+            break;
+        default:
+            CurrentTeammateModel = PreferredTeammateModel;
+            CurrentEnemyModel = PreferredEnemyModel;
+            break;
+    }
+    InitializeProperties();
+    SaveConfig();
+}
+
+function ValidateOfficialModel(out string PreferredModel, out string CurrentModel)
+{
+    if (PreferredModel ~= CurrentModel)
+    {
+        if (!IsOfficialModel(CurrentModel))
+        {
+            CurrentModel = OfficialModelList[27];
+        }
+    }
+    else if (IsOfficialModel(PreferredModel))
+    {
+        CurrentModel = PreferredModel;
+    }
+    else if (!IsOfficialModel(CurrentModel))
+    {
+        CurrentModel = OfficialModelList[27];
+    }
+}
+
+function ValidateFromModelList(out string PreferredModel, out string CurrentModel)
+{
+    if (PreferredModel ~= CurrentModel)
+    {
+        if (!IsModelFromList(CurrentModel))
+        {
+            CurrentModel = OfficialModelList[27];
+        }
+    }
+    else if (IsModelFromList(PreferredModel))
+    {
+        CurrentModel = PreferredModel;
+    }
+    else if (!IsModelFromList(CurrentModel))
+    {
+        CurrentModel = OfficialModelList[27];
+    }
+}
+
+function bool IsModelFromList(string ModelName)
+{
+    local int i;
+
+    for (i = 0; i < ModelList.Length; ++i)
+    {
+        if (ModelName ~= ModelList[i])
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+function bool IsOfficialModel(string ModelName)
+{
+    local int i;
+
+    for (i = 0; i < OfficialModelList.Length; ++i)
+    {
+        if (ModelName ~= OfficialModelList[i])
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+function bool CanForceModels()
+{
+    switch (AllowForcedModels)
+    {
+        case HX_FM_None:
+            return false;
+        case HX_FM_FromList:
+            return ModelList.Length > 0;
+    }
+    return true;
+}
+
+function bool GetAllowedModelList(out array<string> List)
+{
+    switch (AllowForcedModels)
+    {
+        case HX_FM_OfficialOnly:
+            List = OfficialModelList;
+            return true;
+        case HX_FM_FromList:
+            list = ModelList;
+            return true;
+    }
+    return false;
+}
+
 function UpdateDynamicActors()
 {
     local HxSkinHighlight SkinHighlight;
@@ -213,6 +356,7 @@ function UpdateDynamicActors()
     {
         ForEach Level.DynamicActors(class'HxSkinHighlight', SkinHighlight)
         {
+            SkinHighlight.bCanForceModels = AllowForcedModels != HX_FM_None;
             SkinHighlight.Restart();
         }
     }
@@ -232,9 +376,9 @@ defaultproperties
     Properties(8)=(Name="bRandomize",Type=HX_PROPERTY_Bool)
     Properties(9)=(Name="bDisableOnDeadBodies",Type=HX_PROPERTY_Bool)
     Properties(10)=(Name="SpectatorTeam",Type=HX_PROPERTY_Int,LowerLimit="0",UpperLimit="1")
-    Properties(11)=(Name="TeammateModel",Type=HX_PROPERTY_String)
+    Properties(11)=(Name="CurrentTeammateModel",Type=HX_PROPERTY_String)
     Properties(12)=(Name="bForceTeammateModel",Type=HX_PROPERTY_Bool)
-    Properties(13)=(Name="EnemyModel",Type=HX_PROPERTY_String)
+    Properties(13)=(Name="CurrentEnemyModel",Type=HX_PROPERTY_String)
     Properties(14)=(Name="bForceEnemyModel",Type=HX_PROPERTY_Bool)
 
     Teammates="DISABLED"
@@ -247,8 +391,110 @@ defaultproperties
     EnemySkin=HX_SKIN_Normal
     bRandomize=false
     bDisableOnDeadBodies=false
-    TeammateModel="Jakob"
+    PreferredTeammateModel="Jakob"
+    CurrentTeammateModel="Jakob"
     bForceTeammateModel=false
-    EnemyModel="Jakob"
+    PreferredEnemyModel="Jakob"
+    CurrentEnemyModel="Jakob"
     bForceEnemyModel=false
+
+    AllowForcedModels=HX_FM_None
+    OfficialModelList(0)="Mekkor"
+    OfficialModelList(1)="Skrilax"
+    OfficialModelList(2)="Barktooth"
+    OfficialModelList(3)="Karag"
+    OfficialModelList(4)="Kragoth"
+    OfficialModelList(5)="Thannis"
+    OfficialModelList(6)="Karaash"
+    OfficialModelList(7)="Bale"
+    OfficialModelList(8)="Tyler"
+    OfficialModelList(9)="GothGirl"
+    OfficialModelList(10)="glumpf"
+    OfficialModelList(11)="Dominator"
+    OfficialModelList(12)="Drekorig"
+    OfficialModelList(13)="Skakruk"
+    OfficialModelList(14)="Guardian"
+    OfficialModelList(15)="ClanLord"
+    OfficialModelList(16)="Kraagesh"
+    OfficialModelList(17)="Gaargod"
+    OfficialModelList(18)="Gkublok"
+    OfficialModelList(19)="Virus"
+    OfficialModelList(20)="Enigma"
+    OfficialModelList(21)="Xan"
+    OfficialModelList(22)="Cyclops"
+    OfficialModelList(23)="Cathode"
+    OfficialModelList(24)="Axon"
+    OfficialModelList(25)="Divisor"
+    OfficialModelList(26)="Matrix"
+    OfficialModelList(27)="Jakob"
+    OfficialModelList(28)="Aryss"
+    OfficialModelList(29)="Tamika"
+    OfficialModelList(30)="Othello"
+    OfficialModelList(31)="Azure"
+    OfficialModelList(32)="Annika"
+    OfficialModelList(33)="Riker"
+    OfficialModelList(34)="Garrett"
+    OfficialModelList(35)="Baird"
+    OfficialModelList(36)="Greith"
+    OfficialModelList(37)="Zarina"
+    OfficialModelList(38)="Ophelia"
+    OfficialModelList(39)="Kaela"
+    OfficialModelList(40)="Rae"
+    OfficialModelList(41)="Kane"
+    OfficialModelList(42)="Outlaw"
+    OfficialModelList(43)="Abaddon"
+    OfficialModelList(44)="Enki"
+    OfficialModelList(45)="Neil"
+    OfficialModelList(46)="Malcolm"
+    OfficialModelList(47)="Brock"
+    OfficialModelList(48)="Lauren"
+    OfficialModelList(49)="Diva"
+    OfficialModelList(50)="Scarab"
+    OfficialModelList(51)="Asp"
+    OfficialModelList(52)="Roc"
+    OfficialModelList(53)="Memphis"
+    OfficialModelList(54)="Horus"
+    OfficialModelList(55)="Cleopatra"
+    OfficialModelList(56)="Hyena"
+    OfficialModelList(57)="Gorge"
+    OfficialModelList(58)="Rylisa"
+    OfficialModelList(59)="Cannonball"
+    OfficialModelList(60)="Ambrosia"
+    OfficialModelList(61)="Frostbite"
+    OfficialModelList(62)="Reinha"
+    OfficialModelList(63)="Arclite"
+    OfficialModelList(64)="Siren"
+    OfficialModelList(65)="Prism"
+    OfficialModelList(66)="Wraith"
+    OfficialModelList(67)="Sapphire"
+    OfficialModelList(68)="Romulus"
+    OfficialModelList(69)="BlackJack"
+    OfficialModelList(70)="Torch"
+    OfficialModelList(71)="Satin"
+    OfficialModelList(72)="Remus"
+    OfficialModelList(73)="Damarus"
+    OfficialModelList(74)="Mokara"
+    OfficialModelList(75)="Motig"
+    OfficialModelList(76)="Faraleth"
+    OfficialModelList(77)="Komek"
+    OfficialModelList(78)="Makreth"
+    OfficialModelList(79)="Selig"
+    OfficialModelList(80)="Nebri"
+    OfficialModelList(81)="Thorax"
+    OfficialModelList(82)="Widowmaker"
+    OfficialModelList(83)="Cobalt"
+    OfficialModelList(84)="Corrosion"
+    OfficialModelList(85)="Mandible"
+    OfficialModelList(86)="Syzygy"
+    OfficialModelList(87)="Rapier"
+    OfficialModelList(88)="Renegade"
+    OfficialModelList(89)="Brutalis"
+    OfficialModelList(90)="Lilith"
+    OfficialModelList(91)="Mr.Crow"
+    OfficialModelList(92)="Domina"
+    OfficialModelList(93)="Ravage"
+    OfficialModelList(94)="Fate"
+    OfficialModelList(95)="Harlequin"
+    OfficialModelList(96)="Subversa"
+    OfficialModelList(97)="Aurora"
 }

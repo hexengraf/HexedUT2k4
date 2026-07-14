@@ -83,15 +83,7 @@ simulated event Tick(float DeltaTime)
 {
     if (!bServerPropertiesRequested)
     {
-        if (Level.NetMode == NM_Client)
-        {
-            ServerRequestProperties();
-        }
-        else
-        {
-            bServerPropertiesReady = true;
-            NotifyServerPropertiesReady();
-        }
+        ServerRequestProperties();
         bServerPropertiesRequested = true;
     }
     ProcessMessageQueue();

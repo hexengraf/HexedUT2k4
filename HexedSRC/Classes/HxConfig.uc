@@ -10,7 +10,6 @@ var protected HxClientReplicationInfo ClientOwner;
 
 function InitializeProperties();
 function ApplyProperty(int Index);
-function string ValidateStruct(int Index, string Value);
 
 function Created()
 {
@@ -98,11 +97,18 @@ function string ValidateProperty(int Index, string Value)
                 float(Value),
                 float(Properties[Index].LowerLimit),
                 float(Properties[Index].UpperLimit)));
+        case HX_PROPERTY_String:
+            return ValidateString(Index, Value);
         case HX_PROPERTY_Enum:
             return ValidateEnum(Index, Value);
         case HX_PROPERTY_Struct:
             return ValidateStruct(Index, Value);
     }
+    return Value;
+}
+
+function string ValidateString(int Index, string Value)
+{
     return Value;
 }
 
@@ -126,6 +132,11 @@ function string ValidateEnum(int Index, string Value)
         }
     }
     return string(GetEnum(Properties[Index].EnumType, int(Properties[Index].LowerLimit)));
+}
+
+function string ValidateStruct(int Index, string Value)
+{
+    return Value;
 }
 
 final function bool IsValidPropertyIndex(int Index)

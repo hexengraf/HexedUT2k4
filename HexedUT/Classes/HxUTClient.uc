@@ -15,6 +15,7 @@ var private HxUTPlayer Player;
 var private HxSPTimer SPTimer;
 var private HxDamageInfo Damage;
 var private bool bInitialized;
+var private array<string> ModelList;
 
 replication
 {
@@ -148,11 +149,20 @@ simulated function NotifyServerPropertiesReady()
         HitEffects.ApplyServerConfiguration(Self);
     }
     UpdateScoreBoardConfig();
+    UpdateSkinHighlightConfig();
 }
 
 simulated function NotifyServerPropertyChanged(int Index, string OldValue)
 {
     NotifyServerPropertiesReady();
+}
+
+simulated function UpdateSkinHighlightConfig()
+{
+    local HxSkinHighlightConfig Config;
+
+    Config = HxSkinHighlightConfig(FindConfig(class'HxSkinHighlightConfig'));
+    Config.SetAllowed(GetServerProperty("AllowForcedModels"), ModelList);
 }
 
 simulated function UpdateScoreBoardConfig()
@@ -161,6 +171,14 @@ simulated function UpdateScoreBoardConfig()
 
     Config = HxScoreBoardConfig(FindConfig(class'HxScoreBoardConfig'));
     Config.SetAllowed(GetServerProperty("bAllowEnhancedScoreBoards"));
+}
+
+simulated function ParseArrayProperty(int Index, array<string> Values)
+{
+    if (MutatorClass.default.Properties[Index].Name == "ModelList")
+    {
+        ModelList = Values;
+    }
 }
 
 simulated function HxColors GetSkinHighlightColors()

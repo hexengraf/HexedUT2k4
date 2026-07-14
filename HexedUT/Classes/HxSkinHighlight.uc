@@ -24,12 +24,13 @@ var EHxSkinType EnemySkin;
 var bool bRandomize;
 var bool bDisableOnDeadBodies;
 var int SpectatorTeam;
-var int TeamNumber;
-var float HighlightIntensity;
 var string TeammateModel;
 var bool bForceTeammateModel;
 var string EnemyModel;
 var bool bForceEnemyModel;
+var float HighlightIntensity;
+var int TeamNumber;
+var bool bCanForceModels;
 
 var protected PlayerController PC;
 var protected HxUTClient Client;
@@ -55,7 +56,7 @@ var protected xUtil.PlayerRecord PlayerRecord;
 replication
 {
     reliable if (Role == ROLE_Authority && bNetInitial)
-        TeamNumber;
+        TeamNumber, bCanForceModels;
 
     reliable if (Role == ROLE_Authority)
         HighlightIntensity;
@@ -197,7 +198,8 @@ auto state Startup
             if (!Pawn.bPlayedDeath && Pawn.Health > 0)
             {
                 bEnemy = TeamNumber != LocalPlayerTeam;
-                if (bEnemy && !bForceEnemyModel || !bEnemy && !bForceTeammateModel)
+                if (!bCanForceModels || (bEnemy && !bForceEnemyModel)
+                    || (!bEnemy && !bForceTeammateModel))
                 {
                     Model = GetExpectedCharacterModel(Pawn);
                     if (PlayerRecord.DefaultName != "" && PlayerRecord.DefaultName != Model)
