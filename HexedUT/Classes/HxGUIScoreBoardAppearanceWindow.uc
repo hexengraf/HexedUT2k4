@@ -18,6 +18,7 @@ var automated GUIButton b_RestoreColors;
 
 var localized string AlignmentLabels[3];
 var localized string ColorNameLabels[24];
+var localized string ConfirmRestoreDefaultColors;
 
 var private HxClientManager ClientManager;
 var private HxUTClient Client;
@@ -173,17 +174,30 @@ function bool FloatingPreDraw(Canvas C)
 
 function bool OnClickRestoreColors(GUIComponent Sender)
 {
+    if (Controller.OpenMenu(string(class'HxGUIQuestionPage')))
+    {
+        GUIQuestionPage(Controller.ActivePage).SetupQuestion(
+            ConfirmRestoreDefaultColors, QBTN_YesNo, QBTN_Yes);
+        GUIQuestionPage(Controller.ActivePage).OnButtonClick = OnButtonClickRestoreColors;
+    }
+    return true;
+}
+
+function OnButtonClickRestoreColors(byte bButton)
+{
     local int PropertyIndex;
     local int i;
 
-    for (i = 0; i < ArrayCount(ColorNameLabels); ++i)
+    if (bButton == QBTN_Yes)
     {
-        PropertyIndex = co_ChangeColor.Tag + i;
-        Config.ResetProperty(PropertyIndex);
-        Config.SetProperty(PropertyIndex, Config.GetProperty(PropertyIndex));
+        for (i = 0; i < ArrayCount(ColorNameLabels); ++i)
+        {
+            PropertyIndex = co_ChangeColor.Tag + i;
+            Config.ResetProperty(PropertyIndex);
+            Config.SetProperty(PropertyIndex, Config.GetProperty(PropertyIndex));
+        }
+        ColorOnChange(co_ChangeColor);
     }
-    ColorOnChange(co_ChangeColor);
-    return true;
 }
 
 event Free()
@@ -402,4 +416,5 @@ defaultproperties
     ColorNameLabels(21)="Second text color"
     ColorNameLabels(22)="Highlight text color"
     ColorNameLabels(23)="Ready color"
+    ConfirmRestoreDefaultColors="Are you sure you want to restore all colors to their default values?"
 }
