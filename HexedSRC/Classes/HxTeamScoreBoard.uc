@@ -199,12 +199,12 @@ simulated function UpdateExtraSizes(Canvas C)
     }
     else if (bVerticalLayout)
     {
-        IconSize = int(BannerWidth * 0.65);
+        IconSize = (BannerWidth * 0.65 + 1) & ~1;
     }
     else
     {
-        BannerWidth = Min(TableWidth, BannerHeight + ScoreFontHeight * 4);
-        IconSize = int(BannerHeight * 0.9);
+        BannerWidth = Min(TableWidth, (BannerHeight + ScoreFontHeight * 4.5 + 1) & ~1);
+        IconSize = (BannerHeight * 0.9 + 1) & ~1;
         IconPadding = (BannerHeight - IconSize) / 2;
         ScorePadding = ScoreFontHeight / 2;
         bDrawSymbols = true;
@@ -263,7 +263,6 @@ defaultproperties
 {
     Tables(0)=(TeamIndex=0)
     Tables(1)=(TeamIndex=1)
-    bVerticalLayout=false
     bShowBotCallSigns=false
     bShowBotOrders=true
     TeamHeaderColors(0)=(R=42,G=0,B=0,A=196)

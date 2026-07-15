@@ -172,6 +172,10 @@ simulated function Init()
     ScreenHeight = 0;
     Columns.Length = 0;
     Alignments.Length = 0;
+    if (Tables.Length == 1)
+    {
+        bVerticalLayout = true;
+    }
     ConfigureColumns();
 }
 
@@ -841,7 +845,7 @@ simulated function UpdateSizes(Canvas C)
     TableRegion[1] += Border;
     TableRegion[2] -= Border * 2;
     UpdateTablePaddings(C);
-    if (bVerticalLayout || Tables.Length == 1)
+    if (bVerticalLayout)
     {
         TableWidth = TableRegion[2] - TableLeftPadding;
         VerticalTableCount = Tables.Length;
@@ -1481,7 +1485,7 @@ defaultproperties
     BoardAlignment=HX_VALIGN_Top
     HeadingAlignment=HX_VALIGN_Center
     TeamScoreStyle=HX_SB_TSCORE_FullSize
-    BorderSize=0.2
+    BorderSize=0.25
     DividerSize=0.2
     FontSizeModifier=0
     bAlternateRowColors=false
@@ -1498,7 +1502,6 @@ defaultproperties
     HighlightTextColor=(R=255,G=255,B=0,A=255)
     ReadyColor=(R=64,G=255,B=64,A=255)
     PlayerColumn=1
-    bVerticalLayout=true
     LastUpdateTime=-5
 
     ReadyLabel="RDY"

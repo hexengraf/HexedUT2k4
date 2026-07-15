@@ -495,7 +495,7 @@ defaultproperties
     bEnabled=true
     BoardAlignment=HX_VALIGN_Top
     HeadingAlignment=HX_VALIGN_Center
-    BorderSize=0.2
+    BorderSize=0.25
     DividerSize=0.2
     FontSizeModifier=0
     bAlternateRowColors=false
