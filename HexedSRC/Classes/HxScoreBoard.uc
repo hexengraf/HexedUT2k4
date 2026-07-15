@@ -1488,8 +1488,8 @@ defaultproperties
     bShowBotCallSigns=false
     bShowBotOrders=true
     HeaderColor=(R=0,G=0,B=20,A=196)
-    RowColor=(R=160,G=160,B=170,A=142)
-    AltRowColor=(R=140,G=140,B=150,A=112)
+    RowColor=(R=130,G=130,B=140,A=142)
+    AltRowColor=(R=100,G=100,B=110,A=112)
     BorderColor=(R=220,G=220,B=230,A=220)
     DividerColor=(R=220,G=220,B=230,A=172)
     ScrollThumbColor=(R=220,G=220,B=230,A=172)
