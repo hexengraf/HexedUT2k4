@@ -207,9 +207,9 @@ defaultproperties
     ch_Advanced=AdvancedCheckBox
 
     WindowName="HexedMenu - Server Options"
-    WinWidth=0.41
-    WinHeight=0.65
-    WinLeft=0.295
-    WinTop=0.175
+    WinLeft=0.29
+    WinTop=0.19
+    WinWidth=0.42
+    WinHeight=0.62
     OnKeyEvent=InternalOnKeyEvent
 }
