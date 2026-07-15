@@ -105,7 +105,7 @@ simulated function PopulateMapEntries()
     local int Limit;
     local int i;
 
-    Limit = 8 * MESSAGES_PER_TICK;
+    Limit = 2 * MESSAGES_PER_TICK;
     for (i = Maps.Length; i < VRI.MapList.Length; ++i)
     {
         Maps.Insert(Maps.Length, 1);
