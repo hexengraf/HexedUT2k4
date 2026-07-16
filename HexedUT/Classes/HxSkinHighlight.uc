@@ -1,5 +1,11 @@
 class HxSkinHighlight extends Actor;
 
+enum EHxHighlightMode
+{
+    HX_SHM_RoleBased,
+    HX_SHM_TeamBased,
+};
+
 enum EHxSkinType
 {
     HX_SKIN_RedTeam,
@@ -23,6 +29,7 @@ var EHxSkinType TeammateSkin;
 var EHxSkinType EnemySkin;
 var bool bRandomize;
 var bool bDisableOnDeadBodies;
+var EHxHighlightMode HighlightMode;
 var int SpectatorTeam;
 var string TeammateModel;
 var bool bForceTeammateModel;
@@ -592,6 +599,7 @@ simulated final function LoadDefaults()
     EnemySkin = class'HxSkinHighlight'.default.EnemySkin;
     bRandomize = class'HxSkinHighlight'.default.bRandomize;
     bDisableOnDeadBodies = class'HxSkinHighlight'.default.bDisableOnDeadBodies;
+    HighlightMode = class'HxSkinHighlight'.default.HighlightMode;
     SpectatorTeam = class'HxSkinHighlight'.default.SpectatorTeam;
     TeammateModel = class'HxSkinHighlight'.default.TeammateModel;
     bForceTeammateModel = class'HxSkinHighlight'.default.bForceTeammateModel;
@@ -691,20 +699,59 @@ simulated function string GetHighlightColorName()
     local xPawn Pawn;
 
     Pawn = xPawn(Base);
-    if (bRandomize && !Level.GRI.bTeamGame)
+    if (!Level.GRI.bTeamGame)
     {
-        return Colors.SavedRandom(Pawn.PlayerReplicationInfo.PlayerName);
+        if (Pawn.PlayerReplicationInfo == PC.PlayerReplicationInfo)
+        {
+            return Teammates;
+        }
+        if (bRandomize)
+        {
+            return Colors.SavedRandom(Pawn.PlayerReplicationInfo.PlayerName);
+        }
+        return Enemies;
     }
-    return Eval(TeamNumber != LocalPlayerTeam, Enemies, Teammates);
+    if (HighlightMode == HX_SHM_TeamBased)
+    {
+        if (TeamNumber == 0)
+        {
+            return Teammates;
+        }
+        return Enemies;
+    }
+    if (TeamNumber == LocalPlayerTeam)
+    {
+        return Teammates;
+    }
+    return Enemies;
 }
 
 simulated function EHxSkinType GetSkinType()
 {
-    if (!Level.GRI.bTeamGame || TeamNumber == 255 || TeamNumber != LocalPlayerTeam)
+    local xPawn Pawn;
+
+    Pawn = xPawn(Base);
+    if (!Level.GRI.bTeamGame)
     {
+        if (Pawn.PlayerReplicationInfo == PC.PlayerReplicationInfo)
+        {
+            return TeammateSkin;
+        }
         return EnemySkin;
     }
-    return TeammateSkin;
+    if (HighlightMode == HX_SHM_TeamBased)
+    {
+        if (TeamNumber == 0)
+        {
+            return TeammateSkin;
+        }
+        return EnemySkin;
+    }
+    if (TeamNumber == LocalPlayerTeam)
+    {
+        return TeammateSkin;
+    }
+    return EnemySkin;
 }
 
 simulated function Color GetHitColor(string Name)
@@ -848,4 +895,21 @@ defaultproperties
     TeamNumber=-1
     HighlightIntensity=-1
     LocalPlayerTeam=255
+
+    Teammates="DISABLED"
+    Enemies="DISABLED"
+    ShieldHit="DEFAULT"
+    LinkHit="DEFAULT"
+    ShockHit="DEFAULT"
+    LightningHit="DEFAULT"
+    TeammateSkin=HX_SKIN_Normal
+    EnemySkin=HX_SKIN_Normal
+    bRandomize=false
+    bDisableOnDeadBodies=false
+    HighlightMode=HX_SHM_RoleBased
+    SpectatorTeam=0
+    TeammateModel="Jakob"
+    bForceTeammateModel=false
+    EnemyModel="Jakob"
+    bForceEnemyModel=false
 }

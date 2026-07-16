@@ -27,15 +27,16 @@ var automated moComboBox co_LightningHit;
 
 var automated moCheckBox ch_Randomize;
 var automated moCheckBox ch_DisableOnDeadBodies;
+var automated moComboBox co_HighlightMode;
 var automated moComboBox co_SpectateAs;
 var automated GUIButton b_CustomizeColors;
 
 var localized string DisabledLabel;
 var localized string DefaultLabel;
 var localized string SkinLabels[3];
+var localized string ModeLabels[2];
+var localized string RoleLabels[2];
 var localized string TeamLabels[2];
-var localized string TeammatesLabel;
-var localized string EnemiesLabel;
 
 var private HxUTClient Client;
 var private HxSkinHighlightConfig Config;
@@ -67,6 +68,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     Sections[SECTION_HIT_EFFECTS].Insert(co_LightningHit);
     Sections[SECTION_ADVANCED].Insert(ch_Randomize);
     Sections[SECTION_ADVANCED].Insert(ch_DisableOnDeadBodies);
+    Sections[SECTION_ADVANCED].Insert(co_HighlightMode);
     Sections[SECTION_ADVANCED].Insert(co_SpectateAs);
     Sections[SECTION_ADVANCED].Insert(b_CustomizeColors);
     Client = HxUTClient(ClientManager.Find(class'HxUTClient'));
@@ -76,8 +78,13 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     PopulateColorComboBoxes();
     PopulateSkinTypeComboBox(co_TeammateSkin);
     PopulateSkinTypeComboBox(co_EnemySkin);
+    co_HighlightMode.MyComboBox.MyListBox.MyList.bInitializeList = false;
+    for (i = 0; i < ArrayCount(ModeLabels); ++i)
+    {
+        co_HighlightMode.AddItem(ModeLabels[i],,string(GetEnum(enum'EHxHighlightMode', i)));
+    }
     co_SpectateAs.MyComboBox.MyListBox.MyList.bInitializeList = false;
-    for (i = 0; i < 2; ++i)
+    for (i = 0; i < ArrayCount(TeamLabels); ++i)
     {
         co_SpectateAs.AddItem(TeamLabels[i],,string(i));
     }
@@ -106,8 +113,6 @@ event Opened(GUIComponent Sender)
         EnemyPreview.DisplayFOV = 15;
         EnemyPreview.Setup(Config.CurrentEnemyModel);
     }
-    Sections[SECTION_TEAMMATES].SetHeader(TeammatesLabel@"("$Config.CurrentTeammateModel$")");
-    Sections[SECTION_ENEMIES].SetHeader(EnemiesLabel@"("$Config.CurrentEnemyModel$")");
     TeammatePreview.UpdateRotation(PlayerOwner());
     EnemyPreview.UpdateRotation(PlayerOwner());
     Super.Opened(Sender);
@@ -149,6 +154,7 @@ function Refresh()
     SetEnable(b_ChangeTeammateModel, bCanForceModels);
     SetEnable(ch_ForceEnemyModel, bCanForceModels);
     SetEnable(b_ChangeEnemyModel, bCanForceModels);
+    UpdateSectionHeaders();
     Super.Refresh();
 }
 
@@ -160,6 +166,10 @@ function InternalOnLoadINI(GUIComponent Sender, string s)
 function InternalOnChange(GUIComponent Sender)
 {
     Config.SetProperty(Sender.Tag, GUIMenuOption(Sender).GetComponentValue());
+    if (Sender == co_HighlightMode)
+    {
+        UpdateSectionHeaders();
+    }
 }
 
 function PopulateColorComboBoxes()
@@ -193,6 +203,20 @@ function PopulateColorComboBoxes()
             ComboBoxes[i].AddItem(Colors.ColorList[j].Name,, Colors.ColorList[j].Name);
         }
         ComboBoxes[i].LoadINI();
+    }
+}
+
+function UpdateSectionHeaders()
+{
+    if (Config.HighlightMode == HX_SHM_TeamBased)
+    {
+        Sections[SECTION_TEAMMATES].SetHeader(TeamLabels[0]@"("$Config.CurrentTeammateModel$")");
+        Sections[SECTION_ENEMIES].SetHeader(TeamLabels[1]@"("$Config.CurrentEnemyModel$")");
+    }
+    else
+    {
+        Sections[SECTION_TEAMMATES].SetHeader(RoleLabels[0]@"("$Config.CurrentTeammateModel$")");
+        Sections[SECTION_ENEMIES].SetHeader(RoleLabels[1]@"("$Config.CurrentEnemyModel$")");
     }
 }
 
@@ -274,10 +298,9 @@ function OnCloseChangeTeammateModel(optional bool bCancelled)
         CharName = Controller.ActivePage.GetDataString();
         if (CharName != "")
         {
-            Config.SetProperty(11, CharName);
+            Config.SetProperty(12, CharName);
             TeammatePreview.Setup(Config.CurrentTeammateModel);
-            Sections[SECTION_TEAMMATES].SetHeader(
-                TeammatesLabel@"("$Config.CurrentTeammateModel$")");
+            UpdateSectionHeaders();
         }
     }
     bRenderPreviews = true;
@@ -307,9 +330,9 @@ function OnCloseChangeEnemyModel(optional bool bCancelled)
         CharName = Controller.ActivePage.GetDataString();
         if (CharName != "")
         {
-            Config.SetProperty(13, CharName);
+            Config.SetProperty(14, CharName);
             EnemyPreview.Setup(Config.CurrentEnemyModel);
-            Sections[SECTION_ENEMIES].SetHeader(EnemiesLabel@"("$Config.CurrentEnemyModel$")");
+            UpdateSectionHeaders();
         }
     }
     bRenderPreviews = true;
@@ -419,7 +442,7 @@ defaultproperties
         Caption="Force model"
         Hint="Force the selected model on teammates."
         INIOption="@INTERNAL"
-        Tag=12
+        Tag=13
         CaptionWidth=0.8
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
@@ -455,7 +478,7 @@ defaultproperties
         Hint="Highlight color to use when a shielded player is hit or has spawn protection."
         INIOption="@INTERNAL"
         Tag=2
-        ComponentWidth=0.64
+        CaptionWidth=0.42
         bReadOnly=true
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
@@ -468,7 +491,7 @@ defaultproperties
         Hint="Highlight color to use when a player is hit with a link gun."
         INIOption="@INTERNAL"
         Tag=3
-        ComponentWidth=0.64
+        CaptionWidth=0.42
         bReadOnly=true
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
@@ -481,7 +504,7 @@ defaultproperties
         Hint="Highlight color to use when a player is hit with a shock rifle."
         INIOption="@INTERNAL"
         Tag=4
-        ComponentWidth=0.64
+        CaptionWidth=0.42
         bReadOnly=true
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
@@ -494,7 +517,7 @@ defaultproperties
         Hint="Highlight color to use when a player is hit with a lightning gun."
         INIOption="@INTERNAL"
         Tag=5
-        ComponentWidth=0.64
+        CaptionWidth=0.42
         bReadOnly=true
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
@@ -532,7 +555,7 @@ defaultproperties
         Caption="Force model"
         Hint="Force the selected model on enemies."
         INIOption="@INTERNAL"
-        Tag=14
+        Tag=15
         CaptionWidth=0.8
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
@@ -587,16 +610,29 @@ defaultproperties
     End Object
     ch_DisableOnDeadBodies=DisableOnDeadBodiesCheckBox
 
-    Begin Object class=moComboBox Name=SpectateAsComboBox
-        Caption="Spectate as"
-        Hint="Select which team's perspective to spectate as."
+    Begin Object class=moComboBox Name=HighlightModeComboBox
+        Caption="Highlight mode"
+        Hint="Choose if highlight is applied based on roles (teammates/enemies) or based on teams (red/blue)."
         INIOption="@INTERNAL"
         Tag=10
-        ComponentWidth=0.64
+        CaptionWidth=0.42
         bReadOnly=true
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
         TabOrder=14
+    End Object
+    co_HighlightMode=HighlightModeComboBox
+
+    Begin Object class=moComboBox Name=SpectateAsComboBox
+        Caption="Spectate as"
+        Hint="Select which team's perspective to spectate as."
+        INIOption="@INTERNAL"
+        Tag=11
+        CaptionWidth=0.42
+        bReadOnly=true
+        OnLoadINI=InternalOnLoadINI
+        OnChange=InternalOnChange
+        TabOrder=15
     End Object
     co_SpectateAs=SpectateAsComboBox
 
@@ -608,7 +644,7 @@ defaultproperties
         StyleName="HxSquareButton"
         bRepeatClick=false
         OnClick=OnClickCustomizeColors
-        TabOrder=15
+        TabOrder=16
     End Object
     b_CustomizeColors=CustomizeColorsBoxButton
 
@@ -626,9 +662,11 @@ defaultproperties
     SkinLabels(0)="Red Team"
     SkinLabels(1)="Blue Team"
     SkinLabels(2)="Normal"
+    ModeLabels(0)="Role-based"
+    ModeLabels(1)="Team-based"
+    RoleLabels(0)="Teammates"
+    RoleLabels(1)="Enemies"
     TeamLabels(0)="Red Team"
     TeamLabels(1)="Blue Team"
-    TeammatesLabel="Teammates"
-    EnemiesLabel="Enemies"
     bRenderPreviews=true
 }
