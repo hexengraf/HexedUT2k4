@@ -80,6 +80,7 @@ simulated event Destroyed()
 
     for (i = 0; i < Materials.Length; ++i)
     {
+        ResetMaterial(Materials[i]);
         Level.ObjectPool.FreeObject(Materials[i]);
     }
     Super.Destroyed();
@@ -604,7 +605,70 @@ simulated final function Material AllocateMaterial(class<Material> MaterialClass
 
     NewMaterial = Material(Level.ObjectPool.AllocateObject(MaterialClass));
     Materials[Materials.Length] = NewMaterial;
+    ResetMaterial(NewMaterial);
     return NewMaterial;
+}
+
+static final function ResetMaterial(Material M)
+{
+    local ConstantColor CC;
+    local Combiner C;
+    local Shader S;
+    local FinalBlend FB;
+
+    switch (M.Class)
+    {
+        case class'ConstantColor':
+            CC = ConstantColor(M);
+            CC.FallbackMaterial = class'ConstantColor'.default.FallbackMaterial;
+            CC.DefaultMaterial = class'ConstantColor'.default.DefaultMaterial;
+            CC.Color = class'ConstantColor'.default.Color;
+            break;
+        case class'Combiner':
+            C = Combiner(M);
+            C.FallbackMaterial = class'Combiner'.default.FallbackMaterial;
+            C.DefaultMaterial = class'Combiner'.default.DefaultMaterial;
+            C.CombineOperation = class'Combiner'.default.CombineOperation;
+            C.AlphaOperation = class'Combiner'.default.AlphaOperation;
+            C.Material1 = class'Combiner'.default.Material1;
+            C.Material2 = class'Combiner'.default.Material2;
+            C.Mask = class'Combiner'.default.Mask;
+            C.InvertMask = class'Combiner'.default.InvertMask;
+            C.Modulate2X = class'Combiner'.default.Modulate2X;
+            C.Modulate4X = class'Combiner'.default.Modulate4X;
+            break;
+        case class'Shader':
+            S = Shader(M);
+            S.FallbackMaterial = class'Shader'.default.FallbackMaterial;
+            S.DefaultMaterial = class'Shader'.default.DefaultMaterial;
+            S.Diffuse = class'Shader'.default.Diffuse;
+            S.Opacity = class'Shader'.default.Opacity;
+            S.Specular = class'Shader'.default.Specular;
+            S.SpecularityMask = class'Shader'.default.SpecularityMask;
+            S.SelfIllumination = class'Shader'.default.SelfIllumination;
+            S.SelfIlluminationMask = class'Shader'.default.SelfIlluminationMask;
+            S.Detail = class'Shader'.default.Detail;
+            S.DetailScale = class'Shader'.default.DetailScale;
+            S.OutputBlending = class'Shader'.default.OutputBlending;
+            S.TwoSided = class'Shader'.default.TwoSided;
+            S.Wireframe = class'Shader'.default.Wireframe;
+            S.ModulateStaticLighting2X = class'Shader'.default.ModulateStaticLighting2X;
+            S.PerformLightingOnSpecularPass = class'Shader'.default.PerformLightingOnSpecularPass;
+            S.ModulateSpecular2X = class'Shader'.default.ModulateSpecular2X;
+            break;
+        case class'FinalBlend':
+            FB = FinalBlend(M);
+            FB.FallbackMaterial = class'FinalBlend'.default.FallbackMaterial;
+            FB.DefaultMaterial = class'FinalBlend'.default.DefaultMaterial;
+            FB.Material = class'FinalBlend'.default.Material;
+            FB.FrameBufferBlending = class'FinalBlend'.default.FrameBufferBlending;
+            FB.ZWrite = class'FinalBlend'.default.ZWrite;
+            FB.ZTest = class'FinalBlend'.default.ZTest;
+            FB.AlphaTest = class'FinalBlend'.default.AlphaTest;
+            FB.TwoSided = class'FinalBlend'.default.TwoSided;
+            FB.AlphaRef = class'FinalBlend'.default.AlphaRef;
+            break;
+    }
 }
 
 static final function PopulateReservedNames(HxColors Colors)
