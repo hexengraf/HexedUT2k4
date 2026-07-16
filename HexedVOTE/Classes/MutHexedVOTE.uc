@@ -22,7 +22,7 @@ function array<string> GetArrayProperty(int Index)
 
 defaultproperties
 {
-    FriendlyName="HexedVOTE v9dev"
+    FriendlyName="HexedVOTE v9rc1"
     Description="Provides an enhanced map vote menu on top of xVoting."
     bAddToServerPackages=true
     CRIClass=class'HxVTClient'

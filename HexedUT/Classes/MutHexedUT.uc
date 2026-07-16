@@ -157,8 +157,8 @@ static function string GetEnumLabel(int Index, string Value)
 
 defaultproperties
 {
-    FriendlyName="HexedUT v9dev"
-    Description="Provides hit sounds, damage numbers, skin highlights, colored death messages, and more."
+    FriendlyName="HexedUT v9rc1"
+    Description="Provides hit sounds, damage numbers, skin highlights, enhanced scoreboards, and more."
     bAddToServerPackages=true
     CRIClass=class'HxUTClient'
     Properties(0)=(Name="bAllowHitSounds",Type=HX_PROPERTY_Bool)

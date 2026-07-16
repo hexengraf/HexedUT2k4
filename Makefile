@@ -27,7 +27,7 @@ helpfiles:=README.md LICENSE CHANGELOG.md
 
 -include $(.versionfiles)
 
-.projectversion:=v9.0-dev
+.projectversion:=v9.0-rc1
 .packages:=$(foreach p,$(packages),$p$($p.version))
 .templatepackages:=$(foreach p,$(hastemplate),$p$($p.version))
 .intpackages:=$(foreach p,$(requiresint),$p$($p.version))
