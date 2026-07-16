@@ -1,3 +1,38 @@
+# v9.0
+
+HexedUT changes:
+* **Enhanced scoreboards**: first version of enhanced scoreboards for all standard game modes! Providing:
+  * Highly customizable appearance: change font size, colors, borders, row dividers, and more.
+  * New columns to display additional information depending the game mode.
+  * Option to switch to a vertical layout in team games to show more columns.
+  * A scrollbar to handle more players than what fits in your screen: use the scroll wheel, up/down arrows, and home/end to navigate.
+  * Additional stats are planned for future releases, right now only built-in stats are displayed.
+  * Servers that are using a different scoreboard replacement can set `bAllowEnhancedScoreboards=false` to prevent conflicts.
+* Reworked skin highlights to allow forcing specific character models for teammates and enemies.
+  * Because some properties changed names you might need to re-configure some options, apologies for the inconvenience.
+  * Servers control if forcing models is allowed and which models can be used, check the README for detailed instructions.
+* Fixed some character models having translucent textures when skin highlight is active.
+* Reworked font selection for damage numbers: it can now automatically choose the appropriate font for your resolution.
+  * On first run the mutator will automatically override your `DisplayFontName` to `AUTOSELECT`, if you're using a custom font you will need to set it back.
+* Added new server-side option for hit effects (`bRequireLOS`): decide if line of sight is required between player and target to trigger hit sounds and damage numbers.
+  * Off by default, competitive servers might want this on.
+
+HexedNET changes:
+* Added new server-side option to control the ping compensation limit applied to projectiles (`ProjectileCompensationLimit`), previously hardcoded to 75ms.
+  * Handle this option as experimental, it might bring unforeseen consequences.
+  * In testing, values above ~130 caused weird behavior in flak chunks on high ping (~250).
+* Renamed `PawnCollisionTimeWindow` to `PingCompensationLimit` and changed its unit to milliseconds.
+  * This name better represents the practical effects of this option and it is more in line with the new `ProjectileCompensationLimit` option.
+* Ported [WSUTComp](github.com/zenakuten/WSUTComp)'s fixes for hit detection in vehicles.
+  * If you experience crashes set `bLinkMeshes=false`, according to WSUTComp's developers this mesh linking might cause crashes.
+* Fixed an improper beam effect spawning when quickly pressing shock rifles' secondary fire followed by primary fire.
+
+General changes:
+* Further hardened client code to handle extreme replication issues where relevant actors are mistakenly destroyed client-side.
+  * Server admins facing such issues can mitigate it by increasing `RelevantTimeout` in `[IpDrv.TcpNetDriver]`, but you might want to investigate why your server connection is getting saturated.
+* Fixed a visual bug that could occur in the configuration menu's general panel when using certain resolutions.
+* Updated the configuration menu to reflect the new options.
+
 # v8.0
 
 This release fixes some issues with v7:

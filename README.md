@@ -1,12 +1,12 @@
 # HexedUT2k4 - Hexed Unreal Tournament 2004
 
 This is a collection of mutators for Unreal Tournament 2004:
-* **HexedUT** (`HexedUTv8.MutHexedUT`) - provides hit sounds, damage numbers, colored death messages, skin highlights, and more.
-* **HexedVOTE** (`HexedVOTEv8.MutHexedVOTE`) - provides an enhanced map vote menu on top of xVoting.
-* **HexedCONTROL** (`HexedARENAv8.MutHexedCONTROL`) - provides enhanced control over game mechanics: modify starting values, disable specific combos, disable specific pick-ups, modify movement parameters, and more.
-* **HexedARENA** (`HexedARENAv8.MutHexedARENA`) - similar to the built-in Arena mutator, but allows changing the weapon via URL option.
-* **HexedINSTAGIB** (`HexedARENAv8.MutHexedINSTAGIB`) - similar to the built-in Instagib mutator, but provides a custom zoom overlay and an option to change the fire rate.
-* **HexedNET** (`HexedNETv8.MutHexedNET`) - provides a modified version of WSUTComp's enhanced netcode (NewNet weapons).
+* **HexedUT** (`HexedUTv9.MutHexedUT`) - provides hit sounds, damage numbers, skin highlights, enhanced scoreboards, and more.
+* **HexedVOTE** (`HexedVOTEv9.MutHexedVOTE`) - provides an enhanced map vote menu on top of xVoting.
+* **HexedCONTROL** (`HexedARENAv9.MutHexedCONTROL`) - provides enhanced control over game mechanics: modify starting values, disable specific combos, disable specific pick-ups, modify movement parameters, and more.
+* **HexedARENA** (`HexedARENAv9.MutHexedARENA`) - similar to the built-in Arena mutator, but allows changing the weapon via URL option.
+* **HexedINSTAGIB** (`HexedARENAv9.MutHexedINSTAGIB`) - similar to the built-in Instagib mutator, but provides a custom zoom overlay and an option to change the fire rate.
+* **HexedNET** (`HexedNETv9.MutHexedNET`) - provides a modified version of WSUTComp's enhanced netcode (NewNet weapons).
 
 Additionally, some QoL improvements are provided in the form of a client-only package called HexedPatches.
 With the launch of OldUnreal patches, most of the features of this package are deprecated.
@@ -21,9 +21,9 @@ Files with the `.uz2` extension are safe to delete (you only need them if config
 
 There is no dependency between mutators, so you are free to decide which ones you want to enable.
 Some of the mutators can also be enabled through server actors:
-* `HexedUTv8.HxUTServerActor` - enables HexedUT.
-* `HexedVOTEv8.HxVTServerActor` - enables HexedVOTE.
-* `HexedARENAv8.HxCTServerActor` - enables HexedCONTROL.
+* `HexedUTv9.HxUTServerActor` - enables HexedUT.
+* `HexedVOTEv9.HxVTServerActor` - enables HexedVOTE.
+* `HexedARENAv9.HxCTServerActor` - enables HexedCONTROL.
 
 When one or more mutators are active, an in-game configuration menu is provided via the `mutate HexedMenu` command (if the letter `H` is available it will be automatically bound to this command).
 This menu gives access to all configurations (both user and server), so it is highly recommended to tweak your initial setup through it.
@@ -39,7 +39,7 @@ HexedUT is a completely new implementation of some of the features commonly offe
 While it is possible to enable HexedUT and UTComp at the same time, you probably want to disable equivalent features from one of the two mutators.
 To disable all equivalent features from HexedUT, use the following configuration:
 ```ini
-[HexedUTv8.MutHexedUT]
+[HexedUTv9.MutHexedUT]
 bAllowHitSounds=False
 bAllowDamageNumbers=False
 bColoredDeathMessages=False
@@ -54,7 +54,9 @@ List of features:
 * Hit sounds: pings and pongs to know when you hit someone.
 * Damage numbers: pop-up numbers to know how much damage you've dealt.
 * Skin highlights: can't see your enemy? Paint him radioactive green.
+  * Forced models: force teammates and enemies to use specific character models.
 * View smoothing: change the level of view smoothing to reduce the "sinking" effect in ramps.
+* Enhanced scoreboards: replace default scoreboards with a more complete alternative.
 * Spawn protection timer: a timer to keep track of spawn protection duration.
 * Colored death messages: easily identify from which team is the killer and the victim.
 
@@ -88,7 +90,8 @@ bDamageNumbers=True
 ;   HX_DISPLAY_FloatDual - same as Float, but adds an accumulated damage number at the end of the animation path.
 DisplayMode=HX_DISPLAY_StaticDual
 ; Font name to be used to render the damage numbers. Custom fonts are supported.
-DisplayFontName=UT2003Fonts.FontEurostile37
+; AUTOSELECT chooses a font adequate for your current resolution.
+DisplayFontName=AUTOSELECT
 ; X position of the damage numbers on the screen (between 0.0 and 1.0).
 DisplayPosX=0.500000
 ; Y position of the damage numbers on the screen (between 0.0 and 1.0).
@@ -120,13 +123,11 @@ CustomHitSounds=
 
 [HexedUT HxSkinHighlightConfig]
 ; DEFAULT = normal game effects.
-; Color of your team in team games.
-YourTeam=DEFAULT
-; Color of the enemy team in team games.
-EnemyTeam=DEFAULT
-; Color of other players in solo games.
-; Use RANDOM to automatically assign random colors for each player.
-SoloPlayer=DEFAULT
+; DISABLED = don't use skin highlights or other game effects.
+; Color of your teammates.
+Teammates=DISABLED
+; Color of your enemies.
+Enemies=DISABLED
 ; Color to flash when hit when armor is active. Also used as spawn protection indicator.
 ShieldHit=DEFAULT
 ; Color to flash when hit by link gun (and bio rifle, maybe others?).
@@ -135,14 +136,33 @@ LinkHit=DEFAULT
 ShockHit=DEFAULT
 ; Color to flash when hit by lightning gun.
 LightningHit=DEFAULT
+; Base skins of your teammates.
+;   HX_SKIN_RedTeam - red color tinting.
+;   HX_SKIN_BlueTeam - blue color tinting.
+;   HX_SKIN_Normal - no team color tinting.
+TeammateSkin=HX_SKIN_Normal
+; Base skins of your enemies (see possible values above).
+EnemySkin=HX_SKIN_Normal
+; If true, enemy colors will be randomly selected in DM and other game modes with no team.
+bRandomize=False
 ; Remove skin highlight from dead bodies.
 bDisableOnDeadBodies=False
-; Force normal skins in team games (i.e. don't use the variant with team colors baked-in).
-bForceNormalSkins=True
 ; While spectating, assume this team's perspective to decide which colors to use:
 ;   0: red team.
 ;   1: blue team.
 SpectatorTeam=0
+; Preferred teammate character model.
+PreferredTeammateModel=Jakob
+; Current teammate character model (after applying server-specific restrictions).
+CurrentTeammateModel=Jakob
+; If true, teammates will be forced to use the current teammate character model.
+bForceTeammateModel=False
+; Preferred enemy character model.
+PreferredEnemyModel=Jakob
+; Current enemy character model (after applying server-specific restrictions).
+CurrentEnemyModel=Jakob
+; If true, enemies will be forced to use the current enemy character model.
+bForceEnemyModel=False
 
 [HxSkinHighlight HxColors]
 ; List of colors. Set bRandom to false if you don't want a color to be used on RANDOM.
@@ -173,24 +193,52 @@ PosX=0.950000
 ; Y position of the spawn protection timer on the screen (between 0.0 and 1.0).
 PosY=0.640000
 ; Color to use if bUseHUDColor=false.
-DefaultColor=(B=4,G=191,R=239,A=255)
+CustomColor=(B=4,G=191,R=239,A=255)
 ```
 
 #### Server options
 
 The following section is saved in `UT2004.ini`:
 ```ini
-[HexedUTv8.MutHexedUT]
+[HexedUTv9.MutHexedUT]
 ; Allow clients to enable/disable hit sound effects.
 bAllowHitSounds=True
 ; Allow clients to enable/disable damage number effects.
 bAllowDamageNumbers=True
+; Require line of sight between player and target to trigger hit effects.
+bRequireLOS=False
 ; Allow clients to enable/disable skin highlights.
 bAllowSkinHighlight=True
 ; Factor to multiply RGB values (between 0.0 and 1.0).
 SkinHighlightIntensity=0.300000
+; Allow client-side forced character models. Requires bAllowSkinHighlight=True to work.
+; Possible values:
+;   HX_FM_None - don't allow forced models.
+;   HX_FM_OfficialOnly - only allow official character models.
+;   HX_FM_FromList - only allow character models from the list.
+;   HX_FM_Any - allow any character models.
+AllowForcedModels=HX_FM_OfficialOnly
+; Character model list to use with the HX_FM_FromList option.
+; Default list contains all models allowed by the native game mechanism to force models.
+ModelList=Jakob
+ModelList=Gorge
+ModelList=Malcolm
+ModelList=Xan
+ModelList=Brock
+ModelList=Gaargod
+ModelList=Axon
+ModelList=Tamika
+ModelList=Sapphire
+ModelList=Enigma
+ModelList=Cathode
+ModelList=Rylisa
+ModelList=Ophelia
+ModelList=Zarina
 ; Allow clients to select different types of view smoothing.
 bAllowCustomViewSmoothing=True
+; Allow clients to enable/disable the enhanced scoreboards.
+; Set this to false if your server is using another mutator for scoreboard replacements.
+bAllowEnhancedScoreBoards=True
 ; Allow clients to enable/disable the spawn protection timer.
 bAllowSpawnProtectionTimer=True
 ; Use team colors in death messages (blue = killer and red = victim if no teams).
@@ -257,7 +305,7 @@ FilterList="DM-1on1-Albatross"
 
 The following section is saved in `UT2004.ini`:
 ```ini
-[HexedVOTEv8.MutHexedVOTE]
+[HexedVOTEv9.MutHexedVOTE]
 ; Background for the votes list (upper list). Use ~16:3 images.
 VoteListCustomBG=
 ; Background for the maps list (lower list). Use ~9:5 images.
@@ -296,7 +344,7 @@ List of features:
 
 The following section is saved in `UT2004.ini`:
 ```ini
-[HexedARENAv8.MutHexedCONTROL]
+[HexedARENAv9.MutHexedCONTROL]
 ; Bonus to starting health (between -99 and 99).
 BonusHealth=0
 ; Bonus to starting shield (between 0 and 150).
@@ -361,8 +409,8 @@ bNoDodgeJump=False
 
 The main point of this mutator is to provide a way to define different Arenas using separate `GameConfig` entries in the `[xVoting.xVotingHandler]` section. For instance:
 ```ini
-GameConfig=(GameClass="XGame.xDeathMatch",Prefix="DM",Acronym="RADM",GameName="RocketArena DeathMatch",Mutators="HexedARENAv8.MutHexedARENA",Options="ArenaWeaponClassName=XWeapons.RocketLauncher")
-GameConfig=(GameClass="XGame.xDeathMatch",Prefix="DM",Acronym="FADM",GameName="FlakArena DeathMatch",Mutators="HexedARENAv8.MutHexedARENA",Options="ArenaWeaponClassName=XWeapons.FlakCannon")
+GameConfig=(GameClass="XGame.xDeathMatch",Prefix="DM",Acronym="RADM",GameName="RocketArena DeathMatch",Mutators="HexedARENAv9.MutHexedARENA",Options="ArenaWeaponClassName=XWeapons.RocketLauncher")
+GameConfig=(GameClass="XGame.xDeathMatch",Prefix="DM",Acronym="FADM",GameName="FlakArena DeathMatch",Mutators="HexedARENAv9.MutHexedARENA",Options="ArenaWeaponClassName=XWeapons.FlakCannon")
 ```
 
 All HexedUT2k4 mutators consume their URL options, so they're not "sticky" as it would usually be when passing options in the `GameConfig` entries, so you don't need to clean up options in unrelated entries.
@@ -371,7 +419,7 @@ All HexedUT2k4 mutators consume their URL options, so they're not "sticky" as it
 
 The following section is saved in `UT2004.ini`:
 ```ini
-[HexedARENAv8.MutHexedCONTROL]
+[HexedARENAv9.MutHexedCONTROL]
 ; Determines which weapon will be used in the arena match.
 ArenaWeaponClassName="XWeapons.RocketLauncher"
 ```
@@ -415,7 +463,7 @@ CustomZoomCrosshairScale=1.0
 
 The following section is saved in `UT2004.ini`:
 ```ini
-[HexedARENAv8.MutHexedINSTAGIB]
+[HexedARENAv9.MutHexedINSTAGIB]
 ; Players get a Translocator in their inventory.
 bAllowTranslocator=False
 ; Teammates get a big boost when shot by the instagib rifle.
@@ -456,14 +504,20 @@ PingSmoothing=0.300000
 
 The following section is saved in `UT2004.ini`:
 ```ini
-[HexedNETv8.MutHexedNET]
+[HexedNETv9.MutHexedNET]
 ; Maximum frequency to send pings (pings/second), between 0.2 and 20.
 MaxPingFrequency=10.0
-; Time window (in seconds) to look back for pawn collisions.
-PawnCollisionTimeWindow=0.35
+; Global ping compensation limit (in milliseconds) applied to all weapon types.
+PingCompensationLimit=350
+; Ping compensation limit (in milliseconds) applied to projectiles.
+; Handle this option as experimental, it might bring unforeseen consequences.
+; In testing, values above ~130 caused weird behavior in flak chunks on high ping (~250).
+ProjectileCompensationLimit=75
 ; Backport OldUnreal's rubberbanding fix.
 ; Enable this option if your server has players using an unpatched version of the game.
 bRubberbandingFix=False
+; Link meshes for collision detection. Disable this if experiencing crashes. Helps with hit detection in vehicles.
+bLinkMeshes=True
 ```
 
 ### HexedPatches
@@ -500,19 +554,3 @@ Some of the hit sounds used by HexedUT are edited versions of audio samples take
 ## Troubleshooting
 
 If you find any bugs, feel free to [open an issue](https://github.com/hexengraf/HexedUT2k4/issues/new/choose).
-
-### Some characters have semi-transparent parts when skin highlight is enabled
-
-This is an issue with the game. Maybe one day it will be [solved](https://github.com/OldUnreal/UT2004Patches/issues/182).
-The best you can do is to avoid using such characters and/or force default models that don't have this issue.
-
-### My map vote menu is gone!
-
-You've been using `HexedPatches` since a long time, I see. Open your `User.ini` and search for `MapVotingMenu`.
-Make sure **all** occurrences of this keyword have the following value:
-```ini
-MapVotingMenu=xVoting.MapVotingPage
-```
-
-When the enhanced map vote menu was part of `HexedPatches`, it was directly set to be the `MapVotingMenu`.
-With the migration to HexedVOTE, this leftover configuration will unfortunately break your map vote menu and require this manual intervention.
