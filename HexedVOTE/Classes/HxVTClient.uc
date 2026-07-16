@@ -108,13 +108,17 @@ simulated function PopulateMapEntries()
     Limit = 2 * MESSAGES_PER_TICK;
     for (i = Maps.Length; i < VRI.MapList.Length; ++i)
     {
+        Record = class'CacheManager'.static.GetMapRecord(VRI.MapList[i].MapName);
+        if (Record.MapName == "" && Limit == 0)
+        {
+            break;
+        }
         Maps.Insert(Maps.Length, 1);
         Resources.Insert(Resources.Length, 1);
         Maps[i].Name = VRI.MapList[i].MapName;
         Maps[i].Played = VRI.MapList[i].PlayCount;
         Maps[i].Sequence = VRI.MapList[i].Sequence;
         Maps[i].Tag = Favorites.Get(VRI.MapList[i].MapName);
-        Record = class'CacheManager'.static.GetMapRecord(VRI.MapList[i].MapName);
         if (Record.MapName != "")
         {
             Maps[i].Label = Record.FriendlyName;
@@ -126,14 +130,10 @@ simulated function PopulateMapEntries()
             Resources[i].PreviewName = Record.ScreenshotRef;
             MapEntryResponseCount += 2;
         }
-        else if (Limit > 0)
+        else
         {
             ServerRequestMapEntry(i);
             --Limit;
-        }
-        else
-        {
-            break;
         }
     }
 }
