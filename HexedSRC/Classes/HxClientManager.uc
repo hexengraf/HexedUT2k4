@@ -97,19 +97,26 @@ simulated function bool Register(HxClientReplicationInfo CRI)
     {
         if (CRIClasses[i] == CRI.Class)
         {
-            Warn(Name$": Repeated attempt to register"$CRIClasses[i]$"! Severe packet loss?");
-            if (CRIs[i] == None)
+            Warn(Name$": Repeated attempt to register "$CRIClasses[i]$"! Saturated connection?");
+            if (CRIs[i] != None)
+            {
+                if (CRIs[i] == CRI)
+                {
+                    return false;
+                }
+                Warn(Name$": Two "$CRIClasses[i]$" instances found!");
+                Warn(Name$": Previous "$CRIClasses[i]$" instance: "$CRIs[i].Name);
+                Warn(Name$": New "$CRIClasses[i]$" instance: "$CRI.Name);
+                CRIs[i] = None;
+            }
+            else
             {
                 Warn(Name$": Local "$CRIClasses[i]$" reference is None on re-register!");
-                // One refresh with None to purge stale panels...
-                RefreshConfigurationMenu();
             }
-            else if (CRIs[i] != CRI)
-            {
-                Warn(Name$": Two "$CRIClasses[i]$" references found, this should never happen!");
-            }
+            // One refresh with None to purge stale panels...
+            RefreshConfigurationMenu();
             CRIs[i] = CRI;
-            // ...and one refresh with fixed reference to add the panels back.
+            // ...and one refresh with the new instance to add the panels back.
             RefreshConfigurationMenu();
             return false;
         }

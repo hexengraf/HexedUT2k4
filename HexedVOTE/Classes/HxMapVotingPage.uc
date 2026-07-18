@@ -82,6 +82,15 @@ function Unpause()
 
 function InternalOnOpen()
 {
+    if (Client == None)
+    {
+        Client = HxVTClient(ClientManager.Find(class'HxVTClient'));
+        lb_VoteList.SetClient(Client);
+        lb_MapList.SetClient(Client);
+        MapBanner.SetClient(Client);
+        ShowInitialState();
+        SetTimer(0.02, true);
+    }
     if (VoteListCustomBG != default.VoteListCustomBG)
     {
         VoteListCustomBG = default.VoteListCustomBG;

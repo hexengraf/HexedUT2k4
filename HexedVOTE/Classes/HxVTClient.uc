@@ -32,7 +32,6 @@ var private array<class<Object> > PreviewLoaders;
 var private int MapEntryResponseCount;
 var private string CustomMapVoteMenu;
 var private bool bReplaceMapVoteMenu;
-var private bool bInitialized;
 
 replication
 {
@@ -62,11 +61,7 @@ simulated event Tick(float DeltaTime)
     Super.Tick(DeltaTime);
     if (Level.NetMode != NM_DedicatedServer)
     {
-        if (!bInitialized)
-        {
-            bInitialized = InitializeClient();
-        }
-        else
+        if (ValidateReferences())
         {
             if (bReplaceMapVoteMenu)
             {
@@ -80,10 +75,14 @@ simulated event Tick(float DeltaTime)
     }
 }
 
-simulated function bool InitializeClient()
+simulated function bool ValidateReferences()
 {
     local PlayerController PC;
 
+    if (GC != None && VRI != None)
+    {
+        return true;
+    }
     PC = PlayerController(Owner);
     if (PC != None)
     {
@@ -431,7 +430,7 @@ simulated final function bool IsEnabled(int Index)
 
 simulated final function bool IsInitialized()
 {
-    return bInitialized && VRI != None;
+    return GC != None && VRI != None;
 }
 
 simulated final function bool IsLoadingMapData()
