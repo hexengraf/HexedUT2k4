@@ -205,7 +205,7 @@ auto state Startup
             }
             if (!Pawn.bPlayedDeath && Pawn.Health > 0)
             {
-                bEnemy = TeamNumber != LocalPlayerTeam;
+                bEnemy = IsEnemy();
                 if (!bCanForceModels || (bEnemy && !bForceEnemyModel)
                     || (!bEnemy && !bForceTeammateModel))
                 {
@@ -696,62 +696,37 @@ simulated function int GetLocalPlayerTeam()
 
 simulated function string GetHighlightColorName()
 {
-    local xPawn Pawn;
-
-    Pawn = xPawn(Base);
-    if (!Level.GRI.bTeamGame)
+    if (IsEnemy())
     {
-        if (Pawn.PlayerReplicationInfo == PC.PlayerReplicationInfo)
+        if (bRandomize && !Level.GRI.bTeamGame)
         {
-            return Teammates;
-        }
-        if (bRandomize)
-        {
-            return Colors.SavedRandom(Pawn.PlayerReplicationInfo.PlayerName);
+            return Colors.SavedRandom(xPawn(Base).PlayerReplicationInfo.PlayerName);
         }
         return Enemies;
     }
-    if (HighlightMode == HX_SHM_TeamBased)
-    {
-        if (TeamNumber == 0)
-        {
-            return Teammates;
-        }
-        return Enemies;
-    }
-    if (TeamNumber == LocalPlayerTeam)
-    {
-        return Teammates;
-    }
-    return Enemies;
+    return Teammates;
 }
 
 simulated function EHxSkinType GetSkinType()
 {
-    local xPawn Pawn;
+    if (IsEnemy())
+    {
+        return EnemySkin;
+    }
+    return TeammateSkin;
+}
 
-    Pawn = xPawn(Base);
+simulated function bool IsEnemy()
+{
     if (!Level.GRI.bTeamGame)
     {
-        if (Pawn.PlayerReplicationInfo == PC.PlayerReplicationInfo)
-        {
-            return TeammateSkin;
-        }
-        return EnemySkin;
+        return xPawn(Base).PlayerReplicationInfo != PC.PlayerReplicationInfo;
     }
     if (HighlightMode == HX_SHM_TeamBased)
     {
-        if (TeamNumber == 0)
-        {
-            return TeammateSkin;
-        }
-        return EnemySkin;
+        return TeamNumber != 0;
     }
-    if (TeamNumber == LocalPlayerTeam)
-    {
-        return TeammateSkin;
-    }
-    return EnemySkin;
+    return TeamNumber != LocalPlayerTeam;
 }
 
 simulated function Color GetHitColor(string Name)
