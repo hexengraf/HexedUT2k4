@@ -11,6 +11,8 @@ HexedUT changes:
 * Reworked skin highlights to allow forcing specific character models for teammates and enemies.
   * Because some properties changed names you might need to re-configure some options, apologies for the inconvenience.
   * Servers control if forcing models is allowed and which models can be used, check the README for detailed instructions.
+* Added a new option to control how skin highlights are assigned (`HighlightMode`):
+  * Choose between role-based (current behavior) or team-based (a static assignment that doesn't care what is your current team).
 * Fixed some character models having translucent textures when skin highlight is active.
 * Reworked font selection for damage numbers: it can now automatically choose the appropriate font for your resolution.
   * On first run the mutator will automatically override your `DisplayFontName` to `AUTOSELECT`, if you're using a custom font you will need to set it back.
@@ -32,6 +34,9 @@ General changes:
   * Server admins facing such issues can mitigate it by increasing `RelevantTimeout` in `[IpDrv.TcpNetDriver]`, but you might want to investigate why your server connection is getting saturated.
 * Fixed a visual bug that could occur in the configuration menu's general panel when using certain resolutions.
 * Updated the configuration menu to reflect the new options.
+
+Known limitations:
+* No skin highlight on Mutant game mode.
 
 # v8.0
 
