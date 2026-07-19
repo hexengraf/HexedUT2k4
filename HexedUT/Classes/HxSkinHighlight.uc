@@ -866,7 +866,7 @@ defaultproperties
     bHidden=true
     bOnlyDirtyReplication=true
     NetUpdateFrequency=100
-    NetPriority=30
+    NetPriority=3
     TeamNumber=-1
     HighlightIntensity=-1
     LocalPlayerTeam=255
