@@ -30,6 +30,7 @@ var array<HxConfig> Configs;
 
 var protected HxClientManager Manager;
 var protected HxMutator MutatorOwner;
+var protected PlayerController PlayerOwner;
 var private array<HxReplicationMessage> MessageQueue;
 var private array<string> ReplicatedArrayProperty;
 var private bool bServerPropertiesRequested;
@@ -37,6 +38,9 @@ var private bool bServerPropertiesReady;
 
 replication
 {
+    reliable if (Role == ROLE_Authority && bNetInitial)
+        PlayerOwner;
+
     reliable if (Role == ROLE_Authority)
         ClientReceiveMessage,
         ClientOpenConfigurationMenu;
@@ -71,10 +75,23 @@ simulated event PostBeginPlay()
     }
 }
 
+simulated event PostNetReceive()
+{
+    if (PlayerOwner != None)
+    {
+        if (Owner == None)
+        {
+            SetOwner(PlayerOwner);
+        }
+        bNetNotify = false;
+    }
+}
+
 function SetupServer(HxMutator Mutator)
 {
     MutatorOwner = Mutator;
     MutatorOwner.UpdateServerInfo(ServerInfo);
+    PlayerOwner = PlayerController(Owner);
     bServerPropertiesRequested = (Level.NetMode == NM_DedicatedServer);
     bServerPropertiesReady = bServerPropertiesRequested;
 }
@@ -243,9 +260,9 @@ simulated final function bool IsValidConfigIndex(int Index)
 simulated final function bool IsAdmin()
 {
     return Level.NetMode == NM_Standalone
-        || (PlayerController(Owner) != None
-            && PlayerController(Owner).PlayerReplicationInfo != None
-            && PlayerController(Owner).PlayerReplicationInfo.bAdmin);
+        || (PlayerOwner != None
+            && PlayerOwner.PlayerReplicationInfo != None
+            && PlayerOwner.PlayerReplicationInfo.bAdmin);
 }
 
 simulated function Actor SpawnUnique(class<Actor> ActorClass, Actor Owner)
@@ -336,8 +353,8 @@ defaultproperties
     RemoteRole=ROLE_SimulatedProxy
     bOnlyRelevantToOwner=true
     bAlwaysRelevant=false
-    bSkipActorPropertyReplication=false
     bOnlyDirtyReplication=true
     NetUpdateFrequency=10
+    bNetNotify=true
     Order=255
 }

@@ -1,5 +1,4 @@
-class HxVTClient extends HxClientReplicationInfo
-    config(User);
+class HxVTClient extends HxClientReplicationInfo;
 
 struct HxMapEntry
 {
@@ -77,23 +76,20 @@ simulated event Tick(float DeltaTime)
 
 simulated function bool ValidateReferences()
 {
-    local PlayerController PC;
-
     if (GC != None && VRI != None)
     {
         return true;
     }
-    PC = PlayerController(Owner);
-    if (PC != None)
+    if (PlayerOwner != None)
     {
-        if (PC.Player != None)
+        if (PlayerOwner.Player != None)
         {
-            GC = GUIController(PC.Player.GUIController);
+            GC = GUIController(PlayerOwner.Player.GUIController);
             // TODO: wait for new OU public release to fix CustomMapVotingMenu.
             // bReplaceMapVoteMenu = !GC.SetPropertyText("CustomMapVotingMenu", CustomMapVoteMenu);
             bReplaceMapVoteMenu = true;
         }
-        VRI = VotingReplicationInfo(PC.VoteReplicationInfo);
+        VRI = VotingReplicationInfo(PlayerOwner.VoteReplicationInfo);
     }
     return GC != None && VRI != None;
 }
@@ -341,10 +337,7 @@ simulated function NotifyServerPropertyChanged(int Index, string OldValue)
 
 simulated function bool SendMapVote(int GameType, int Map)
 {
-    local PlayerController PC;
-
-    PC = PlayerController(Owner);
-    if (VRI.MapList[Map].bEnabled || PC.PlayerReplicationInfo.bAdmin)
+    if (VRI.MapList[Map].bEnabled || PlayerOwner.PlayerReplicationInfo.bAdmin)
     {
         VRI.SendMapVote(Map, GameType);
         return true;

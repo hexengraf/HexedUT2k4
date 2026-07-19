@@ -1,5 +1,4 @@
-class HxUTClient extends HxClientReplicationInfo
-    config(User);
+class HxUTClient extends HxClientReplicationInfo;
 
 struct HxDamageInfo
 {
@@ -111,27 +110,24 @@ simulated function ClientNotifySpawn(float SpawnProtectionTime)
 
 simulated function bool InitializeClient()
 {
-    local PlayerController PC;
-
-    PC = PlayerController(Owner);
-    if (PC != None && PC.GameReplicationInfo != None)
+    if (PlayerOwner != None && PlayerOwner.GameReplicationInfo != None)
     {
         if (Player == None)
         {
-            Player = HxUTPlayer(SpawnUnique(class'HxUTPlayer', PC));
+            Player = HxUTPlayer(SpawnUnique(class'HxUTPlayer', PlayerOwner));
             Player.ApplyServerConfiguration(Self);
         }
-        if (PC.myHUD != None)
+        if (PlayerOwner.myHUD != None)
         {
             UpdateScoreBoardConfig();
             if (HitEffects == None)
             {
-                HitEffects = HxHitEffects(SpawnOverlay(PC.myHUD, class'HxHitEffects'));
+                HitEffects = HxHitEffects(SpawnOverlay(PlayerOwner.myHUD, class'HxHitEffects'));
                 HitEffects.ApplyServerConfiguration(Self);
             }
             if (SPTimer == None)
             {
-                SPTimer = HxSPTimer(SpawnOverlay(PC.myHUD, class'HxSPTimer'));
+                SPTimer = HxSPTimer(SpawnOverlay(PlayerOwner.myHUD, class'HxSPTimer'));
             }
         }
     }

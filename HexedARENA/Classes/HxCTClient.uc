@@ -24,9 +24,9 @@ simulated event Tick(float DeltaTime)
 
 simulated function bool InitializeClient()
 {
-    if (PlayerController(Owner) != None)
+    if (PlayerOwner != None)
     {
-        ModifyPlayerCombos(xPlayer(Owner));
+        ModifyPlayerCombos(xPlayer(PlayerOwner));
         return true;
     }
     return false;
