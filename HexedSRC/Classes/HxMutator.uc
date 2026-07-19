@@ -16,9 +16,9 @@ var private bool bInitialized;
 function Initialized();
 function PropertyChanged(int Index, string OldValue);
 
-event PreBeginPlay()
+event PostBeginPlay()
 {
-    Super.PreBeginPlay();
+    Super.PostBeginPlay();
     if (bAllowURLOptions)
     {
         ParseURLOptions(GetURLOptions(Level.GetLocalURL()));

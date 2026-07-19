@@ -4,9 +4,9 @@ var MutHexedCONTROL HexedControl;
 
 var private float AccumulatedLeech;
 
-event PreBeginPlay()
+event PostBeginPlay()
 {
-    Super.PreBeginPlay();
+    Super.PostBeginPlay();
     HexedControl = MutHexedCONTROL(Owner);
 }
 

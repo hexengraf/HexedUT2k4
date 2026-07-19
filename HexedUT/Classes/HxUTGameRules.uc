@@ -2,9 +2,9 @@ class HxUTGameRules extends GameRules;
 
 var private MutHexedUT HexedUT;
 
-event PreBeginPlay()
+event PostBeginPlay()
 {
-    Super.PreBeginPlay();
+    Super.PostBeginPlay();
     HexedUT = MutHexedUT(Owner);
     if (HexedUT != None)
     {

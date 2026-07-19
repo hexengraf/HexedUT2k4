@@ -4,16 +4,11 @@ var config string ArenaWeaponClassName;
 
 var private class<Pickup> AmmoPickupClass;
 
-event PreBeginPlay()
-{
-    Super.PreBeginPlay();
-    DefaultWeaponName = ArenaWeaponClassName;
-    DefaultWeapon = class<Weapon>(DynamicLoadObject(DefaultWeaponName, class'Class'));
-}
-
 event PostBeginPlay()
 {
     Super.PostBeginPlay();
+    DefaultWeaponName = ArenaWeaponClassName;
+    DefaultWeapon = class<Weapon>(DynamicLoadObject(DefaultWeaponName, class'Class'));
     DisableWeaponLockers(Self);
 }
 

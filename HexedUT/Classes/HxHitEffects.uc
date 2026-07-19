@@ -86,9 +86,9 @@ var private float ScreenWidth;
 var private float ScreenHeight;
 var private float DualOffset;
 
-simulated event PreBeginPlay()
+simulated event PostBeginPlay()
 {
-    super.PreBeginPlay();
+    super.PostBeginPlay();
     if (HUD(Owner) != None)
     {
         PC = HUD(Owner).PlayerOwner;

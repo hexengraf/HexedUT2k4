@@ -3,11 +3,11 @@ class HxServerActor extends Info
 
 var protected const class<HxMutator> MutatorClass;
 
-event PreBeginPlay()
+event PostBeginPlay()
 {
     local HxMutator M;
 
-    Super.PreBeginPlay();
+    Super.PostBeginPlay();
     if (MutatorClass != None)
     {
         Level.Game.AddMutator(string(MutatorClass));

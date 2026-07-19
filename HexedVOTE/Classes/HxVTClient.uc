@@ -46,9 +46,9 @@ replication
         ServerRequestMapDescription;
 }
 
-simulated event PreBeginPlay()
+simulated event PostBeginPlay()
 {
-    Super.PreBeginPlay();
+    Super.PostBeginPlay();
     CustomMapVoteMenu = string(class'HxMapVotingPage');
     if (Level.NetMode != NM_DedicatedServer)
     {

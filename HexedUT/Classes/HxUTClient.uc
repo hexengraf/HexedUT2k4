@@ -24,9 +24,9 @@ replication
         ClientNotifySpawn;
 }
 
-simulated event PreBeginPlay()
+simulated event PostBeginPlay()
 {
-    Super.PreBeginPlay();
+    Super.PostBeginPlay();
     if (Level.NetMode != NM_DedicatedServer)
     {
         SkinHighlightColors = HxColors(Manager.LoadObject(class'HxColors', "HxSkinHighlight"));

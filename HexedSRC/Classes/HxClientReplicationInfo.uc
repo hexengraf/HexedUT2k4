@@ -52,11 +52,11 @@ simulated function NotifyUserPropertyChanged(HxConfig Config, int Index, string 
 simulated function ParseArrayProperty(int Index, array<string> Values);
 simulated function ReceiveCustomMessage(HxReplicationMessage Message);
 
-simulated event PreBeginPlay()
+simulated event PostBeginPlay()
 {
     local int i;
 
-    Super.PreBeginPlay();
+    Super.PostBeginPlay();
     ServerInfo = new(None) class'PlayInfo';
     MutatorClass.static.FillPlayInfo(ServerInfo);
     if (Level.NetMode != NM_DedicatedServer)

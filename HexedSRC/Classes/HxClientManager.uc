@@ -18,9 +18,9 @@ var private bool bInitialized;
 var private bool bShowFirstRunNotification;
 var private bool bIsFirstRun;
 
-simulated event PreBeginPlay()
+simulated event PostBeginPlay()
 {
-    Super.PreBeginPlay();
+    Super.PostBeginPlay();
     if (bFirstRun)
     {
         bShowFirstRunNotification = true;

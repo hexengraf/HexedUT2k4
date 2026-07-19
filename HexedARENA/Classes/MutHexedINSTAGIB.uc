@@ -5,9 +5,9 @@ var config bool bAllowBoost;
 var config bool bZoomInstagib;
 var config float FireRate;
 
-function PreBeginPlay()
+event PostBeginPlay()
 {
-    Super.PreBeginPlay();
+    Super.PostBeginPlay();
     if (bZoomInstagib)
     {
         DefaultWeaponName = string(class'HxZoomSuperShockRifle');
@@ -17,11 +17,6 @@ function PreBeginPlay()
         DefaultWeaponName = string(class'HxSuperShockRifle');
     }
     DefaultWeapon = class<Weapon>(DynamicLoadObject(DefaultWeaponName, class'Class'));
-}
-
-function PostBeginPlay()
-{
-    Super.PostBeginPlay();
     if (bAllowBoost && TeamGame(Level.Game) != None)
     {
         TeamGame(Level.Game).TeammateBoost = 1.0;

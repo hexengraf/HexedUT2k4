@@ -69,9 +69,9 @@ replication
         HighlightIntensity;
 }
 
-simulated event PreBeginPlay()
+simulated event PostBeginPlay()
 {
-    Super.PreBeginPlay();
+    Super.PostBeginPlay();
 
     if (Level.NetMode != NM_DedicatedServer)
     {

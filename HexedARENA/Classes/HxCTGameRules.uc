@@ -2,9 +2,9 @@ class HxCTGameRules extends GameRules;
 
 var private MutHexedCONTROL HexedControl;
 
-event PreBeginPlay()
+event PostBeginPlay()
 {
-    Super.PreBeginPlay();
+    Super.PostBeginPlay();
     HexedControl = MutHexedCONTROL(Owner);
     if (HexedControl != None)
     {

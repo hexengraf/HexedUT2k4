@@ -4,9 +4,9 @@ var private const class<Combo> NullComboClass;
 var private string NullComboName;
 var private bool bInitialized;
 
-simulated event PreBeginPlay()
+simulated event PostBeginPlay()
 {
-    Super.PreBeginPlay();
+    Super.PostBeginPlay();
     NullComboName = string(NullComboClass);
 }
 
