@@ -67,7 +67,8 @@ function SpawnSkinHighlight(xPawn Pawn)
 {
     local HxSkinHighlight SkinHighlight;
 
-    if (bAllowSkinHighlight && Pawn != None)
+    // TODO: skin highlight on mutant game mode?
+    if (bAllowSkinHighlight && Pawn != None && !Pawn.IsA('xMutantPawn'))
     {
         SkinHighlight = Pawn.Spawn(class'HxSkinHighlight', Pawn);
         SkinHighlight.TeamNumber = SkinHighlight.GetTeamNum(Pawn);
