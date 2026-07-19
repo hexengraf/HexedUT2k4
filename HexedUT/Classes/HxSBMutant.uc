@@ -15,8 +15,10 @@ simulated function ConfigureColumns()
     Alignments[Alignments.Length] = TXTA_Center;
     Columns[Columns.Length] = GetPingColumnConfig();
     Alignments[Alignments.Length] = TXTA_Center;
-    Columns[Columns.Length] = GetPPHColumnConfig();
-    Alignments[Alignments.Length] = TXTA_Center;
+    // TODO: removed because Mutant either doesn't update GRI.ElapsedTime or some other issue
+    // with PRI.StartTime
+    // Columns[Columns.Length] = GetPPHColumnConfig();
+    // Alignments[Alignments.Length] = TXTA_Center;
 }
 
 simulated function DrawRow(Canvas C, int Table, int Index, int Row, int Top)
@@ -28,7 +30,7 @@ simulated function DrawRow(Canvas C, int Table, int Index, int Row, int Top)
     // DrawPlayerFrags(C, Table, Index, 3, Top);
     DrawPlayerDeaths(C, Table, Index, 3, Top);
     DrawPlayerPing(C, Table, Index, 4, Top);
-    DrawPlayerPPH(C, Table, Index, 5, Top);
+    // DrawPlayerPPH(C, Table, Index, 5, Top);
 }
 
 simulated function bool DrawPlayerMarker(Canvas C, int Table, int Index, int Column, int Top)
