@@ -210,13 +210,13 @@ defaultproperties
     DisplayInfo(8)=(Section="HUD",Caption="Allow enhanced scoreboards",Hint="Allow clients to enable/disable the enhanced scoreboards.")
     DisplayInfo(9)=(Section="HUD",Caption="Allow spawn protection timer",Hint="Allow clients to enable/disable the spawn protection timer.")
     DisplayInfo(10)=(Section="HUD",Caption="Colored death messages",Hint="Use team colors in death messages (blue = killer and red = victim if no teams).")
-    DisplayInfo(11)=(Section="Configuration Menu",Caption="Hide disabled features",Hint="Hide disabled features from the server status list.")
+    DisplayInfo(11)=(Section="Configuration Menu",Caption="Hide disabled features from status",Hint="Hide disabled features from the server status list.")
     bDisableTick=true
 
     bAllowHitSounds=true
     bAllowDamageNumbers=true
-    bAllowSkinHighlight=true
     bRequireLOS=false
+    bAllowSkinHighlight=true
     SkinHighlightIntensity=0.42
     AllowForcedModels=HX_FM_OfficialOnly
     ModelList(0)="Jakob"
