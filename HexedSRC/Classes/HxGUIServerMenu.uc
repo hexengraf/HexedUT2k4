@@ -89,7 +89,7 @@ function ProcessMutatorOptions(HxClientReplicationInfo CRI, optional int Index)
     ModifiedMutators[Index].Senders.Length = CRI.MutatorClass.default.DisplayInfo.Length;
     for (i = 0; i < CRI.MutatorClass.default.DisplayInfo.Length; ++i)
     {
-        if (lb_Options.ShouldHideMutatorProperty(CRI.MutatorClass, i))
+        if (lb_Options.ShouldHideServerProperty(CRI.MutatorClass, i))
         {
             continue;
         }

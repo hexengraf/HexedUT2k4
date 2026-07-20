@@ -284,7 +284,7 @@ final function bool ShouldHideConfigProperty(HxClientReplicationInfo CRI,
             && !bool(CRI.GetServerProperty(ConfigClass.default.DisplayInfo[Index].Dependency)));
 }
 
-final function bool ShouldHideMutatorProperty(class<HxMutator> MutatorClass, int Index)
+final function bool ShouldHideServerProperty(class<HxMutator> MutatorClass, int Index)
 {
     return MutatorClass.default.DisplayInfo[Index].bHidden
         || MutatorClass.default.Properties[Index].Type == HX_PROPERTY_Array

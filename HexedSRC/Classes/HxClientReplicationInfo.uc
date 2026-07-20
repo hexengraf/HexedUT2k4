@@ -233,6 +233,11 @@ simulated function string GetServerPropertyName(int Index)
     return "";
 }
 
+simulated function bool ShouldHideServerPropertyFromStatus(int Index)
+{
+    return false;
+}
+
 simulated function ClientOpenConfigurationMenu()
 {
     Manager.OpenConfigurationMenu(Self);
