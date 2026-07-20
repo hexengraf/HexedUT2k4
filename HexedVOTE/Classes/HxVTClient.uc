@@ -448,6 +448,11 @@ simulated final function SetMapTag(int Index, HxFavorites.EHxTag Tag)
     Maps[Index].Tag = Tag;
 }
 
+simulated function bool ShouldHideServerPropertyFromStatus(int Index)
+{
+    return true;
+}
+
 static private final function string GetMapDescriptionFromRecord(CacheManager.MapRecord Record)
 {
     local DecoText Deco;
