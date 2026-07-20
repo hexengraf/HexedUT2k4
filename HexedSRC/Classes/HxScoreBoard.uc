@@ -812,7 +812,7 @@ simulated final function DrawTextureCell(Canvas C,
     C.DrawColor = HUDClass.default.WhiteColor;
     C.CurX = ColumnLefts[Column] + (ColumnWidths[Column] - Size) / 2.0;
     C.CurY = Top + (RowHeight - Size) / 2.0;
-	C.DrawTile(Texture, Size, Size, U, V, UL, VL);
+    C.DrawTile(Texture, Size, Size, U, V, UL, VL);
     C.DrawColor = PreviousColor;
 }
 
