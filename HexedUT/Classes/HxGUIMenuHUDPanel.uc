@@ -66,7 +66,7 @@ function Refresh()
     if (Client != None)
     {
         bAllowSpawnProtectionTimer = bool(Client.GetServerProperty("bAllowSpawnProtectionTimer"));
-        Sections[SECTION_SP_TIMER].SetHide(!bAllowSpawnProtectionTimer, HideDueDisable);
+        Sections[SECTION_SP_TIMER].SetHide(!bAllowSpawnProtectionTimer);
         fl_PosX.SetVisibility(bAllowSpawnProtectionTimer);
         fl_PosY.SetVisibility(bAllowSpawnProtectionTimer);
         SPTimerAfterChange();

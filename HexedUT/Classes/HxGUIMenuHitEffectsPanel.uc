@@ -77,8 +77,8 @@ function Refresh()
         HitSoundsAfterChange();
         DamageNumbersAfterChange();
         RefreshDamagePointEditorSection();
-        Sections[SECTION_HIT_SOUNDS].SetHide(!bAllowHitSounds, HideDueDisable);
-        Sections[SECTION_DAMAGE_NUMBERS].SetHide(!bAllowDamageNumbers, HideDueDisable);
+        Sections[SECTION_HIT_SOUNDS].SetHide(!bAllowHitSounds);
+        Sections[SECTION_DAMAGE_NUMBERS].SetHide(!bAllowDamageNumbers);
         fl_DisplayPosX.SetVisibility(bAllowDamageNumbers);
         fl_DisplayPosY.SetVisibility(bAllowDamageNumbers);
     }

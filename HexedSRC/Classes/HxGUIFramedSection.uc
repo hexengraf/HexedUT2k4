@@ -26,7 +26,6 @@ var private array<float> RightIndents;
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
     Super.InitComponent(MyController, MyOwner);
-    l_Header.SetVisibility(!bNoHeader);
     l_Header.Caption = Caption;
     bInit = true;
 }
@@ -59,6 +58,8 @@ function SetHide(bool bHide, optional string Reason)
     {
         Grid[i].SetVisibility(!bHide);
     }
+    bNoHeader = bHide;
+    bInit = true;
     l_HideReason.Caption = Reason;
     l_HideReason.SetVisibility(bHide);
 }
@@ -135,8 +136,11 @@ function bool OnPreDrawInit(Canvas C)
 
 function float AlignHeader(Canvas C, float Top, float Height)
 {
+    l_Header.SetVisibility(!bNoHeader);
     if (bNoHeader)
     {
+        l_HideReason.WinTop = l_HideReason.RelativeHeight(Top, true);
+        l_HideReason.WinHeight =  1.0 - l_HideReason.WinTop;
         return ActualTop() + Top;
     }
     l_HideReason.WinTop = l_HideReason.RelativeHeight(l_Header.ActualHeight());

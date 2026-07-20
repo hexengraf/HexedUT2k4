@@ -9,7 +9,6 @@ const SPACING = 0.007;
 
 var automated array<HxGUIFramedSection> Sections;
 var localized string PanelHint;
-var localized string HideDueDisable;
 
 var const array<string> Dependencies;
 var int Order;
@@ -263,7 +262,6 @@ static function bool CheckDependencies(HxClientReplicationInfo CRI)
 
 defaultproperties
 {
-    HideDueDisable="Feature disabled on this server"
     bDoubleColumn=false
     bFillPanelHeight=true
     OnPreDraw=InternalOnPreDraw
