@@ -166,9 +166,23 @@ function InternalOnLoadINI(GUIComponent Sender, string s)
 function InternalOnChange(GUIComponent Sender)
 {
     Config.SetProperty(Sender.Tag, GUIMenuOption(Sender).GetComponentValue());
-    if (Sender == co_HighlightMode)
+    switch (Sender)
     {
-        UpdateSectionHeaders();
+        case co_ShieldHit:
+            FlashOnHitEffect(Shader'XGameShaders.PlayerShaders.PlayerShieldSh');
+            break;
+        case co_LinkHit:
+            FlashOnHitEffect(Shader'XGameShaders.PlayerShaders.LinkHit');
+            break;
+        case co_ShockHit:
+            FlashOnHitEffect(Shader'UT2004Weapons.Shaders.ShockHitShader');
+            break;
+        case co_LightningHit:
+            FlashOnHitEffect(Shader'XGameShaders.PlayerShaders.LightningHit');
+            break;
+        case co_HighlightMode:
+            UpdateSectionHeaders();
+            break;
     }
 }
 
@@ -218,6 +232,12 @@ function UpdateSectionHeaders()
         Sections[SECTION_TEAMMATES].SetHeader(RoleLabels[0]@"("$Config.CurrentTeammateModel$")");
         Sections[SECTION_ENEMIES].SetHeader(RoleLabels[1]@"("$Config.CurrentEnemyModel$")");
     }
+}
+
+function FlashOnHitEffect(Material OverlayMaterial)
+{
+    TeammatePreview.SetOverlayMaterial(OverlayMaterial, 1, true);
+    EnemyPreview.SetOverlayMaterial(OverlayMaterial, 1, true);
 }
 
 function bool TeammatePreviewOnDraw(Canvas C)

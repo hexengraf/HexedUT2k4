@@ -192,6 +192,11 @@ simulated function EHxSkinType GetSkinType()
     return ActiveSkin;
 }
 
+simulated function SetOverlayMaterial(Material Mat, float Time, bool bOverride)
+{
+    Base.SetOverlayMaterial(Mat, Time, bOverride);
+}
+
 defaultproperties
 {
     ActiveSkin=HX_SKIN_Normal
