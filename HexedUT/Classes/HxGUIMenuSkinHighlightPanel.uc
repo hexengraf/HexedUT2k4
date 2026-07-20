@@ -100,16 +100,16 @@ event Opened(GUIComponent Sender)
     if (TeammatePreview == None)
     {
         TeammatePreview = ClientManager.Spawn(class'HxSkinHighlightPreview');
-        TeammatePreview.HighlightIntensity = HighlightIntensity;
-        TeammatePreview.TeamNumber = 0;
+        TeammatePreview.SetIntensity(HighlightIntensity);
+        TeammatePreview.SetTeamNumber(0);
         TeammatePreview.DisplayFOV = 15;
         TeammatePreview.Setup(Config.CurrentTeammateModel);
     }
     if (EnemyPreview == None)
     {
         EnemyPreview = ClientManager.Spawn(class'HxSkinHighlightPreview');
-        EnemyPreview.HighlightIntensity = HighlightIntensity;
-        EnemyPreview.TeamNumber = 1;
+        EnemyPreview.SetIntensity(HighlightIntensity);
+        EnemyPreview.SetTeamNumber(1);
         EnemyPreview.DisplayFOV = 15;
         EnemyPreview.Setup(Config.CurrentEnemyModel);
     }
@@ -141,12 +141,12 @@ function Refresh()
     }
     if (TeammatePreview != None)
     {
-        TeammatePreview.HighlightIntensity = HighlightIntensity;
+        TeammatePreview.SetIntensity(HighlightIntensity);
         TeammatePreview.Setup(Config.CurrentTeammateModel);
     }
     if (EnemyPreview != None)
     {
-        EnemyPreview.HighlightIntensity = HighlightIntensity;
+        EnemyPreview.SetIntensity(HighlightIntensity);
         EnemyPreview.Setup(Config.CurrentEnemyModel);
     }
     bCanForceModels = Config.CanForceModels();

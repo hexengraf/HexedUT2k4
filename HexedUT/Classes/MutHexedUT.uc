@@ -72,17 +72,41 @@ function SpawnSkinHighlight(xPawn Pawn)
     if (bAllowSkinHighlight && Pawn != None && !Pawn.IsA('xMutantPawn'))
     {
         SkinHighlight = Pawn.Spawn(class'HxSkinHighlight', Pawn);
-        SkinHighlight.TeamNumber = SkinHighlight.GetTeamNum(Pawn);
-        SkinHighlight.bCanForceModels = AllowForcedModels != HX_FM_None;
-        SkinHighlight.HighlightIntensity = SkinHighlightIntensity;
         Pawn.AttachToBone(SkinHighlight, 'spine');
+        SkinHighlight.SetupServer(SkinHighlightIntensity, CanForceModels());
     }
+}
+
+function UpdateSkinHighlights()
+{
+    local HxSkinHighlight SkinHighlight;
+
+    ForEach DynamicActors(class'HxSkinHighlight', SkinHighlight)
+    {
+        SkinHighlight.SetIntensity(SkinHighlightIntensity);
+        SkinHighlight.SetCanForceModels(CanForceModels());
+        SkinHighlight.TriggerClientRestart();
+        SkinHighlight.NetUpdateTime = Level.TimeSeconds - 1;
+    }
+}
+
+function bool CanForceModels()
+{
+    if (AllowForcedModels == HX_FM_FromList)
+    {
+        return ModelList.Length > 0;
+    }
+    return AllowForcedModels != HX_FM_None;
 }
 
 function PropertyChanged(int Index, string OldValue)
 {
     switch (Properties[Index].Name)
     {
+        case "SkinHighlightIntensity":
+        case "AllowForcedModels":
+            UpdateSkinHighlights();
+            break;
         case "bColoredDeathMessages":
             ModifyDeathMessageClass();
             break;

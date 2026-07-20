@@ -288,18 +288,18 @@ function ValidateFromModelList(out string PreferredModel, out string CurrentMode
 {
     if (PreferredModel ~= CurrentModel)
     {
-        if (!IsModelFromList(CurrentModel))
+        if (!IsModelFromList(CurrentModel) && ModelList.Length > 0)
         {
-            CurrentModel = OfficialModelList[27];
+            CurrentModel = ModelList[0];
         }
     }
     else if (IsModelFromList(PreferredModel))
     {
         CurrentModel = PreferredModel;
     }
-    else if (!IsModelFromList(CurrentModel))
+    else if (!IsModelFromList(CurrentModel) && ModelList.Length > 0)
     {
-        CurrentModel = OfficialModelList[27];
+        CurrentModel = ModelList[0];
     }
 }
 
@@ -365,7 +365,6 @@ function UpdateDynamicActors()
     {
         ForEach Level.DynamicActors(class'HxSkinHighlight', SkinHighlight)
         {
-            SkinHighlight.bCanForceModels = AllowForcedModels != HX_FM_None;
             SkinHighlight.Restart();
         }
     }

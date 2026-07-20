@@ -35,10 +35,10 @@ var string TeammateModel;
 var bool bForceTeammateModel;
 var string EnemyModel;
 var bool bForceEnemyModel;
-var float HighlightIntensity;
-var int TeamNumber;
-var bool bCanForceModels;
 
+var protected int TeamNumber;
+var protected float Intensity;
+var protected bool bCanForceModels;
 var protected PlayerController PC;
 var protected HxUTClient Client;
 var protected HxColors Colors;
@@ -62,11 +62,8 @@ var protected xUtil.PlayerRecord PlayerRecord;
 
 replication
 {
-    reliable if (Role == ROLE_Authority && bNetInitial)
-        TeamNumber, bCanForceModels;
-
     reliable if (Role == ROLE_Authority)
-        HighlightIntensity;
+        TeamNumber, Intensity, bCanForceModels;
 }
 
 simulated event PostBeginPlay()
@@ -79,6 +76,38 @@ simulated event PostBeginPlay()
         WorkaroundTint = ConstantColor(AllocateMaterial(class'ConstantColor'));
         EmptyShader = Shader(AllocateMaterial(class'Shader'));
     }
+}
+
+function SetupServer(float HighlightIntensity, bool bForcedModels)
+{
+    SetTeamNumber(GetTeamNum(xPawn(Base)));
+    SetIntensity(HighlightIntensity);
+    SetCanForceModels(bForcedModels);
+}
+
+simulated function ClientTrigger()
+{
+    Restart();
+}
+
+function TriggerClientRestart()
+{
+    bClientTrigger = !bClientTrigger;
+}
+
+final function SetTeamNumber(int Value)
+{
+    TeamNumber = Value;
+}
+
+final function SetIntensity(float Value)
+{
+    Intensity = Value;
+}
+
+final function SetCanForceModels(bool bValue)
+{
+    bCanForceModels = bValue;
 }
 
 simulated event Destroyed()
@@ -126,7 +155,7 @@ auto state Startup
         {
             PC = Level.GetLocalPlayerController();
         }
-        if (HighlightIntensity >= 0 && TeamNumber > -1 && Colors != None && PC != None
+        if (Intensity >= 0 && TeamNumber > -1 && Colors != None && PC != None
             && PC.PlayerReplicationInfo != None && Level.GRI != None)
         {
             LocalPlayerTeam = GetLocalPlayerTeam();
@@ -136,7 +165,7 @@ auto state Startup
                 ParseHitEffects();
                 if (Colors.Find(GetHighlightColorName(), MainColor) > -1)
                 {
-                    MainColor = MainColor * HighlightIntensity;
+                    MainColor = MainColor * Intensity;
                     MainColor.A = 255;
                     HighlightTint.Color = MainColor;
                     GotoState('Reskin');
@@ -734,9 +763,9 @@ simulated function Color GetHitColor(string Name)
     local Color Color;
 
     Colors.Find(Name, Color);
-    Color.R = Min(Color.R * HighlightIntensity * HIT_COLOR_MULTIPLIER, 255);
-    Color.G = Min(Color.G * HighlightIntensity * HIT_COLOR_MULTIPLIER, 255);
-    Color.B = Min(Color.B * HighlightIntensity * HIT_COLOR_MULTIPLIER, 255);
+    Color.R = Min(Color.R * Intensity * HIT_COLOR_MULTIPLIER, 255);
+    Color.G = Min(Color.G * Intensity * HIT_COLOR_MULTIPLIER, 255);
+    Color.B = Min(Color.B * Intensity * HIT_COLOR_MULTIPLIER, 255);
     return Color;
 }
 
@@ -868,7 +897,7 @@ defaultproperties
     NetUpdateFrequency=100
     NetPriority=3
     TeamNumber=-1
-    HighlightIntensity=-1
+    Intensity=-1
     LocalPlayerTeam=255
 
     Teammates="DISABLED"

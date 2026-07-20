@@ -150,7 +150,29 @@ simulated function NotifyServerPropertiesReady()
 
 simulated function NotifyServerPropertyChanged(int Index, string OldValue)
 {
-    NotifyServerPropertiesReady();
+    switch (MutatorClass.default.Properties[Index].Name)
+    {
+        case "bAllowHitSounds":
+        case "bAllowDamageNumbers":
+            if (HitEffects != None)
+            {
+                HitEffects.ApplyServerConfiguration(Self);
+            }
+            break;
+        case "AllowForcedModels":
+        case "ModelList":
+            UpdateSkinHighlightConfig();
+            break;
+        case "bAllowCustomViewSmoothing":
+            if (Player != None)
+            {
+                Player.ApplyServerConfiguration(Self);
+            }
+            break;
+        case "bAllowEnhancedScoreBoards":
+            UpdateScoreBoardConfig();
+            break;
+    }
 }
 
 simulated function bool ShouldHideServerPropertyFromStatus(int Index)
