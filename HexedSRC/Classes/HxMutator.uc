@@ -354,7 +354,7 @@ static final protected function string GetEnumData(int Index)
 
     Limit = int(default.Properties[Index].UpperLimit);
     Start = int(default.Properties[Index].LowerLimit);
-    for (i = int(default.Properties[Index].LowerLimit); i < Limit; ++i)
+    for (i = Start; i < Limit; ++i)
     {
         if (i > Start)
         {
