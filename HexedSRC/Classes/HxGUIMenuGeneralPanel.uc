@@ -86,7 +86,7 @@ function ProcessServerStatus(HxClientReplicationInfo CRI, int Index)
 
     for (i = 0; i < CRI.MutatorClass.default.DisplayInfo.Length; ++i)
     {
-        if (CRI.ShouldHideServerPropertyFromStatus(Index)
+        if (CRI.ShouldHideServerPropertyFromStatus(i)
             || lb_Status.ShouldHideServerProperty(CRI.MutatorClass, i))
         {
             continue;
