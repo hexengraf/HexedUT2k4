@@ -153,6 +153,36 @@ simulated function NotifyServerPropertyChanged(int Index, string OldValue)
     NotifyServerPropertiesReady();
 }
 
+simulated function bool ShouldHideServerPropertyFromStatus(int Index)
+{
+    if (bool(GetServerProperty("bHideDisabledFeatures")))
+    {
+        switch (MutatorClass.default.Properties[Index].Name)
+        {
+            case "bRequireLOS":
+                return !bool(GetServerProperty("bAllowHitSounds"))
+                    && !bool(GetServerProperty("bAllowDamageNumbers"));
+            case "SkinHighlightIntensity":
+                return !bool(GetServerProperty("bAllowSkinHighlight"));
+            case "AllowForcedModels":
+                return !bool(GetServerProperty("bAllowSkinHighlight")) || !IsForcedModelAllowed();
+            case "ModelList":
+            case "bHideDisabledFeatures":
+                return true;
+        }
+        return !bool(GetServerPropertyByIndex(Index));;
+    }
+    return Super.ShouldHideServerPropertyFromStatus(Index);
+}
+
+simulated function bool IsForcedModelAllowed()
+{
+    local HxSkinHighlightConfig Config;
+
+    Config = HxSkinHighlightConfig(FindConfig(class'HxSkinHighlightConfig'));
+    return config.AllowForcedModels != HX_FM_None;
+}
+
 simulated function UpdateSkinHighlightConfig()
 {
     local HxSkinHighlightConfig Config;

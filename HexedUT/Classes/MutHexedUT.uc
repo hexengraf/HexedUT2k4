@@ -19,6 +19,7 @@ var config bool bAllowCustomViewSmoothing;
 var config bool bAllowEnhancedScoreBoards;
 var config bool bAllowSpawnProtectionTimer;
 var config bool bColoredDeathMessages;
+var config bool bHideDisabledFeatures;
 
 function Mutate(string Command, PlayerController Sender)
 {
@@ -173,6 +174,7 @@ defaultproperties
     Properties(8)=(Name="bAllowEnhancedScoreBoards",Type=HX_PROPERTY_Bool)
     Properties(9)=(Name="bAllowSpawnProtectionTimer",Type=HX_PROPERTY_Bool)
     Properties(10)=(Name="bColoredDeathMessages",Type=HX_PROPERTY_Bool)
+    Properties(11)=(Name="bHideDisabledFeatures",Type=HX_PROPERTY_Bool)
     DisplayInfo(0)=(Section="Hit Effects",Caption="Allow hit sounds",Hint="Allow clients to enable/disable hit sound effects.")
     DisplayInfo(1)=(Section="Hit Effects",Caption="Allow damage numbers",Hint="Allow clients to enable/disable damage number effects.")
     DisplayInfo(2)=(Section="Hit Effects",Caption="Require line of sight",Hint="Require line of sight between player and target to trigger hit effects.")
@@ -184,6 +186,7 @@ defaultproperties
     DisplayInfo(8)=(Section="HUD",Caption="Allow enhanced scoreboards",Hint="Allow clients to enable/disable the enhanced scoreboards.")
     DisplayInfo(9)=(Section="HUD",Caption="Allow spawn protection timer",Hint="Allow clients to enable/disable the spawn protection timer.")
     DisplayInfo(10)=(Section="HUD",Caption="Colored death messages",Hint="Use team colors in death messages (blue = killer and red = victim if no teams).")
+    DisplayInfo(11)=(Section="Configuration Menu",Caption="Hide disabled features",Hint="Hide disabled features from the server status list.")
     bDisableTick=true
 
     bAllowHitSounds=true
@@ -210,4 +213,5 @@ defaultproperties
     bAllowEnhancedScoreBoards=true
     bAllowSpawnProtectionTimer=true
     bColoredDeathMessages=true
+    bHideDisabledFeatures=false
 }
