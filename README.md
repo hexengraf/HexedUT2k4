@@ -17,6 +17,10 @@ Better font scaling for higher than 1080p resolutions is the only remaining feat
 Download the [latest release](https://github.com/hexengraf/HexedUT2k4/releases/latest) and extract it inside the root directory of your UT2004 installation, merging the `System` directory when asked.
 Files with the `.uz2` extension are safe to delete (you only need them if configuring your own download redirect server).
 
+> [!NOTE]
+> HexedSRC is a package dependency for all mutators provided here. If you're only using a subset of the mutators, make sure you have `HexedSRCv9.u` inside your `System` directory.
+> You don't need to explicitly add it to `ServerPackages`, the game automatically detects the dependency and downloads `HexedSRCv9.u` together with the mutators.
+
 ## Configuration
 
 There is no dependency between mutators, so you are free to decide which ones you want to enable.
@@ -122,26 +126,31 @@ FontNames=2K4Fonts.Verdana34
 CustomHitSounds=
 
 [HexedUT HxSkinHighlightConfig]
-; DEFAULT = normal game effects.
+; Highlight color for you and your teammates.
 ; DISABLED = don't use skin highlights or other game effects.
-; Color of your teammates.
 Teammates=DISABLED
-; Color of your enemies.
+; Highlight color for your enemies.
 Enemies=DISABLED
-; Color to flash when hit when armor is active. Also used as spawn protection indicator.
+; Highlight color to use when a shielded player is hit.
+; DEFAULT = native game effects if highlight is disabled, a pre-defined color otherwise.
+; Use NATIVE to apply native game effects with highlight enabled.
 ShieldHit=DEFAULT
-; Color to flash when hit by link gun (and bio rifle, maybe others?).
+; Highlight color to use when a player is hit with a link gun.
 LinkHit=DEFAULT
-; Color to flash when hit by shock rifle.
+; Highlight color to use when a player is hit with a shock rifle.
 ShockHit=DEFAULT
-; Color to flash when hit by lightning gun.
+; Highlight color to use when a player is hit with a lightning gun.
 LightningHit=DEFAULT
-; Base skins of your teammates.
+; Spawn protection color for you and your teammates when highlight is enabled.
+TeammateProtected=DEFAULT
+; Spawn protection color for your enemies when highlight is enabled.
+EnemyProtected=DEFAULT
+; Skin type to use below the highlight color for teammates.
 ;   HX_SKIN_RedTeam - red color tinting.
 ;   HX_SKIN_BlueTeam - blue color tinting.
 ;   HX_SKIN_Normal - no team color tinting.
 TeammateSkin=HX_SKIN_Normal
-; Base skins of your enemies (see possible values above).
+; Skin type to use below the highlight color for enemies.
 EnemySkin=HX_SKIN_Normal
 ; If true, enemy colors will be randomly selected in DM and other game modes with no team.
 bRandomize=False
@@ -209,8 +218,10 @@ bAllowDamageNumbers=True
 bRequireLOS=False
 ; Allow clients to enable/disable skin highlights.
 bAllowSkinHighlight=True
-; Factor to multiply RGB values (between 0.0 and 1.0).
-SkinHighlightIntensity=0.300000
+; Factor to multiply the RGB values of highlights (between 0.0 and 1.0).
+SkinHighlightIntensity=0.42
+; Factor to multiply the RGB values of overlays (between 0.0 and 1.0).
+SkinHighlightIntensity=0.55
 ; Allow client-side forced character models. Requires bAllowSkinHighlight=True to work.
 ; Possible values:
 ;   HX_FM_None - don't allow forced models.
@@ -247,7 +258,7 @@ bColoredDeathMessages=True
 
 ### HexedVOTE
 
-HexedVOTE does not replace xVoting, it builds on top of it, so you need to first enable and configure xVoting (UT2004's default voting system).
+HexedVOTE does not replace xVoting, it builds on top of it, so you need to first enable and configure [xVoting](https://wiki.unrealadmin.org/MapVote_(UT2004)) (UT2004's default voting system).
 Enable HexedVOTE and it will replace the map vote menu automatically, no additional configuration needed.
 
 List of features:

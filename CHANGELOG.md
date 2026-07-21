@@ -13,7 +13,14 @@ HexedUT changes:
   * Servers control if forcing models is allowed and which models can be used, check the README for detailed instructions.
 * Added a new option to control how skin highlights are assigned (`HighlightMode`):
   * Choose between role-based (current behavior) or team-based (a static assignment that doesn't care what is your current team).
+* Added two new options to control the overlay used by spawn protection for teammates and enemies (`TeammateProtected` and `EnemyProtected`).
+* Reworked the behavior of the "DEFAULT" value for hit overlays and spawn protection:
+  * If highlight is active, default will use a pre-defined selection of colors for each overlay, otherwise it will use the native overlays.
+  * Added "NATIVE" as an option to allow using the native overlays when highlight is active.
+* Added new server option to control the intensity used for skin overlays (`SkinOverlayIntensity`).
+  * Works the same as `SkinHighlightIntensity`, but applies to the colored overlays instead.
 * Fixed some character models having translucent textures when skin highlight is active.
+* Fixed missing destruction of skin highlight actors which could cause temporary lingering of open replication channels.
 * Reworked font selection for damage numbers: it can now automatically choose the appropriate font for your resolution.
   * On first run the mutator will automatically override your `DisplayFontName` to `AUTOSELECT`, if you're using a custom font you will need to set it back.
 * Added new server-side option for hit effects (`bRequireLOS`): decide if line of sight is required between player and target to trigger hit sounds and damage numbers.
@@ -30,6 +37,7 @@ HexedNET changes:
 * Fixed an improper beam effect spawning when quickly pressing shock rifles' secondary fire followed by primary fire.
 
 General changes:
+* Capitalized all words in GUI labels to be consistent with the rest of the game.
 * Further hardened client code to handle extreme replication issues where relevant actors are mistakenly destroyed client-side.
   * Server admins facing such issues can mitigate it by increasing `RelevantTimeout` in `[IpDrv.TcpNetDriver]`, but you might want to investigate why your server connection is getting saturated.
 * Fixed a visual bug that could occur in the configuration menu's general panel when using certain resolutions.
