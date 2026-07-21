@@ -166,7 +166,7 @@ function RegisterSpawn(Pawn Spawned)
 
 static function string GetEnumLabel(int Index, string Value)
 {
-    if (Index == 5)
+    if (default.Properties[Index].Name == "AllowForcedModels")
     {
         switch (Value)
         {
