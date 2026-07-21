@@ -92,9 +92,9 @@ static final function Color BlendColor(float Alpha, Color From, Color To)
     Alpha = FClamp(Alpha, 0.0, 1.0);
     Alpha = Alpha * Alpha * (3.0 - (2.0 * Alpha));
     Complement = 1.0 - Alpha;
-    Result.R = Clamp(Sqrt((From.R * From.R) * Alpha + (To.R * To.R) * Complement), 0, 255);
-    Result.G = Clamp(Sqrt((From.G * From.G) * Alpha + (To.G * To.G) * Complement), 0, 255);
-    Result.B = Clamp(Sqrt((From.B * From.B) * Alpha + (To.B * To.B) * Complement), 0, 255);
-    Result.A = To.A;
+    Result.R = Clamp(Sqrt((To.R * To.R) * Alpha + (From.R * From.R) * Complement), 0, 255);
+    Result.G = Clamp(Sqrt((To.G * To.G) * Alpha + (From.G * From.G) * Complement), 0, 255);
+    Result.B = Clamp(Sqrt((To.B * To.B) * Alpha + (From.B * From.B) * Complement), 0, 255);
+    Result.A = From.A;
     return Result;
 }

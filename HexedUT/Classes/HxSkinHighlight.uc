@@ -573,8 +573,8 @@ state Overlayed extends Enabled
             {
                 HighlightTint.Color = class'HxTypes'.static.BlendColor(
                     Base.ClientOverlayCounter / OVERLAY_COLOR_FADE_PERIOD,
-                    OverlayColors[OverlayIndex],
-                    MainColor);
+                    MainColor,
+                    OverlayColors[OverlayIndex]);
             }
         }
     }

@@ -396,8 +396,10 @@ simulated function Color GetColor(int Damage)
     {
         if (Damage < DamagePoints[i].Value)
         {
-            return InterpolateColor(
-                Damage, DamagePoints[i].Value, DamagePoints[i - 1].Color, DamagePoints[i].Color);
+            return class'HxTypes'.static.BlendColor(
+                float(Damage) / DamagePoints[i].Value,
+                DamagePoints[i - 1].Color,
+                DamagePoints[i].Color);
         }
     }
     return DamagePoints[ArrayCount(DamagePoints) - 1].Color;
@@ -446,19 +448,6 @@ simulated function ApplyServerConfiguration(HxUTClient Client)
 {
     bAllowHitSounds = bool(Client.GetServerProperty("bAllowHitSounds"));
     bAllowDamageNumbers = bool(Client.GetServerProperty("bAllowDamageNumbers"));
-}
-
-simulated function Color InterpolateColor(int Damage, float MaxValue, Color First, Color Second)
-{
-    local Color Result;
-    local float Percentage;
-
-    Percentage = FClamp(Damage / MaxValue, 0.0, 1.0);
-    Result.R = Lerp(Percentage, First.R, Second.R);
-    Result.G = Lerp(Percentage, First.G, Second.G);
-    Result.B = Lerp(Percentage, First.B, Second.B);
-    Result.A = 255;
-    return Result;
 }
 
 simulated function bool IsHitSoundChanged()
