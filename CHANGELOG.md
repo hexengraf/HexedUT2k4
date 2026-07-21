@@ -25,6 +25,7 @@ HexedUT changes:
   * On first run the mutator will automatically override your `DisplayFontName` to `AUTOSELECT`, if you're using a custom font you will need to set it back.
 * Added new server-side option for hit effects (`bRequireLOS`): decide if line of sight is required between player and target to trigger hit sounds and damage numbers.
   * Off by default, competitive servers might want this on.
+* Added new server-side option to hide disabled features from the server status (`bHideDisabledFeatures`).
 
 HexedNET changes:
 * Added new server-side option to control the ping compensation limit applied to projectiles (`ProjectileCompensationLimit`), previously hardcoded to 75ms.

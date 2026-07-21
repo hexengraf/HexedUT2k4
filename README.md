@@ -254,6 +254,8 @@ bAllowEnhancedScoreBoards=True
 bAllowSpawnProtectionTimer=True
 ; Use team colors in death messages (blue = killer and red = victim if no teams).
 bColoredDeathMessages=True
+; Hide disabled features from the server status list.
+bHideDisabledFeatures=False
 ```
 
 ### HexedVOTE
