@@ -523,7 +523,7 @@ defaultproperties
 
     Begin Object class=moComboBox Name=ShieldHitComboBox
         Caption="Shield Hit"
-        Hint="Highlight color to use when a shielded player is hit or has spawn protection."
+        Hint="Highlight color to use when a shielded player is hit."
         INIOption="@INTERNAL"
         Tag=2
         CaptionWidth=0.42
