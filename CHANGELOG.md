@@ -15,8 +15,8 @@ HexedUT changes:
   * Choose between role-based (current behavior) or team-based (a static assignment that doesn't care what is your current team).
 * Added two new options to control the overlay used by spawn protection for teammates and enemies (`TeammateProtected` and `EnemyProtected`).
 * Reworked the behavior of the "DEFAULT" value for hit overlays and spawn protection:
-  * If highlight is active, default will use a pre-defined selection of colors for each overlay, otherwise it will use the native overlays.
-  * Added "NATIVE" as an option to allow using the native overlays when highlight is active.
+  * It now uses a pre-defined selection of colors for each overlay instead of the native overlays.
+  * Added "NATIVE" as an option to allow using the native overlays.
 * Added new server option to control the intensity used for skin overlays (`SkinOverlayIntensity`).
   * Works the same as `SkinHighlightIntensity`, but applies to the colored overlays instead.
 * Fixed some character models having translucent textures when skin highlight is active.

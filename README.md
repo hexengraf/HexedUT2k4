@@ -127,13 +127,13 @@ CustomHitSounds=
 
 [HexedUT HxSkinHighlightConfig]
 ; Highlight color for you and your teammates.
-; DISABLED = don't use skin highlights or other game effects.
+; DISABLED = don't use skin highlights. All overlay options are ignored when disabled.
 Teammates=DISABLED
 ; Highlight color for your enemies.
 Enemies=DISABLED
 ; Highlight color to use when a shielded player is hit.
-; DEFAULT = native game effects if highlight is disabled, a pre-defined color otherwise.
-; Use NATIVE to apply native game effects with highlight enabled.
+; DEFAULT = use a pre-defined color for each type of hit (or spawn protection).
+; NATIVE = apply native game effects.
 ShieldHit=DEFAULT
 ; Highlight color to use when a player is hit with a link gun.
 LinkHit=DEFAULT
