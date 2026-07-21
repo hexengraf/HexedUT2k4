@@ -44,7 +44,8 @@ var protected int TeamNumber;
 var protected float BaseIntensity;
 var protected float OverlayIntensity;
 var protected bool bCanForceModels;
-var protected bool bSpawnDone;
+var protected bool bProtectionEnded;
+var protected bool bOldProtectionEnded;
 var protected bool bDead;
 var protected PlayerController PC;
 var protected HxUTClient Client;
@@ -71,7 +72,7 @@ var protected xUtil.PlayerRecord PlayerRecord;
 replication
 {
     reliable if (Role == ROLE_Authority)
-        TeamNumber, BaseIntensity, OverlayIntensity, bCanForceModels, bSpawnDone;
+        TeamNumber, BaseIntensity, OverlayIntensity, bCanForceModels, bProtectionEnded;
 }
 
 simulated event PostBeginPlay()
@@ -432,9 +433,9 @@ state Enabled
             Restart();
             return false;
         }
-        if (!bSpawnDone && Level.NetMode != NM_Client && xPawn(Base) != None)
+        if (!bProtectionEnded && Level.NetMode != NM_Client && xPawn(Base) != None)
         {
-            bSpawnDone = xPawn(Base).bSpawnDone;
+            bProtectionEnded = IsProtectionEnded(xPawn(Base));
         }
         return true;
     }
@@ -555,6 +556,7 @@ state Overlayed extends Enabled
     simulated event BeginState()
     {
         CurrentOverlay = Base.OverlayMaterial;
+        bOldProtectionEnded = bProtectionEnded;
         if (OverlayIndex < 0)
         {
             ToggleBaseSkins();
@@ -565,7 +567,9 @@ state Overlayed extends Enabled
     {
         if (ValidatePawnState())
         {
-            if (Base.OverlayMaterial == None || Base.OverlayMaterial != CurrentOverlay)
+            if (Base.OverlayMaterial == None
+                || Base.OverlayMaterial != CurrentOverlay
+                || bOldProtectionEnded != bProtectionEnded)
             {
                 TryGotoStateEnabled();
             }
@@ -618,14 +622,25 @@ state Overlayed extends Enabled
 
 state TrackProtection
 {
+    event BeginState()
+    {
+        TryUpdateSpawnDone();
+    }
+
     event Tick(float DeltaTime)
+    {
+        TryUpdateSpawnDone();
+    }
+
+    function TryUpdateSpawnDone()
     {
         local xPawn Pawn;
 
         Pawn = xPawn(Base);
-        if (Pawn == None || Pawn.bSpawnDone)
+        if (Pawn == None || IsProtectionEnded(Pawn))
         {
-            bSpawnDone = true;
+            bProtectionEnded = true;
+            NetUpdateTime = Level.TimeSeconds - 1;
             GotoState('Disabled');
         }
     }
@@ -817,7 +832,7 @@ simulated function int GetOverlayIndex()
     local int i;
 
     ProtectedOverlay = ArrayCount(ReplaceOverlays) - 1;
-    if (!bSpawnDone && Base.OverlayMaterial == NativeOverlays[ProtectedOverlay])
+    if (!bProtectionEnded && Base.OverlayMaterial == NativeOverlays[ProtectedOverlay])
     {
         if (Base.OverlayMaterial == ReplaceOverlays[ProtectedOverlay])
         {
@@ -938,6 +953,12 @@ static final function MakeVisible(xPawn Pawn)
     {
         Pawn.Skins[i] = Pawn.RealSkins[i];
     }
+}
+
+static final function bool IsProtectionEnded(xPawn Pawn)
+{
+    return (Pawn.Level.TimeSeconds - Pawn.SpawnTime)
+        >= DeathMatch(Pawn.Level.Game).SpawnProtectionTime;
 }
 
 defaultproperties

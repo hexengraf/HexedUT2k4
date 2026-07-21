@@ -161,7 +161,7 @@ simulated function bool IsEnemy()
 
 simulated function ShowOverlay(Material Mat, optional bool bIsSpawnProtection)
 {
-    bSpawnDone = !bIsSpawnProtection;
+    bProtectionEnded = !bIsSpawnProtection;
     Base.SetOverlayMaterial(Mat, 1, true);
 }
 
