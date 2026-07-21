@@ -22,7 +22,7 @@ var Color MessageColor;
 var Color MessageFallbackColor;
 var int MaxChatHistory;
 var int MaxInputHistory;
-var localized string ChatChannels[CHAT_CHANNEL_COUNT];
+var localized string ChatChannelLabels[CHAT_CHANNEL_COUNT];
 
 var private EHxChatChannel ActiveChannel;
 var private HxChatInputHistory CIH[CHAT_CHANNEL_COUNT];
@@ -219,7 +219,8 @@ function bool AlignComponents(Canvas C)
     class'HxGUIStyles'.static.CopyPosition(lb_Chat, i_CustomBG);
     lb_Chat.WinHeight = 1.0 - b_Channel.RelativeHeight(b_Channel.ActualHeight());
     b_Channel.WinTop = lb_Chat.WinHeight;
-    b_Channel.Style.TextSize(C, b_Channel.MenuState, ChatChannels[1], XL, YL, b_Channel.FontScale);
+    b_Channel.Style.TextSize(
+        C, b_Channel.MenuState, ChatChannelLabels[1], XL, YL, b_Channel.FontScale);
     b_Channel.WinWidth = b_Channel.RelativeWidth(XL * 1.2);
     class'HxGUIStyles'.static.AlignToRightOf(b_Channel, ed_Input);
     ed_Input.WinTop = b_Channel.WinTop;
@@ -237,7 +238,7 @@ function SetInputSilent(string Text)
 function SetInputType(EHxChatChannel Channel)
 {
     ActiveChannel = Channel;
-    b_Channel.Caption = ChatChannels[ActiveChannel];
+    b_Channel.Caption = ChatChannelLabels[ActiveChannel];
 }
 
 static function bool IsMessageSent(PlayerController Controller)
@@ -303,9 +304,9 @@ defaultproperties
     MaxInputHistory=128
     MessageColor=(R=236,G=236,B=236)
     MessageFallbackColor=(R=255,G=210,B=0,A=255)
-    ChatChannels(0)="Say"
-    ChatChannels(1)="TeamSay"
-    ChatChannels(2)="Console"
+    ChatChannelLabels(0)="Say"
+    ChatChannelLabels(1)="TeamSay"
+    ChatChannelLabels(2)="Console"
     ChannelCommands(0)="/say"
     ChannelCommands(1)="/teamsay"
     ChannelCommands(2)="/console"

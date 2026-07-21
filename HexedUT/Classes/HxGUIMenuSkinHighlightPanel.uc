@@ -474,7 +474,7 @@ defaultproperties
     co_TeammateProtected=TeammateProtectedComboBox
 
     Begin Object class=moComboBox Name=TeammateSkinComboBox
-        Caption="Skin type"
+        Caption="Skin Type"
         Hint="Skin type to use below the highlight color."
         INIOption="@INTERNAL"
         Tag=8
@@ -487,7 +487,7 @@ defaultproperties
     co_TeammateSkin=TeammateSkinComboBox
 
     Begin Object class=moCheckBox Name=ForceTeammateModel
-        Caption="Force model"
+        Caption="Force Model"
         Hint="Force the selected model on teammates."
         INIOption="@INTERNAL"
         Tag=15
@@ -522,7 +522,7 @@ defaultproperties
     b_ChangeTeammateModel=ChangeTeammateModelButton
 
     Begin Object class=moComboBox Name=ShieldHitComboBox
-        Caption="Shield hit"
+        Caption="Shield Hit"
         Hint="Highlight color to use when a shielded player is hit or has spawn protection."
         INIOption="@INTERNAL"
         Tag=2
@@ -536,7 +536,7 @@ defaultproperties
     co_ShieldHit=ShieldHitComboBox
 
     Begin Object class=moComboBox Name=LinkHitComboBox
-        Caption="Link hit"
+        Caption="Link Hit"
         Hint="Highlight color to use when a player is hit with a link gun."
         INIOption="@INTERNAL"
         Tag=3
@@ -550,7 +550,7 @@ defaultproperties
     co_LinkHit=LinkHitComboBox
 
     Begin Object class=moComboBox Name=ShockHitComboBox
-        Caption="Shock hit"
+        Caption="Shock Hit"
         Hint="Highlight color to use when a player is hit with a shock rifle."
         INIOption="@INTERNAL"
         Tag=4
@@ -564,7 +564,7 @@ defaultproperties
     co_ShockHit=ShockHitComboBox
 
     Begin Object class=moComboBox Name=LightningHitComboBox
-        Caption="Lightning hit"
+        Caption="Lightning Hit"
         Hint="Highlight color to use when a player is hit with a lightning gun."
         INIOption="@INTERNAL"
         Tag=5
@@ -605,7 +605,7 @@ defaultproperties
     co_EnemyProtected=EnemyProtectedComboBox
 
     Begin Object class=moComboBox Name=EnemySkinComboBox
-        Caption="Skin type"
+        Caption="Skin Type"
         Hint="Skin type to use below the highlight color."
         INIOption="@INTERNAL"
         Tag=9
@@ -618,7 +618,7 @@ defaultproperties
     co_EnemySkin=EnemySkinComboBox
 
     Begin Object class=moCheckBox Name=ForceEnemyModel
-        Caption="Force model"
+        Caption="Force Model"
         Hint="Force the selected model on enemies."
         INIOption="@INTERNAL"
         Tag=17
@@ -653,7 +653,7 @@ defaultproperties
     b_ChangeEnemyModel=ChangeEnemyModelButton
 
     Begin Object class=moCheckBox Name=RandomizeCheckBox
-        Caption="Randomize highlights"
+        Caption="Randomize Highlights"
         Hint="Assign a random highlight to each player. Only applies to DM and other modes with no teams."
         INIOption="@INTERNAL"
         Tag=10
@@ -665,7 +665,7 @@ defaultproperties
     ch_Randomize=RandomizeCheckBox
 
     Begin Object class=moCheckBox Name=DisableOnDeadBodiesCheckBox
-        Caption="Disable highlight on dead bodies"
+        Caption="Disable Highlight On Dead Bodies"
         Hint="Disable any active highlights on dead bodies."
         INIOption="@INTERNAL"
         Tag=11
@@ -677,7 +677,7 @@ defaultproperties
     ch_DisableOnDeadBodies=DisableOnDeadBodiesCheckBox
 
     Begin Object class=moComboBox Name=HighlightModeComboBox
-        Caption="Highlight mode"
+        Caption="Highlight Mode"
         Hint="Choose if highlight is applied based on roles (teammates/enemies) or based on teams (red/blue)."
         INIOption="@INTERNAL"
         Tag=12
@@ -690,7 +690,7 @@ defaultproperties
     co_HighlightMode=HighlightModeComboBox
 
     Begin Object class=moComboBox Name=SpectateAsComboBox
-        Caption="Spectate as"
+        Caption="Spectate As"
         Hint="Select which team's perspective to spectate as."
         INIOption="@INTERNAL"
         Tag=13
@@ -729,8 +729,8 @@ defaultproperties
     SkinLabels(0)="Red Team"
     SkinLabels(1)="Blue Team"
     SkinLabels(2)="Normal"
-    ModeLabels(0)="Role-based"
-    ModeLabels(1)="Team-based"
+    ModeLabels(0)="Role-Based"
+    ModeLabels(1)="Team-Based"
     RoleLabels(0)="Teammates"
     RoleLabels(1)="Enemies"
     TeamLabels(0)="Red Team"

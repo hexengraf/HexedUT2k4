@@ -416,7 +416,7 @@ defaultproperties
     End Object
 
     Begin Object class=moCheckBox Name=HitSoundsCheckBox
-        Caption="Enable hit sounds"
+        Caption="Enable Hit Sounds"
         INIOption="@INTERNAL"
         Tag=0
         OnLoadINI=InternalOnLoadINI
@@ -451,7 +451,7 @@ defaultproperties
     sl_HitSoundVolume=HitSoundVolumeSlider
 
     Begin Object class=moComboBox Name=PitchModeComboBox
-        Caption="Pitch mode"
+        Caption="Pitch Mode"
         INIOption="@INTERNAL"
         Tag=3
         CaptionWidth=0.35
@@ -463,7 +463,7 @@ defaultproperties
     co_PitchMode=PitchModeComboBox
 
     Begin Object class=moCheckBox Name=DamageNumbersCheckBox
-        Caption="Enable damage numbers"
+        Caption="Enable Damage Numbers"
         INIOption="@INTERNAL"
         Tag=4
         OnLoadINI=InternalOnLoadINI
@@ -548,7 +548,7 @@ defaultproperties
     co_DamagePoints=DamagePointsComboBox
 
     Begin Object class=moNumericEdit Name=ValueNumericEdit
-        Caption="Damage value"
+        Caption="Damage Value"
         INIOption="@INTERNAL"
         MinValue=-300
         MaxValue=300
@@ -639,18 +639,18 @@ defaultproperties
     Sections(2)=InterpolationCurveSection
     Sections(3)=None
     PitchModeLabels(0)="Disabled"
-    PitchModeLabels(1)="Low to high"
-    PitchModeLabels(2)="High to low"
-    DisplayModeLabels(0)="Static per hit"
-    DisplayModeLabels(1)="Static total"
-    DisplayModeLabels(2)="Static per hit & total"
-    DisplayModeLabels(3)="Float per hit"
-    DisplayModeLabels(4)="Float per hit & total"
-    DamagePointLabels(0)="Zero damage"
-    DamagePointLabels(1)="Low damage"
-    DamagePointLabels(2)="Medium damage"
-    DamagePointLabels(3)="High damage"
-    DamagePointLabels(4)="Extreme damage"
-    AutoSelectFontLabel="Auto-select"
+    PitchModeLabels(1)="Low To High"
+    PitchModeLabels(2)="High To Low"
+    DisplayModeLabels(0)="Static Per Hit"
+    DisplayModeLabels(1)="Static Total"
+    DisplayModeLabels(2)="Static Per Hit & Total"
+    DisplayModeLabels(3)="Float Per Hit"
+    DisplayModeLabels(4)="Float Per Hit & Total"
+    DamagePointLabels(0)="Zero Damage"
+    DamagePointLabels(1)="Low Damage"
+    DamagePointLabels(2)="Medium Damage"
+    DamagePointLabels(3)="High Damage"
+    DamagePointLabels(4)="Extreme Damage"
+    AutoSelectFontLabel="Auto-Select"
     DPIndex=4
 }

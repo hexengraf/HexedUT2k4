@@ -18,7 +18,7 @@ var automated GUIButton b_RestoreColors;
 
 var localized string AlignmentLabels[3];
 var localized string ColorNameLabels[24];
-var localized string ConfirmRestoreDefaultColors;
+var localized string RestoreDefaultColorsMessage;
 
 var private HxClientManager ClientManager;
 var private HxUTClient Client;
@@ -177,7 +177,7 @@ function bool OnClickRestoreColors(GUIComponent Sender)
     if (Controller.OpenMenu(string(class'HxGUIQuestionPage')))
     {
         GUIQuestionPage(Controller.ActivePage).SetupQuestion(
-            ConfirmRestoreDefaultColors, QBTN_YesNo, QBTN_Yes);
+            RestoreDefaultColorsMessage, QBTN_YesNo, QBTN_Yes);
         GUIQuestionPage(Controller.ActivePage).OnButtonClick = OnButtonClickRestoreColors;
     }
     return true;
@@ -221,7 +221,7 @@ defaultproperties
     RightSection=ColorEditorSection
 
     Begin Object class=moComboBox Name=BoardAlignmentComboBox
-        Caption="Board alignment"
+        Caption="Board Alignment"
         Hint="Vertical alignment for the scoreboard."
         INIOption="@INTERNAL"
         Tag=1
@@ -234,7 +234,7 @@ defaultproperties
     co_BoardAlignment=BoardAlignmentComboBox
 
     Begin Object class=moComboBox Name=HeadingAlignmentComboBox
-        Caption="Heading alignment"
+        Caption="Heading Alignment"
         Hint="Vertical alignment for single line headings."
         INIOption="@INTERNAL"
         Tag=2
@@ -247,7 +247,7 @@ defaultproperties
     co_HeadingAlignment=HeadingAlignmentComboBox
 
     Begin Object class=moSlider Name=BorderSizeSlider
-        Caption="Border size"
+        Caption="Border Size"
         Hint="Border size (% of screen height)."
         INIOption="@INTERNAL"
         Tag=4
@@ -261,7 +261,7 @@ defaultproperties
     sl_BorderSize=BorderSizeSlider
 
     Begin Object class=moSlider Name=DividerSizeSlider
-        Caption="Divider size"
+        Caption="Divider Size"
         Hint="Row divider size (% of screen height)."
         INIOption="@INTERNAL"
         Tag=5
@@ -275,7 +275,7 @@ defaultproperties
     sl_DividerSize=DividerSizeSlider
 
     Begin Object class=moSlider Name=FontSizeSlider
-        Caption="Font size"
+        Caption="Font Size"
         Hint="Increase or decrease the font sizes of all fonts used by the scoreboard."
         INIOption="@INTERNAL"
         Tag=6
@@ -290,7 +290,7 @@ defaultproperties
     sl_FontSize=FontSizeSlider
 
     Begin Object class=moCheckBox Name=AlternateRowColorsCheckBox
-        Caption="Alternate row colors"
+        Caption="Alternate Row Colors"
         Hint="Use the alternative row color to alternate row colors."
         INIOption="@INTERNAL"
         Tag=7
@@ -392,29 +392,29 @@ defaultproperties
     AlignmentLabels(0)="Top"
     AlignmentLabels(1)="Center"
     AlignmentLabels(2)="Bottom"
-    ColorNameLabels(0)="Header color"
-    ColorNameLabels(1)="Red team header color"
-    ColorNameLabels(2)="Blue team header color"
-    ColorNameLabels(3)="Row color"
-    ColorNameLabels(4)="Red team row color"
-    ColorNameLabels(5)="Blue team row color"
-    ColorNameLabels(6)="Alternate row color"
-    ColorNameLabels(7)="Red team alternate row color"
-    ColorNameLabels(8)="Blue team alternate row color"
-    ColorNameLabels(9)="Border color"
-    ColorNameLabels(10)="Red team border color"
-    ColorNameLabels(11)="Blue team border color"
-    ColorNameLabels(12)="Divider color"
-    ColorNameLabels(13)="Red team divider color"
-    ColorNameLabels(14)="Blue team divider color"
-    ColorNameLabels(15)="Scroll thumb color"
-    ColorNameLabels(16)="Red team scroll thumb color"
-    ColorNameLabels(17)="Blue team scroll thumb color"
-    ColorNameLabels(18)="Red team color"
-    ColorNameLabels(19)="Blue team color"
-    ColorNameLabels(20)="Text color"
-    ColorNameLabels(21)="Second text color"
-    ColorNameLabels(22)="Highlight text color"
-    ColorNameLabels(23)="Ready color"
-    ConfirmRestoreDefaultColors="Are you sure you want to restore all colors to their default values?"
+    ColorNameLabels(0)="Header Color"
+    ColorNameLabels(1)="Red Team Header Color"
+    ColorNameLabels(2)="Blue Team Header Color"
+    ColorNameLabels(3)="Row Color"
+    ColorNameLabels(4)="Red Team Row Color"
+    ColorNameLabels(5)="Blue Team Row Color"
+    ColorNameLabels(6)="Alternate Row Color"
+    ColorNameLabels(7)="Red Team Alternate Row Color"
+    ColorNameLabels(8)="Blue Team Alternate Row Color"
+    ColorNameLabels(9)="Border Color"
+    ColorNameLabels(10)="Red Team Border Color"
+    ColorNameLabels(11)="Blue Team Border Color"
+    ColorNameLabels(12)="Divider Color"
+    ColorNameLabels(13)="Red Team Divider Color"
+    ColorNameLabels(14)="Blue Team Divider Color"
+    ColorNameLabels(15)="Scroll Thumb Color"
+    ColorNameLabels(16)="Red Team Scroll Thumb Color"
+    ColorNameLabels(17)="Blue Team Scroll Thumb Color"
+    ColorNameLabels(18)="Red Team Color"
+    ColorNameLabels(19)="Blue Team Color"
+    ColorNameLabels(20)="Text Color"
+    ColorNameLabels(21)="Second Text Color"
+    ColorNameLabels(22)="Highlight Text Color"
+    ColorNameLabels(23)="Ready Color"
+    RestoreDefaultColorsMessage="Are you sure you want to restore all colors to their default values?"
 }

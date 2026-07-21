@@ -448,7 +448,7 @@ defaultproperties
     sl_ColorBlue=ColorBlueSlider
 
     Begin Object class=moCheckBox Name=AllowOnRandomCheckBox
-        Caption="Allow color on random highlight"
+        Caption="Allow Color On Random Highlight"
         Hint="Allow this color to be used on random highlight."
         INIOption="@INTERNAL"
         CaptionWidth=0.8
@@ -514,7 +514,7 @@ defaultproperties
     b_PreviewBox=PreviewBoxButton
 
     Begin Object class=moComboBox Name=PreviewSkinComboBox
-        Caption="Skin type"
+        Caption="Skin Type"
         Hint="Select skin type to be used on the preview."
         INIOption="@INTERNAL"
         ComponentWidth=0.64

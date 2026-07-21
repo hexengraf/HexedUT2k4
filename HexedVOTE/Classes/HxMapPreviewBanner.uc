@@ -261,7 +261,7 @@ defaultproperties
     StyleName="HxBackgroundGradient"
     MaxPreviewWidth=0.94
     NoMapLabel="No Map Selected"
-    PlayersLabel="players"
+    PlayersLabel="Players"
     AuthorLabel="Author"
     OnPReDrawInit=InternalOnPreDrawInit
 }

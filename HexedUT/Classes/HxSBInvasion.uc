@@ -1,6 +1,6 @@
 class HxSBInvasion extends HxScoreBoard;
 
-var localized string TotalScoreText;
+var localized string TotalScoreLabel;
 
 var protected int TotalScoreWidth;
 var protected int TotalScoreHeight;
@@ -43,7 +43,7 @@ simulated function DrawTables(Canvas C, int TableHeight)
         C.Font = MediumFont;
         DrawTextCentered(
             C,
-            TotalScoreText$int(GRI.Teams[0].Score),
+            TotalScoreLabel$int(GRI.Teams[0].Score),
             TXTA_Center,
             Left,
             0,
@@ -60,7 +60,7 @@ simulated function DrawHeadings(Canvas C, int Table)
     {
         C.DrawColor = HighlightTextColor;
         C.Font = MediumFont;
-        DrawTextCell(C, TotalScoreText$int(GRI.Teams[0].Score), PlayerColumn, 0);
+        DrawTextCell(C, TotalScoreLabel$int(GRI.Teams[0].Score), PlayerColumn, 0);
     }
 }
 
@@ -88,7 +88,7 @@ simulated function UpdateTablePaddings(Canvas C)
     if (TeamScoreStyle == HX_SB_TSCORE_FullSize)
     {
         C.Font = MediumFont;
-        C.StrLen(TotalScoreText$"99999999", TextWidth, TextHeight);
+        C.StrLen(TotalScoreLabel$"99999999", TextWidth, TextHeight);
         TotalScoreWidth = (TextWidth * 1.2 + 1) & ~1;
         TotalScoreHeight = RowHeight;
         TableTopPadding = TotalScoreHeight + OuterSpacing;
@@ -130,5 +130,5 @@ simulated function HxSBColumnConfig GetOutColumnConfig()
 
 defaultproperties
 {
-    TotalScoreText="TOTAL SCORE: "
+    TotalScoreLabel="TOTAL SCORE: "
 }

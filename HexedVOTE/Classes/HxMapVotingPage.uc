@@ -15,8 +15,8 @@ var automated GUIButton b_Random;
 var automated GUIButton b_Vote;
 var automated HxGUIChatBox ChatBox;
 
-var localized string LoadingText;
-var localized string RetrievingMapListText;
+var localized string LoadingLabel;
+var localized string RetrievingMapsLabel;
 
 var string VoteListCustomBG;
 var string MapListCustomBG;
@@ -210,8 +210,8 @@ function ShowInitialState()
 
 function ShowLoadingState()
 {
-    t_WindowTitle.Caption = WindowName@"("$LoadingText$")";
-    l_RetrievingMapList.Caption = RetrievingMapListText@"("$Client.GetLoadingStatus()$")";
+    t_WindowTitle.Caption = WindowName@"("$LoadingLabel$")";
+    l_RetrievingMapList.Caption = RetrievingMapsLabel@"("$Client.GetLoadingStatus()$")";
     l_RetrievingMapList.SetVisibility(true);
 }
 
@@ -563,6 +563,6 @@ defaultproperties
     f_Chat=None
     bPersistent=true
 
-    LoadingText="LOADING..."
-    RetrievingMapListText="Retrieving Map List"
+    LoadingLabel="LOADING..."
+    RetrievingMapsLabel="Retrieving Map List"
 }

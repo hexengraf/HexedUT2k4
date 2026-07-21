@@ -26,14 +26,14 @@ var automated GUILabel l_MapListButtonAnchor;
 var automated GUIButton b_Remove;
 var automated GUIButton b_RemoveAll;
 
-var localized string TagFilterNames[4];
 var localized string NameLabel;
 var localized string NewFilterPageCaption;
 var localized string RenameFilterPageCaption;
 var localized string ConfirmFilterDeletionLabel;
-var localized string InvalidNamePrefix;
-var localized string InvalidNameSuffix;
-var localized string MapListModeNames[2];
+var localized string InvalidNameMessage;
+var localized string TagFilterLabels[4];
+var localized string MapSourceLabels[3];
+var localized string MapListModeLabels[2];
 
 var private HxMapFilterManager FilterManager;
 var private HxMapFilter SelectedFilter;
@@ -79,17 +79,16 @@ function InitComponent(GUIController MyController, GUIComponent MyComponent)
 
 function InitComboBoxes()
 {
-    local string Name;
     local int i;
 
-    for (i = 0; i < 3; ++i)
+    for (i = 0; i < ArrayCount(MapSourceLabels); ++i)
     {
-        Name = string(GetEnum(enum'EHxMapSource', i));
-        moComboBox(RuleOptions[4]).AddItem(Mid(Name, 14),, Name);
+        moComboBox(RuleOptions[4]).AddItem(
+            MapSourceLabels[i],, string(GetEnum(enum'EHxMapSource', i)));
     }
-    for (i = 0; i < ArrayCount(TagFilterNames); ++i)
+    for (i = 0; i < ArrayCount(TagFilterLabels); ++i)
     {
-        moComboBox(RuleOptions[5]).AddItem(TagFilterNames[i],, string(GetEnum(enum'EHxTag', i)));
+        moComboBox(RuleOptions[5]).AddItem(TagFilterLabels[i],, string(GetEnum(enum'EHxTag', i)));
     }
     for (i = 0; i < GameTypes.Length; ++i)
     {
@@ -97,10 +96,10 @@ function InitComboBoxes()
     }
     co_GameType.MyComboBox.List.Sort();
     co_GameType.SetIndex(0);
-    for (i = 0; i < ArrayCount(MapListModeNames); ++i)
+    for (i = 0; i < ArrayCount(MapListModeLabels); ++i)
     {
         moComboBox(RuleOptions[6]).AddItem(
-            MapListModeNames[i],, string(GetEnum(enum'EHxFilterMode', i)));
+            MapListModeLabels[i],, string(GetEnum(enum'EHxFilterMode', i)));
     }
 }
 
@@ -430,7 +429,7 @@ function ShowInvalidNameDialog(string Name)
     if (Controller.OpenMenu(string(class'HxGUIQuestionPage')))
     {
         GUIQuestionPage(Controller.ActivePage).SetupQuestion(
-            InvalidNamePrefix@"\""$Name$"\""@InvalidNameSuffix, QBTN_Ok, QBTN_Ok);
+            Repl(InvalidNameMessage, "%", Name), QBTN_Ok, QBTN_Ok);
     }
 }
 
@@ -599,7 +598,7 @@ defaultproperties
     b_DeleteFilter=DeleteColorButton
 
     Begin Object class=moEditBox Name=MapNameEditBox
-        Caption="Map name"
+        Caption="Map Name"
         Hint="Filter by map name."
         CaptionWidth=0.42
         TabOrder=10
@@ -607,7 +606,7 @@ defaultproperties
     RuleOptions(0)=MapNameEditBox
 
     Begin Object class=moEditBox Name=AuthorNameEditBox
-        Caption="Author name"
+        Caption="Author Name"
         Hint="Filter by author name."
         CaptionWidth=0.42
         TabOrder=11
@@ -615,7 +614,7 @@ defaultproperties
     RuleOptions(1)=AuthorNameEditBox
 
     Begin Object class=moEditBox Name=NumPlayersEditBox
-        Caption="Num. players"
+        Caption="Num. Players"
         Hint="Filter by number of players."
         CaptionWidth=0.42
         TabOrder=12
@@ -623,7 +622,7 @@ defaultproperties
     RuleOptions(2)=NumPlayersEditBox
 
     Begin Object class=moEditBox Name=TimerPlayedEditBox
-        Caption="Times played"
+        Caption="Times Played"
         Hint="Filter by number of times played."
         CaptionWidth=0.42
         TabOrder=13
@@ -632,7 +631,7 @@ defaultproperties
 
     Begin Object class=moComboBox Name=MapSourceComboBox
         Caption="Map Source"
-        Hint="Filter by source (any, official, custom)."
+        Hint="Filter by source (Any, Official, Custom)."
         CaptionWidth=0.42
         bReadOnly=true
         TabOrder=14
@@ -771,18 +770,20 @@ defaultproperties
     OnOpen=InternalOnOpen
     OnKeyEvent=InternalOnKeyEvent
 
-    TagFilterNames(0)="Any"
-    TagFilterNames(1)="Liked maps"
-    TagFilterNames(2)="Untagged maps"
-    TagFilterNames(3)="Disliked maps"
     NameLabel="Name"
     NewFilterPageCaption="New Filter"
     RenameFilterPageCaption="Rename Filter"
     ConfirmFilterDeletionLabel="Are you sure you want to delete this filter?"
-    InvalidNamePrefix="The name"
-    InvalidNameSuffix="is already in use or invalid."
-    MapListModeNames(0)="Include Maps"
-    MapListModeNames(1)="Exclude Maps"
+    InvalidNameMessage="The name '%' is already in use or invalid."
+    TagFilterLabels(0)="Any"
+    TagFilterLabels(1)="Liked Maps"
+    TagFilterLabels(2)="Untagged Maps"
+    TagFilterLabels(3)="Disliked Maps"
+    MapSourceLabels(0)="Any"
+    MapSourceLabels(1)="Official"
+    MapSourceLabels(2)="Custom"
+    MapListModeLabels(0)="Include Maps"
+    MapListModeLabels(1)="Exclude Maps"
 
     Properties(0)="MapName"
     Properties(1)="AuthorName"

@@ -61,7 +61,7 @@ defaultproperties
 {
     ObjectName="HexedUT"
     Properties(0)=(Name="ViewSmoothing",Type=HX_PROPERTY_Enum,UpperLimit="3",EnumType=enum'EHxViewSmoothing')
-    DisplayInfo(0)=(Section="Player",Caption="View smoothing",Hint="Choose which type of view smoothing to apply.",EnumLabels=("Strong (default)","Weak","Disabled"),Dependency="bAllowCustomViewSmoothing")
+    DisplayInfo(0)=(Section="Player",Caption="View Smoothing",Hint="Choose which type of view smoothing to apply.",EnumLabels=("Strong (Default)","Weak","Disabled"),Dependency="bAllowCustomViewSmoothing")
 
     ViewSmoothing=HX_VS_Default
 }

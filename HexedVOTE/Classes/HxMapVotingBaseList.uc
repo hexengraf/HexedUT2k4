@@ -365,10 +365,10 @@ defaultproperties
     ColumnHeadingHints(1)="Click to sort by liked/disliked maps."
     ColumnHeadingHints(2)="Click to sort by map name."
 
-    AddToLabel="Add to"
-    RemoveFromLabel="Remove from"
-    LikedMapsLabel="liked maps"
-    DislikedMapsLabel="disliked maps"
+    AddToLabel="Add To"
+    RemoveFromLabel="Remove From"
+    LikedMapsLabel="Liked Maps"
+    DislikedMapsLabel="Disliked Maps"
 
     PreviousSortColumn=-1
     RecentColor=(R=196,G=255,B=0,A=255)

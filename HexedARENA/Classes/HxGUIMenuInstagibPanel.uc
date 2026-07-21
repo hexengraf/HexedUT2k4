@@ -21,7 +21,7 @@ var automated moSlider sl_CrosshairBlueColor;
 var automated moSlider sl_CrosshairOpacity;
 var automated moSlider sl_CrosshairScale;
 
-var localized string ScopeOverlayNames[3];
+var localized string ScopeOverlayLabels[3];
 
 var private HxIGClient Client;
 var private HxZoomSuperShockRifleConfig Config;
@@ -62,9 +62,9 @@ function PopulateComboBoxes()
 
     co_ScopeOverlay.MyComboBox.MyListBox.MyList.bInitializeList = false;
     co_CustomCrosshair.MyComboBox.MyListBox.MyList.bInitializeList = false;
-    for (i = 0; i < ArrayCount(ScopeOverlayNames); ++i)
+    for (i = 0; i < ArrayCount(ScopeOverlayLabels); ++i)
     {
-        co_ScopeOverlay.AddItem(ScopeOverlayNames[i],, string(GetEnum(enum'EHxScopeOverlay', i)));
+        co_ScopeOverlay.AddItem(ScopeOverlayLabels[i],, string(GetEnum(enum'EHxScopeOverlay', i)));
     }
     class'CacheManager'.static.GetCrosshairList(Crosshairs);
     for (i = 0; i < Crosshairs.Length; ++i)
@@ -181,7 +181,7 @@ defaultproperties
     End Object
 
     Begin Object class=moComboBox Name=ScopeOverlayComboBox
-        Caption="Scope overlay"
+        Caption="Scope Overlay"
         Hint="Choose which scope overlay to use."
         INIOption="@INTERNAL"
         Tag=0
@@ -194,7 +194,7 @@ defaultproperties
     co_ScopeOverlay=ScopeOverlayComboBox
 
     Begin Object class=moCheckBox Name=CustomCrosshairCheckBox
-        Caption="Use custom crosshair"
+        Caption="Use Custom Crosshair"
         Hint="Use custom crosshair while zooming. Requires custom weapon crosshairs enabled to work."
         INIOption="@INTERNAL"
         Tag=6
@@ -205,7 +205,7 @@ defaultproperties
     ch_CustomCrosshair=CustomCrosshairCheckBox
 
     Begin Object class=moCheckBox Name=SoundEffectsCheckBox
-        Caption="Zoom sound effects"
+        Caption="Zoom Sound Effects"
         Hint="Enable sound effects when zooming in/out."
         INIOption="@INTERNAL"
         Tag=1
@@ -216,7 +216,7 @@ defaultproperties
     ch_SoundEffects=SoundEffectsCheckBox
 
     Begin Object class=moCheckBox Name=ShowChargeBarCheckBox
-        Caption="Show charge bar"
+        Caption="Show Charge Bar"
         Hint="Show charge bar to indicate when it is ready to shoot."
         INIOption="@INTERNAL"
         Tag=2
@@ -227,7 +227,7 @@ defaultproperties
     ch_ShowChargeBar=ShowChargeBarCheckBox
 
     Begin Object class=moSlider Name=BackgroundOpacitySlider
-        Caption="BG opacity"
+        Caption="BG Opacity"
         Hint="Change the opacity of the black background around the scope."
         INIOption="@INTERNAL"
         Tag=5
@@ -410,7 +410,7 @@ defaultproperties
     Sections(1)=None
     Sections(2)=CustomScopeOverlaySection
     Sections(3)=CrosshairSection
-    ScopeOverlayNames(0)="Default"
-    ScopeOverlayNames(1)="Custom"
-    ScopeOverlayNames(2)="Hidden"
+    ScopeOverlayLabels(0)="Default"
+    ScopeOverlayLabels(1)="Custom"
+    ScopeOverlayLabels(2)="Hidden"
 }

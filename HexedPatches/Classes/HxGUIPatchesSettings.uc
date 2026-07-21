@@ -311,7 +311,7 @@ defaultproperties
     i_BG2=Legacy3369FixesSection
 
     Begin Object class=moCheckBox Name=FixedMouseSizeCheckBox
-        Caption="Fixed cursor size"
+        Caption="Fixed Cursor Size"
         Hint="Stop changing cursor size when it hovers a menu option."
         INIOption="@Internal"
         OnLoadINI=InternalOnLoadINI
@@ -321,7 +321,7 @@ defaultproperties
     ch_FixedMouseSize=FixedMouseSizeCheckBox
 
     Begin Object class=moCheckBox Name=ScaleWithYCheckBox
-        Caption="Scale fonts with screen height"
+        Caption="Scale Fonts With Screen Height"
         Hint="Scale fonts with the screen height instead of the screen width. Restart required."
         INIOption="@Internal"
         OnLoadINI=InternalOnLoadINI
@@ -331,7 +331,7 @@ defaultproperties
     ch_ScaleWithY=ScaleWithYCheckBox
 
     Begin Object class=moNumericEdit Name=OverrideFontSizeNumericEdit
-        Caption="Override font scale"
+        Caption="Override Font Scale"
         Hint="Override font scale (between 0 and 6). Use -1 for default scale. Restart required."
         INIOption="@Internal"
         MinValue=-1
@@ -358,7 +358,7 @@ defaultproperties
     fl_HorPlusFOV=HorPlusFOVFloatEdit
 
     Begin Object class=moCheckBox Name=SmallCursorCheckBox
-        Caption="Small cursor"
+        Caption="Small Cursor"
         Hint="Use a custom cursor to compensate the stupid scaling. Recommended for high resolutions."
         INIOption="@Internal"
         OnLoadINI=InternalOnLoadINI
@@ -379,7 +379,7 @@ defaultproperties
     ch_ReplaceHUDs=ReplaceHUDsCheckBox
 
     Begin Object class=moCheckBox Name=ScaleWeaponsCheckBox
-        Caption="Scale weapons"
+        Caption="Scale Weapons"
         Hint="Scale FOV of displayed weapon models when using replaced HUDs."
         INIOption="@Internal"
         OnLoadINI=InternalOnLoadINI
@@ -389,7 +389,7 @@ defaultproperties
     ch_ScaleWeapons=ScaleWeaponsCheckBox
 
     Begin Object class=moNumericEdit Name=CustomNetSpeedNumericEdit
-        Caption="Custom network speed"
+        Caption="Custom Network Speed"
         Hint="Custom network speed to use for both internet and LAN games (applied on every level change)."
         INIOption="@Internal"
         MinValue=0
@@ -403,7 +403,7 @@ defaultproperties
     nu_CustomNetSpeed=CustomNetSpeedNumericEdit
 
     Begin Object class=moComboBox Name=MasterServerComboBox
-        Caption="Master server"
+        Caption="Master Server"
         Hint="Select your preferred master server. Restart required."
         INIOption="@Internal"
         CaptionWidth=0.55

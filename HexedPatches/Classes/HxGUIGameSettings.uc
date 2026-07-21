@@ -1,11 +1,11 @@
 class HxGUIGameSettings extends UT2K4Tab_GameSettings;
 
-var localized string CustomNetSpeedText;
+var localized string CustomNetSpeedLabel;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
     Super.InitComponent(MyController, MyOwner);
-    co_Netspeed.AddItem(CustomNetSpeedText);
+    co_Netspeed.AddItem(CustomNetSpeedLabel);
 }
 
 function InternalOnLoadINI(GUIComponent Sender, string s)
@@ -35,5 +35,5 @@ function InternalOnLoadINI(GUIComponent Sender, string s)
 
 defaultproperties
 {
-    CustomNetSpeedText="Custom network speed"
+    CustomNetSpeedLabel="Custom Network Speed"
 }

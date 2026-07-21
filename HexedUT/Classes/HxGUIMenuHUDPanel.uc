@@ -198,7 +198,7 @@ defaultproperties
     End Object
 
     Begin Object class=moCheckBox Name=EnhancedScoreboardCheckBox
-        Caption="Enable enhanced scoreboards"
+        Caption="Enable Enhanced Scoreboards"
         Hint="Replace original scoreboards with an enhanced version."
         INIOption="@INTERNAL"
         Tag=0
@@ -209,7 +209,7 @@ defaultproperties
     ch_EnhancedScoreboard=EnhancedScoreboardCheckBox
 
     Begin Object class=moComboBox Name=TeamScoreStyleCheckBox
-        Caption="Team score style"
+        Caption="Team Score Style"
         Hint="Style to show team scores and total score (Invasion)."
         INIOption="@INTERNAL"
         Tag=3
@@ -222,7 +222,7 @@ defaultproperties
     co_TeamScoreStyle=TeamScoreStyleCheckBox
 
     Begin Object class=moCheckBox Name=ShowBotCallSignsCheckBox
-        Caption="Show bot call signs"
+        Caption="Show Bot Call Signs"
         Hint="Show bot call signs at the end of their names (team games only)."
         INIOption="@INTERNAL"
         Tag=8
@@ -233,7 +233,7 @@ defaultproperties
     ch_ShowBotCallSigns=ShowBotCallSignsCheckBox
 
     Begin Object class=moCheckBox Name=ShowBotOrdersCheckBox
-        Caption="Show bot orders"
+        Caption="Show Bot Orders"
         Hint="Show bot orders in front of their location (team games only)."
         INIOption="@INTERNAL"
         Tag=9
@@ -256,7 +256,7 @@ defaultproperties
     b_ChangeAppearance=ChangeAppearanceButton
 
     Begin Object class=moCheckBox Name=SPTimerCheckBox
-        Caption="Enable spawn protection timer"
+        Caption="Enable Spawn Protection Timer"
         Hint="Show timer indicating remaining spawn protection duration."
         INIOption="@INTERNAL"
         Tag=0
@@ -267,7 +267,7 @@ defaultproperties
     ch_SPTimer=SPTimerCheckBox
 
     Begin Object class=moCheckBox Name=PulsingDigitsCheckBox
-        Caption="Use pulsing digits"
+        Caption="Use Pulsing Digits"
         Hint="Use pulsing digits for the timer."
         INIOption="@INTERNAL"
         Tag=2
@@ -318,7 +318,7 @@ defaultproperties
     fl_PosY=PosYFloatEdit
 
     Begin Object class=moCheckBox Name=UseHUDColorCheckBox
-        Caption="Use HUD's color"
+        Caption="Use HUD's Color"
         Hint="Use the same color as the HUD for the timer's icon."
         INIOption="@INTERNAL"
         Tag=1
@@ -391,6 +391,6 @@ defaultproperties
     bFillPanelHeight=false
     Sections(0)=ScoreboardSection
     Sections(1)=SPTimerSection
-    TeamScoreStyleLabels(0)="Full size"
+    TeamScoreStyleLabels(0)="Full Size"
     TeamScoreStyleLabels(1)="Compact"
 }

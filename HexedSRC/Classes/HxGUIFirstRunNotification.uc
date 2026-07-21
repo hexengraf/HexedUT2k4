@@ -5,8 +5,8 @@ var automated GUILabel l_Mutators;
 var automated GUILabel l_Instructions;
 var automated GUIButton b_Close;
 
-var const localized string ExecuteText;
-var const localized string PressText;
+var localized string ExecuteLabel;
+var localized string PressLabel;
 
 var HxClientManager ClientManager;
 var private const string ProjectName;
@@ -27,11 +27,11 @@ event HandleParameters(string Param1, string Param2)
     if (Param2 != "")
     {
         Keybind = byte(Param1);
-        ReplaceText(l_Instructions.Caption, "%", PressText@Highlight$Param2$Restore);
+        ReplaceText(l_Instructions.Caption, "%", PressLabel@Highlight$Param2$Restore);
     }
     else
     {
-        ReplaceText(l_Instructions.Caption, "%", ExecuteText@Highlight$MutateCommand$Restore);
+        ReplaceText(l_Instructions.Caption, "%", ExecuteLabel@Highlight$MutateCommand$Restore);
     }
 }
 
@@ -117,7 +117,7 @@ defaultproperties
     ProjectName="HexedUT2k4 v"
     MutateCommand="mutate HexedMenu"
     HighlightColor=(R=255,G=210,B=0,A=255)
-    ExecuteText="Execute"
-    PressText="Press"
+    ExecuteLabel="Execute"
+    PressLabel="Press"
     OnKeyEvent=InternalOnKeyEvent
 }
