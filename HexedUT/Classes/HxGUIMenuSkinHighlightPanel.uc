@@ -45,6 +45,7 @@ var private HxSkinHighlightPreview TeammatePreview;
 var private HxSkinHighlightPreview EnemyPreview;
 var private bool bRenderPreviews;
 var private float HighlightIntensity;
+var private float OverlayIntensity;
 var private bool bCanForceModels;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
@@ -77,6 +78,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     Config = HxSkinHighlightConfig(Client.FindConfig(class'HxSkinHighlightConfig'));
     Colors = Client.GetSkinHighlightColors();
     HighlightIntensity = float(Client.GetServerProperty("SkinHighlightIntensity"));
+    OverlayIntensity = float(Client.GetServerProperty("SkinOverlayIntensity"));
     PopulateColorComboBoxes();
     PopulateSkinTypeComboBox(co_TeammateSkin);
     PopulateSkinTypeComboBox(co_EnemySkin);
@@ -102,7 +104,7 @@ event Opened(GUIComponent Sender)
     if (TeammatePreview == None)
     {
         TeammatePreview = ClientManager.Spawn(class'HxSkinHighlightPreview');
-        TeammatePreview.SetIntensity(HighlightIntensity);
+        TeammatePreview.SetIntensities(HighlightIntensity, OverlayIntensity);
         TeammatePreview.SetTeamNumber(0);
         TeammatePreview.DisplayFOV = 15;
         TeammatePreview.Setup(Config.CurrentTeammateModel);
@@ -110,7 +112,7 @@ event Opened(GUIComponent Sender)
     if (EnemyPreview == None)
     {
         EnemyPreview = ClientManager.Spawn(class'HxSkinHighlightPreview');
-        EnemyPreview.SetIntensity(HighlightIntensity);
+        EnemyPreview.SetIntensities(HighlightIntensity, OverlayIntensity);
         EnemyPreview.SetTeamNumber(1);
         EnemyPreview.DisplayFOV = 15;
         EnemyPreview.Setup(Config.CurrentEnemyModel);
@@ -140,15 +142,16 @@ function Refresh()
     if (Client != None)
     {
         HighlightIntensity = float(Client.GetServerProperty("SkinHighlightIntensity"));
+        OverlayIntensity = float(Client.GetServerProperty("SkinOverlayIntensity"));
     }
     if (TeammatePreview != None)
     {
-        TeammatePreview.SetIntensity(HighlightIntensity);
+        TeammatePreview.SetIntensities(HighlightIntensity, OverlayIntensity);
         TeammatePreview.Setup(Config.CurrentTeammateModel);
     }
     if (EnemyPreview != None)
     {
-        EnemyPreview.SetIntensity(HighlightIntensity);
+        EnemyPreview.SetIntensities(HighlightIntensity, OverlayIntensity);
         EnemyPreview.Setup(Config.CurrentEnemyModel);
     }
     bCanForceModels = Config.CanForceModels();

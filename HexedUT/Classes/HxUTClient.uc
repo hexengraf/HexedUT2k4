@@ -186,6 +186,7 @@ simulated function bool ShouldHideServerPropertyFromStatus(int Index)
                 return !bool(GetServerProperty("bAllowHitSounds"))
                     && !bool(GetServerProperty("bAllowDamageNumbers"));
             case "SkinHighlightIntensity":
+            case "SkinOverlayIntensity":
                 return !bool(GetServerProperty("bAllowSkinHighlight"));
             case "AllowForcedModels":
                 return !bool(GetServerProperty("bAllowSkinHighlight")) || !IsForcedModelAllowed();

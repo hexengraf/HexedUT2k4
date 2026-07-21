@@ -31,6 +31,7 @@ var private HxSkinHighlightPreview Preview;
 var private string PreviewCharacterName;
 var private bool bRenderPreview;
 var private float HighlightIntensity;
+var private float OverlayIntensity;
 
 function InitComponent(GUIController MyController, GUIComponent MyComponent)
 {
@@ -50,6 +51,7 @@ function InitComponent(GUIController MyController, GUIComponent MyComponent)
     Colors = Client.GetSkinHighlightColors();
     PreviewCharacterName = Config.CurrentEnemyModel;
     HighlightIntensity = float(Client.GetServerProperty("SkinHighlightIntensity"));
+    OverlayIntensity = float(Client.GetServerProperty("SkinOverlayIntensity"));
     PopulateColorComboBoxes();
     class'HxGUIMenuSkinHighlightPanel'.static.PopulateSkinTypeComboBox(co_PreviewSkin);
     co_PreviewSkin.SetIndex(class'HxSkinHighlightPreview'.default.ActiveSkin);
@@ -61,7 +63,7 @@ event Opened(GUIComponent Sender)
     {
         Preview = ClientManager.Spawn(class'HxSkinHighlightPreview');
         Preview.DisplayFOV = 33;
-        Preview.SetIntensity(HighlightIntensity);
+        Preview.SetIntensities(HighlightIntensity, OverlayIntensity);
         Preview.SetTeamNumber(2);
         Preview.SetPropertyText("ActiveColor", co_EditColor.GetComponentValue());
         Preview.SetPropertyText("ActiveSkin", co_PreviewSkin.GetComponentValue());

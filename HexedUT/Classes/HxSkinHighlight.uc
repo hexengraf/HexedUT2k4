@@ -13,7 +13,6 @@ enum EHxSkinType
     HX_SKIN_Normal,
 };
 
-const OVERLAY_COLOR_MULTIPLIER = 1.3;
 const OVERLAY_COLOR_FADE_PERIOD = 0.3;
 
 var const string NoHighlight;
@@ -42,7 +41,8 @@ var bool bForceEnemyModel;
 var const Material NativeOverlays[5];
 
 var protected int TeamNumber;
-var protected float Intensity;
+var protected float BaseIntensity;
+var protected float OverlayIntensity;
 var protected bool bCanForceModels;
 var protected bool bSpawnDone;
 var protected bool bDead;
@@ -71,7 +71,7 @@ var protected xUtil.PlayerRecord PlayerRecord;
 replication
 {
     reliable if (Role == ROLE_Authority)
-        TeamNumber, Intensity, bCanForceModels, bSpawnDone;
+        TeamNumber, BaseIntensity, OverlayIntensity, bCanForceModels, bSpawnDone;
 }
 
 simulated event PostBeginPlay()
@@ -85,10 +85,12 @@ simulated event PostBeginPlay()
     }
 }
 
-function SetupServer(float ServerIntensity, bool bServerCanForcedModels)
+function SetupServer(float ServerBaseIntensity,
+                     float ServerOverlayIntensity,
+                     bool bServerCanForcedModels)
 {
     SetTeamNumber(GetTeamNum(xPawn(Base)));
-    SetIntensity(ServerIntensity);
+    SetIntensities(ServerBaseIntensity, ServerOverlayIntensity);
     SetCanForceModels(bServerCanForcedModels);
 }
 
@@ -107,9 +109,10 @@ final function SetTeamNumber(int Value)
     TeamNumber = Value;
 }
 
-final function SetIntensity(float Value)
+final function SetIntensities(float Base, float Overlay)
 {
-    Intensity = Value;
+    BaseIntensity = Base;
+    OverlayIntensity = Overlay;
 }
 
 final function SetCanForceModels(bool bValue)
@@ -166,8 +169,8 @@ auto state Startup
         {
             PC = Level.GetLocalPlayerController();
         }
-        if (Intensity >= 0 && TeamNumber > -1 && Colors != None && PC != None
-            && PC.PlayerReplicationInfo != None && Level.GRI != None)
+        if (BaseIntensity >= 0 && OverlayIntensity >= 0 && TeamNumber > -1 && Colors != None
+            && PC != None && PC.PlayerReplicationInfo != None && Level.GRI != None)
         {
             LocalPlayerTeam = GetLocalPlayerTeam();
             if (ValidateCharacterModel())
@@ -176,7 +179,7 @@ auto state Startup
                 ParseOverlays();
                 if (Colors.Find(GetHighlightColorName(), MainColor) > -1)
                 {
-                    MainColor = MainColor * Intensity;
+                    MainColor = MainColor * BaseIntensity;
                     MainColor.A = 255;
                     HighlightTint.Color = MainColor;
                     GotoState('Reskin');
@@ -191,10 +194,8 @@ auto state Startup
 
     simulated function ParseOverlays()
     {
-        local float OverlayIntensity;
         local int i;
 
-        OverlayIntensity = Intensity * OVERLAY_COLOR_MULTIPLIER;
         for (i = 0; i < ArrayCount(OverlayColors); ++i)
         {
             OverlayColors[i].R = Min(default.OverlayColors[i].R * OverlayIntensity, 255);
@@ -802,10 +803,8 @@ simulated function bool IsEnemy()
 simulated function Color GetOverlayColor(string Name)
 {
     local Color Result;
-    local float OverlayIntensity;
 
     Colors.Find(Name, Result);
-    OverlayIntensity = Intensity * OVERLAY_COLOR_MULTIPLIER;
     Result.R = Min(Result.R * OverlayIntensity, 255);
     Result.G = Min(Result.G * OverlayIntensity, 255);
     Result.B = Min(Result.B * OverlayIntensity, 255);
@@ -959,7 +958,8 @@ defaultproperties
     NetUpdateFrequency=100
     NetPriority=3
     TeamNumber=-1
-    Intensity=-1
+    BaseIntensity=-1
+    OverlayIntensity=-1
     LocalPlayerTeam=255
     OverlayColors(0)=(R=230,G=180,B=32,A=255)
     OverlayColors(1)=(R=32,G=220,B=100,A=255)

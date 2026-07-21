@@ -13,6 +13,7 @@ var config bool bAllowDamageNumbers;
 var config bool bRequireLOS;
 var config bool bAllowSkinHighlight;
 var config float SkinHighlightIntensity;
+var config float SkinOverlayIntensity;
 var config EHxForcedModel AllowForcedModels;
 var config array<string> ModelList;
 var config bool bAllowCustomViewSmoothing;
@@ -73,7 +74,7 @@ function SpawnSkinHighlight(xPawn Pawn)
     {
         SkinHighlight = Pawn.Spawn(class'HxSkinHighlight', Pawn);
         Pawn.AttachToBone(SkinHighlight, 'spine');
-        SkinHighlight.SetupServer(SkinHighlightIntensity, CanForceModels());
+        SkinHighlight.SetupServer(SkinHighlightIntensity, SkinOverlayIntensity, CanForceModels());
     }
 }
 
@@ -83,7 +84,7 @@ function UpdateSkinHighlights()
 
     ForEach DynamicActors(class'HxSkinHighlight', SkinHighlight)
     {
-        SkinHighlight.SetIntensity(SkinHighlightIntensity);
+        SkinHighlight.SetIntensities(SkinHighlightIntensity, SkinOverlayIntensity);
         SkinHighlight.SetCanForceModels(CanForceModels());
         SkinHighlight.TriggerClientRestart();
         SkinHighlight.NetUpdateTime = Level.TimeSeconds - 1;
@@ -104,6 +105,7 @@ function PropertyChanged(int Index, string OldValue)
     switch (Properties[Index].Name)
     {
         case "SkinHighlightIntensity":
+        case "SkinOverlayIntensity":
         case "AllowForcedModels":
             UpdateSkinHighlights();
             break;
@@ -192,25 +194,27 @@ defaultproperties
     Properties(2)=(Name="bRequireLOS",Type=HX_PROPERTY_Bool)
     Properties(3)=(Name="bAllowSkinHighlight",Type=HX_PROPERTY_Bool)
     Properties(4)=(Name="SkinHighlightIntensity",Type=HX_PROPERTY_Float,LowerLimit="0.0",UpperLimit="1.0")
-    Properties(5)=(Name="AllowForcedModels",Type=HX_PROPERTY_Enum,UpperLimit="4",EnumType=enum'EHxForcedModel')
-    Properties(6)=(Name="ModelList",Type=HX_PROPERTY_Array)
-    Properties(7)=(Name="bAllowCustomViewSmoothing",Type=HX_PROPERTY_Bool)
-    Properties(8)=(Name="bAllowEnhancedScoreBoards",Type=HX_PROPERTY_Bool)
-    Properties(9)=(Name="bAllowSpawnProtectionTimer",Type=HX_PROPERTY_Bool)
-    Properties(10)=(Name="bColoredDeathMessages",Type=HX_PROPERTY_Bool)
-    Properties(11)=(Name="bHideDisabledFeatures",Type=HX_PROPERTY_Bool)
+    Properties(5)=(Name="SkinOverlayIntensity",Type=HX_PROPERTY_Float,LowerLimit="0.0",UpperLimit="1.0")
+    Properties(6)=(Name="AllowForcedModels",Type=HX_PROPERTY_Enum,UpperLimit="4",EnumType=enum'EHxForcedModel')
+    Properties(7)=(Name="ModelList",Type=HX_PROPERTY_Array)
+    Properties(8)=(Name="bAllowCustomViewSmoothing",Type=HX_PROPERTY_Bool)
+    Properties(9)=(Name="bAllowEnhancedScoreBoards",Type=HX_PROPERTY_Bool)
+    Properties(10)=(Name="bAllowSpawnProtectionTimer",Type=HX_PROPERTY_Bool)
+    Properties(11)=(Name="bColoredDeathMessages",Type=HX_PROPERTY_Bool)
+    Properties(12)=(Name="bHideDisabledFeatures",Type=HX_PROPERTY_Bool)
     DisplayInfo(0)=(Section="Hit Effects",Caption="Allow hit sounds",Hint="Allow clients to enable/disable hit sound effects.")
     DisplayInfo(1)=(Section="Hit Effects",Caption="Allow damage numbers",Hint="Allow clients to enable/disable damage number effects.")
     DisplayInfo(2)=(Section="Hit Effects",Caption="Require line of sight",Hint="Require line of sight between player and target to trigger hit effects.")
     DisplayInfo(3)=(Section="Skin Highlight",Caption="Allow skin highlight",Hint="Allow clients to enable/disable skin highlights.")
-    DisplayInfo(4)=(Section="Skin Highlight",Caption="Skin highlight intensity",Hint="Factor to multiply RGB values (between 0.0 and 1.0).",bAdvanced=true)
-    DisplayInfo(5)=(Section="Skin Highlight",Caption="Allow forced models",Hint="Allow client-side forced character models (requires skin highlight allowed).",EnumLabels=("None","Official only","From list","Any"),bAdvanced=true)
-    DisplayInfo(6)=(Section="Skin Highlight",Caption="Forced model list",Hint="List of character models to allow when using the 'from list' option.",bAdvanced=true)
-    DisplayInfo(7)=(Section="Player",Caption="Allow custom view smoothing",Hint="Allow clients to select different types of view smoothing.")
-    DisplayInfo(8)=(Section="HUD",Caption="Allow enhanced scoreboards",Hint="Allow clients to enable/disable the enhanced scoreboards.")
-    DisplayInfo(9)=(Section="HUD",Caption="Allow spawn protection timer",Hint="Allow clients to enable/disable the spawn protection timer.")
-    DisplayInfo(10)=(Section="HUD",Caption="Colored death messages",Hint="Use team colors in death messages (blue = killer and red = victim if no teams).")
-    DisplayInfo(11)=(Section="Configuration Menu",Caption="Hide disabled features from status",Hint="Hide disabled features from the server status list.")
+    DisplayInfo(4)=(Section="Skin Highlight",Caption="Skin highlight intensity",Hint="Factor to multiply the RGB values of highlights (between 0.0 and 1.0).",bAdvanced=true)
+    DisplayInfo(5)=(Section="Skin Highlight",Caption="Skin overlay intensity",Hint="Factor to multiply the RGB values of overlays (between 0.0 and 1.0).",bAdvanced=true)
+    DisplayInfo(6)=(Section="Skin Highlight",Caption="Allow forced models",Hint="Allow client-side forced character models (requires skin highlight allowed).",EnumLabels=("None","Official only","From list","Any"),bAdvanced=true)
+    DisplayInfo(7)=(Section="Skin Highlight",Caption="Forced model list",Hint="List of character models to allow when using the 'from list' option.",bAdvanced=true)
+    DisplayInfo(8)=(Section="Player",Caption="Allow custom view smoothing",Hint="Allow clients to select different types of view smoothing.")
+    DisplayInfo(9)=(Section="HUD",Caption="Allow enhanced scoreboards",Hint="Allow clients to enable/disable the enhanced scoreboards.")
+    DisplayInfo(10)=(Section="HUD",Caption="Allow spawn protection timer",Hint="Allow clients to enable/disable the spawn protection timer.")
+    DisplayInfo(11)=(Section="HUD",Caption="Colored death messages",Hint="Use team colors in death messages (blue = killer and red = victim if no teams).")
+    DisplayInfo(12)=(Section="Configuration Menu",Caption="Hide disabled features from status",Hint="Hide disabled features from the server status list.")
     bDisableTick=true
 
     bAllowHitSounds=true
@@ -218,6 +222,7 @@ defaultproperties
     bRequireLOS=false
     bAllowSkinHighlight=true
     SkinHighlightIntensity=0.42
+    SkinOverlayIntensity=0.55
     AllowForcedModels=HX_FM_OfficialOnly
     ModelList(0)="Jakob"
     ModelList(1)="Gorge"
