@@ -469,7 +469,7 @@ defaultproperties
         bAlwaysNotify=true
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
-        TabOrder=0
+        TabOrder=1
     End Object
     co_TeammateProtected=TeammateProtectedComboBox
 
@@ -482,7 +482,7 @@ defaultproperties
         bReadOnly=true
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
-        TabOrder=1
+        TabOrder=2
     End Object
     co_TeammateSkin=TeammateSkinComboBox
 
@@ -494,7 +494,7 @@ defaultproperties
         CaptionWidth=0.8
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
-        TabOrder=2
+        TabOrder=3
     End Object
     ch_ForceTeammateModel=ForceTeammateModel
 
@@ -517,7 +517,7 @@ defaultproperties
         StyleName="HxSquareButton"
         bRepeatClick=false
         OnClick=OnClickChangeTeammateModel
-        TabOrder=3
+        TabOrder=4
     End Object
     b_ChangeTeammateModel=ChangeTeammateModelButton
 
@@ -531,7 +531,7 @@ defaultproperties
         bAlwaysNotify=true
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
-        TabOrder=4
+        TabOrder=5
     End Object
     co_ShieldHit=ShieldHitComboBox
 
@@ -545,7 +545,7 @@ defaultproperties
         bAlwaysNotify=true
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
-        TabOrder=5
+        TabOrder=6
     End Object
     co_LinkHit=LinkHitComboBox
 
@@ -559,7 +559,7 @@ defaultproperties
         bAlwaysNotify=true
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
-        TabOrder=6
+        TabOrder=7
     End Object
     co_ShockHit=ShockHitComboBox
 
@@ -573,7 +573,7 @@ defaultproperties
         bAlwaysNotify=true
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
-        TabOrder=7
+        TabOrder=8
     End Object
     co_LightningHit=LightningHitComboBox
 
@@ -586,7 +586,7 @@ defaultproperties
         bReadOnly=true
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
-        TabOrder=8
+        TabOrder=9
     End Object
     co_Enemies=EnemiesComboBox
 
@@ -600,7 +600,7 @@ defaultproperties
         bAlwaysNotify=true
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
-        TabOrder=0
+        TabOrder=10
     End Object
     co_EnemyProtected=EnemyProtectedComboBox
 
@@ -613,7 +613,7 @@ defaultproperties
         bReadOnly=true
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
-        TabOrder=9
+        TabOrder=11
     End Object
     co_EnemySkin=EnemySkinComboBox
 
@@ -625,7 +625,7 @@ defaultproperties
         CaptionWidth=0.8
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
-        TabOrder=10
+        TabOrder=12
     End Object
     ch_ForceEnemyModel=ForceEnemyModel
 
@@ -648,7 +648,7 @@ defaultproperties
         StyleName="HxSquareButton"
         bRepeatClick=false
         OnClick=OnClickChangeEnemyModel
-        TabOrder=11
+        TabOrder=13
     End Object
     b_ChangeEnemyModel=ChangeEnemyModelButton
 
@@ -660,7 +660,7 @@ defaultproperties
         CaptionWidth=0.8
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
-        TabOrder=12
+        TabOrder=14
     End Object
     ch_Randomize=RandomizeCheckBox
 
@@ -672,7 +672,7 @@ defaultproperties
         CaptionWidth=0.8
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
-        TabOrder=13
+        TabOrder=15
     End Object
     ch_DisableOnDeadBodies=DisableOnDeadBodiesCheckBox
 
@@ -685,7 +685,7 @@ defaultproperties
         bReadOnly=true
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
-        TabOrder=14
+        TabOrder=16
     End Object
     co_HighlightMode=HighlightModeComboBox
 
@@ -698,7 +698,7 @@ defaultproperties
         bReadOnly=true
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
-        TabOrder=15
+        TabOrder=17
     End Object
     co_SpectateAs=SpectateAsComboBox
 
@@ -710,7 +710,7 @@ defaultproperties
         StyleName="HxSquareButton"
         bRepeatClick=false
         OnClick=OnClickCustomizeColors
-        TabOrder=16
+        TabOrder=18
     End Object
     b_CustomizeColors=CustomizeColorsBoxButton
 
