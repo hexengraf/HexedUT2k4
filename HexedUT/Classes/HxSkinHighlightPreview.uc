@@ -154,6 +154,11 @@ simulated function EHxSkinType GetSkinType()
     return ActiveSkin;
 }
 
+simulated function bool IsEnemy()
+{
+    return TeamNumber == 1;
+}
+
 simulated function ShowOverlay(Material Mat, optional bool bIsSpawnProtection)
 {
     bSpawnDone = !bIsSpawnProtection;
