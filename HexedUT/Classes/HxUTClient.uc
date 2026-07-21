@@ -8,13 +8,14 @@ struct HxDamageInfo
 
 const DAMAGE_CLUSTERING_INTERVAL = 0.02;
 
+var array<string> ModelList;
+
 var private HxHitEffects HitEffects;
 var private HxColors SkinHighlightColors;
 var private HxUTPlayer Player;
 var private HxSPTimer SPTimer;
 var private HxDamageInfo Damage;
 var private bool bInitialized;
-var private array<string> ModelList;
 
 replication
 {
@@ -210,7 +211,7 @@ simulated function UpdateSkinHighlightConfig()
     local HxSkinHighlightConfig Config;
 
     Config = HxSkinHighlightConfig(FindConfig(class'HxSkinHighlightConfig'));
-    Config.SetAllowed(GetServerProperty("AllowForcedModels"), ModelList);
+    Config.ApplyServerConfiguration(Self);
 }
 
 simulated function UpdateScoreBoardConfig()

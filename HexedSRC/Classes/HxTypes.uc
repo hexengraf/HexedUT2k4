@@ -83,3 +83,18 @@ static function bool ExtractVersion(coerce string FullName,
     return Divide(FullName, ".", PackageName, ClassName)
         && Divide(PackageName, "v", PackageName, Version);
 }
+
+static final function Color BlendColor(float Alpha, Color From, Color To)
+{
+    local Color Result;
+    local float Complement;
+
+    Alpha = FClamp(Alpha, 0.0, 1.0);
+    Alpha = Alpha * Alpha * (3.0 - (2.0 * Alpha));
+    Complement = 1.0 - Alpha;
+    Result.R = Clamp(Sqrt((From.R * From.R) * Alpha + (To.R * To.R) * Complement), 0, 255);
+    Result.G = Clamp(Sqrt((From.G * From.G) * Alpha + (To.G * To.G) * Complement), 0, 255);
+    Result.B = Clamp(Sqrt((From.B * From.B) * Alpha + (To.B * To.B) * Complement), 0, 255);
+    Result.A = To.A;
+    return Result;
+}

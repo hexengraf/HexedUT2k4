@@ -2,19 +2,18 @@ class HxGUIMenuSkinHighlightPanel extends HxGUIMenuPanel;
 
 const SECTION_TEAMMATES = 0;
 const SECTION_ENEMIES = 1;
-const SECTION_HIT_EFFECTS = 2;
+const SECTION_HIT_OVERLAYS = 2;
 const SECTION_ADVANCED = 3;
 
-const NO_HIGHLIGHT = "DISABLED";
-const DEFAULT_HIGHLIGHT = "DEFAULT";
-
 var automated moComboBox co_Teammates;
+var automated moComboBox co_TeammateProtected;
 var automated moComboBox co_TeammateSkin;
 var automated moCheckBox ch_ForceTeammateModel;
 var automated GUIButton b_TeammatePreviewBox;
 var automated GUIButton b_ChangeTeammateModel;
 
 var automated moComboBox co_Enemies;
+var automated moComboBox co_EnemyProtected;
 var automated moComboBox co_EnemySkin;
 var automated moCheckBox ch_ForceEnemyModel;
 var automated GUIButton b_EnemyPreviewBox;
@@ -32,6 +31,7 @@ var automated moComboBox co_SpectateAs;
 var automated GUIButton b_CustomizeColors;
 
 var localized string DisabledLabel;
+var localized string NativeLabel;
 var localized string DefaultLabel;
 var localized string SkinLabels[3];
 var localized string ModeLabels[2];
@@ -53,19 +53,21 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 
     super.InitComponent(MyController, MyOwner);
     Sections[SECTION_TEAMMATES].Insert(co_Teammates);
+    Sections[SECTION_TEAMMATES].Insert(co_TeammateProtected);
     Sections[SECTION_TEAMMATES].Insert(co_TeammateSkin);
     Sections[SECTION_TEAMMATES].Insert(ch_ForceTeammateModel);
     Sections[SECTION_TEAMMATES].Insert(b_ChangeTeammateModel);
     Sections[SECTION_TEAMMATES].Insert(b_TeammatePreviewBox);
     Sections[SECTION_ENEMIES].Insert(co_Enemies);
+    Sections[SECTION_ENEMIES].Insert(co_EnemyProtected);
     Sections[SECTION_ENEMIES].Insert(co_EnemySkin);
     Sections[SECTION_ENEMIES].Insert(ch_ForceEnemyModel);
     Sections[SECTION_ENEMIES].Insert(b_ChangeEnemyModel);
     Sections[SECTION_ENEMIES].Insert(b_EnemyPreviewBox);
-    Sections[SECTION_HIT_EFFECTS].Insert(co_ShieldHit);
-    Sections[SECTION_HIT_EFFECTS].Insert(co_LinkHit);
-    Sections[SECTION_HIT_EFFECTS].Insert(co_ShockHit);
-    Sections[SECTION_HIT_EFFECTS].Insert(co_LightningHit);
+    Sections[SECTION_HIT_OVERLAYS].Insert(co_ShieldHit);
+    Sections[SECTION_HIT_OVERLAYS].Insert(co_LinkHit);
+    Sections[SECTION_HIT_OVERLAYS].Insert(co_ShockHit);
+    Sections[SECTION_HIT_OVERLAYS].Insert(co_LightningHit);
     Sections[SECTION_ADVANCED].Insert(ch_Randomize);
     Sections[SECTION_ADVANCED].Insert(ch_DisableOnDeadBodies);
     Sections[SECTION_ADVANCED].Insert(co_HighlightMode);
@@ -168,17 +170,23 @@ function InternalOnChange(GUIComponent Sender)
     Config.SetProperty(Sender.Tag, GUIMenuOption(Sender).GetComponentValue());
     switch (Sender)
     {
+        case co_TeammateProtected:
+            TeammatePreview.ShowOverlay(class'HxSkinHighlight'.default.NativeOverlays[4], true);
+            break;
+        case co_EnemyProtected:
+            EnemyPreview.ShowOverlay(class'HxSkinHighlight'.default.NativeOverlays[4], true);
+            break;
         case co_ShieldHit:
-            FlashOnHitEffect(Shader'XGameShaders.PlayerShaders.PlayerShieldSh');
+            FlashOnHitEffect(class'HxSkinHighlight'.default.NativeOverlays[0]);
             break;
         case co_LinkHit:
-            FlashOnHitEffect(Shader'XGameShaders.PlayerShaders.LinkHit');
+            FlashOnHitEffect(class'HxSkinHighlight'.default.NativeOverlays[1]);
             break;
         case co_ShockHit:
-            FlashOnHitEffect(Shader'UT2004Weapons.Shaders.ShockHitShader');
+            FlashOnHitEffect(class'HxSkinHighlight'.default.NativeOverlays[2]);
             break;
         case co_LightningHit:
-            FlashOnHitEffect(Shader'XGameShaders.PlayerShaders.LightningHit');
+            FlashOnHitEffect(class'HxSkinHighlight'.default.NativeOverlays[3]);
             break;
         case co_HighlightMode:
             UpdateSectionHeaders();
@@ -199,16 +207,19 @@ function PopulateColorComboBoxes()
     ComboBoxes[3] = co_LinkHit;
     ComboBoxes[4] = co_ShockHit;
     ComboBoxes[5] = co_LightningHit;
+    ComboBoxes[6] = co_TeammateProtected;
+    ComboBoxes[7] = co_EnemyProtected;
 
     for (i = 0; i < ComboBoxes.Length; ++i)
     {
         ComboBoxes[i].MyComboBox.MyListBox.MyList.bInitializeList = false;
         ComboBoxes[i].ResetComponent();
-        ComboBoxes[i].AddItem(DisabledLabel,,NO_HIGHLIGHT);
+        ComboBoxes[i].AddItem(DisabledLabel,,class'HxSkinHighlight'.default.NoHighlight);
     }
     for (i = 2; i < ComboBoxes.Length; ++i)
     {
-        ComboBoxes[i].AddItem(DefaultLabel,,DEFAULT_HIGHLIGHT);
+        ComboBoxes[i].AddItem(NativeLabel,,class'HxSkinHighlight'.default.NativeHighlight);
+        ComboBoxes[i].AddItem(DefaultLabel,,class'HxSkinHighlight'.default.DefaultHighlight);
     }
     for (i = 0; i < ComboBoxes.Length; ++i)
     {
@@ -236,8 +247,8 @@ function UpdateSectionHeaders()
 
 function FlashOnHitEffect(Material OverlayMaterial)
 {
-    TeammatePreview.SetOverlayMaterial(OverlayMaterial, 1, true);
-    EnemyPreview.SetOverlayMaterial(OverlayMaterial, 1, true);
+    TeammatePreview.ShowOverlay(OverlayMaterial);
+    EnemyPreview.ShowOverlay(OverlayMaterial);
 }
 
 function bool TeammatePreviewOnDraw(Canvas C)
@@ -318,7 +329,7 @@ function OnCloseChangeTeammateModel(optional bool bCancelled)
         CharName = Controller.ActivePage.GetDataString();
         if (CharName != "")
         {
-            Config.SetProperty(12, CharName);
+            Config.SetProperty(14, CharName);
             TeammatePreview.Setup(Config.CurrentTeammateModel);
             UpdateSectionHeaders();
         }
@@ -350,7 +361,7 @@ function OnCloseChangeEnemyModel(optional bool bCancelled)
         CharName = Controller.ActivePage.GetDataString();
         if (CharName != "")
         {
-            Config.SetProperty(14, CharName);
+            Config.SetProperty(16, CharName);
             EnemyPreview.Setup(Config.CurrentEnemyModel);
             UpdateSectionHeaders();
         }
@@ -409,8 +420,8 @@ defaultproperties
         LineSpacing=0.012
         ColumnSpacing=0.01
         ColumnWidths=(0.6,0.4)
-        ExpandIndices=(-1,4)
-        MaxItemsPerColumn=4
+        ExpandIndices=(-1,5)
+        MaxItemsPerColumn=5
     End Object
 
     Begin Object class=HxGUIFramedSection Name=EnemiesSection
@@ -418,12 +429,12 @@ defaultproperties
         LineSpacing=0.012
         ColumnSpacing=0.01
         ColumnWidths=(0.6,0.4)
-        ExpandIndices=(-1,4)
-        MaxItemsPerColumn=4
+        ExpandIndices=(-1,5)
+        MaxItemsPerColumn=5
     End Object
 
-    Begin Object class=HxGUIFramedSection Name=HitEffectsSection
-        Caption="On-Hit Overlay Effects"
+    Begin Object class=HxGUIFramedSection Name=HitOverlaysSection
+        Caption="Hit Overlays"
         WinHeight=0.48
     End Object
 
@@ -437,7 +448,7 @@ defaultproperties
         Hint="Highlight color for you and your teammates."
         INIOption="@INTERNAL"
         Tag=0
-        CaptionWidth=0.42
+        CaptionWidth=0.45
         bReadOnly=true
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
@@ -445,12 +456,26 @@ defaultproperties
     End Object
     co_Teammates=TeammatesComboBox
 
+    Begin Object class=moComboBox Name=TeammateProtectedComboBox
+        Caption="Protected"
+        Hint="Spawn protection color for you and your teammates when highlight is enabled."
+        INIOption="@INTERNAL"
+        Tag=6
+        CaptionWidth=0.45
+        bReadOnly=true
+        bAlwaysNotify=true
+        OnLoadINI=InternalOnLoadINI
+        OnChange=InternalOnChange
+        TabOrder=0
+    End Object
+    co_TeammateProtected=TeammateProtectedComboBox
+
     Begin Object class=moComboBox Name=TeammateSkinComboBox
         Caption="Skin type"
         Hint="Skin type to use below the highlight color."
         INIOption="@INTERNAL"
-        Tag=6
-        CaptionWidth=0.42
+        Tag=8
+        CaptionWidth=0.45
         bReadOnly=true
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
@@ -462,7 +487,7 @@ defaultproperties
         Caption="Force model"
         Hint="Force the selected model on teammates."
         INIOption="@INTERNAL"
-        Tag=13
+        Tag=15
         CaptionWidth=0.8
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
@@ -500,6 +525,7 @@ defaultproperties
         Tag=2
         CaptionWidth=0.42
         bReadOnly=true
+        bAlwaysNotify=true
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
         TabOrder=4
@@ -513,6 +539,7 @@ defaultproperties
         Tag=3
         CaptionWidth=0.42
         bReadOnly=true
+        bAlwaysNotify=true
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
         TabOrder=5
@@ -526,6 +553,7 @@ defaultproperties
         Tag=4
         CaptionWidth=0.42
         bReadOnly=true
+        bAlwaysNotify=true
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
         TabOrder=6
@@ -539,6 +567,7 @@ defaultproperties
         Tag=5
         CaptionWidth=0.42
         bReadOnly=true
+        bAlwaysNotify=true
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
         TabOrder=7
@@ -547,10 +576,10 @@ defaultproperties
 
     Begin Object class=moComboBox Name=EnemiesComboBox
         Caption="Highlight"
-        Hint="Highlight color for you and your enemies."
+        Hint="Highlight color for your enemies."
         INIOption="@INTERNAL"
         Tag=1
-        CaptionWidth=0.42
+        CaptionWidth=0.45
         bReadOnly=true
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
@@ -558,12 +587,26 @@ defaultproperties
     End Object
     co_Enemies=EnemiesComboBox
 
+    Begin Object class=moComboBox Name=EnemyProtectedComboBox
+        Caption="Protected"
+        Hint="Spawn protection color for your enemies when highlight is enabled."
+        INIOption="@INTERNAL"
+        Tag=7
+        CaptionWidth=0.45
+        bReadOnly=true
+        bAlwaysNotify=true
+        OnLoadINI=InternalOnLoadINI
+        OnChange=InternalOnChange
+        TabOrder=0
+    End Object
+    co_EnemyProtected=EnemyProtectedComboBox
+
     Begin Object class=moComboBox Name=EnemySkinComboBox
         Caption="Skin type"
         Hint="Skin type to use below the highlight color."
         INIOption="@INTERNAL"
-        Tag=7
-        CaptionWidth=0.42
+        Tag=9
+        CaptionWidth=0.45
         bReadOnly=true
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
@@ -575,7 +618,7 @@ defaultproperties
         Caption="Force model"
         Hint="Force the selected model on enemies."
         INIOption="@INTERNAL"
-        Tag=15
+        Tag=17
         CaptionWidth=0.8
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
@@ -610,7 +653,7 @@ defaultproperties
         Caption="Randomize highlights"
         Hint="Assign a random highlight to each player. Only applies to DM and other modes with no teams."
         INIOption="@INTERNAL"
-        Tag=8
+        Tag=10
         CaptionWidth=0.8
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
@@ -622,7 +665,7 @@ defaultproperties
         Caption="Disable highlight on dead bodies"
         Hint="Disable any active highlights on dead bodies."
         INIOption="@INTERNAL"
-        Tag=9
+        Tag=11
         CaptionWidth=0.8
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
@@ -634,7 +677,7 @@ defaultproperties
         Caption="Highlight mode"
         Hint="Choose if highlight is applied based on roles (teammates/enemies) or based on teams (red/blue)."
         INIOption="@INTERNAL"
-        Tag=10
+        Tag=12
         CaptionWidth=0.42
         bReadOnly=true
         OnLoadINI=InternalOnLoadINI
@@ -647,7 +690,7 @@ defaultproperties
         Caption="Spectate as"
         Hint="Select which team's perspective to spectate as."
         INIOption="@INTERNAL"
-        Tag=11
+        Tag=13
         CaptionWidth=0.42
         bReadOnly=true
         OnLoadINI=InternalOnLoadINI
@@ -675,9 +718,10 @@ defaultproperties
     bFillPanelHeight=false
     Sections(0)=TeammatesSection
     Sections(1)=EnemiesSection
-    Sections(2)=HitEffectsSection
+    Sections(2)=HitOverlaysSection
     Sections(3)=AdvancedSection
     DisabledLabel="Disabled"
+    NativeLabel="Native"
     DefaultLabel="Default"
     SkinLabels(0)="Red Team"
     SkinLabels(1)="Blue Team"

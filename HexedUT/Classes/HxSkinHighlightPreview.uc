@@ -128,44 +128,6 @@ state Reskin
     }
 }
 
-state Enabled
-{
-    simulated function TryGotoStateOverlayed()
-    {
-        HitIndex = GetHitOverlayIndex();
-        if (HitIndex < 0 || bDisableHitEffect[HitIndex] == 0)
-        {
-            GotoState('Overlayed');
-        }
-    }
-
-    simulated function Restart()
-    {
-        if (OriginalSkins.Length > 0)
-        {
-            Base.Skins = OriginalSkins;
-        }
-        Global.Restart();
-    }
-
-    simulated function ToggleBaseSkins()
-    {
-        local array<Material> TempSkins;
-
-        TempSkins = Base.Skins;
-        Base.Skins = BaseSkins;
-        BaseSkins = TempSkins;
-    }
-}
-
-state Overlayed
-{
-    simulated function TryGotoEnableState()
-    {
-        GotoState('Enabled');
-    }
-}
-
 simulated function string GetHighlightColorName()
 {
     if (TeamNumber == 0)
@@ -192,9 +154,10 @@ simulated function EHxSkinType GetSkinType()
     return ActiveSkin;
 }
 
-simulated function SetOverlayMaterial(Material Mat, float Time, bool bOverride)
+simulated function ShowOverlay(Material Mat, optional bool bIsSpawnProtection)
 {
-    Base.SetOverlayMaterial(Mat, Time, bOverride);
+    bSpawnDone = !bIsSpawnProtection;
+    Base.SetOverlayMaterial(Mat, 1, true);
 }
 
 defaultproperties
