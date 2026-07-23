@@ -124,22 +124,31 @@ function array<string> GetArrayProperty(int Index)
     return Super.GetArrayProperty(Index);
 }
 
-function RegisterDamage(int Damage, Pawn Injured, Pawn Inflictor, class<DamageType> Type)
+function RegisterDamage(int Damage,
+                        Pawn Injured,
+                        Pawn Inflictor,
+                        vector HitLocation,
+                        class<DamageType> Type)
 {
     local PlayerController PC;
+    local HxUTClient Client;
     local int i;
 
-    if (bAllowHitSounds || bAllowDamageNumbers)
+    if ((bAllowHitSounds || bAllowDamageNumbers) && CheckLOS(Injured, Inflictor))
     {
-        if (!bRequireLOS
-            || FastTrace(Injured.Location, Inflictor.Location + Inflictor.EyePosition()))
+        for (i = 0; i < CRIs.Length; ++i)
         {
-            for (i = 0; i < CRIs.Length; ++i)
+            Client = HxUTClient(CRIs[i]);
+            PC = PlayerController(Client.Owner);
+            if (PC != None && PC.ViewTarget == Inflictor)
             {
-                PC = PlayerController(CRIs[i].Owner);
-                if (PC != None && PC.ViewTarget == Inflictor)
+                if (bAllowHitSounds)
                 {
-                    HxUTClient(CRIs[i]).UpdateDamage(Damage, Injured, Inflictor, Type);
+                    Client.QueueHitSound(Damage);
+                }
+                if (bAllowDamageNumbers)
+                {
+                    Client.ClientDisplayDamageNumber(Damage);
                 }
             }
         }
@@ -162,6 +171,12 @@ function RegisterSpawn(Pawn Spawned)
             }
         }
     }
+}
+
+final function bool CheckLOS(Pawn Injured, Pawn Inflictor)
+{
+    return !bRequireLOS
+        || FastTrace(Injured.Location, Inflictor.Location + Inflictor.EyePosition());
 }
 
 static function string GetEnumLabel(int Index, string Value)

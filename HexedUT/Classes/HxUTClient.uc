@@ -1,12 +1,12 @@
 class HxUTClient extends HxClientReplicationInfo;
 
-struct HxDamageInfo
+struct HxHitSoundInfo
 {
     var int Value;
     var float Timestamp;
 };
 
-const DAMAGE_CLUSTERING_INTERVAL = 0.02;
+const HIT_SOUND_INTERVAL = 0.02;
 
 var array<string> ModelList;
 
@@ -14,13 +14,14 @@ var private HxHitEffects HitEffects;
 var private HxColors SkinHighlightColors;
 var private HxUTPlayer Player;
 var private HxSPTimer SPTimer;
-var private HxDamageInfo Damage;
+var private HxHitSoundInfo HitSound;
 var private bool bInitialized;
 
 replication
 {
     reliable if (Role == ROLE_Authority)
-        ClientUpdateHitEffects,
+        ClientPlayHitSound,
+        ClientDisplayDamageNumber,
         ClientNotifySpawn;
 }
 
@@ -56,24 +57,32 @@ simulated event Tick(float DeltaTime)
 
 function ServerTick(float DeltaTime)
 {
-    if (Damage.Value > 0 && Level.TimeSeconds - Damage.Timestamp >= DAMAGE_CLUSTERING_INTERVAL)
+    if (HitSound.Value > 0 && Level.TimeSeconds - HitSound.Timestamp >= HIT_SOUND_INTERVAL)
     {
-        ClientUpdateHitEffects(Damage.Value);
-        Damage.Value = 0;
+        ClientPlayHitSound(HitSound.Value);
+        HitSound.Value = 0;
     }
 }
 
-function UpdateDamage(int Value, Pawn Injured, Pawn Inflictor, class<DamageType> Type)
+function QueueHitSound(int Value)
 {
-    Damage.Timestamp = Level.TimeSeconds;
-    Damage.Value += Value;
+    HitSound.Timestamp = Level.TimeSeconds;
+    HitSound.Value += Value;
 }
 
-simulated function ClientUpdateHitEffects(int Damage)
+simulated function ClientPlayHitSound(int Damage)
 {
-    if (Level.NetMode != NM_DedicatedServer && HitEffects != None)
+    if (HitEffects != None)
     {
-        HitEffects.Update(Damage);
+        HitEffects.PlayHitSound(Damage);
+    }
+}
+
+simulated function ClientDisplayDamageNumber(int Damage)
+{
+    if (HitEffects != None)
+    {
+        HitEffects.DisplayDamageNumber(Damage);
     }
 }
 
@@ -124,7 +133,6 @@ simulated function bool InitializeClient()
             if (HitEffects == None)
             {
                 HitEffects = HxHitEffects(SpawnOverlay(PlayerOwner.myHUD, class'HxHitEffects'));
-                HitEffects.ApplyServerConfiguration(Self);
             }
             if (SPTimer == None)
             {
@@ -141,10 +149,6 @@ simulated function NotifyServerPropertiesReady()
     {
         Player.ApplyServerConfiguration(Self);
     }
-    if (HitEffects != None)
-    {
-        HitEffects.ApplyServerConfiguration(Self);
-    }
     UpdateScoreBoardConfig();
     UpdateSkinHighlightConfig();
 }
@@ -153,13 +157,6 @@ simulated function NotifyServerPropertyChanged(int Index, string OldValue)
 {
     switch (MutatorClass.default.Properties[Index].Name)
     {
-        case "bAllowHitSounds":
-        case "bAllowDamageNumbers":
-            if (HitEffects != None)
-            {
-                HitEffects.ApplyServerConfiguration(Self);
-            }
-            break;
         case "AllowForcedModels":
         case "ModelList":
             UpdateSkinHighlightConfig();

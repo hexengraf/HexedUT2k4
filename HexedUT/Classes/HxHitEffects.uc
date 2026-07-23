@@ -76,8 +76,6 @@ var array<string> CustomHitSounds;
 
 var private const Sound BuiltInHitSounds[6];
 var private PlayerController PC;
-var private bool bAllowHitSounds;
-var private bool bAllowDamageNumbers;
 var private HxDamagePoint DamagePoints[5];
 var private array<HxDisplayWidget> Widgets;
 var private Sound LoadedHitSound;
@@ -260,13 +258,9 @@ simulated function DrawPreview(Canvas C, int i)
     C.DrawText(DamagePoints[i].Value);
 }
 
-simulated function Update(int Damage)
+simulated function DisplayDamageNumber(int Damage)
 {
-    if (bAllowHitSounds && bHitSounds)
-    {
-        PlayHitSound(Damage);
-    }
-    if (bAllowDamageNumbers && bDamageNumbers)
+    if (bDamageNumbers)
     {
         UpdateWidgets(Damage);
     }
@@ -274,7 +268,7 @@ simulated function Update(int Damage)
 
 simulated function PlayHitSound(int Damage)
 {
-    if (PC.ViewTarget != None)
+    if (bHitSounds && PC.ViewTarget != None)
     {
         PC.ViewTarget.PlaySound(LoadedHitSound,,HitSoundVolume,,,GetPitch(Damage));
     }
@@ -442,12 +436,6 @@ simulated function SetProperty(string Name, string Value)
             DamagePoints[4] = ExtremeDamage;
             break;
     }
-}
-
-simulated function ApplyServerConfiguration(HxUTClient Client)
-{
-    bAllowHitSounds = bool(Client.GetServerProperty("bAllowHitSounds"));
-    bAllowDamageNumbers = bool(Client.GetServerProperty("bAllowDamageNumbers"));
 }
 
 simulated function bool IsHitSoundChanged()

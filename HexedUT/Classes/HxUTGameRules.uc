@@ -32,7 +32,7 @@ function int NetDamage(int Original,
     if (Damage > 0 && Inflictor != None && Injured != None
         && Injured != Inflictor && IsEnemy(Injured, Inflictor))
     {
-        HexedUT.RegisterDamage(Damage, Injured, Inflictor, Type);
+        HexedUT.RegisterDamage(Damage, Injured, Inflictor, Location, Type);
     }
     return Damage;
 }
