@@ -143,18 +143,22 @@ function Refresh()
     {
         HighlightIntensity = float(Client.GetServerProperty("SkinHighlightIntensity"));
         OverlayIntensity = float(Client.GetServerProperty("SkinOverlayIntensity"));
+        SetPropertyText("AllowHitOverlays", Client.GetServerProperty("AllowHitOverlays"));
     }
     if (TeammatePreview != None)
     {
         TeammatePreview.SetIntensities(HighlightIntensity, OverlayIntensity);
+        TeammatePreview.SetAllowHitOverlays(Config.AllowHitOverlays);
         TeammatePreview.Setup(Config.CurrentTeammateModel);
     }
     if (EnemyPreview != None)
     {
         EnemyPreview.SetIntensities(HighlightIntensity, OverlayIntensity);
+        EnemyPreview.SetAllowHitOverlays(Config.AllowHitOverlays);
         EnemyPreview.Setup(Config.CurrentEnemyModel);
     }
     bCanForceModels = Config.CanForceModels();
+    Sections[SECTION_HIT_OVERLAYS].SetHide(Config.AllowHitOverlays != HX_HO_UserControlled);
     SetEnable(ch_ForceTeammateModel, bCanForceModels);
     SetEnable(b_ChangeTeammateModel, bCanForceModels);
     SetEnable(ch_ForceEnemyModel, bCanForceModels);

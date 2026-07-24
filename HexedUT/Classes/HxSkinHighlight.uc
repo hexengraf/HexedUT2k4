@@ -43,7 +43,8 @@ var const Material NativeOverlays[5];
 var protected int TeamNumber;
 var protected float BaseIntensity;
 var protected float OverlayIntensity;
-var protected bool bCanForceModels;
+var protected MutHexedUT.EHxHitOverlay AllowHitOverlays;
+var protected bool bAllowForcedModels;
 var protected bool bProtectionEnded;
 var protected bool bOldProtectionEnded;
 var protected bool bDead;
@@ -72,7 +73,12 @@ var protected xUtil.PlayerRecord PlayerRecord;
 replication
 {
     reliable if (Role == ROLE_Authority)
-        TeamNumber, BaseIntensity, OverlayIntensity, bCanForceModels, bProtectionEnded;
+        TeamNumber,
+        BaseIntensity,
+        OverlayIntensity,
+        AllowHitOverlays,
+        bAllowForcedModels,
+        bProtectionEnded;
 }
 
 simulated event PostBeginPlay()
@@ -88,11 +94,13 @@ simulated event PostBeginPlay()
 
 function SetupServer(float ServerBaseIntensity,
                      float ServerOverlayIntensity,
-                     bool bServerCanForcedModels)
+                     MutHexedUT.EHxHitOverlay SeverAllowHitOverlays,
+                     bool bServerAllowForcedModels)
 {
     SetTeamNumber(GetTeamNum(xPawn(Base)));
     SetIntensities(ServerBaseIntensity, ServerOverlayIntensity);
-    SetCanForceModels(bServerCanForcedModels);
+    SetAllowHitOverlays(SeverAllowHitOverlays);
+    SetAllowForcedModels(bServerAllowForcedModels);
 }
 
 simulated function ClientTrigger()
@@ -103,6 +111,10 @@ simulated function ClientTrigger()
 function TriggerClientRestart()
 {
     bClientTrigger = !bClientTrigger;
+    if (Level.NetMode != NM_DedicatedServer)
+    {
+        Restart();
+    }
 }
 
 final function SetTeamNumber(int Value)
@@ -116,9 +128,14 @@ final function SetIntensities(float Base, float Overlay)
     OverlayIntensity = Overlay;
 }
 
-final function SetCanForceModels(bool bValue)
+final function SetAllowHitOverlays(MutHexedUT.EHxHitOverlay Value)
 {
-    bCanForceModels = bValue;
+    AllowHitOverlays = Value;
+}
+
+final function SetAllowForcedModels(bool bValue)
+{
+    bAllowForcedModels = bValue;
 }
 
 simulated event Destroyed()
@@ -170,18 +187,16 @@ auto state Startup
         {
             PC = Level.GetLocalPlayerController();
         }
-        if (BaseIntensity >= 0 && OverlayIntensity >= 0 && TeamNumber > -1 && Colors != None
-            && PC != None && PC.PlayerReplicationInfo != None && Level.GRI != None)
+        if (IsReplicationDone())
         {
             LocalPlayerTeam = GetLocalPlayerTeam();
             if (ValidateCharacterModel())
             {
                 SkinType = GetSkinType();
-                ParseOverlays();
                 if (Colors.Find(GetHighlightColorName(), MainColor) > -1)
                 {
-                    MainColor = MainColor * BaseIntensity;
-                    MainColor.A = 255;
+                    ParseOverlays();
+                    MainColor = ApplyIntensity(MainColor, BaseIntensity);
                     HighlightTint.Color = MainColor;
                     GotoState('Reskin');
                 }
@@ -195,8 +210,10 @@ auto state Startup
 
     simulated function ParseOverlays()
     {
+        local bool bDisableHitOverlays;
         local int i;
 
+        bDisableHitOverlays = AllowHitOverlays == HX_HO_Disabled;
         for (i = 0; i < ArrayCount(OverlayColors); ++i)
         {
             OverlayColors[i].R = Min(default.OverlayColors[i].R * OverlayIntensity, 255);
@@ -204,11 +221,12 @@ auto state Startup
             OverlayColors[i].B = Min(default.OverlayColors[i].B * OverlayIntensity, 255);
             OverlayColors[i].A = default.OverlayColors[i].A;
             ReplaceOverlays[i] = NativeOverlays[i];
+            bDisableOverlays[i] = byte(bDisableHitOverlays);
         }
-        ParseOverlay(0, ShieldHit);
-        ParseOverlay(1, LinkHit);
-        ParseOverlay(2, ShockHit);
-        ParseOverlay(3, LightningHit);
+        ParseHitOverlay(0, ShieldHit);
+        ParseHitOverlay(1, LinkHit);
+        ParseHitOverlay(2, ShockHit);
+        ParseHitOverlay(3, LightningHit);
         ParseOverlay(4, Eval(IsEnemy(), EnemyProtected, TeammateProtected));
     }
 
@@ -220,9 +238,26 @@ auto state Startup
         }
         else if (HighlightName != DefaultHighlight)
         {
-            OverlayColors[Index] = GetOverlayColor(HighlightName);
+            Colors.Find(HighlightName, OverlayColors[Index]);
+            OverlayColors[Index] = ApplyIntensity(OverlayColors[Index], OverlayIntensity);
         }
         bDisableOverlays[Index] = byte(HighlightName == NoHighlight);
+    }
+
+    simulated function ParseHitOverlay(int Index, string HighlightName)
+    {
+        switch (AllowHitOverlays)
+        {
+            case HX_HO_ForceNative:
+                ReplaceOverlays[Index] = None;
+                break;
+            case HX_HO_IntensityOnly:
+                OverlayColors[Index] = ApplyIntensity(MainColor, OverlayIntensity);
+                break;
+            case HX_HO_UserControlled:
+                ParseOverlay(Index, HighlightName);
+                break;
+        }
     }
 
     simulated function bool ValidateCharacterModel()
@@ -247,7 +282,7 @@ auto state Startup
             if (!Pawn.bPlayedDeath && Pawn.Health > 0)
             {
                 bEnemy = IsEnemy();
-                if (!bCanForceModels || (bEnemy && !bForceEnemyModel)
+                if (!bAllowForcedModels || (bEnemy && !bForceEnemyModel)
                     || (!bEnemy && !bForceTeammateModel))
                 {
                     Model = GetExpectedCharacterModel(Pawn);
@@ -815,17 +850,6 @@ simulated function bool IsEnemy()
     return TeamNumber != LocalPlayerTeam;
 }
 
-simulated function Color GetOverlayColor(string Name)
-{
-    local Color Result;
-
-    Colors.Find(Name, Result);
-    Result.R = Min(Result.R * OverlayIntensity, 255);
-    Result.G = Min(Result.G * OverlayIntensity, 255);
-    Result.B = Min(Result.B * OverlayIntensity, 255);
-    return Result;
-}
-
 simulated function int GetOverlayIndex()
 {
     local int ProtectedOverlay;
@@ -883,6 +907,18 @@ simulated function Material GetSkinReplacement(coerce string Name)
         }
     }
     return Skin;
+}
+
+simulated final function bool IsReplicationDone()
+{
+    return BaseIntensity >= 0
+        && OverlayIntensity >= 0
+        && AllowHitOverlays != HX_HO_Invalid
+        && TeamNumber > -1
+        && Colors != None
+        && PC != None
+        && PC.PlayerReplicationInfo != None
+        && Level.GRI != None;
 }
 
 static final function Texture GetTextureFromMaterial(Material Material)
@@ -961,6 +997,15 @@ static final function bool IsProtectionEnded(xPawn Pawn)
         >= DeathMatch(Pawn.Level.Game).SpawnProtectionTime;
 }
 
+static final function Color ApplyIntensity(Color C, float Intensity)
+{
+    C.R = Min(C.R * Intensity, 255);
+    C.G = Min(C.G * Intensity, 255);
+    C.B = Min(C.B * Intensity, 255);
+    C.A = 255;
+    return C;
+}
+
 defaultproperties
 {
     NoHighlight="DISABLED"
@@ -981,6 +1026,7 @@ defaultproperties
     TeamNumber=-1
     BaseIntensity=-1
     OverlayIntensity=-1
+    AllowHitOverlays=HX_HO_Invalid
     LocalPlayerTeam=255
     OverlayColors(0)=(R=230,G=180,B=32,A=255)
     OverlayColors(1)=(R=32,G=220,B=100,A=255)

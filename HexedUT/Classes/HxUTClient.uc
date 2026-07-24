@@ -157,6 +157,7 @@ simulated function NotifyServerPropertyChanged(int Index, string OldValue)
 {
     switch (MutatorClass.default.Properties[Index].Name)
     {
+        case "AllowHitOverlays":
         case "AllowForcedModels":
         case "ModelList":
             UpdateSkinHighlightConfig();
@@ -177,6 +178,10 @@ simulated function bool ShouldHideServerPropertyFromStatus(int Index)
 {
     if (bool(GetServerProperty("bHideDisabledFeatures")))
     {
+        if (IsAdmin())
+        {
+            return Super.ShouldHideServerPropertyFromStatus(Index);
+        }
         switch (MutatorClass.default.Properties[Index].Name)
         {
             case "bRequireLOS":
@@ -185,8 +190,10 @@ simulated function bool ShouldHideServerPropertyFromStatus(int Index)
             case "SkinHighlightIntensity":
             case "SkinOverlayIntensity":
                 return !bool(GetServerProperty("bAllowSkinHighlight"));
+            case "AllowHitOverlays":
+                return ShouldHideAllowHitOverlays();
             case "AllowForcedModels":
-                return !bool(GetServerProperty("bAllowSkinHighlight")) || !IsForcedModelAllowed();
+                return ShouldHideAllowForcedModels();
             case "ModelList":
             case "bHideDisabledFeatures":
                 return true;
@@ -196,12 +203,28 @@ simulated function bool ShouldHideServerPropertyFromStatus(int Index)
     return Super.ShouldHideServerPropertyFromStatus(Index);
 }
 
-simulated function bool IsForcedModelAllowed()
+simulated function bool ShouldHideAllowHitOverlays()
 {
     local HxSkinHighlightConfig Config;
 
-    Config = HxSkinHighlightConfig(FindConfig(class'HxSkinHighlightConfig'));
-    return config.AllowForcedModels != HX_FM_None;
+    if (bool(GetServerProperty("bAllowSkinHighlight")))
+    {
+        Config = HxSkinHighlightConfig(FindConfig(class'HxSkinHighlightConfig'));
+        return Config.AllowHitOverlays != HX_HO_UserControlled;
+    }
+    return true;
+}
+
+simulated function bool ShouldHideAllowForcedModels()
+{
+    local HxSkinHighlightConfig Config;
+
+    if (bool(GetServerProperty("bAllowSkinHighlight")))
+    {
+        Config = HxSkinHighlightConfig(FindConfig(class'HxSkinHighlightConfig'));
+        return Config.AllowForcedModels != HX_FM_Any;
+    }
+    return true;
 }
 
 simulated function UpdateSkinHighlightConfig()

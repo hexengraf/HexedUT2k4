@@ -64,6 +64,7 @@ event Opened(GUIComponent Sender)
         Preview = ClientManager.Spawn(class'HxSkinHighlightPreview');
         Preview.DisplayFOV = 33;
         Preview.SetIntensities(HighlightIntensity, OverlayIntensity);
+        Preview.SetAllowHitOverlays(Config.AllowHitOverlays);
         Preview.SetTeamNumber(2);
         Preview.SetPropertyText("ActiveColor", co_EditColor.GetComponentValue());
         Preview.SetPropertyText("ActiveSkin", co_PreviewSkin.GetComponentValue());

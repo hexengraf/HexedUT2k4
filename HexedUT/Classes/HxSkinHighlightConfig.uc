@@ -23,6 +23,7 @@ var config string PreferredEnemyModel;
 var config string CurrentEnemyModel;
 var config bool bForceEnemyModel;
 
+var MutHexedUT.EHxHitOverlay AllowHitOverlays;
 var MutHexedUT.EHxForcedModel AllowForcedModels;
 var private array<string> ModelList;
 var private const array<string> OfficialModelList;
@@ -262,6 +263,7 @@ function string ValidateString(int Index, string Value)
 
 function ApplyServerConfiguration(HxUTClient Client)
 {
+    SetPropertyText("AllowHitOverlays", Client.GetServerProperty("AllowHitOverlays"));
     SetPropertyText("AllowForcedModels", Client.GetServerProperty("AllowForcedModels"));
     ModelList = Client.ModelList;
     switch (AllowForcedModels)
