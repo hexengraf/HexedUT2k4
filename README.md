@@ -219,7 +219,15 @@ bAllowSkinHighlight=True
 ; Factor to multiply the RGB values of highlights (between 0.0 and 1.0).
 SkinHighlightIntensity=0.42
 ; Factor to multiply the RGB values of overlays (between 0.0 and 1.0).
-SkinHighlightIntensity=0.55
+SkinOverlayIntensity=0.55
+; Control which kinds of hit overlays are allowed when highlight is enabled.
+; Possible values:
+;   HX_HO_UserControlled - allows each player to decide the colors for each hit overlay.
+;   HX_HO_ForceDefault - force all hit overlays to use the default colors.
+;   HX_HO_ForceNative - force all hit overlays to use the native game effects.
+;   HX_HO_IntensityOnly - force all hit overlays to use the same color as the highlight, only changing the intensity applied.
+;   HX_HO_Disabled - force all hit overlays to be disabled.
+AllowHitOverlays=HX_HO_UserControlled
 ; Allow client-side forced character models. Requires bAllowSkinHighlight=True to work.
 ; Possible values:
 ;   HX_FM_None - don't allow forced models.

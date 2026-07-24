@@ -19,10 +19,15 @@ HexedUT changes:
   * Added "NATIVE" as an option to allow using the native overlays.
 * Added new server option to control the intensity used for skin overlays (`SkinOverlayIntensity`).
   * Works the same as `SkinHighlightIntensity`, but applies to the colored overlays instead.
+* Added new server option to control hit overlays (`AllowHitOverlays`).
+  * Decide if players can freely control the colors used for hit overlays or force a specific kind. Check the README for more details.
 * Fixed some character models having translucent textures when skin highlight is active.
 * Fixed missing destruction of skin highlight actors which could cause temporary lingering of open replication channels.
 * Reworked font selection for damage numbers: it can now automatically choose the appropriate font for your resolution.
   * On first run the mutator will automatically override your `DisplayFontName` to `AUTOSELECT`, if you're using a custom font you will need to set it back.
+* Simplified display modes for damage numbers.
+  * Removed the old "float" options since they can't handle simultaneous hits well.
+  * Renamed the enumeration values to use more meaningful names.
 * Added new server-side option for hit effects (`bRequireLOS`): decide if line of sight is required between player and target to trigger hit sounds and damage numbers.
   * Off by default, competitive servers might want this on.
 * Added new server-side option to hide disabled features from the server status (`bHideDisabledFeatures`).
