@@ -16,11 +16,9 @@ enum EHxPitchMode
 
 enum EHxDisplayMode
 {
-    HX_DISPLAY_Static,
-    HX_DISPLAY_StaticTotal,
-    HX_DISPLAY_StaticDual,
-    HX_DISPLAY_Float,
-    HX_DISPLAY_FloatDual,
+    HX_DMGNUM_Total,
+    HX_DMGNUM_LastHit,
+    HX_DMGNUM_LastHitAndTotal,
 };
 
 struct HxDisplayWidget
@@ -51,11 +49,9 @@ const FONT_SCALE_MIN = 0.70;
 const FONT_SCALE_SPECTRUM = 0.30; // 1 - FONT_SCALE_MIN
 const REFERENCE_SCREEN_X = 3840;
 
-const DN_STATIC_INDEX = 0;
-const DN_TOTAL_INDEX = 1;
-const DN_NORMAL_DURATION = 1.0;
-const DN_EXTENDED_DURATION = 1.5;
-const DN_TRAVEL = 0.15;
+const DMGNUM_LAST_HIT = 0;
+const DMGNUM_TOTAL = 1;
+const DMGNUM_DURATION = 1.0;
 
 var bool bHitSounds;
 var string HitSoundName;
@@ -77,7 +73,7 @@ var array<string> CustomHitSounds;
 var private const Sound BuiltInHitSounds[6];
 var private PlayerController PC;
 var private HxDamagePoint DamagePoints[5];
-var private array<HxDisplayWidget> Widgets;
+var private HxDisplayWidget Widgets[2];
 var private Sound LoadedHitSound;
 var private Font LoadedFont;
 var private float ScreenWidth;
@@ -86,12 +82,17 @@ var private float DualOffset;
 
 simulated event PostBeginPlay()
 {
-    super.PostBeginPlay();
+    local int i;
+
+    Super.PostBeginPlay();
     if (HUD(Owner) != None)
     {
         PC = HUD(Owner).PlayerOwner;
     }
-    InitializeWidgets();
+    for (i = 0; i < ArrayCount(Widgets); ++i)
+    {
+        InitializeWidget(i);
+    }
     LoadHitSound();
     LoadDamagePoints();
 }
@@ -136,40 +137,22 @@ simulated function LoadDamagePoints()
     DamagePoints[4] = ExtremeDamage;
 }
 
-simulated function InitializeWidgets()
-{
-    local int i;
-
-    Widgets.Length = DN_TOTAL_INDEX + 1;
-    for (i = 0; i < Widgets.Length; ++i)
-    {
-        InitializeWidget(i);
-    }
-}
-
 simulated function InitializeWidget(int i)
 {
     Widgets[i].Value = 0;
     Widgets[i].DeltaY = 0;
-    Widgets[i].Duration = DN_NORMAL_DURATION;
+    Widgets[i].Duration = DMGNUM_DURATION / Level.TimeDilation;
 }
 
 simulated Event Tick(float DeltaTime)
 {
-    local bool bKeepSize;
     local int i;
 
-    bKeepSize = Widgets.Length == DN_TOTAL_INDEX + 1;
-
-    for (i = 0; i < Widgets.Length; ++i)
+    for (i = 0; i < ArrayCount(Widgets); ++i)
     {
         if (Widgets[i].Value > 0)
         {
-            Widgets[i].Duration -= DeltaTime;
-            if (i > DN_TOTAL_INDEX && TickFloatWidgets(i, DeltaTime))
-            {
-                bKeepSize = true;
-            }
+            Widgets[i].Duration -= DeltaTime / Level.TimeDilation;
             if (Widgets[i].Duration <= 0)
             {
                 InitializeWidget(i);
@@ -180,29 +163,6 @@ simulated Event Tick(float DeltaTime)
             }
         }
     }
-    if (!bKeepSize)
-    {
-        Widgets.Length = DN_TOTAL_INDEX + 1;
-    }
-}
-
-simulated function bool TickFloatWidgets(int i, float DeltaTime)
-{
-    if (Widgets[i].Duration > 0)
-    {
-        Widgets[i].DeltaY -= DeltaTime * DN_TRAVEL;
-        return true;
-    }
-    if (DisplayMode == HX_DISPLAY_FloatDual)
-    {
-        if (Widgets[DN_TOTAL_INDEX].Value == 0)
-        {
-            Widgets[DN_TOTAL_INDEX].DeltaY = -DN_TRAVEL - DeltaTime * DN_TRAVEL;
-        }
-        UpdateWidget(DN_TOTAL_INDEX, Widgets[i].Value);
-        Widgets[DN_TOTAL_INDEX].Duration = DN_EXTENDED_DURATION;
-    }
-    return false;
 }
 
 simulated function Render(Canvas C)
@@ -219,7 +179,7 @@ simulated function Render(Canvas C)
     }
     SavedFontScaleX = C.FontScaleX;
     SavedFontScaleY = C.FontScaleY;
-    for (i = 0; i < Widgets.Length; ++i)
+    for (i = 0; i < ArrayCount(Widgets); ++i)
     {
         if (Widgets[i].Value > 0)
         {
@@ -262,8 +222,38 @@ simulated function DisplayDamageNumber(int Damage)
 {
     if (bDamageNumbers)
     {
-        UpdateWidgets(Damage);
+        switch (DisplayMode)
+        {
+            case HX_DMGNUM_Total:
+                UpdateWidget(DMGNUM_TOTAL, Damage);
+                break;
+            case HX_DMGNUM_LastHit:
+                Widgets[DMGNUM_LAST_HIT].Value = 0;
+                UpdateWidget(DMGNUM_LAST_HIT, Damage);
+                break;
+            case HX_DMGNUM_LastHitAndTotal:
+                if (Widgets[DMGNUM_LAST_HIT].Value > 0)
+                {
+                    if (Widgets[DMGNUM_TOTAL].Value == 0)
+                    {
+                        Widgets[DMGNUM_TOTAL].Value = Widgets[DMGNUM_LAST_HIT].Value;
+                        Widgets[DMGNUM_TOTAL].DeltaY -= DualOffset;
+                    }
+                    UpdateWidget(DMGNUM_TOTAL, Damage);
+                    Widgets[DMGNUM_LAST_HIT].Value = 0;
+                }
+                UpdateWidget(DMGNUM_LAST_HIT, Damage);
+                break;
+        }
     }
+}
+
+simulated function UpdateWidget(int i, int Damage)
+{
+    Widgets[i].Value += Damage;
+    Widgets[i].Scale = GetScale(Widgets[i].Value);
+    Widgets[i].Color = GetColor(Widgets[i].Value);
+    Widgets[i].Duration = DMGNUM_DURATION;
 }
 
 simulated function PlayHitSound(int Damage)
@@ -308,64 +298,6 @@ simulated function float GetPitch(int Damage)
     return ALAUDIO_PITCH_MAX - Pitch * ALAUDIO_PITCH_SPECTRUM;
 }
 
-simulated function UpdateWidgets(int Damage)
-{
-    switch (DisplayMode)
-    {
-        case HX_DISPLAY_Static:
-            Widgets[DN_STATIC_INDEX].Value = 0;
-            UpdateWidget(DN_STATIC_INDEX, Damage);
-            break;
-        case HX_DISPLAY_StaticTotal:
-            UpdateWidget(DN_TOTAL_INDEX, Damage);
-            break;
-        case HX_DISPLAY_StaticDual:
-            if (Widgets[DN_STATIC_INDEX].Value > 0)
-            {
-                if (Widgets[DN_TOTAL_INDEX].Value == 0)
-                {
-                    Widgets[DN_TOTAL_INDEX].Value = Widgets[DN_STATIC_INDEX].Value;
-                    Widgets[DN_TOTAL_INDEX].DeltaY -= DualOffset;
-                }
-                UpdateWidget(DN_TOTAL_INDEX, Damage);
-                Widgets[DN_STATIC_INDEX].Value = 0;
-            }
-            UpdateWidget(DN_STATIC_INDEX, Damage);
-            break;
-        case HX_DISPLAY_Float:
-        case HX_DISPLAY_FloatDual:
-            UpdateWidget(GetFloatWidgetIndex(), Damage);
-            break;
-    }
-}
-
-simulated function UpdateWidget(int i, int Damage)
-{
-    Widgets[i].Value += Damage;
-    Widgets[i].Scale = GetScale(Widgets[i].Value);
-    Widgets[i].Color = GetColor(Widgets[i].Value);
-    Widgets[i].Duration = DN_NORMAL_DURATION;
-}
-
-simulated function int GetFloatWidgetIndex()
-{
-    local int i;
-
-    for (i = DN_TOTAL_INDEX + 1; i < Widgets.Length; ++i)
-    {
-        if (Widgets[i].Value == 0)
-        {
-            break;
-        }
-    }
-    if (i == Widgets.Length)
-    {
-        Widgets.Insert(Widgets.Length, 1);
-        InitializeWidget(i);
-    }
-    return i;
-}
-
 simulated function float GetScale(int Damage)
 {
     local int i;
@@ -399,11 +331,11 @@ simulated function Color GetColor(int Damage)
     return DamagePoints[ArrayCount(DamagePoints) - 1].Color;
 }
 
-simulated function int GetFade(int DNIndex)
+simulated function int GetFade(int Index)
 {
-    if (Widgets[DNIndex].Duration <= 0.33)
+    if (Widgets[Index].Duration <= 0.33)
     {
-        return Clamp(int(3 * Widgets[DNIndex].Duration * 255), 0, 255);
+        return Clamp(int(3 * Widgets[Index].Duration * 255), 0, 255);
     }
     return 255;
 }
@@ -491,7 +423,7 @@ defaultproperties
     HitSoundVolume=1.0
     PitchMode=HX_PITCH_High2Low
     bDamageNumbers=true
-    DisplayMode=HX_DISPLAY_StaticDual
+    DisplayMode=HX_DMGNUM_LastHitAndTotal
     DisplayFontName="AUTOSELECT";
     DisplayPosX=0.5
     DisplayPosY=0.45

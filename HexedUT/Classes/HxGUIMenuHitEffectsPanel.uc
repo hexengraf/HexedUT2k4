@@ -26,7 +26,7 @@ var automated moSlider sl_GreenColor;
 var automated moSlider sl_BlueColor;
 
 var localized string PitchModeLabels[3];
-var localized string DisplayModeLabels[5];
+var localized string DisplayModeLabels[3];
 var localized string DamagePointLabels[5];
 var localized string AutoSelectFontLabel;
 
@@ -473,7 +473,7 @@ defaultproperties
     ch_DamageNumbers=DamageNumbersCheckBox
 
     Begin Object class=moComboBox Name=DisplayModeComboBox
-        Caption="Mode"
+        Caption="Display Mode"
         INIOption="@INTERNAL"
         Tag=5
         CaptionWidth=0.35
@@ -641,11 +641,9 @@ defaultproperties
     PitchModeLabels(0)="Disabled"
     PitchModeLabels(1)="Low To High"
     PitchModeLabels(2)="High To Low"
-    DisplayModeLabels(0)="Static Per Hit"
-    DisplayModeLabels(1)="Static Total"
-    DisplayModeLabels(2)="Static Per Hit & Total"
-    DisplayModeLabels(3)="Float Per Hit"
-    DisplayModeLabels(4)="Float Per Hit & Total"
+    DisplayModeLabels(0)="Total Damage"
+    DisplayModeLabels(1)="Last Hit Damage"
+    DisplayModeLabels(2)="Last Hit & Total Damage"
     DamagePointLabels(0)="Zero Damage"
     DamagePointLabels(1)="Low Damage"
     DamagePointLabels(2)="Medium Damage"

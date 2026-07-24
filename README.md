@@ -87,12 +87,10 @@ PitchMode=HX_PITCH_High2Low
 ; Show damage numbers.
 bDamageNumbers=True
 ; Display mode for the damage numbers:
-;   HX_DISPLAY_Static - shows the damage of a single hit.
-;   HX_DISPLAY_StaticTotal - shows accumulated damage of hits with less than a second a part.
-;   HX_DISPLAY_StaticDual - shows the information of the two modes above at the same time.
-;   HX_DISPLAY_Float - shows the damage of every hit, animating it to float towards the top of the screen.
-;   HX_DISPLAY_FloatDual - same as Float, but adds an accumulated damage number at the end of the animation path.
-DisplayMode=HX_DISPLAY_StaticDual
+;   HX_DMGNUM_LastHit - shows the damage of the last hit.
+;   HX_DMGNUM_Total - shows accumulated damage of hits with less than a second a part.
+;   HX_DMGNUM_LastHitAndTotal - shows the information of the two modes above at the same time.
+DisplayMode=HX_DMGNUM_LastHitAndTotal
 ; Font name to be used to render the damage numbers. Custom fonts are supported.
 ; AUTOSELECT chooses a font adequate for your current resolution.
 DisplayFontName=AUTOSELECT

@@ -340,7 +340,7 @@ defaultproperties
     HitSoundVolume=1.0
     PitchMode=HX_PITCH_High2Low
     bDamageNumbers=true
-    DisplayMode=HX_DISPLAY_StaticDual
+    DisplayMode=HX_DMGNUM_LastHitAndTotal
     DisplayFontName="AUTOSELECT";
     DisplayPosX=0.5
     DisplayPosY=0.45
