@@ -28,6 +28,7 @@ HexedUT changes:
 * Simplified display modes for damage numbers.
   * Removed the old "float" options since they can't handle simultaneous hits well.
   * Renamed the enumeration values to use more meaningful names.
+* Fixed "last hit" damage numbers not correctly showing individual hit values with a few weapons (e.g. flak cannon).
 * Added new server-side option for hit effects (`bRequireLOS`): decide if line of sight is required between player and target to trigger hit sounds and damage numbers.
   * Off by default, competitive servers might want this on.
 * Added new server-side option to hide disabled features from the server status (`bHideDisabledFeatures`).
