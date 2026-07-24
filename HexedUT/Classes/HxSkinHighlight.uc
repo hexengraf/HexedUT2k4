@@ -657,8 +657,16 @@ state Overlayed extends Enabled
 
 state TrackProtection
 {
-    event BeginState()
+    function SetupServer(float ServerBaseIntensity,
+                         float ServerOverlayIntensity,
+                         MutHexedUT.EHxHitOverlay SeverAllowHitOverlays,
+                         bool bServerAllowForcedModels)
     {
+        Global.SetupServer(
+            ServerBaseIntensity,
+            ServerOverlayIntensity,
+            SeverAllowHitOverlays,
+            bServerAllowForcedModels);
         TryUpdateSpawnDone();
     }
 
