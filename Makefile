@@ -49,7 +49,7 @@ release: HexedUT2k4$(VER).zip
 clean:
 	rm -f "$(UT2004)"/Hexed* # Remove symlinks
 	rm -f "$(SYS)"/Hexed* # Remove compiled packages (.u .ucl .int)
-	rm -f "$(SYS)"/ucc*.log "$(SYS)"/StdOut*.log # Remove logs
+	rm -f "$(SYS)"/ucc*.log "$(SYS)"/StdOut*.log # Remove compilation logs
 	rm -f -r "$(OUT)" # Remove build directory
 
 $(SYS)/HexedSRC$(VER).u: HexedSRC/make.ini HexedSRC/Classes/*.uc HexedSRC/Classes/Include/*.uci
@@ -72,7 +72,7 @@ $(SYS)/HexedPatches.u: $(SYS)/HexedSRC$(VER).u HexedPatches/make.ini HexedPatche
 
 HexedUT2k4$(VER).zip: $(PACKAGES) README.md LICENSE CHANGELOG.md
 	mkdir -p "$(OUT)" "$(OUT)"/System "$(OUT)"/Help
-	./make.sh extract "HexedSRC HexedUT HexedVOTE HexedARENA HexedNET HexedPatches" "$(OUT)"/System "$(SYS)" "$(UCC)"
+	./make.sh extract "HexedSRC HexedUT HexedVOTE HexedARENA HexedNET HexedPatches" "$(OUT)"/System "$(SYS)"
 	./make.sh compress "HexedSRC HexedUT HexedVOTE HexedARENA HexedNET" "$(OUT)" "$(SYS)" "$(UCC)"
 	cp -f README.md    "$(OUT)"/Help/HexedUT2k4"$(VER)"-README.md
 	cp -f LICENSE      "$(OUT)"/Help/HexedUT2k4"$(VER)"-LICENSE

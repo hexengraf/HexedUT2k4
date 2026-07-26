@@ -1,7 +1,8 @@
 #!/bin/sh
 
 # Usage:
-# Makefile.sh build "HexedNAME" "build/System" "C:/UT2004/System" "$UCC"
+# Makefile.sh check
+#             build "HexedNAME" "C:/UT2004/System" "$UCC"
 #             extract "HexedNAME" "build/System" "C:/UT2004/System"
 #             compress "HexedNAME" "build" "C:/UT2004/System" "$UCC"
 
