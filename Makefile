@@ -28,13 +28,7 @@ OUT = $(PWD)/build
 SYS = $(UT2004)/System
 ZIP = 7z a -mmt=8 -mx=9
 
-.SILENT: all release clean UT2004
-.PHONY: all release clean UT2004
-
-UT2004:
-	./make.sh check
-
-all: \
+PACKAGES = \
 	$(SYS)/HexedSRC$(VER).u \
 	$(SYS)/HexedUT$(VER).u \
 	$(SYS)/HexedVOTE$(VER).u \
@@ -42,14 +36,15 @@ all: \
 	$(SYS)/HexedNET$(VER).u \
 	$(SYS)/HexedPatches.u
 
-release: all README.md LICENSE CHANGELOG.md
-	mkdir -p "$(OUT)" "$(OUT)"/System "$(OUT)"/Help
-	./make.sh extract "HexedSRC HexedUT HexedVOTE HexedARENA HexedNET HexedPatches" "$(OUT)"/System "$(SYS)" "$(UCC)"
-	./make.sh compress "HexedSRC HexedUT HexedVOTE HexedARENA HexedNET" "$(OUT)" "$(SYS)" "$(UCC)"
-	cp -f README.md    "$(OUT)"/Help/HexedUT2k4"$(VER)"-README.md
-	cp -f LICENSE      "$(OUT)"/Help/HexedUT2k4"$(VER)"-LICENSE
-	cp -f CHANGELOG.md "$(OUT)"/Help/HexedUT2k4"$(VER)"-CHANGELOG.md
-	$(ZIP) HexedUT2k4"$(VER)".zip "$(OUT)"/*
+.SILENT: check all release clean HexedUT2k4$(VER).zip
+.PHONY: check all release clean
+
+check:
+	./make.sh check
+
+all: $(PACKAGES)
+
+release: HexedUT2k4$(VER).zip
 
 clean:
 	rm -f "$(UT2004)"/Hexed* # Remove symlinks
@@ -74,3 +69,12 @@ $(SYS)/HexedNET$(VER).u: $(SYS)/HexedSRC$(VER).u HexedNET/make.ini HexedNET/Clas
 
 $(SYS)/HexedPatches.u: $(SYS)/HexedSRC$(VER).u HexedPatches/make.ini HexedPatches/Classes/*.uc HexedPatches/Classes/Include/*.uci
 	@./make.sh build HexedPatches "$(SYS)" "$(UCC)"
+
+HexedUT2k4$(VER).zip: $(PACKAGES) README.md LICENSE CHANGELOG.md
+	mkdir -p "$(OUT)" "$(OUT)"/System "$(OUT)"/Help
+	./make.sh extract "HexedSRC HexedUT HexedVOTE HexedARENA HexedNET HexedPatches" "$(OUT)"/System "$(SYS)" "$(UCC)"
+	./make.sh compress "HexedSRC HexedUT HexedVOTE HexedARENA HexedNET" "$(OUT)" "$(SYS)" "$(UCC)"
+	cp -f README.md    "$(OUT)"/Help/HexedUT2k4"$(VER)"-README.md
+	cp -f LICENSE      "$(OUT)"/Help/HexedUT2k4"$(VER)"-LICENSE
+	cp -f CHANGELOG.md "$(OUT)"/Help/HexedUT2k4"$(VER)"-CHANGELOG.md
+	$(ZIP) "$@" "$(OUT)"/*
