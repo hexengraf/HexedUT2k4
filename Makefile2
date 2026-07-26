@@ -46,8 +46,8 @@ all: \
 
 release: all
 	mkdir -p "$(OUT)" "$(OUT)"/System "$(OUT)"/Help
-	./extract-package.sh "HexedSRC HexedUT HexedVOTE HexedARENA HexedNET HexedPatches" "$(OUT)"/System "$(SYS)" "$(UCC)"
-	./compress-package.sh "HexedSRC HexedUT HexedVOTE HexedARENA HexedNET" "$(OUT)" "$(SYS)" "$(UCC)"
+	./make.sh extract "HexedSRC HexedUT HexedVOTE HexedARENA HexedNET HexedPatches" "$(OUT)"/System "$(SYS)" "$(UCC)"
+	./make.sh compress "HexedSRC HexedUT HexedVOTE HexedARENA HexedNET" "$(OUT)" "$(SYS)" "$(UCC)"
 	cp -f README.md    "$(OUT)"/Help/HexedUT2k4"$(VER)"-README.md
 	cp -f LICENSE      "$(OUT)"/Help/HexedUT2k4"$(VER)"-LICENSE
 	cp -f CHANGELOG.md "$(OUT)"/Help/HexedUT2k4"$(VER)"-CHANGELOG.md
@@ -60,19 +60,19 @@ clean:
 	rm -f -r "$(OUT)" # Remove build directory
 
 $(SYS)/HexedSRC$(VER).u: HexedSRC/make.ini HexedSRC/Classes/*.uc HexedSRC/Classes/Include/*.uci
-	@./build-package.sh HexedSRC "$(SYS)" "$(UCC)"
+	@./make.sh build HexedSRC "$(SYS)" "$(UCC)"
 
 $(SYS)/HexedUT$(VER).u: $(SYS)/HexedSRC$(VER).u HexedUT/make.ini HexedUT/Classes/*.uc
-	@./build-package.sh HexedUT "$(SYS)" "$(UCC)"
+	@./make.sh build HexedUT "$(SYS)" "$(UCC)"
 
 $(SYS)/HexedVOTE$(VER).u: $(SYS)/HexedSRC$(VER).u HexedVOTE/make.ini HexedVOTE/Classes/*.uc
-	@./build-package.sh HexedVOTE "$(SYS)" "$(UCC)"
+	@./make.sh build HexedVOTE "$(SYS)" "$(UCC)"
 
 $(SYS)/HexedARENA$(VER).u: HexedARENA/make.ini HexedARENA/Classes/*.uc
-	@./build-package.sh HexedARENA "$(SYS)" "$(UCC)"
+	@./make.sh build HexedARENA "$(SYS)" "$(UCC)"
 
 $(SYS)/HexedNET$(VER).u: HexedNET/make.ini HexedNET/Classes/*.uc
-	@./build-package.sh HexedNET "$(SYS)" "$(UCC)"
+	@./make.sh build HexedNET "$(SYS)" "$(UCC)"
 
 $(SYS)/HexedPatches.u: HexedPatches/make.ini HexedPatches/Classes/*.uc HexedPatches/Classes/Include/*.uci
-	@./build-package.sh HexedPatches "$(SYS)" "$(UCC)"
+	@./make.sh build HexedPatches "$(SYS)" "$(UCC)"
