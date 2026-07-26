@@ -1,104 +1,76 @@
-# Copyright (c) 2025 Marleson Graf
+.POSIX:
+.SUFFIXES:
 
-# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
-# associated documentation files (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge, publish, distribute,
-# sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
+#
+# REQUIRED
+#
+# Specifying UT2004 installation path is required:
+# $ UT2004="C:/Users/user/Downloads/UT2004" make
+# or:
+# $ export UT2004="C:/Users/user/Downloads/UT2004"
+# $ make
+#
+# Specifying UCC is optional:
+# $ UCC=".winecmd:=WINEDEBUG=-all WINEPREFIX=~/.ucc-prefix wine" make
+#
+# Because of ucc limitations this makefile builds in the System folder
+# of UT2004:
+# all      Build packages in the UT2004 System folder. Start the game
+#          after building to test them
+# release  Copy the build output from the UT2004 System folder to the
+#          temporary packaging folder and zip it
+# clean    Remove build output in the UT2004 System folder and the
+#          temporary packaging folder
+#
 
-# The above copyright notice and this permission notice shall be included in all copies or
-# substantial portions of the Software.
+VER = v9rc5
+OUT = $(PWD)/build
+SYS = $(UT2004)/System
+ZIP = 7z a -mmt=8 -mx=9
 
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
-# NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT
-# OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+.SILENT: all release clean UT2004
+.PHONY: all release clean UT2004
 
-project:=HexedUT2k4
-packages:=HexedSRC HexedUT HexedVOTE HexedARENA HexedNET HexedPatches
-requiresint:=HexedSRC HexedUT HexedVOTE HexedARENA HexedNET HexedPatches
-hastemplate:=HexedSRC
-requirescompressed:=HexedSRC HexedUT HexedVOTE HexedARENA HexedNET
-helpfiles:=README.md LICENSE CHANGELOG.md
+UT2004:
+	./make.sh check
 
-.outdir:=build
-.versionfiles:=$(packages:%=$(.outdir)/%.make)
+all: \
+	$(SYS)/HexedSRC$(VER).u \
+	$(SYS)/HexedUT$(VER).u \
+	$(SYS)/HexedVOTE$(VER).u \
+	$(SYS)/HexedARENA$(VER).u \
+	$(SYS)/HexedNET$(VER).u \
+	$(SYS)/HexedPatches.u
 
--include $(.versionfiles)
-
-.projectversion:=v9.0-rc5
-.packages:=$(foreach p,$(packages),$p$($p.version))
-.templatepackages:=$(foreach p,$(hastemplate),$p$($p.version))
-.intpackages:=$(foreach p,$(requiresint),$p$($p.version))
-.compressedpackages:=$(foreach p,$(requirescompressed),$p$($p.version))
-.archive:=$(.outdir)/$(project)$(.projectversion).zip
-.helpfiles:=$(addprefix $(.outdir)/Help/$(project)$(.projectversion)-, $(helpfiles))
-.ufiles:=$(.packages:%=$(.outdir)/System/%.u)
-.intfiles:=$(.intpackages:%=$(.outdir)/System/%.int)
-.compressedfiles:=$(.compressedpackages:%=$(.outdir)/%.u.uz2)
-.targets:=$(.ufiles) $(.intfiles)
-.winecmd:=WINEDEBUG=-all WINEPREFIX=~/.ucc-prefix wine
-.findsources=$(wildcard $1/Classes/*.uc) $(wildcard $1/Classes/Include/*.uci)
-
-$(foreach p,$(packages),$(if $($p.version),$(eval $p$($p.version).name:=$p)))
-$(foreach p,$(hastemplate),$(eval $p$($p.version).template:=$p/template.int))
-$(foreach p,$(packages),$(eval $p$($p.version).sources:=$p/make.ini $(call .findsources,$p)))
-
-.SECONDEXPANSION:
-.ONESHELL:
-.PHONY: all compressed release clean distclean
-
-all: $(.targets)
-
-compressed: $(.compressedfiles)
-
-release: $(.archive)
+release: all README.md LICENSE CHANGELOG.md
+	mkdir -p "$(OUT)" "$(OUT)"/System "$(OUT)"/Help
+	./make.sh extract "HexedSRC HexedUT HexedVOTE HexedARENA HexedNET HexedPatches" "$(OUT)"/System "$(SYS)" "$(UCC)"
+	./make.sh compress "HexedSRC HexedUT HexedVOTE HexedARENA HexedNET" "$(OUT)" "$(SYS)" "$(UCC)"
+	cp -f README.md    "$(OUT)"/Help/HexedUT2k4"$(VER)"-README.md
+	cp -f LICENSE      "$(OUT)"/Help/HexedUT2k4"$(VER)"-LICENSE
+	cp -f CHANGELOG.md "$(OUT)"/Help/HexedUT2k4"$(VER)"-CHANGELOG.md
+	$(ZIP) HexedUT2k4"$(VER)".zip "$(OUT)"/*
 
 clean:
-	@rm -rf $(.outdir)/System
-	@rm -f $(.compressedfiles)
-	@rm -f $(.archive)
+	rm -f "$(UT2004)"/Hexed* # Remove symlinks
+	rm -f "$(SYS)"/Hexed* # Remove compiled packages (.u .ucl .int)
+	rm -f "$(SYS)"/ucc*.log "$(SYS)"/StdOut*.log # Remove logs
+	rm -f -r "$(OUT)" # Remove build directory
 
-distclean: clean
-	@rm -rf $(.outdir)
+$(SYS)/HexedSRC$(VER).u: HexedSRC/make.ini HexedSRC/Classes/*.uc HexedSRC/Classes/Include/*.uci
+	@./make.sh build HexedSRC "$(SYS)" "$(UCC)"
 
-$(.outdir)/System/%.u: $$($$*.sources)
-	@mkdir -p $(@D)
-	@$(if $($*.name),ln -s $($*.name) $*)
-	@rm -f System/$*.{u,ucl}
-	@cd System
-	$(.winecmd) UCC.exe make -ini=../$*/make.ini
-	@cd ../
-	@$(if $($*.name),rm $*)
-	@cp System/$*.u $(@D)
-	@if [[ -f System/$*.ucl ]]; then cp System/$*.ucl $(@D); fi
+$(SYS)/HexedUT$(VER).u: $(SYS)/HexedSRC$(VER).u HexedUT/make.ini HexedUT/Classes/*.uc
+	@./make.sh build HexedUT "$(SYS)" "$(UCC)"
 
-$(.outdir)/System/%.int: $(.outdir)/System/%.u
-	@mkdir -p $(@D)
-	@rm -f System/$*.int
-	@cd System
-	$(.winecmd) UCC.exe dumpint $*.u
-	@cd ../
-	if [ -n "$($*.template)" ]; then sed -r "s/%/$*/g" $($*.template) >> System/$*.int; fi
-	@cp System/$*.int $(@D)
+$(SYS)/HexedVOTE$(VER).u: $(SYS)/HexedSRC$(VER).u HexedVOTE/make.ini HexedVOTE/Classes/*.uc
+	@./make.sh build HexedVOTE "$(SYS)" "$(UCC)"
 
-$(.outdir)/%.u.uz2: $(.outdir)/System/%.u
-	@rm -f System/$*.u.uz2
-	@cd System
-	$(.winecmd) UCC.exe compress $*.u
-	@cd ../
-	@cp System/$*.u.uz2 $(@D)
+$(SYS)/HexedARENA$(VER).u: $(SYS)/HexedSRC$(VER).u HexedARENA/make.ini HexedARENA/Classes/*.uc
+	@./make.sh build HexedARENA "$(SYS)" "$(UCC)"
 
-$(.outdir)/%.zip: $(.targets) $(.compressedfiles) $(.helpfiles)
-	@rm -f $@
-	@cd $(.outdir)
-	@7z a -mmt=8 -mx=9 $(@F) System/ $(.compressedfiles:$(.outdir)/%=%) $(.helpfiles:$(.outdir)/%=%)
+$(SYS)/HexedNET$(VER).u: $(SYS)/HexedSRC$(VER).u HexedNET/make.ini HexedNET/Classes/*.uc
+	@./make.sh build HexedNET "$(SYS)" "$(UCC)"
 
-$(.outdir)/Help/$(project)$(.projectversion)-%: %
-	@mkdir -p $(@D)
-	@cp $^ $@
-
-$(.versionfiles): $(.outdir)/%.make: %/make.ini
-	@mkdir -p $(@D)
-	@sed -nr "s/.*=[ ]*$*([vV]?[.0-9]*[a-zA-Z0-9]*)$$/$*.version:=\1/gp" $*/make.ini > $@
+$(SYS)/HexedPatches.u: $(SYS)/HexedSRC$(VER).u HexedPatches/make.ini HexedPatches/Classes/*.uc HexedPatches/Classes/Include/*.uci
+	@./make.sh build HexedPatches "$(SYS)" "$(UCC)"
