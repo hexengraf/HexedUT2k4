@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Usage: sh build-package.sh "HexedNAME" "build/System" "C:/UT2004/System" "C:/UT2004/System/ucc.exe"
+# Usage: sh build-package.sh "HexedNAME" "C:/UT2004/System" "C:/UT2004/System/ucc.exe"
 
 set -e
 
@@ -12,12 +12,10 @@ ver=$(sed -E "s/.*=[[:space:]]*$pkg([Vv0-9A-Za-z.-]*)$/\1/p;d" "$pkg/make.ini")
 
 cd "$sys/.."
 
-  #cp -f -R "$hex/$pkg" "$pkg$ver"
   ln -f -s "$hex/$pkg" "$pkg$ver"
 
 cd "$sys"
 
-  #rm -f "$pkg$ver".u "$pkg$ver".ucl "$pkg$ver".int
   rm -f "$pkg$ver".*
 
   "$ucc" make -ini="../$pkg$ver/make.ini"
