@@ -7,8 +7,6 @@ set -e
 out=$2
 sys=$3
 
-mkdir -p "$out"
-
 for pkg in $1
 do
   ver=$(sed -E "s/.*=[[:space:]]*$pkg([Vv0-9A-Za-z.-]*)$/\1/p;d" "$pkg/make.ini")
