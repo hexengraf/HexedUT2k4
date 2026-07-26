@@ -1,0 +1,2 @@
+HexedVOTE_EXTDEPS:=XInterface GUI2K4 xVoting
+HexedVOTE_INTDEPS:=HexedSRC

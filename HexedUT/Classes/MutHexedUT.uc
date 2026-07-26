@@ -230,7 +230,7 @@ static function string GetEnumLabel(int Index, string Value)
 
 defaultproperties
 {
-    FriendlyName="HexedUT v9rc5"
+    FriendlyName="HexedUT %TAG%"
     Description="Provides hit sounds, damage numbers, skin highlights, enhanced scoreboards, and more."
     bAddToServerPackages=true
     CRIClass=class'HxUTClient'

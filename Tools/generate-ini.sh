@@ -1,3 +1,12 @@
+#!/bin/sh
+
+pkg_name=$1
+ini_file=$2
+shift 2
+dependencies=$@
+
+# Initialize with boilerplate
+cat << EOF > "${ini_file}"
 [Engine.Engine]
 EditorEngine=Editor.EditorEngine
 
@@ -20,10 +29,12 @@ Paths=../Saves/*.uvx
 [Editor.EditorEngine]
 EditPackages=Core
 EditPackages=Engine
-EditPackages=XGame
-EditPackages=XWeapons
-EditPackages=XPickups
-EditPackages=XInterface
-EditPackages=GUI2K4
-EditPackages=HexedSRCv9rc5
-EditPackages=HexedARENAv9rc5
+EOF
+
+# List all package dependencies
+for d in ${dependencies}; do
+    echo "EditPackages=${d}" >> "${ini_file}"
+done
+
+# List the target package as the last one
+echo "EditPackages=${pkg_name}" >> "${ini_file}"

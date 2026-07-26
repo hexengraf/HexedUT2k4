@@ -81,7 +81,7 @@ static function DisableWeaponLockers(Actor Requester)
 
 defaultproperties
 {
-    FriendlyName="HexedARENA v9rc5"
+    FriendlyName="HexedARENA %TAG%"
     Description="Replace weapons and ammo in the map with the configured weapon."
     GroupName="Arena"
     bAddToServerPackages=true
