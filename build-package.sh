@@ -5,24 +5,20 @@
 set -e
 
 hex=$PWD
-pkg=$1
 sys=$2
 ucc=${3:-"$2/ucc"}
-ver=$(sed -E "s/.*=[[:space:]]*$pkg([Vv0-9A-Za-z.-]*)$/\1/p;d" "$pkg/make.ini")
 
-cd "$sys/.."
+for pkg in $1
+do
+  ver=$(sed -E "s/.*=[[:space:]]*$pkg([Vv0-9A-Za-z.-]*)$/\1/p;d" "$hex/$pkg/make.ini")
 
-  ln -f -s "$hex/$pkg" "$pkg$ver"
+  ln -f -s "$hex/$pkg" "$sys/../$pkg$ver"
 
-cd "$sys"
-
-  rm -f "$pkg$ver".*
-
-  "$ucc" make -ini="../$pkg$ver/make.ini"
+  rm -f "$sys/$pkg$ver".*
+  "$ucc" make -ini="$hex/$pkg/make.ini"
   "$ucc" dumpint "$pkg$ver".u
 
-cd "$sys/.."
-
-  if [ -f "$pkg$ver/template.int" ]; then
-    sed "s/%/$pkg$ver/g" "$pkg$ver/template.int" >> "$sys/$pkg$ver".int
+  if [ -f "$hex/$pkg/template.int" ]; then
+    sed "s/%/$pkg$ver/g" "$hex/$pkg/template.int" >> "$sys/$pkg$ver".int
   fi
+done

@@ -4,15 +4,16 @@
 
 set -e
 
-hex=$PWD
-pkg=$1
 out=$2
 sys=$3
 ucc=${4:-"$3/ucc"}
-ver=$(sed -E "s/.*=[[:space:]]*$pkg([Vv0-9A-Za-z.-]*)$/\1/p;d" "$pkg/make.ini")
 
 mkdir -p "$out"
-cd "$sys"
-rm -f "$pkg$ver".u.uz2
-"$ucc" compress "$pkg$ver".u
-mv -f "$pkg$ver".u.uz2 "$out/$pkg".u.uz2
+
+for pkg in $1
+do
+  ver=$(sed -E "s/.*=[[:space:]]*$pkg([Vv0-9A-Za-z.-]*)$/\1/p;d" "$pkg/make.ini")
+  rm -f "$sys/$pkg$ver".u.uz2
+  "$ucc" compress "$pkg$ver".u
+  mv -f "$sys/$pkg$ver".u.uz2 "$out/$pkg".u.uz2
+done

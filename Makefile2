@@ -46,25 +46,14 @@ all: \
 
 release: all
 	mkdir -p "$(OUT)" "$(OUT)"/System "$(OUT)"/Help
-	./extract-package.sh HexedSRC     "$(OUT)"/System "$(SYS)" "$(UCC)"
-	./extract-package.sh HexedUT      "$(OUT)"/System "$(SYS)" "$(UCC)"
-	./extract-package.sh HexedVOTE    "$(OUT)"/System "$(SYS)" "$(UCC)"
-	./extract-package.sh HexedARENA   "$(OUT)"/System "$(SYS)" "$(UCC)"
-	./extract-package.sh HexedNET     "$(OUT)"/System "$(SYS)" "$(UCC)"
-	./extract-package.sh HexedPatches "$(OUT)"/System "$(SYS)" "$(UCC)"
-	./compress-package.sh HexedSRC    "$(OUT)" "$(SYS)" "$(UCC)"
-	./compress-package.sh HexedUT     "$(OUT)" "$(SYS)" "$(UCC)"
-	./compress-package.sh HexedVOTE   "$(OUT)" "$(SYS)" "$(UCC)"
-	./compress-package.sh HexedARENA  "$(OUT)" "$(SYS)" "$(UCC)"
-	./compress-package.sh HexedNET    "$(OUT)" "$(SYS)" "$(UCC)"
-	cp README.md    "$(OUT)"/Help/HexedUT2k4"$(VER)"-README.md
-	cp LICENSE      "$(OUT)"/Help/HexedUT2k4"$(VER)"-LICENSE
-	cp CHANGELOG.md "$(OUT)"/Help/HexedUT2k4"$(VER)"-CHANGELOG.md
+	./extract-package.sh "HexedSRC HexedUT HexedVOTE HexedARENA HexedNET HexedPatches" "$(OUT)"/System "$(SYS)" "$(UCC)"
+	./compress-package.sh "HexedSRC HexedUT HexedVOTE HexedARENA HexedNET" "$(OUT)" "$(SYS)" "$(UCC)"
+	cp -f README.md    "$(OUT)"/Help/HexedUT2k4"$(VER)"-README.md
+	cp -f LICENSE      "$(OUT)"/Help/HexedUT2k4"$(VER)"-LICENSE
+	cp -f CHANGELOG.md "$(OUT)"/Help/HexedUT2k4"$(VER)"-CHANGELOG.md
 	$(ZIP) HexedUT2k4"$(VER)".zip "$(OUT)"/*
 
 clean:
-	#rm -f $(SYS)/Hexed*$(VER).*
-	#rm -f $(SYS)/Hexed*.*
 	rm -f "$(UT2004)"/Hexed* # Remove symlinks
 	rm -f "$(SYS)"/Hexed* # Remove compiled packages
 	rm -f "$(SYS)"/ucc.log "$(SYS)"/StdOut.log # Remove logs
