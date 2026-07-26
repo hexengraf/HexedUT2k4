@@ -32,9 +32,7 @@ ZIP = 7z a -mmt=8 -mx=9
 .PHONY: all release clean UT2004
 
 UT2004:
-	test -n "$(UT2004)" \
-	|| { printf '\033[31m%s\033[m\n' "Must specify installation path with \"UT2004\" environment variable" && exit 1 ;} \
-	&& { printf '%s\n' "Build with 'make all'" && exit 0 ;}
+	./make.sh check
 
 all: \
 	$(SYS)/HexedSRC$(VER).u \
@@ -44,7 +42,7 @@ all: \
 	$(SYS)/HexedNET$(VER).u \
 	$(SYS)/HexedPatches.u
 
-release: all
+release: all README.md LICENSE CHANGELOG.md
 	mkdir -p "$(OUT)" "$(OUT)"/System "$(OUT)"/Help
 	./make.sh extract "HexedSRC HexedUT HexedVOTE HexedARENA HexedNET HexedPatches" "$(OUT)"/System "$(SYS)" "$(UCC)"
 	./make.sh compress "HexedSRC HexedUT HexedVOTE HexedARENA HexedNET" "$(OUT)" "$(SYS)" "$(UCC)"
@@ -55,8 +53,8 @@ release: all
 
 clean:
 	rm -f "$(UT2004)"/Hexed* # Remove symlinks
-	rm -f "$(SYS)"/Hexed* # Remove compiled packages
-	rm -f "$(SYS)"/ucc.log "$(SYS)"/StdOut.log # Remove logs
+	rm -f "$(SYS)"/Hexed* # Remove compiled packages (.u .ucl .int)
+	rm -f "$(SYS)"/ucc*.log "$(SYS)"/StdOut*.log # Remove logs
 	rm -f -r "$(OUT)" # Remove build directory
 
 $(SYS)/HexedSRC$(VER).u: HexedSRC/make.ini HexedSRC/Classes/*.uc HexedSRC/Classes/Include/*.uci
@@ -68,11 +66,11 @@ $(SYS)/HexedUT$(VER).u: $(SYS)/HexedSRC$(VER).u HexedUT/make.ini HexedUT/Classes
 $(SYS)/HexedVOTE$(VER).u: $(SYS)/HexedSRC$(VER).u HexedVOTE/make.ini HexedVOTE/Classes/*.uc
 	@./make.sh build HexedVOTE "$(SYS)" "$(UCC)"
 
-$(SYS)/HexedARENA$(VER).u: HexedARENA/make.ini HexedARENA/Classes/*.uc
+$(SYS)/HexedARENA$(VER).u: $(SYS)/HexedSRC$(VER).u HexedARENA/make.ini HexedARENA/Classes/*.uc
 	@./make.sh build HexedARENA "$(SYS)" "$(UCC)"
 
-$(SYS)/HexedNET$(VER).u: HexedNET/make.ini HexedNET/Classes/*.uc
+$(SYS)/HexedNET$(VER).u: $(SYS)/HexedSRC$(VER).u HexedNET/make.ini HexedNET/Classes/*.uc
 	@./make.sh build HexedNET "$(SYS)" "$(UCC)"
 
-$(SYS)/HexedPatches.u: HexedPatches/make.ini HexedPatches/Classes/*.uc HexedPatches/Classes/Include/*.uci
+$(SYS)/HexedPatches.u: $(SYS)/HexedSRC$(VER).u HexedPatches/make.ini HexedPatches/Classes/*.uc HexedPatches/Classes/Include/*.uci
 	@./make.sh build HexedPatches "$(SYS)" "$(UCC)"

@@ -7,6 +7,15 @@
 
 set -e
 
+check() {
+  if test -n "$UT2004"
+  then
+    printf '%s\n' "Build with 'make all'" && exit 0
+  else
+    printf '\033[31m%s\033[m\n' "Must specify installation path with \"UT2004\" environment variable" >&2 && exit 1
+  fi
+}
+
 build() {
   hex=$PWD
   sys=$2
@@ -56,7 +65,9 @@ compress() {
 cmd=$1
 shift
 case "$cmd" in
-  "build") build "$@" ;;
-  "extract") extract "$@" ;;
+     "check") check "$@" ;;
+     "build") build "$@" ;;
+   "extract") extract "$@" ;;
   "compress") compress "$@" ;;
+           *) printf '\033[31m%s\033[m\n' "$0: Unrecognized command \"$cmd\"" >&2 ;;
 esac
