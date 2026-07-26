@@ -36,7 +36,7 @@ PACKAGES = \
 	$(SYS)/HexedNET$(VER).u \
 	$(SYS)/HexedPatches.u
 
-.SILENT: check all release clean HexedUT2k4$(VER).zip
+.SILENT: check all release clean $(PACKAGES) HexedUT2k4$(VER).zip
 .PHONY: check all release clean
 
 check:
@@ -53,22 +53,22 @@ clean:
 	rm -f -r "$(OUT)" # Remove build directory
 
 $(SYS)/HexedSRC$(VER).u: HexedSRC/make.ini HexedSRC/Classes/*.uc HexedSRC/Classes/Include/*.uci
-	@./make.sh build HexedSRC "$(SYS)" "$(UCC)"
+	./make.sh build HexedSRC "$(SYS)" "$(UCC)"
 
 $(SYS)/HexedUT$(VER).u: $(SYS)/HexedSRC$(VER).u HexedUT/make.ini HexedUT/Classes/*.uc
-	@./make.sh build HexedUT "$(SYS)" "$(UCC)"
+	./make.sh build HexedUT "$(SYS)" "$(UCC)"
 
 $(SYS)/HexedVOTE$(VER).u: $(SYS)/HexedSRC$(VER).u HexedVOTE/make.ini HexedVOTE/Classes/*.uc
-	@./make.sh build HexedVOTE "$(SYS)" "$(UCC)"
+	./make.sh build HexedVOTE "$(SYS)" "$(UCC)"
 
 $(SYS)/HexedARENA$(VER).u: $(SYS)/HexedSRC$(VER).u HexedARENA/make.ini HexedARENA/Classes/*.uc
-	@./make.sh build HexedARENA "$(SYS)" "$(UCC)"
+	./make.sh build HexedARENA "$(SYS)" "$(UCC)"
 
 $(SYS)/HexedNET$(VER).u: $(SYS)/HexedSRC$(VER).u HexedNET/make.ini HexedNET/Classes/*.uc
-	@./make.sh build HexedNET "$(SYS)" "$(UCC)"
+	./make.sh build HexedNET "$(SYS)" "$(UCC)"
 
 $(SYS)/HexedPatches.u: $(SYS)/HexedSRC$(VER).u HexedPatches/make.ini HexedPatches/Classes/*.uc HexedPatches/Classes/Include/*.uci
-	@./make.sh build HexedPatches "$(SYS)" "$(UCC)"
+	./make.sh build HexedPatches "$(SYS)" "$(UCC)"
 
 HexedUT2k4$(VER).zip: $(PACKAGES) README.md LICENSE CHANGELOG.md
 	mkdir -p "$(OUT)" "$(OUT)"/System "$(OUT)"/Help
