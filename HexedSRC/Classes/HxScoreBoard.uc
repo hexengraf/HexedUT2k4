@@ -1040,11 +1040,14 @@ simulated function UpdatePRIs()
         SpectatingPlayers = "";
         SpectatingRegionHeight = 0;
     }
-    for (i = 0; i < ActivePRIs.Length; ++i)
+    if (GRI.bMatchHasBegun)
     {
-        if (TeamPlayerReplicationInfo(ActivePRIs[i]) != None)
+        for (i = 0; i < ActivePRIs.Length; ++i)
         {
-            PC.ServerUpdateStats(TeamPlayerReplicationInfo(ActivePRIs[i]));
+            if (TeamPlayerReplicationInfo(ActivePRIs[i]) != None)
+            {
+                PC.ServerUpdateStats(TeamPlayerReplicationInfo(ActivePRIs[i]));
+            }
         }
     }
     LastUpdateTime = Level.TimeSeconds;
