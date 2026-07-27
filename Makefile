@@ -48,6 +48,9 @@ uz2files:=$(TAGGEDPKGS:%=$(OUTDIR)/%$(TAG).u.uz2)
 inifiles:=$(pkgs:%=$(OUTDIR)/%.ini)
 releasezip:=$(OUTDIR)/$(PROJECT)$(TAG).zip
 toolsdir:=Tools
+tagplaceholder:=%TAG%
+pkgplaceholder:=%PKG%
+inttemplate:=Template.int
 getsrcs=$(wildcard $(OUTDIR)/$1/Classes/*.uc) $(wildcard $(OUTDIR)/$1/Classes/Include/*.uci)
 getdeps=$(if $(NODEPS),,$($(1:$(TAG)=)_INTDEPS:%=$(OUTDIR)/System/%$(TAG).u))
 
@@ -82,11 +85,52 @@ $(pkgs): %: $(OUTDIR)/System/%.u
 
 $(OUTDIR)/System/%.u: $(OUTDIR)/%.ini $$(call getsrcs,$$*) $$(call getdeps,$$*) | $(utdirs)
 	@echo "[COMPILE] $* -> .u"
-	$(toolsdir)/compile-package.sh $(OUTDIR) "$*" "$(TAG)" "$(VERBOSITY)" "$(UCC)"
+	mutators=$$(find $(OUTDIR)/$*/Classes/ -name "Mut*.uc")
+	for m in $${mutators}; do
+		sed -i -r "s/$(tagplaceholder)/$(TAG)/g" "$${m}"
+	done
+	work_dir=$$(pwd)
+	cd $(OUTDIR)/System
+	rm -f $*.u $*.ucl
+	$(UCC) make -ini=../$*.ini -log=../$*.log | grep -Ei "$(VERBOSITY)"
+	$(UCC) dumpint $*.u | grep -Ei "$(VERBOSITY)"
+	if [ -f "../$*/$(inttemplate)" ]; then
+		sed -r "s/$(pkgplaceholder)/$*/g" "../$*/$(inttemplate)" >> "$*.int";
+	fi
+	cd "$${work_dir}"
+	for m in $${mutators}; do
+		sed -i -r "s/$(TAG)/$(tagplaceholder)/g" "$${m}"
+		touch -r "$(OUTDIR)/System/$*.u" "$${m}"
+	done
 
 $(inifiles): $(OUTDIR)/%.ini: $(OUTDIR)/%/Config.make
 	@echo "[ SETUP ] $* -> .ini"
-	$(toolsdir)/generate-ini.sh "$*" "$@" "$($(*:$(TAG)=)_EXTDEPS) $($(*:$(TAG)=)_INTDEPS:=$(TAG))"
+	echo "[Engine.Engine]" > $@
+	echo "EditorEngine=Editor.EditorEngine" >> $@
+	echo "" >> $@
+	echo "[Core.System]" >> $@
+	echo "SavePath=../Save" >> $@
+	echo "CachePath=../Cache" >> $@
+	echo "CacheExt=.uxx" >> $@
+	echo "CacheRecordPath=../System/*.ucl" >> $@
+	echo "MusicPath=../Music" >> $@
+	echo "SpeechPath=../Speech" >> $@
+	echo "Paths=../System/*.u" >> $@
+	echo "Paths=../Maps/*.ut2" >> $@
+	echo "Paths=../Textures/*.utx" >> $@
+	echo "Paths=../Sounds/*.uax" >> $@
+	echo "Paths=../Music/*.umx" >> $@
+	echo "Paths=../StaticMeshes/*.usx" >> $@
+	echo "Paths=../Animations/*.ukx" >> $@
+	echo "Paths=../Saves/*.uvx" >> $@
+	echo "" >> $@
+	echo "[Editor.EditorEngine]" >> $@
+	echo "EditPackages=Core" >> $@
+	echo "EditPackages=Engine" >> $@
+	for d in $($(*:$(TAG)=)_EXTDEPS) $($(*:$(TAG)=)_INTDEPS:=$(TAG)); do
+		echo "EditPackages=$${d}" >> "$@"
+	done
+	echo "EditPackages=$*" >> "$@"
 
 $(releasezip): $(ufiles) $(uz2files) $(HELPFILES:%=$(OUTDIR)/Help/$(PROJECT)$(TAG)-%)
 	@echo "[RELEASE] $@"
