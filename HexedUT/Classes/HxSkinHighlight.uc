@@ -40,6 +40,7 @@ var bool bForceEnemyModel;
 
 var const Material NativeOverlays[5];
 
+var protected PlayerReplicationInfo PRI;
 var protected int TeamNumber;
 var protected float BaseIntensity;
 var protected float OverlayIntensity;
@@ -267,45 +268,51 @@ auto state Startup
         local bool bEnemy;
 
         Pawn = xPawn(Base);
-        if (Pawn != None && Pawn.PlayerReplicationInfo != None
-            && Pawn.PlayerReplicationInfo.PlayerName != "")
+        if (Pawn != None)
         {
             if (Pawn.bDeRes || Pawn.bSkeletized)
             {
                 GotoState('Disabled');
                 return false;
             }
-            if (Pawn.bOldInvis)
+            if (PRI == None)
             {
-                MakeVisible(Pawn);
+                UpdatePlayerReplicationInfo(Pawn);
             }
-            if (!Pawn.bPlayedDeath && Pawn.Health > 0)
+            if (PRI != None && PRI.PlayerName != "" && PRI.CharacterName != "")
             {
-                bEnemy = IsEnemy();
-                if (!bAllowForcedModels || (bEnemy && !bForceEnemyModel)
-                    || (!bEnemy && !bForceTeammateModel))
+                if (Pawn.bOldInvis)
                 {
-                    Model = GetExpectedCharacterModel(Pawn);
-                    if (PlayerRecord.DefaultName != "" && PlayerRecord.DefaultName != Model)
+                    MakeVisible(Pawn);
+                }
+                if (!Pawn.bPlayedDeath && Pawn.Health > 0)
+                {
+                    bEnemy = IsEnemy();
+                    if (!bAllowForcedModels || (bEnemy && !bForceEnemyModel)
+                        || (!bEnemy && !bForceTeammateModel))
                     {
-                        SetupCharacterModel(Pawn, Model);
+                        Model = GetExpectedCharacterModel(Pawn);
+                        if (PlayerRecord.DefaultName != "" && PlayerRecord.DefaultName != Model)
+                        {
+                            SetupCharacterModel(Pawn, Model);
+                        }
+                    }
+                    else
+                    {
+                        Model = Eval(bEnemy, EnemyModel, TeammateModel);
+                        if (PlayerRecord.DefaultName != Model)
+                        {
+                            SetupCharacterModel(Pawn, Model);
+                        }
                     }
                 }
-                else
+                class'HxGUIModelSelect'.static.LoadXanAbdomen(Base);
+                if (Pawn.bOldInvis)
                 {
-                    Model = Eval(bEnemy, EnemyModel, TeammateModel);
-                    if (PlayerRecord.DefaultName != Model)
-                    {
-                        SetupCharacterModel(Pawn, Model);
-                    }
+                    MakeInvisible(Pawn);
                 }
+                return true;
             }
-            class'HxGUIModelSelect'.static.LoadXanAbdomen(Base);
-            if (Pawn.bOldInvis)
-            {
-                MakeInvisible(Pawn);
-            }
-            return true;
         }
         return false;
     }
@@ -349,7 +356,7 @@ auto state Startup
         {
             return Pawn.GetDefaultCharacter();
         }
-        return Pawn.PlayerReplicationInfo.CharacterName;
+        return PRI.CharacterName;
     }
 }
 
@@ -749,6 +756,18 @@ simulated final function Material AllocateMaterial(class<Material> MaterialClass
     return NewMaterial;
 }
 
+simulated function UpdatePlayerReplicationInfo(xPawn Pawn)
+{
+    if (Pawn.PlayerReplicationInfo != None)
+    {
+        PRI = Pawn.PlayerReplicationInfo;
+    }
+    else if (Pawn.DrivenVehicle != None)
+    {
+        PRI = Pawn.DrivenVehicle.PlayerReplicationInfo;
+    }
+}
+
 static final function ResetMaterial(Material M)
 {
     local ConstantColor CC;
@@ -833,7 +852,7 @@ simulated function string GetHighlightColorName()
     {
         if (bRandomize && !Level.GRI.bTeamGame)
         {
-            return Colors.SavedRandom(xPawn(Base).PlayerReplicationInfo.PlayerName);
+            return Colors.SavedRandom(PRI.PlayerName);
         }
         return Enemies;
     }
@@ -853,7 +872,7 @@ simulated function bool IsEnemy()
 {
     if (!Level.GRI.bTeamGame)
     {
-        return xPawn(Base).PlayerReplicationInfo != PC.PlayerReplicationInfo;
+        return PRI != PC.PlayerReplicationInfo;
     }
     if (HighlightMode == HX_SHM_TeamBased)
     {
