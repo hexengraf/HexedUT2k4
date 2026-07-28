@@ -148,6 +148,14 @@ simulated event Destroyed()
         ResetMaterial(Materials[i]);
         Level.ObjectPool.FreeObject(Materials[i]);
     }
+    Materials.Remove(0, Materials.Length);
+    OriginalSkins.Remove(0, OriginalSkins.Length);
+    BaseSkins.Remove(0, BaseSkins.Length);
+    SkinShaders.Remove(0, SkinShaders.Length);
+    WorkaroundCombiners.Remove(0, WorkaroundCombiners.Length);
+    SkinFinalBlends.Remove(0, SkinFinalBlends.Length);
+    HighlightTint = None;
+    WorkaroundTint = None;
     Super.Destroyed();
 }
 
