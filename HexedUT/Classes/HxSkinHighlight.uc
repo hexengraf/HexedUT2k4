@@ -370,7 +370,11 @@ state Reskin
         local xPawn Pawn;
 
         Pawn = xPawn(Base);
-        if (Pawn.bDeRes || Pawn.bSkeletized)
+        if (Pawn == None)
+        {
+            Restart();
+        }
+        else if (Pawn.bDeRes || Pawn.bSkeletized)
         {
             GotoState('Disabled');
         }
