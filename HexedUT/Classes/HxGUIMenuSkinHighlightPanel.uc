@@ -223,15 +223,15 @@ function PopulateColorComboBoxes()
     {
         ComboBoxes[i].MyComboBox.MyListBox.MyList.bInitializeList = false;
         ComboBoxes[i].ResetComponent();
-        ComboBoxes[i].AddItem(DisabledLabel,,class'HxSkinHighlight'.default.NoHighlight);
     }
     for (i = 2; i < ComboBoxes.Length; ++i)
     {
-        ComboBoxes[i].AddItem(NativeLabel,,class'HxSkinHighlight'.default.NativeHighlight);
         ComboBoxes[i].AddItem(DefaultLabel,,class'HxSkinHighlight'.default.DefaultHighlight);
+        ComboBoxes[i].AddItem(NativeLabel,,class'HxSkinHighlight'.default.NativeHighlight);
     }
     for (i = 0; i < ComboBoxes.Length; ++i)
     {
+        ComboBoxes[i].AddItem(DisabledLabel,,class'HxSkinHighlight'.default.NoHighlight);
         for (j = 0; j < Colors.ColorList.Length; ++j)
         {
             ComboBoxes[i].AddItem(Colors.ColorList[j].Name,, Colors.ColorList[j].Name);
