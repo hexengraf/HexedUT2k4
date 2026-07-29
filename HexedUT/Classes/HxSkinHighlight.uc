@@ -340,6 +340,16 @@ auto state Startup
         local float Rate;
 
         PlayerRecord = class'xUtil'.static.FindPlayerRecord(Model);
+        if (PlayerRecord.Species == None)
+        {
+            Warn(Name$": Failed to find player model for "$Model$"! Using default model!");
+            PlayerRecord = class'xUtil'.static.FindPlayerRecord(Pawn.GetDefaultCharacter());
+        }
+        if (PlayerRecord.Species == None)
+        {
+            Warn(Name$": Failed to load default model ("$Pawn.GetDefaultCharacter()$")!");
+            return;
+        }
         if (Pawn.bAlreadySetup)
         {
             if (Pawn.IsAnimating())
