@@ -1,4 +1,5 @@
-class MutHexedINSTAGIB extends HxMutator;
+class MutHexedINSTAGIB extends HxMutator
+    config(HexedServer);
 
 var config bool bAllowTranslocator;
 var config bool bAllowBoost;

@@ -1,4 +1,5 @@
-class MutHexedUT extends HxMutator;
+class MutHexedUT extends HxMutator
+    config(HexedServer);
 
 enum EHxHitOverlay
 {
