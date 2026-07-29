@@ -14,6 +14,7 @@ var config HxSkinHighlight.EHxSkinType TeammateSkin;
 var config HxSkinHighlight.EHxSkinType EnemySkin;
 var config bool bRandomize;
 var config bool bDisableOnDeadBodies;
+var config bool bDisableOnHeads;
 var config HxSkinHighlight.EHxHighlightMode HighlightMode;
 var config int SpectatorTeam;
 var config string PreferredTeammateModel;
@@ -82,6 +83,7 @@ function InitializeProperties()
     class'HxSkinHighlight'.default.EnemySkin = EnemySkin;
     class'HxSkinHighlight'.default.bRandomize = bRandomize;
     class'HxSkinHighlight'.default.bDisableOnDeadBodies = bDisableOnDeadBodies;
+    class'HxSkinHighlight'.default.bDisableOnHeads = bDisableOnHeads;
     class'HxSkinHighlight'.default.HighlightMode = HighlightMode;
     class'HxSkinHighlight'.default.SpectatorTeam = SpectatorTeam;
     class'HxSkinHighlight'.default.TeammateModel = CurrentTeammateModel;
@@ -132,21 +134,24 @@ function ApplyProperty(int Index)
             class'HxSkinHighlight'.default.bDisableOnDeadBodies = bDisableOnDeadBodies;
             break;
         case 12:
-            class'HxSkinHighlight'.default.HighlightMode = HighlightMode;
+            class'HxSkinHighlight'.default.bDisableOnHeads = bDisableOnHeads;
             break;
         case 13:
-            class'HxSkinHighlight'.default.SpectatorTeam = SpectatorTeam;
+            class'HxSkinHighlight'.default.HighlightMode = HighlightMode;
             break;
         case 14:
-            class'HxSkinHighlight'.default.TeammateModel = CurrentTeammateModel;
+            class'HxSkinHighlight'.default.SpectatorTeam = SpectatorTeam;
             break;
         case 15:
-            class'HxSkinHighlight'.default.bForceTeammateModel = bForceTeammateModel;
+            class'HxSkinHighlight'.default.TeammateModel = CurrentTeammateModel;
             break;
         case 16:
-            class'HxSkinHighlight'.default.EnemyModel = CurrentEnemyModel;
+            class'HxSkinHighlight'.default.bForceTeammateModel = bForceTeammateModel;
             break;
         case 17:
+            class'HxSkinHighlight'.default.EnemyModel = CurrentEnemyModel;
+            break;
+        case 18:
             class'HxSkinHighlight'.default.bForceEnemyModel = bForceEnemyModel;
             break;
     }
@@ -208,28 +213,32 @@ function bool ResetProperty(int Index)
             bReset = true;
             break;
         case 12:
-            HighlightMode = default.HighlightMode;
+            bDisableOnHeads = default.bDisableOnHeads;
             bReset = true;
             break;
         case 13:
-            SpectatorTeam = default.SpectatorTeam;
+            HighlightMode = default.HighlightMode;
             bReset = true;
             break;
         case 14:
+            SpectatorTeam = default.SpectatorTeam;
+            bReset = true;
+            break;
+        case 15:
             PreferredTeammateModel = default.PreferredTeammateModel;
             CurrentTeammateModel = default.CurrentTeammateModel;
             bReset = true;
             break;
-        case 15:
+        case 16:
             bForceTeammateModel = default.bForceTeammateModel;
             bReset = true;
             break;
-        case 16:
+        case 17:
             PreferredEnemyModel = default.PreferredEnemyModel;
             CurrentEnemyModel = default.CurrentEnemyModel;
             bReset = true;
             break;
-        case 17:
+        case 18:
             bForceEnemyModel = default.bForceEnemyModel;
             bReset = true;
             break;
@@ -405,12 +414,13 @@ defaultproperties
     Properties(9)=(Name="EnemySkin",Type=HX_PROPERTY_Enum,UpperLimit="3",EnumType=enum'EHxSkinType')
     Properties(10)=(Name="bRandomize",Type=HX_PROPERTY_Bool)
     Properties(11)=(Name="bDisableOnDeadBodies",Type=HX_PROPERTY_Bool)
-    Properties(12)=(Name="HighlightMode",Type=HX_PROPERTY_Enum,UpperLimit="2",EnumType=enum'EHxHighlightMode')
-    Properties(13)=(Name="SpectatorTeam",Type=HX_PROPERTY_Int,LowerLimit="0",UpperLimit="1")
-    Properties(14)=(Name="CurrentTeammateModel",Type=HX_PROPERTY_String)
-    Properties(15)=(Name="bForceTeammateModel",Type=HX_PROPERTY_Bool)
-    Properties(16)=(Name="CurrentEnemyModel",Type=HX_PROPERTY_String)
-    Properties(17)=(Name="bForceEnemyModel",Type=HX_PROPERTY_Bool)
+    Properties(12)=(Name="bDisableOnHeads",Type=HX_PROPERTY_Bool)
+    Properties(13)=(Name="HighlightMode",Type=HX_PROPERTY_Enum,UpperLimit="2",EnumType=enum'EHxHighlightMode')
+    Properties(14)=(Name="SpectatorTeam",Type=HX_PROPERTY_Int,LowerLimit="0",UpperLimit="1")
+    Properties(15)=(Name="CurrentTeammateModel",Type=HX_PROPERTY_String)
+    Properties(16)=(Name="bForceTeammateModel",Type=HX_PROPERTY_Bool)
+    Properties(17)=(Name="CurrentEnemyModel",Type=HX_PROPERTY_String)
+    Properties(18)=(Name="bForceEnemyModel",Type=HX_PROPERTY_Bool)
 
     Teammates="DISABLED"
     Enemies="DISABLED"
@@ -424,6 +434,7 @@ defaultproperties
     EnemySkin=HX_SKIN_Normal
     bRandomize=false
     bDisableOnDeadBodies=false
+    bDisableOnHeads=false
     HighlightMode=HX_SHM_RoleBased
     SpectatorTeam=0
     PreferredTeammateModel="Jakob"

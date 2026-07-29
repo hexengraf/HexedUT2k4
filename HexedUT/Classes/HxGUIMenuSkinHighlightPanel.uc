@@ -3,7 +3,7 @@ class HxGUIMenuSkinHighlightPanel extends HxGUIMenuPanel;
 const SECTION_TEAMMATES = 0;
 const SECTION_ENEMIES = 1;
 const SECTION_HIT_OVERLAYS = 2;
-const SECTION_ADVANCED = 3;
+const SECTION_ADVANCED = 4;
 
 var automated moComboBox co_Teammates;
 var automated moComboBox co_TeammateProtected;
@@ -26,6 +26,7 @@ var automated moComboBox co_LightningHit;
 
 var automated moCheckBox ch_Randomize;
 var automated moCheckBox ch_DisableOnDeadBodies;
+var automated moCheckBox ch_DisableOnHeads;
 var automated moComboBox co_HighlightMode;
 var automated moComboBox co_SpectateAs;
 var automated GUIButton b_CustomizeColors;
@@ -71,6 +72,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     Sections[SECTION_HIT_OVERLAYS].Insert(co_LightningHit);
     Sections[SECTION_ADVANCED].Insert(ch_Randomize);
     Sections[SECTION_ADVANCED].Insert(ch_DisableOnDeadBodies);
+    Sections[SECTION_ADVANCED].Insert(ch_DisableOnHeads);
     Sections[SECTION_ADVANCED].Insert(co_HighlightMode);
     Sections[SECTION_ADVANCED].Insert(co_SpectateAs);
     Sections[SECTION_ADVANCED].Insert(b_CustomizeColors);
@@ -336,7 +338,7 @@ function OnCloseChangeTeammateModel(optional bool bCancelled)
         CharName = Controller.ActivePage.GetDataString();
         if (CharName != "")
         {
-            Config.SetProperty(14, CharName);
+            Config.SetProperty(15, CharName);
             TeammatePreview.Setup(Config.CurrentTeammateModel);
             UpdateSectionHeaders();
         }
@@ -368,7 +370,7 @@ function OnCloseChangeEnemyModel(optional bool bCancelled)
         CharName = Controller.ActivePage.GetDataString();
         if (CharName != "")
         {
-            Config.SetProperty(16, CharName);
+            Config.SetProperty(17, CharName);
             EnemyPreview.Setup(Config.CurrentEnemyModel);
             UpdateSectionHeaders();
         }
@@ -423,7 +425,7 @@ event Free()
 defaultproperties
 {
     Begin Object class=HxGUIFramedSection Name=TeammatesSection
-        WinHeight=0.52
+        WinHeight=0.448
         LineSpacing=0.012
         ColumnSpacing=0.01
         ColumnWidths=(0.6,0.4)
@@ -432,7 +434,7 @@ defaultproperties
     End Object
 
     Begin Object class=HxGUIFramedSection Name=EnemiesSection
-        WinHeight=0.52
+        WinHeight=0.448
         LineSpacing=0.012
         ColumnSpacing=0.01
         ColumnWidths=(0.6,0.4)
@@ -442,12 +444,16 @@ defaultproperties
 
     Begin Object class=HxGUIFramedSection Name=HitOverlaysSection
         Caption="Hit Overlays"
-        WinHeight=0.48
+        WinHeight=0.242
+        ColumnWidths=(0.5,0.5)
+        MaxItemsPerColumn=2
     End Object
 
     Begin Object class=HxGUIFramedSection Name=AdvancedSection
         Caption="Advanced Options"
-        WinHeight=0.48
+        WinHeight=0.31
+        ColumnWidths=(0.5,0.5)
+        MaxItemsPerColumn=3
     End Object
 
     Begin Object class=moComboBox Name=TeammatesComboBox
@@ -494,7 +500,7 @@ defaultproperties
         Caption="Force Model"
         Hint="Force the selected model on teammates."
         INIOption="@INTERNAL"
-        Tag=15
+        Tag=16
         CaptionWidth=0.8
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
@@ -525,62 +531,6 @@ defaultproperties
     End Object
     b_ChangeTeammateModel=ChangeTeammateModelButton
 
-    Begin Object class=moComboBox Name=ShieldHitComboBox
-        Caption="Shield Hit"
-        Hint="Highlight color to use when a shielded player is hit."
-        INIOption="@INTERNAL"
-        Tag=2
-        CaptionWidth=0.42
-        bReadOnly=true
-        bAlwaysNotify=true
-        OnLoadINI=InternalOnLoadINI
-        OnChange=InternalOnChange
-        TabOrder=5
-    End Object
-    co_ShieldHit=ShieldHitComboBox
-
-    Begin Object class=moComboBox Name=LinkHitComboBox
-        Caption="Link Hit"
-        Hint="Highlight color to use when a player is hit with a link gun."
-        INIOption="@INTERNAL"
-        Tag=3
-        CaptionWidth=0.42
-        bReadOnly=true
-        bAlwaysNotify=true
-        OnLoadINI=InternalOnLoadINI
-        OnChange=InternalOnChange
-        TabOrder=6
-    End Object
-    co_LinkHit=LinkHitComboBox
-
-    Begin Object class=moComboBox Name=ShockHitComboBox
-        Caption="Shock Hit"
-        Hint="Highlight color to use when a player is hit with a shock rifle."
-        INIOption="@INTERNAL"
-        Tag=4
-        CaptionWidth=0.42
-        bReadOnly=true
-        bAlwaysNotify=true
-        OnLoadINI=InternalOnLoadINI
-        OnChange=InternalOnChange
-        TabOrder=7
-    End Object
-    co_ShockHit=ShockHitComboBox
-
-    Begin Object class=moComboBox Name=LightningHitComboBox
-        Caption="Lightning Hit"
-        Hint="Highlight color to use when a player is hit with a lightning gun."
-        INIOption="@INTERNAL"
-        Tag=5
-        CaptionWidth=0.42
-        bReadOnly=true
-        bAlwaysNotify=true
-        OnLoadINI=InternalOnLoadINI
-        OnChange=InternalOnChange
-        TabOrder=8
-    End Object
-    co_LightningHit=LightningHitComboBox
-
     Begin Object class=moComboBox Name=EnemiesComboBox
         Caption="Highlight"
         Hint="Highlight color for your enemies."
@@ -590,7 +540,7 @@ defaultproperties
         bReadOnly=true
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
-        TabOrder=9
+        TabOrder=5
     End Object
     co_Enemies=EnemiesComboBox
 
@@ -604,7 +554,7 @@ defaultproperties
         bAlwaysNotify=true
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
-        TabOrder=10
+        TabOrder=6
     End Object
     co_EnemyProtected=EnemyProtectedComboBox
 
@@ -617,7 +567,7 @@ defaultproperties
         bReadOnly=true
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
-        TabOrder=11
+        TabOrder=7
     End Object
     co_EnemySkin=EnemySkinComboBox
 
@@ -625,11 +575,11 @@ defaultproperties
         Caption="Force Model"
         Hint="Force the selected model on enemies."
         INIOption="@INTERNAL"
-        Tag=17
+        Tag=18
         CaptionWidth=0.8
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
-        TabOrder=12
+        TabOrder=8
     End Object
     ch_ForceEnemyModel=ForceEnemyModel
 
@@ -652,9 +602,65 @@ defaultproperties
         StyleName="HxSquareButton"
         bRepeatClick=false
         OnClick=OnClickChangeEnemyModel
-        TabOrder=13
+        TabOrder=9
     End Object
     b_ChangeEnemyModel=ChangeEnemyModelButton
+
+    Begin Object class=moComboBox Name=ShieldHitComboBox
+        Caption="Shield Hit"
+        Hint="Highlight color to use when a shielded player is hit."
+        INIOption="@INTERNAL"
+        Tag=2
+        CaptionWidth=0.42
+        bReadOnly=true
+        bAlwaysNotify=true
+        OnLoadINI=InternalOnLoadINI
+        OnChange=InternalOnChange
+        TabOrder=10
+    End Object
+    co_ShieldHit=ShieldHitComboBox
+
+    Begin Object class=moComboBox Name=LinkHitComboBox
+        Caption="Link Hit"
+        Hint="Highlight color to use when a player is hit with a link gun."
+        INIOption="@INTERNAL"
+        Tag=3
+        CaptionWidth=0.42
+        bReadOnly=true
+        bAlwaysNotify=true
+        OnLoadINI=InternalOnLoadINI
+        OnChange=InternalOnChange
+        TabOrder=11
+    End Object
+    co_LinkHit=LinkHitComboBox
+
+    Begin Object class=moComboBox Name=ShockHitComboBox
+        Caption="Shock Hit"
+        Hint="Highlight color to use when a player is hit with a shock rifle."
+        INIOption="@INTERNAL"
+        Tag=4
+        CaptionWidth=0.42
+        bReadOnly=true
+        bAlwaysNotify=true
+        OnLoadINI=InternalOnLoadINI
+        OnChange=InternalOnChange
+        TabOrder=12
+    End Object
+    co_ShockHit=ShockHitComboBox
+
+    Begin Object class=moComboBox Name=LightningHitComboBox
+        Caption="Lightning Hit"
+        Hint="Highlight color to use when a player is hit with a lightning gun."
+        INIOption="@INTERNAL"
+        Tag=5
+        CaptionWidth=0.42
+        bReadOnly=true
+        bAlwaysNotify=true
+        OnLoadINI=InternalOnLoadINI
+        OnChange=InternalOnChange
+        TabOrder=13
+    End Object
+    co_LightningHit=LightningHitComboBox
 
     Begin Object class=moCheckBox Name=RandomizeCheckBox
         Caption="Randomize Highlights"
@@ -680,22 +686,21 @@ defaultproperties
     End Object
     ch_DisableOnDeadBodies=DisableOnDeadBodiesCheckBox
 
-    Begin Object class=moComboBox Name=HighlightModeComboBox
-        Caption="Highlight Mode"
-        Hint="Choose if highlight is applied based on roles (teammates/enemies) or based on teams (red/blue)."
+    Begin Object class=moCheckBox Name=DisableOnHeadsCheckBox
+        Caption="Disable Highlight On Heads"
+        Hint="Don't apply highlights to player heads (UTComp-like)."
         INIOption="@INTERNAL"
         Tag=12
-        CaptionWidth=0.42
-        bReadOnly=true
+        CaptionWidth=0.8
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
         TabOrder=16
     End Object
-    co_HighlightMode=HighlightModeComboBox
+    ch_DisableOnHeads=DisableOnHeadsCheckBox
 
-    Begin Object class=moComboBox Name=SpectateAsComboBox
-        Caption="Spectate As"
-        Hint="Select which team's perspective to spectate as."
+    Begin Object class=moComboBox Name=HighlightModeComboBox
+        Caption="Highlight Mode"
+        Hint="Choose if highlight is applied based on roles (teammates/enemies) or based on teams (red/blue)."
         INIOption="@INTERNAL"
         Tag=13
         CaptionWidth=0.42
@@ -703,6 +708,19 @@ defaultproperties
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
         TabOrder=17
+    End Object
+    co_HighlightMode=HighlightModeComboBox
+
+    Begin Object class=moComboBox Name=SpectateAsComboBox
+        Caption="Spectate As"
+        Hint="Select which team's perspective to spectate as."
+        INIOption="@INTERNAL"
+        Tag=14
+        CaptionWidth=0.42
+        bReadOnly=true
+        OnLoadINI=InternalOnLoadINI
+        OnChange=InternalOnChange
+        TabOrder=18
     End Object
     co_SpectateAs=SpectateAsComboBox
 
@@ -714,7 +732,7 @@ defaultproperties
         StyleName="HxSquareButton"
         bRepeatClick=false
         OnClick=OnClickCustomizeColors
-        TabOrder=18
+        TabOrder=19
     End Object
     b_CustomizeColors=CustomizeColorsBoxButton
 
@@ -726,7 +744,8 @@ defaultproperties
     Sections(0)=TeammatesSection
     Sections(1)=EnemiesSection
     Sections(2)=HitOverlaysSection
-    Sections(3)=AdvancedSection
+    Sections(3)=None
+    Sections(4)=AdvancedSection
     DisabledLabel="Disabled"
     NativeLabel="Native"
     DefaultLabel="Default"

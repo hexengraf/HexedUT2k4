@@ -31,6 +31,7 @@ var EHxSkinType TeammateSkin;
 var EHxSkinType EnemySkin;
 var bool bRandomize;
 var bool bDisableOnDeadBodies;
+var bool bDisableOnHeads;
 var EHxHighlightMode HighlightMode;
 var int SpectatorTeam;
 var string TeammateModel;
@@ -452,13 +453,28 @@ state Reskin
                 {
                     SkinShaders[i].Opacity = SkinTexture;
                     SkinShaders[i].SpecularityMask = SkinTexture;
+                    if (bDisableOnHeads && i == 1)
+                    {
+                        SkinFinalBlends[i].Material = WorkaroundCombiners[1];
+                    }
+                    else
+                    {
+                        SkinFinalBlends[i].Material = SkinShaders[1];
+                    }
                     Base.Skins[i] = SkinFinalBlends[i];
                 }
                 else
                 {
                     SkinShaders[i].Opacity = None;
                     SkinShaders[i].SpecularityMask = None;
-                    Base.Skins[i] = SkinShaders[i];
+                    if (bDisableOnHeads && i == 1)
+                    {
+                        Base.Skins[1] = WorkaroundCombiners[1];
+                    }
+                    else
+                    {
+                        Base.Skins[i] = SkinShaders[i];
+                    }
                 }
             }
         }
@@ -752,6 +768,7 @@ simulated final function LoadDefaults()
     EnemySkin = class'HxSkinHighlight'.default.EnemySkin;
     bRandomize = class'HxSkinHighlight'.default.bRandomize;
     bDisableOnDeadBodies = class'HxSkinHighlight'.default.bDisableOnDeadBodies;
+    bDisableOnHeads = class'HxSkinHighlight'.default.bDisableOnHeads;
     HighlightMode = class'HxSkinHighlight'.default.HighlightMode;
     SpectatorTeam = class'HxSkinHighlight'.default.SpectatorTeam;
     TeammateModel = class'HxSkinHighlight'.default.TeammateModel;
@@ -1090,6 +1107,7 @@ defaultproperties
     EnemySkin=HX_SKIN_Normal
     bRandomize=false
     bDisableOnDeadBodies=false
+    bDisableOnHeads=false
     HighlightMode=HX_SHM_RoleBased
     SpectatorTeam=0
     TeammateModel="Jakob"
