@@ -73,7 +73,7 @@ var protected xUtil.PlayerRecord PlayerRecord;
 
 replication
 {
-    reliable if (Role == ROLE_Authority)
+    reliable if (Role == ROLE_Authority && (bNetDirty || bNetInitial))
         TeamNumber,
         BaseIntensity,
         OverlayIntensity,
@@ -139,6 +139,18 @@ final function SetAllowForcedModels(bool bValue)
     bAllowForcedModels = bValue;
 }
 
+simulated function PawnBaseDied()
+{
+    bTearOff = true;
+    bDead = true;
+}
+
+simulated function Restart()
+{
+    LoadDefaults();
+    GotoState('Startup');
+}
+
 simulated event Destroyed()
 {
     local int i;
@@ -163,15 +175,11 @@ auto state Startup
 {
     simulated event BeginState()
     {
-        if (bDead)
+        if (bDead || bPendingDelete || bDeleteMe)
         {
             GotoState('Disabled');
         }
-        else if (Level.NetMode != NM_DedicatedServer)
-        {
-            Initialize();
-        }
-        else
+        else if (Level.NetMode == NM_DedicatedServer)
         {
             GotoState('TrackProtection');
         }
@@ -179,17 +187,12 @@ auto state Startup
 
     simulated event Tick(float DeltaTime)
     {
-        Initialize();
-    }
-
-    simulated function Initialize()
-    {
         if (Client == None)
         {
-            foreach DynamicActors(class'HxUTClient', Client) break;
-            if (Client != None)
+            foreach DynamicActors(class'HxUTClient', Client)
             {
                 Colors = Client.GetSkinHighlightColors();
+                break;
             }
         }
         if (PC == None)
@@ -275,6 +278,10 @@ auto state Startup
         local string Model;
         local bool bEnemy;
 
+        if (bPendingDelete || bDeleteMe)
+        {
+            Restart();
+        }
         Pawn = xPawn(Base);
         if (Pawn != None)
         {
@@ -385,7 +392,7 @@ state Reskin
         local xPawn Pawn;
 
         Pawn = xPawn(Base);
-        if (Pawn == None)
+        if (Pawn == None || bPendingDelete || bDeleteMe)
         {
             Restart();
         }
@@ -482,7 +489,7 @@ state Enabled
 {
     simulated function bool ValidatePawnState()
     {
-        if (Base == None || LocalPlayerTeam != GetLocalPlayerTeam())
+        if (Base == None || LocalPlayerTeam != GetLocalPlayerTeam() || bPendingDelete || bDeleteMe)
         {
             Restart();
             return false;
@@ -534,6 +541,44 @@ state Enabled
         Global.PawnBaseDied();
     }
 
+    simulated function Restart()
+    {
+        LoadDefaults();
+        RestoreSkins();
+        GotoState('Startup');
+    }
+
+    simulated function Destroyed()
+    {
+        RestoreSkins();
+        Global.Destroyed();
+        GotoState('Disabled');
+    }
+
+    simulated function RestoreSkins()
+    {
+        local xPawn Pawn;
+        local int NumSkins;
+        local int i;
+
+        if (Base != None && OriginalSkins.Length > 0)
+        {
+            Pawn = xPawn(Base);
+            if (Pawn != None && Pawn.bOldInvis && !Pawn.bDeRes && !Pawn.bSkeletized)
+            {
+                NumSkins = Min(OriginalSkins.Length, 4);
+                for (i = 0; i < NumSkins; ++i)
+                {
+                    Pawn.RealSkins[i] = OriginalSkins[i];
+                }
+            }
+            else
+            {
+                Base.Skins = OriginalSkins;
+            }
+        }
+    }
+
     simulated function ToggleBaseSkins()
     {
         local array<Material> TempSkins;
@@ -568,40 +613,6 @@ state Enabled
             Base.Skins = BaseSkins;
             BaseSkins = TempSkins;
         }
-    }
-
-    simulated function Restart()
-    {
-        local xPawn Pawn;
-        local int NumSkins;
-        local int i;
-
-        LoadDefaults();
-        Pawn = xPawn(Base);
-        if (Pawn != None)
-        {
-            if (Pawn.bDeRes || Pawn.bSkeletized)
-            {
-                GotoState('Disabled');
-            }
-            else if (Pawn.bOldInvis)
-            {
-                NumSkins = Min(OriginalSkins.Length, 4);
-                for (i = 0; i < NumSkins; ++i)
-                {
-                    Pawn.RealSkins[i] = OriginalSkins[i];
-                }
-            }
-            else
-            {
-                Pawn.Skins = OriginalSkins;
-            }
-        }
-        else if (OriginalSkins.Length > 0 && Base != None)
-        {
-            Base.Skins = OriginalSkins;
-        }
-        GotoState('Startup');
     }
 }
 
@@ -661,12 +672,9 @@ state Overlayed extends Enabled
     {
         if (bDisableOnDeadBodies)
         {
-            if (Base != None)
+            if (Base != None && OverlayIndex > -1)
             {
-                if (OverlayIndex > -1)
-                {
-                    ToggleBaseSkins();
-                }
+                ToggleBaseSkins();
             }
             GotoState('Disabled');
         }
@@ -718,18 +726,6 @@ state Disabled
             Disable('Tick');
         }
     }
-}
-
-simulated function PawnBaseDied()
-{
-    bTearOff = true;
-    bDead = true;
-}
-
-simulated function Restart()
-{
-    LoadDefaults();
-    GotoState('Startup');
 }
 
 simulated final function LoadDefaults()
@@ -1059,8 +1055,7 @@ defaultproperties
     RemoteRole=ROLE_SimulatedProxy
     bHardAttach=true
     bHidden=true
-    bOnlyDirtyReplication=true
-    NetUpdateFrequency=100
+    NetUpdateFrequency=20
     NetPriority=3
     TeamNumber=-1
     BaseIntensity=-1
