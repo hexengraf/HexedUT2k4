@@ -139,7 +139,7 @@ defaultproperties
 {
     Begin Object class=GUITabControl Name=TabControl
         WinWidth=0.97
-        WinHeight=0.06
+        WinHeight=0.055
         WinLeft=0.015
         TabHeight=0.0375
         bAcceptsInput=true
@@ -154,7 +154,7 @@ defaultproperties
 
     WindowName="HexedMenu"
     WinLeft=0.1
-    WinTop=0.19
+    WinTop=0.16
     WinWidth=0.8
-    WinHeight=0.62
+    WinHeight=0.68
 }

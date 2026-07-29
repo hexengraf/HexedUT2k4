@@ -325,7 +325,7 @@ defaultproperties
         WinLeft=0
         WinTop=0
         WinWidth=1
-        StandardHeight=0.035
+        StandardHeight=0.0325
         bStandardized=true
         StyleName="HxMenuSectionHeader"
         TextAlign=TXTA_Center
