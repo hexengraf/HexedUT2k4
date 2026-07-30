@@ -92,7 +92,7 @@ $(OUTDIR)/System/%.u: $(OUTDIR)/%.ini $$(call getsrcs,$$*) $$(call getdeps,$$*) 
 	work_dir=$$(pwd)
 	cd $(OUTDIR)/System
 	rm -f $*.u $*.ucl
-	$(UCC) make -ini=../$*.ini -log=../$*.log | grep -Ei "$(VERBOSITY)"
+	$(UCC) make -ini=../$*.ini -log=../$*.log -nohomedir | grep -Ei "$(VERBOSITY)"
 	$(UCC) dumpint $*.u | grep -Ei "$(VERBOSITY)"
 	if [ -f "../$*/$(inttemplate)" ]; then
 		sed -r "s/$(pkgplaceholder)/$*/g" "../$*/$(inttemplate)" >> "$*.int";
