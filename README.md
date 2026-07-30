@@ -205,7 +205,7 @@ CustomColor=(B=4,G=191,R=239,A=255)
 
 #### Server options
 
-The following section is saved in `UT2004.ini`:
+The following section is saved in `HexedMutators.ini`:
 ```ini
 [HexedUTv9.MutHexedUT]
 ; Allow clients to enable/disable hit sound effects.
@@ -322,7 +322,7 @@ FilterList="DM-1on1-Albatross"
 
 #### Server options
 
-The following section is saved in `UT2004.ini`:
+The following section is saved in `HexedMutators.ini`:
 ```ini
 [HexedVOTEv9.MutHexedVOTE]
 ; Background for the votes list (upper list). Use ~16:3 images.
@@ -361,7 +361,7 @@ List of features:
 
 #### Server options
 
-The following section is saved in `UT2004.ini`:
+The following section is saved in `HexedMutators.ini`:
 ```ini
 [HexedARENAv9.MutHexedCONTROL]
 ; Bonus to starting health (between -99 and 99).
@@ -436,7 +436,7 @@ All HexedUT2k4 mutators consume their URL options, so they're not "sticky" as it
 
 #### Server options
 
-The following section is saved in `UT2004.ini`:
+The following section is saved in `HexedMutators.ini`:
 ```ini
 [HexedARENAv9.MutHexedCONTROL]
 ; Determines which weapon will be used in the arena match.
@@ -480,7 +480,7 @@ CustomZoomCrosshairScale=1.0
 
 #### Server options
 
-The following section is saved in `UT2004.ini`:
+The following section is saved in `HexedMutators.ini`:
 ```ini
 [HexedARENAv9.MutHexedINSTAGIB]
 ; Players get a Translocator in their inventory.
@@ -521,7 +521,7 @@ PingSmoothing=0.300000
 
 #### Server options
 
-The following section is saved in `UT2004.ini`:
+The following section is saved in `HexedMutators.ini`:
 ```ini
 [HexedNETv9.MutHexedNET]
 ; Maximum frequency to send pings (pings/second), between 0.2 and 20.

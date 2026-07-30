@@ -14,6 +14,8 @@ HexedUT changes:
 * Added a new option to control how skin highlights are assigned (`HighlightMode`):
   * Choose between role-based (current behavior) or team-based (a static assignment that doesn't care what is your current team).
 * Added two new options to control the overlay used by spawn protection for teammates and enemies (`TeammateProtected` and `EnemyProtected`).
+* Added a new option to control if skin highlights are applied to heads (`bDisableOnHeads`).
+  * For players who prefer the way UTComp's brightskins work.
 * Reworked the behavior of the "DEFAULT" value for hit overlays and spawn protection:
   * It now uses a pre-defined selection of colors for each overlay instead of the native overlays.
   * Added "NATIVE" as an option to allow using the native overlays.
@@ -33,6 +35,10 @@ HexedUT changes:
   * Off by default, competitive servers might want this on.
 * Added new server-side option to hide disabled features from the server status (`bHideDisabledFeatures`).
 
+HexedVOTE changes:
+* Added option to disable the enhanced map vote menu (`bDisableMapVoteMenu`).
+  * Acts as a failsafe for players facing the issue of not being able to vote.
+
 HexedNET changes:
 * Added new server-side option to control the ping compensation limit applied to projectiles (`ProjectileCompensationLimit`), previously hardcoded to 75ms.
   * Handle this option as experimental, it might bring unforeseen consequences.
@@ -44,11 +50,15 @@ HexedNET changes:
 * Fixed an improper beam effect spawning when quickly pressing shock rifles' secondary fire followed by primary fire.
 
 General changes:
+* Moved all mutator configuration to a separate file: `HexedMutators.ini`.
 * Capitalized all words in GUI labels to be consistent with the rest of the game.
 * Further hardened client code to handle extreme replication issues where relevant actors are mistakenly destroyed client-side.
   * Server admins facing such issues can mitigate it by increasing `RelevantTimeout` in `[IpDrv.TcpNetDriver]`, but you might want to investigate why your server connection is getting saturated.
 * Fixed a visual bug that could occur in the configuration menu's general panel when using certain resolutions.
 * Updated the configuration menu to reflect the new options.
+
+> [!WARNING]
+> Make sure to properly migrate all mutator configuration to the new INI file: `HexedMutators.ini`.
 
 Known limitations:
 * No skin highlight on Mutant game mode.
