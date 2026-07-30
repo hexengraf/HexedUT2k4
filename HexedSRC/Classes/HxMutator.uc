@@ -201,15 +201,13 @@ function NotifyLogout(Controller Exiting)
 
 function ValidateClientReplicationInfos()
 {
-    local HxClientReplicationInfo CRI;
     local Controller P;
 
     for (P = Level.ControllerList; P != None; P = P.nextController)
     {
         if (P.IsA('PlayerController') && !P.IsA('MessagingSpectator'))
         {
-            CRI = GetClientReplicationInfo(P);
-            if (CRI == None)
+            if (GetClientReplicationInfo(P) == None)
             {
                 SpawnClientReplicationInfo(P);
             }
@@ -223,7 +221,6 @@ function SpawnClientReplicationInfo(Actor ClientOwner)
 
     CRI = ClientOwner.Spawn(CRIClass, ClientOwner,, ClientOwner.Location);
     CRI.SetupServer(Self);
-    CRI.NetUpdateTime = Level.TimeSeconds - 1;
     CRIs[CRIs.Length] = CRI;
 }
 
