@@ -1089,11 +1089,11 @@ defaultproperties
     OverlayIntensity=-1
     AllowHitOverlays=HX_HO_Invalid
     LocalPlayerTeam=255
-    OverlayColors(0)=(R=255,G=175,B=80,A=255)
+    OverlayColors(0)=(R=255,G=175,B=48,A=255)
     OverlayColors(1)=(R=80,G=255,B=80,A=255)
     OverlayColors(2)=(R=180,G=80,B=255,A=255)
     OverlayColors(3)=(R=140,G=140,B=255,A=255)
-    OverlayColors(4)=(R=255,G=175,B=80,A=255)
+    OverlayColors(4)=(R=255,G=175,B=48,A=255)
 
     Teammates="DISABLED"
     Enemies="DISABLED"
