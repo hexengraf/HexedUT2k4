@@ -44,12 +44,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     Unpause();
     AdjustWindowSize(Controller.ResX, Controller.ResY);
     ForEach PlayerOwner().DynamicActors(class'HxClientManager', ClientManager) break;
-    Client = HxVTClient(ClientManager.Find(class'HxVTClient'));
-    lb_VoteList.SetClient(Client);
-    lb_MapList.SetClient(Client);
-    MapBanner.SetClient(Client);
-    UpdateMapFilter();
-    ShowInitialState();
+    UpdateClient();
     SetTimer(0.02, true);
 }
 
@@ -82,15 +77,6 @@ function Unpause()
 
 function InternalOnOpen()
 {
-    if (Client == None)
-    {
-        Client = HxVTClient(ClientManager.Find(class'HxVTClient'));
-        lb_VoteList.SetClient(Client);
-        lb_MapList.SetClient(Client);
-        MapBanner.SetClient(Client);
-        ShowInitialState();
-        SetTimer(0.02, true);
-    }
     if (VoteListCustomBG != default.VoteListCustomBG)
     {
         VoteListCustomBG = default.VoteListCustomBG;
@@ -111,9 +97,17 @@ function InternalOnOpen()
         ChatBoxCustomBG = default.ChatBoxCustomBG;
         ChatBox.SetCustomBackground(ChatBoxCustomBG);
     }
-    lb_VoteList.Refresh();
-    lb_MapList.Refresh();
-    MapBanner.Refresh();
+    if (Client != None)
+    {
+        lb_VoteList.Refresh();
+        lb_MapList.Refresh();
+        MapBanner.Refresh();
+    }
+    else
+    {
+        Warn(Name$": Lost reference to the client!");
+        SetTimer(0.02, true);
+    }
 }
 
 function bool InternalOnKeyEvent(out byte Key, out byte State, float Delta)
@@ -169,9 +163,25 @@ function bool InternalOnKeyEvent(out byte Key, out byte State, float Delta)
     return false;
 }
 
+function UpdateClient()
+{
+    Client = HxVTClient(ClientManager.Find(class'HxVTClient'));
+    if (Client != None)
+    {
+        lb_VoteList.SetClient(Client);
+        lb_MapList.SetClient(Client);
+        MapBanner.SetClient(Client);
+        ShowInitialState();
+    }
+}
+
 event Timer()
 {
-    if (Client.IsInitialized())
+    if (Client == None)
+    {
+        UpdateClient();
+    }
+    if (Client != None && Client.IsInitialized())
     {
         if (!Client.IsMapVoteEnabled())
         {
@@ -226,6 +236,7 @@ function ShowReadyState()
     b_Random.EnableMe();
     b_Vote.EnableMe();
     l_RetrievingMapList.SetVisibility(false);
+    UpdateMapFilter();
     PopulateGameTypeList();
     lb_MapList.Initialize();
     lb_VoteList.Initialize();
@@ -250,6 +261,7 @@ function UpdateMapFilter()
 
     Index = Max(0, co_MapFilter.GetIndex());
     co_MapFilter.ResetComponent();
+    co_MapFilter.MyComboBox.MyListBox.MyList.bInitializeList = false;
     FilterManager.PopulateComboBox(co_MapFilter);
     co_MapFilter.SilentSetIndex(Min(Index, co_MapFilter.ItemCount() - 1));
     lb_MapList.SetFilter(FilterManager.SwitchActiveFilter(co_MapFilter.GetComponentValue()));
