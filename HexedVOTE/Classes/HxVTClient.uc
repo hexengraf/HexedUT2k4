@@ -24,6 +24,7 @@ struct HxMapResources
 var VotingReplicationInfo VRI;
 var array<HxMapEntry> Maps;
 
+var private HxVTMenuConfig MenuConfig;
 var private GUIController GC;
 var private HxFavorites Favorites;
 var private array<HxMapResources> Resources;
@@ -52,6 +53,7 @@ simulated event PostBeginPlay()
     if (Level.NetMode != NM_DedicatedServer)
     {
         Favorites = HxFavorites(Manager.LoadObject(class'HxFavorites', "Maps"));
+        MenuConfig = HxVTMenuConfig(FindConfig(class'HxVTMenuConfig'));
     }
 }
 
@@ -255,8 +257,16 @@ simulated function UpdateReplaceMapVoteMenu()
     if (GC != None && bServerPropertiesReady)
     {
         // TODO: wait for OU stable release before using CustomMapVotingMenu.
-        // bReplaceMapVoteMenu = !GC.SetPropertyText("CustomMapVotingMenu", CustomMapVoteMenu);
-        bReplaceMapVoteMenu = true;
+        if (MenuConfig.bDisableMapVoteMenu)
+        {
+            // GC.SetPropertyText("CustomMapVotingMenu", "");
+            bReplaceMapVoteMenu = false;
+        }
+        else
+        {
+            // bReplaceMapVoteMenu = !GC.SetPropertyText("CustomMapVotingMenu", CustomMapVoteMenu);
+            bReplaceMapVoteMenu = true;
+        }
     }
 }
 
@@ -341,6 +351,14 @@ simulated function NotifyServerPropertyChanged(int Index, string OldValue)
         case "MapPreviewLoaders":
             UpdateResourcePreviews();
             break;
+    }
+}
+
+simulated function NotifyUserPropertyChanged(HxConfig Config, int Index, string OldValue)
+{
+    if (Config == MenuConfig)
+    {
+        UpdateReplaceMapVoteMenu();
     }
 }
 
@@ -497,5 +515,6 @@ static private final function string GetMapDescriptionFromRecord(CacheManager.Ma
 defaultproperties
 {
     MutatorClass=class'MutHexedVOTE'
+    ConfigClasses(0)=class'HxVTMenuConfig'
     Order=232
 }
