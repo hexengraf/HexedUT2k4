@@ -85,9 +85,7 @@ simulated function bool ValidateReferences()
         if (PlayerOwner.Player != None)
         {
             GC = GUIController(PlayerOwner.Player.GUIController);
-            // TODO: wait for new OU public release to fix CustomMapVotingMenu.
-            // bReplaceMapVoteMenu = !GC.SetPropertyText("CustomMapVotingMenu", CustomMapVoteMenu);
-            bReplaceMapVoteMenu = true;
+            UpdateReplaceMapVoteMenu();
         }
         VRI = VotingReplicationInfo(PlayerOwner.VoteReplicationInfo);
     }
@@ -252,6 +250,16 @@ simulated function NotifyResourcesUpdated()
     }
 }
 
+simulated function UpdateReplaceMapVoteMenu()
+{
+    if (GC != None && bServerPropertiesReady)
+    {
+        // TODO: wait for OU stable release before using CustomMapVotingMenu.
+        // bReplaceMapVoteMenu = !GC.SetPropertyText("CustomMapVotingMenu", CustomMapVoteMenu);
+        bReplaceMapVoteMenu = true;
+    }
+}
+
 simulated function TryReplaceMapVoteMenu()
 {
     if (GC.ActivePage != None)
@@ -306,6 +314,7 @@ simulated function ParseArrayProperty(int Index, array<string> Values)
 
 simulated function NotifyServerPropertiesReady()
 {
+    UpdateReplaceMapVoteMenu();
     class'HxMapVotingPage'.default.VoteListCustomBG = GetServerProperty("VoteListCustomBG");
     class'HxMapVotingPage'.default.MapListCustomBG = GetServerProperty("MapListCustomBG");
     class'HxMapVotingPage'.default.PreviewCustomBG = GetServerProperty("PreviewCustomBG");

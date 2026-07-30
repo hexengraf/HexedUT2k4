@@ -31,10 +31,10 @@ var array<HxConfig> Configs;
 var protected HxClientManager Manager;
 var protected HxMutator MutatorOwner;
 var protected PlayerController PlayerOwner;
+var protected bool bServerPropertiesReady;
 var private array<HxReplicationMessage> MessageQueue;
 var private array<string> ReplicatedArrayProperty;
 var private bool bServerPropertiesRequested;
-var private bool bServerPropertiesReady;
 
 replication
 {
@@ -71,7 +71,6 @@ simulated event PostBeginPlay()
             Configs[i] = Manager.LoadConfig(ConfigClasses[i]);
             Configs[i].Setup(Self);
         }
-        Manager.Register(Self);
     }
 }
 
@@ -193,13 +192,14 @@ simulated function ClientReceiveMessage(HxReplicationMessage Message)
             if (bServerPropertiesReady)
             {
                 NotifyServerPropertyChanged(Message.Index, OldValue);
+                Manager.NotifyServerPropertyChanged(Self);
             }
             else if (Message.Index == ServerInfo.Settings.Length - 1)
             {
                 bServerPropertiesReady = true;
+                Manager.Register(Self);
                 NotifyServerPropertiesReady();
             }
-            Manager.NotifyServerPropertyChanged(Self);
             break;
         case HX_RMSG_ArrayElement:
             ReplicatedArrayProperty[ReplicatedArrayProperty.Length] = Message.Value;
