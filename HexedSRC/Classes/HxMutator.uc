@@ -221,7 +221,7 @@ function SpawnClientReplicationInfo(Actor ClientOwner)
 {
     local HxClientReplicationInfo CRI;
 
-    CRI = ClientOwner.Spawn(CRIClass, ClientOwner);
+    CRI = ClientOwner.Spawn(CRIClass, ClientOwner,, ClientOwner.Location);
     CRI.SetupServer(Self);
     CRI.NetUpdateTime = Level.TimeSeconds - 1;
     CRIs[CRIs.Length] = CRI;
