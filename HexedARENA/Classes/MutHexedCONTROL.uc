@@ -1,5 +1,5 @@
 class MutHexedCONTROL extends HxMutator
-    config(HexedServer);
+    config(HexedMutators);
 
 var config int BonusHealth;
 var config int BonusShield;

@@ -1,5 +1,5 @@
 class MutHexedVOTE extends HxMutator
-    config(HexedServer);
+    config(HexedMutators);
 
 var config string VoteListCustomBG;
 var config string MapListCustomBG;

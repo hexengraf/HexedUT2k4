@@ -1,5 +1,5 @@
 class MutHexedARENA extends HxMutator
-    config(HexedServer);
+    config(HexedMutators);
 
 var config string ArenaWeaponClassName;
 
