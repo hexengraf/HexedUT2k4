@@ -4,13 +4,18 @@ var automated GUITabControl t_TabControl;
 
 var private HxClientManager ClientManager;
 var private array<HxGUIMenuPanel> Panels;
+var private byte MenuKey;
 
 function InitComponent(GUIController MyController, GUIComponent MyComponent)
 {
+    local PlayerController PC;
+
     Super.InitComponent(MyController, MyComponent);
     t_WindowTitle.DockedTabs = t_TabControl;
     t_WindowTitle.DockAlign = PGA_Top;
-    ForEach PlayerOwner().DynamicActors(class'HxClientManager', ClientManager) break;
+    PC = PlayerOwner();
+    ForEach PC.DynamicActors(class'HxClientManager', ClientManager) break;
+    MenuKey = byte(PC.ConsoleCommand("KEYNUMBER"@ClientManager.MenuKeybind));
     AddPanel(class'HxGUIMenuGeneralPanel', 0);
 }
 
@@ -107,6 +112,22 @@ function int FindPanel(class<HxGUIMenuPanel> PanelClass)
     return -1;
 }
 
+function bool InternalOnKeyEvent(out byte Key, out byte State, float Delta)
+{
+    if (Key == MenuKey && EInputAction(State) == IST_Release
+        && (GUIEditBox(Controller.FocusedControl) == None
+            || GUIEditBox(Controller.FocusedControl).bReadOnly)
+        && (GUIFloatEdit(Controller.FocusedControl) == None
+            || GUIFloatEdit(Controller.FocusedControl).bReadOnly)
+        && (GUINumericEdit(Controller.FocusedControl) == None
+            || GUINumericEdit(Controller.FocusedControl).bReadOnly))
+    {
+        Controller.CloseMenu(False);
+        return true;
+    }
+    return false;
+}
+
 function TabControlOnCreateComponent(GUIComponent NewComp, GUIComponent Sender)
 {
     if (HxGUIMenuPanel(NewComp) != None)
@@ -144,4 +165,5 @@ defaultproperties
     WinTop=0.16
     WinWidth=0.8
     WinHeight=0.68
+    OnKeyEvent=InternalOnKeyEvent
 }
