@@ -2,7 +2,7 @@ class HxGUIMenu extends HxGUIFloatingWindow;
 
 var automated GUITabControl t_TabControl;
 
-var HxClientManager ClientManager;
+var private HxClientManager ClientManager;
 var private array<HxGUIMenuPanel> Panels;
 
 function InitComponent(GUIController MyController, GUIComponent MyComponent)
@@ -16,24 +16,21 @@ function InitComponent(GUIController MyController, GUIComponent MyComponent)
 
 event Opened(GUIComponent Sender)
 {
-    UpdateTabControl();
+    Refresh();
     Super.Opened(Sender);
 }
 
-function UpdateTabControl()
+function Refresh()
 {
     local int i;
 
     for (i = 0; i < ClientManager.CRIs.Length; ++i)
     {
-        if (ClientManager.CRIs[i] == None)
-        {
-            PurgePanels(ClientManager.CRIClasses[i]);
-        }
-        else
-        {
-            UpdatePanels(ClientManager.CRIs[i]);
-        }
+        UpdatePanels(ClientManager.CRIs[i]);
+    }
+    for (i = 0; i < Panels.Length; ++i)
+    {
+        Panels[i].Refresh();
     }
 }
 
@@ -118,20 +115,10 @@ function TabControlOnCreateComponent(GUIComponent NewComp, GUIComponent Sender)
     }
 }
 
-function Refresh()
-{
-    local int i;
-
-    for (i = 0; i < Panels.Length; ++i)
-    {
-        Panels[i].Refresh();
-    }
-}
-
 function LevelChanged()
 {
     ClientManager = None;
-    Panels.Length = 0;
+    Panels.Remove(0, Panels.Length);
     Super.LevelChanged();
 }
 

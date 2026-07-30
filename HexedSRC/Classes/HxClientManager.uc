@@ -12,6 +12,7 @@ var const private class<HxGUITheme> ThemeClass;
 
 var private PlayerController PC;
 var private GUIController GC;
+var private array<HxClientReplicationInfo> AllCRIs;
 var private array<HxConfig> ConfigPool;
 var private array<Object> ObjectPool;
 var private bool bInitialized;
@@ -79,72 +80,111 @@ simulated function RefreshConfigurationMenu()
     {
         if (HxGUIMenu(GC.ActivePage) != None)
         {
-            HxGUIMenu(GC.ActivePage).UpdateTabControl();
             HxGUIMenu(GC.ActivePage).Refresh();
         }
         else if (HxGUIServerMenu(GC.ActivePage) != None)
         {
+            if (HxGUIMenu(GC.ActivePage.ParentPage) != None)
+            {
+                HxGUIMenu(GC.ActivePage).Refresh();
+            }
             HxGUIServerMenu(GC.ActivePage).Refresh();
         }
     }
 }
 
-simulated function bool Register(HxClientReplicationInfo CRI)
+simulated function Register(HxClientReplicationInfo CRI)
 {
     local int i;
 
-    for (i = 0; i < CRIs.Length; ++i)
+    for (i = 0; i < AllCRIs.Length; ++i)
     {
-        if (CRIClasses[i] == CRI.Class)
-        {
-            Warn(Name$": Repeated attempt to register "$CRIClasses[i]$"! Saturated connection?");
-            if (CRIs[i] != None)
-            {
-                if (CRIs[i] == CRI)
-                {
-                    return false;
-                }
-                Warn(Name$": Two "$CRIClasses[i]$" instances found!");
-                Warn(Name$": Previous "$CRIClasses[i]$" instance: "$CRIs[i].Name);
-                Warn(Name$": New "$CRIClasses[i]$" instance: "$CRI.Name);
-                CRIs[i] = None;
-            }
-            else
-            {
-                Warn(Name$": Local "$CRIClasses[i]$" reference is None on re-register!");
-            }
-            // One refresh with None to purge stale panels...
-            RefreshConfigurationMenu();
-            CRIs[i] = CRI;
-            // ...and one refresh with the new instance to add the panels back.
-            RefreshConfigurationMenu();
-            return false;
-        }
-    }
-    for (i = 0; i < CRIs.Length; ++i)
-    {
-        if (CRI.Order < CRIs[i].Order)
+        if (CRI.Order < AllCRIs[i].Order)
         {
             break;
         }
     }
-    CRIs.Insert(i, 1);
-    CRIClasses.Insert(i, 1);
-    CRIs[i] = CRI;
-    CRIClasses[i] = CRI.Class;
+    AllCRIs.Insert(i, 1);
+    AllCRIs[i] = CRI;
+    if (i > 0 && AllCRIs[i - 1].Class == AllCRIs[i].Class)
+    {
+        Warn(Name$": Duplicate "$CRI.Class$" instances found!");
+    }
+    UpdateUniqueCRIs();
     RefreshConfigurationMenu();
-    return true;
+}
+
+simulated function bool Unregister(HxClientReplicationInfo CRI)
+{
+    local HxGUIMenu ConfigMenu;
+    local int i;
+
+    for (i = 0; i < AllCRIs.Length; ++i)
+    {
+        if (AllCRIs[i] == CRI)
+        {
+            ConfigMenu = FindConfigurationMenu();
+            if (ConfigMenu != None)
+            {
+                ConfigMenu.PurgePanels(CRI.Class);
+            }
+            AllCRIs.Remove(i, 1);
+            UpdateUniqueCRIs();
+            RefreshConfigurationMenu();
+            return true;
+        }
+    }
+    return false;
+}
+
+simulated function UpdateUniqueCRIs()
+{
+    local class<HxClientReplicationInfo> LastCRIClass;
+    local HxGUIMenu ConfigMenu;
+    local int i;
+
+    ConfigMenu = FindConfigurationMenu();
+    if (ConfigMenu != None)
+    {
+        for (i = 0; i < CRIs.Length; ++i)
+        {
+            if (CRIs[i] == None)
+            {
+                ConfigMenu.PurgePanels(CRIClasses[i]);
+            }
+        }
+    }
+    CRIs.Length = 0;
+    CRIClasses.Length = 0;
+    for (i = 0; i < AllCRIs.Length; ++i)
+    {
+        if (AllCRIs[i].Class != LastCRIClass)
+        {
+            CRIs[CRIs.Length] = AllCRIs[i];
+            CRIClasses[CRIClasses.Length] = AllCRIs[i].Class;
+            LastCRIClass = AllCRIs[i].Class;
+        }
+    }
+}
+
+simulated function HxGUIMenu FindConfigurationMenu()
+{
+    if (GC != None)
+    {
+        return HxGUIMenu(GC.FindPersistentMenuByClass(class'HxGUIMenu'));
+    }
+    return None;
 }
 
 simulated function HxClientReplicationInfo Find(class<HxClientReplicationInfo> CRIClass)
 {
     local int i;
 
-    for (i = 0; i < CRIs.Length; ++i)
+    for (i = 0; i < AllCRIs.Length; ++i)
     {
-        if (CRIs[i].Class == CRIClass)
+        if (AllCRIs[i].Class == CRIClass)
         {
-            return CRIs[i];
+            return AllCRIs[i];
         }
     }
     return None;
@@ -288,6 +328,7 @@ simulated event Destroyed()
 {
     CRIs.Remove(0, CRIs.Length);
     CRIClasses.Remove(0, CRIClasses.Length);
+    AllCRIs.Remove(0, AllCRIs.Length);
     ConfigPool.Remove(0, ConfigPool.Length);
     ObjectPool.Remove(0, ObjectPool.Length);
     Super.Destroyed();

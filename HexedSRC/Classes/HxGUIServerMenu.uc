@@ -68,11 +68,11 @@ function PopulateOptionList()
     lb_Options.Clear();
     bSavedCurMenuInitialized = Controller.bCurMenuInitialized;
     Controller.bCurMenuInitialized = false;
+    ModifiedMutators.Length = ClientManager.CRIs.Length;
     for (i = 0; i < ClientManager.CRIs.Length; ++i)
     {
         if (ClientManager.CRIs[i] != None)
         {
-            ModifiedMutators.Insert(ModifiedMutators.Length, 1);
             ProcessMutatorOptions(ClientManager.CRIs[i], i);
         }
     }

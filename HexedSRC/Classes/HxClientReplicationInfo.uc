@@ -243,6 +243,14 @@ simulated function ClientOpenConfigurationMenu()
     Manager.OpenConfigurationMenu(Self);
 }
 
+simulated event Destroyed()
+{
+    if (Level.NetMode != NM_DedicatedServer)
+    {
+        Manager.Unregister(Self);
+    }
+}
+
 simulated final function HxConfig FindConfig(class<HxConfig> ConfigClass)
 {
     local int i;

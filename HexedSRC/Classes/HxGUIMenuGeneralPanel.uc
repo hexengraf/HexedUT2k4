@@ -197,8 +197,7 @@ function bool ServerMenuOnClick(GUIComponent Sender)
 
 function ServerMenuOnClose(optional bool bCancelled)
 {
-    HxGUIMenu(PageOwner).UpdateTabControl();
-    Refresh();
+    HxGUIMenu(PageOwner).Refresh();
 }
 
 defaultproperties
