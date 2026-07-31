@@ -1,17 +1,13 @@
 class HxSBAssault extends HxTeamScoreBoard;
 
+var private int TrophySize;
+
 simulated function ConfigureColumns()
 {
     Columns[Columns.Length] = GetPositionColumnConfig();
     Alignments[Alignments.Length] = TXTA_Center;
     Columns[Columns.Length] = GetPlayerColumnConfig();
     Alignments[Alignments.Length] = TXTA_Left;
-    Columns[Columns.Length] = GetTrophyColumnConfig();
-    Alignments[Alignments.Length] = TXTA_Center;
-    Columns[Columns.Length] = GetTrophyColumnConfig();
-    Alignments[Alignments.Length] = TXTA_Center;
-    Columns[Columns.Length] = GetTrophyColumnConfig();
-    Alignments[Alignments.Length] = TXTA_Center;
     Columns[Columns.Length] = GetScoreColumnConfig();
     Alignments[Alignments.Length] = TXTA_Center;
     Columns[Columns.Length] = GetFragsColumnConfig();
@@ -28,18 +24,19 @@ simulated function DrawRow(Canvas C, int Table, int Index, int Row, int Top)
 {
     DrawPlayerPosition(C, Table, Index, 0, Top);
     DrawPlayerName(C, Table, Index, 1, Top);
-    DrawTrophies(C, ASPlayerReplicationInfo(Tables[Table].PRIs[Index]), 4, Top);
+    DrawTrophies(C, ASPlayerReplicationInfo(Tables[Table].PRIs[Index]), Top);
     C.Font = MediumFont;
-    DrawTextCell(C, int(Tables[Table].PRIs[Index].Score), 5, Top);
-    DrawPlayerFrags(C, Table, Index, 6, Top);
-    DrawPlayerDeaths(C, Table, Index, 7, Top);
-    DrawPlayerPing(C, Table, Index, 8, Top);
-    DrawPlayerPPH(C, Table, Index, 9, Top);
+    DrawTextCell(C, int(Tables[Table].PRIs[Index].Score), 2, Top);
+    DrawPlayerFrags(C, Table, Index, 3, Top);
+    DrawPlayerDeaths(C, Table, Index, 4, Top);
+    DrawPlayerPing(C, Table, Index, 5, Top);
+    DrawPlayerPPH(C, Table, Index, 6, Top);
 }
 
-simulated function DrawTrophies(Canvas C, ASPlayerReplicationInfo ASPRI, int Column, int Top)
+simulated function DrawTrophies(Canvas C, ASPlayerReplicationInfo ASPRI, int Top)
 {
     local Color PreviousColor;
+    local int Left;
 
     if (ASPRI == None)
     {
@@ -47,36 +44,75 @@ simulated function DrawTrophies(Canvas C, ASPlayerReplicationInfo ASPRI, int Col
     }
     PreviousColor = C.DrawColor;
     C.DrawColor = TextColor;
-    C.Font = SmallFont;
+    C.Font = TinyFont;
+    Left = ColumnLefts[PlayerColumn + 1];
     if (ASPRI.DestroyedVehicles > 0)
     {
-        DrawTextureCell(C, Texture'HudContent.Generic.HUD', Column, Top, 227, 404, 53, 42);
+        Left -= TrophySize;
+        DrawTrophyTexture(C, Texture'HudContent.Generic.HUD', Left, Top, 226, 400, 55, 50);
         if (ASPRI.DestroyedVehicles > 1)
         {
-            DrawTextCell(C, ASPRI.DestroyedVehicles, Column, Top);
+            C.DrawColor = TextColor;
+            DrawTextCentered(
+                C, ASPRI.DestroyedVehicles, TXTA_Center, Left, Top, TrophySize, RowHeight);
         }
-        --Column;
     }
     if (ASPRI.DisabledObjectivesCount > 0)
     {
-        DrawIconCell(C, Texture'AS_FX_TX.Icons.ScoreBoard_Objective_Final', Column, Top);
+        Left -= TrophySize;
+        DrawTrophyIcon(C, Texture'AS_FX_TX.Icons.ScoreBoard_Objective_Final', Left, Top);
         if (ASPRI.DisabledObjectivesCount > 1)
         {
-            DrawTextCell(C, ASPRI.DisabledObjectivesCount, Column, Top);
+            C.DrawColor = TextColor;
+            DrawTextCentered(
+                C, ASPRI.DisabledObjectivesCount, TXTA_Center, Left, Top, TrophySize, RowHeight);
         }
-        --Column;
     }
     if (ASPRI.DisabledFinalObjective > 0)
-    if (true)
     {
-        DrawIconCell(C, Texture'AS_FX_TX.Icons.ScoreBoard_Objective_Single', Column, Top);
+        Left -= TrophySize;
+        DrawTrophyIcon(C, Texture'AS_FX_TX.Icons.ScoreBoard_Objective_Single', Left, Top);
         if (ASPRI.DisabledFinalObjective > 1)
         {
-            DrawTextCell(C, ASPRI.DisabledFinalObjective, Column, Top);
+            C.DrawColor = TextColor;
+            DrawTextCentered(
+                C, ASPRI.DisabledFinalObjective, TXTA_Center, Left, Top, TrophySize, RowHeight);
         }
-        --Column;
     }
     C.DrawColor = PreviousColor;
+}
+
+simulated final function DrawTrophyIcon(Canvas C, Material Icon, float Left, float Top)
+{
+    C.DrawColor = HUDClass.default.WhiteColor;
+    C.SetPos(C.OrgX + Left, C.OrgY + Top);
+    C.DrawTileJustified(Icon, 1, TrophySize, RowHeight);
+}
+
+simulated final function DrawTrophyTexture(Canvas C,
+                                           Texture Texture,
+                                           float Left,
+                                           float Top,
+                                           float U,
+                                           float V,
+                                           float UL,
+                                           float VL)
+{
+    C.DrawColor = HUDClass.default.WhiteColor;
+    C.CurX = Left;
+    C.CurY = Top + (RowHeight - TrophySize) / 2.0;
+    C.DrawTile(Texture, TrophySize, TrophySize, U, V, UL, VL);
+}
+
+simulated function UpdateExtraSizes(Canvas C)
+{
+    local float TextWidth;
+    local float TextHeight;
+
+    Super.UpdateExtraSizes(C);
+    C.Font = SmallFont;
+    C.TextSize("999", TextWidth, TextHeight);
+    TrophySize = Min(RowHeight, (TextWidth + 1) & ~1);
 }
 
 function string GetTitleText()
@@ -137,13 +173,12 @@ simulated function string GetLevelInfoText()
         $class'ScoreBoard_Assault'.default.RoundSeparator$ASGRI.MaxRounds;
 }
 
-simulated function HxSBColumnConfig GetTrophyColumnConfig()
+simulated function HxSBColumnConfig GetPlayerColumnConfig()
 {
     local HxSBColumnConfig Config;
 
-    Config.MinWidthValue = "9";
-    Config.MaxWidthValue = "99";
-    Config.bSmall = true;
+    Config = Super.GetPlayerColumnConfig();
+    Config.MinWidthValue $= "99999";
     return Config;
 }
 
