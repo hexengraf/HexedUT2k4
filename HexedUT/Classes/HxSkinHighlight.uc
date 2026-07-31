@@ -453,13 +453,16 @@ state Reskin
                 {
                     SkinShaders[i].Opacity = SkinTexture;
                     SkinShaders[i].SpecularityMask = SkinTexture;
-                    if (bDisableOnHeads && i == 1)
+                    if (i == 1)
                     {
-                        SkinFinalBlends[i].Material = WorkaroundCombiners[1];
-                    }
-                    else
-                    {
-                        SkinFinalBlends[i].Material = SkinShaders[1];
+                        if (bDisableOnHeads)
+                        {
+                            SkinFinalBlends[i].Material = WorkaroundCombiners[i];
+                        }
+                        else
+                        {
+                            SkinFinalBlends[i].Material = SkinShaders[i];
+                        }
                     }
                     Base.Skins[i] = SkinFinalBlends[i];
                 }
@@ -469,7 +472,7 @@ state Reskin
                     SkinShaders[i].SpecularityMask = None;
                     if (bDisableOnHeads && i == 1)
                     {
-                        Base.Skins[1] = WorkaroundCombiners[1];
+                        Base.Skins[i] = WorkaroundCombiners[i];
                     }
                     else
                     {
