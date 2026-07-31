@@ -1,38 +1,5 @@
 class HxSBMutant extends HxScoreBoard;
 
-simulated function ConfigureColumns()
-{
-    Columns[Columns.Length] = GetPositionColumnConfig();
-    Alignments[Alignments.Length] = TXTA_Center;
-    Columns[Columns.Length] = GetPlayerColumnConfig();
-    Alignments[Alignments.Length] = TXTA_Left;
-    Columns[Columns.Length] = GetScoreColumnConfig();
-    Alignments[Alignments.Length] = TXTA_Center;
-    // TODO: removed for now because Mutant doesn't update Frags count
-    // Columns[Columns.Length] = GetFragsColumnConfig();
-    // Alignments[Alignments.Length] = TXTA_Center;
-    Columns[Columns.Length] = GetDeathsColumnConfig();
-    Alignments[Alignments.Length] = TXTA_Center;
-    Columns[Columns.Length] = GetPingColumnConfig();
-    Alignments[Alignments.Length] = TXTA_Center;
-    // TODO: removed because Mutant either doesn't update GRI.ElapsedTime or some other issue
-    // with PRI.StartTime
-    // Columns[Columns.Length] = GetPPHColumnConfig();
-    // Alignments[Alignments.Length] = TXTA_Center;
-}
-
-simulated function DrawRow(Canvas C, int Table, int Index, int Row, int Top)
-{
-    DrawPlayerPosition(C, Table, Index, 0, Top);
-    DrawPlayerName(C, Table, Index, 1, Top);
-    C.Font = MediumFont;
-    DrawTextCell(C, int(Tables[Table].PRIs[Index].Score), 2, Top);
-    // DrawPlayerFrags(C, Table, Index, 3, Top);
-    DrawPlayerDeaths(C, Table, Index, 3, Top);
-    DrawPlayerPing(C, Table, Index, 4, Top);
-    // DrawPlayerPPH(C, Table, Index, 5, Top);
-}
-
 simulated function bool DrawPlayerMarker(Canvas C, int Table, int Index, int Column, int Top)
 {
     local MutantGameReplicationInfo MutantInfo;
@@ -53,4 +20,11 @@ simulated function bool DrawPlayerMarker(Canvas C, int Table, int Index, int Col
 
 defaultproperties
 {
+    // TODO: removed for now because Mutant doesn't update Frags count
+    // ColumnTypes(4)=HX_SBCOL_FragsAndEfficiency
+    ColumnTypes(4)=HX_SBCOL_DeathsAndSuicides
+    ColumnTypes(5)=HX_SBCOL_PingAndLoss
+    // TODO: removed because Mutant either doesn't update GRI.ElapsedTime or some other issue
+    // with PRI.StartTime
+    // ColumnTypes(7)=HX_SBCOL_PPHAndTime
 }

@@ -10,6 +10,7 @@ var config float BorderSize;
 var config float DividerSize;
 var config int FontSizeModifier;
 var config bool bAlternateRowColors;
+var config bool bShowPlayerPortraits;
 var config bool bShowBotCallSigns;
 var config bool bShowBotOrders;
 var config Color HeaderColor;
@@ -49,6 +50,7 @@ function InitializeProperties()
     class'HxScoreBoard'.default.DividerSize = DividerSize;
     class'HxScoreBoard'.default.FontSizeModifier = FontSizeModifier;
     class'HxScoreBoard'.default.bAlternateRowColors = bAlternateRowColors;
+    class'HxScoreBoard'.default.bShowPlayerPortraits = bShowPlayerPortraits;
     class'HxScoreBoard'.default.bShowBotCallSigns = bShowBotCallSigns;
     class'HxScoreBoard'.default.bShowBotOrders = bShowBotOrders;
     class'HxScoreBoard'.default.HeaderColor = HeaderColor;
@@ -104,81 +106,84 @@ function ApplyProperty(int Index)
             class'HxScoreBoard'.default.bAlternateRowColors = bAlternateRowColors;
             break;
         case 8:
-            class'HxScoreBoard'.default.bShowBotCallSigns = bShowBotCallSigns;
+            class'HxScoreBoard'.default.bShowPlayerPortraits = bShowPlayerPortraits;
             break;
         case 9:
-            class'HxScoreBoard'.default.bShowBotOrders = bShowBotOrders;
+            class'HxScoreBoard'.default.bShowBotCallSigns = bShowBotCallSigns;
             break;
         case 10:
-            class'HxScoreBoard'.default.HeaderColor = HeaderColor;
+            class'HxScoreBoard'.default.bShowBotOrders = bShowBotOrders;
             break;
         case 11:
-            class'HxTeamScoreBoard'.default.TeamHeaderColors[0] = RedTeamHeaderColor;
+            class'HxScoreBoard'.default.HeaderColor = HeaderColor;
             break;
         case 12:
-            class'HxTeamScoreBoard'.default.TeamHeaderColors[1] = BlueTeamHeaderColor;
+            class'HxTeamScoreBoard'.default.TeamHeaderColors[0] = RedTeamHeaderColor;
             break;
         case 13:
-            class'HxScoreBoard'.default.RowColor = RowColor;
+            class'HxTeamScoreBoard'.default.TeamHeaderColors[1] = BlueTeamHeaderColor;
             break;
         case 14:
-            class'HxTeamScoreBoard'.default.TeamRowColors[0] = RedTeamRowColor;
+            class'HxScoreBoard'.default.RowColor = RowColor;
             break;
         case 15:
-            class'HxTeamScoreBoard'.default.TeamRowColors[1] = BlueTeamRowColor;
+            class'HxTeamScoreBoard'.default.TeamRowColors[0] = RedTeamRowColor;
             break;
         case 16:
-            class'HxScoreBoard'.default.AltRowColor = AltRowColor;
+            class'HxTeamScoreBoard'.default.TeamRowColors[1] = BlueTeamRowColor;
             break;
         case 17:
-            class'HxTeamScoreBoard'.default.TeamAltRowColors[0] = RedTeamAltRowColor;
+            class'HxScoreBoard'.default.AltRowColor = AltRowColor;
             break;
         case 18:
-            class'HxTeamScoreBoard'.default.TeamAltRowColors[1] = BlueTeamAltRowColor;
+            class'HxTeamScoreBoard'.default.TeamAltRowColors[0] = RedTeamAltRowColor;
             break;
         case 19:
-            class'HxScoreBoard'.default.BorderColor = BorderColor;
+            class'HxTeamScoreBoard'.default.TeamAltRowColors[1] = BlueTeamAltRowColor;
             break;
         case 20:
-            class'HxTeamScoreBoard'.default.TeamBorderColors[0] = RedTeamBorderColor;
+            class'HxScoreBoard'.default.BorderColor = BorderColor;
             break;
         case 21:
-            class'HxTeamScoreBoard'.default.TeamBorderColors[1] = BlueTeamBorderColor;
+            class'HxTeamScoreBoard'.default.TeamBorderColors[0] = RedTeamBorderColor;
             break;
         case 22:
-            class'HxScoreBoard'.default.DividerColor = DividerColor;
+            class'HxTeamScoreBoard'.default.TeamBorderColors[1] = BlueTeamBorderColor;
             break;
         case 23:
-            class'HxTeamScoreBoard'.default.TeamDividerColors[0] = RedTeamDividerColor;
+            class'HxScoreBoard'.default.DividerColor = DividerColor;
             break;
         case 24:
-            class'HxTeamScoreBoard'.default.TeamDividerColors[1] = BlueTeamDividerColor;
+            class'HxTeamScoreBoard'.default.TeamDividerColors[0] = RedTeamDividerColor;
             break;
         case 25:
-            class'HxScoreBoard'.default.ScrollThumbColor = ScrollThumbColor;
+            class'HxTeamScoreBoard'.default.TeamDividerColors[1] = BlueTeamDividerColor;
             break;
         case 26:
-            class'HxTeamScoreBoard'.default.TeamScrollThumbColors[0] = RedTeamScrollThumbColor;
+            class'HxScoreBoard'.default.ScrollThumbColor = ScrollThumbColor;
             break;
         case 27:
-            class'HxTeamScoreBoard'.default.TeamScrollThumbColors[1] = BlueTeamScrollThumbColor;
+            class'HxTeamScoreBoard'.default.TeamScrollThumbColors[0] = RedTeamScrollThumbColor;
             break;
         case 28:
-            class'HxTeamScoreBoard'.default.TeamColors[0] = RedTeamColor;
+            class'HxTeamScoreBoard'.default.TeamScrollThumbColors[1] = BlueTeamScrollThumbColor;
             break;
         case 29:
-            class'HxTeamScoreBoard'.default.TeamColors[1] = BlueTeamColor;
+            class'HxTeamScoreBoard'.default.TeamColors[0] = RedTeamColor;
             break;
         case 30:
-            class'HxScoreBoard'.default.TextColor = TextColor;
+            class'HxTeamScoreBoard'.default.TeamColors[1] = BlueTeamColor;
             break;
         case 31:
-            class'HxScoreBoard'.default.SecondTextColor = SecondTextColor;
+            class'HxScoreBoard'.default.TextColor = TextColor;
             break;
         case 32:
-            class'HxScoreBoard'.default.HighlightTextColor = HighlightTextColor;
+            class'HxScoreBoard'.default.SecondTextColor = SecondTextColor;
             break;
         case 33:
+            class'HxScoreBoard'.default.HighlightTextColor = HighlightTextColor;
+            break;
+        case 34:
             class'HxScoreBoard'.default.ReadyColor = ReadyColor;
             break;
     }
@@ -224,106 +229,110 @@ function bool ResetProperty(int Index)
             bReset = true;
             break;
         case 8:
-            bShowBotCallSigns = default.bShowBotCallSigns;
+            bShowPlayerPortraits = default.bShowPlayerPortraits;
             bReset = true;
             break;
         case 9:
-            bShowBotOrders = default.bShowBotOrders;
+            bShowBotCallSigns = default.bShowBotCallSigns;
             bReset = true;
             break;
         case 10:
-            HeaderColor = default.HeaderColor;
+            bShowBotOrders = default.bShowBotOrders;
             bReset = true;
             break;
         case 11:
-            RedTeamHeaderColor = default.RedTeamHeaderColor;
+            HeaderColor = default.HeaderColor;
             bReset = true;
             break;
         case 12:
-            BlueTeamHeaderColor = default.BlueTeamHeaderColor;
+            RedTeamHeaderColor = default.RedTeamHeaderColor;
             bReset = true;
             break;
         case 13:
-            RowColor = default.RowColor;
+            BlueTeamHeaderColor = default.BlueTeamHeaderColor;
             bReset = true;
             break;
         case 14:
-            RedTeamRowColor = default.RedTeamRowColor;
+            RowColor = default.RowColor;
             bReset = true;
             break;
         case 15:
-            BlueTeamRowColor = default.BlueTeamRowColor;
+            RedTeamRowColor = default.RedTeamRowColor;
             bReset = true;
             break;
         case 16:
-            AltRowColor = default.AltRowColor;
+            BlueTeamRowColor = default.BlueTeamRowColor;
             bReset = true;
             break;
         case 17:
-            RedTeamAltRowColor = default.RedTeamAltRowColor;
+            AltRowColor = default.AltRowColor;
             bReset = true;
             break;
         case 18:
-            BlueTeamAltRowColor = default.BlueTeamAltRowColor;
+            RedTeamAltRowColor = default.RedTeamAltRowColor;
             bReset = true;
             break;
         case 19:
-            BorderColor = default.BorderColor;
+            BlueTeamAltRowColor = default.BlueTeamAltRowColor;
             bReset = true;
             break;
         case 20:
-            RedTeamBorderColor = default.RedTeamBorderColor;
+            BorderColor = default.BorderColor;
             bReset = true;
             break;
         case 21:
-            BlueTeamBorderColor = default.BlueTeamBorderColor;
+            RedTeamBorderColor = default.RedTeamBorderColor;
             bReset = true;
             break;
         case 22:
-            DividerColor = default.DividerColor;
+            BlueTeamBorderColor = default.BlueTeamBorderColor;
             bReset = true;
             break;
         case 23:
-            RedTeamDividerColor = default.RedTeamDividerColor;
+            DividerColor = default.DividerColor;
             bReset = true;
             break;
         case 24:
-            BlueTeamDividerColor = default.BlueTeamDividerColor;
+            RedTeamDividerColor = default.RedTeamDividerColor;
             bReset = true;
             break;
         case 25:
-            ScrollThumbColor = default.ScrollThumbColor;
+            BlueTeamDividerColor = default.BlueTeamDividerColor;
             bReset = true;
             break;
         case 26:
-            RedTeamScrollThumbColor = default.RedTeamScrollThumbColor;
+            ScrollThumbColor = default.ScrollThumbColor;
             bReset = true;
             break;
         case 27:
-            BlueTeamScrollThumbColor = default.BlueTeamScrollThumbColor;
+            RedTeamScrollThumbColor = default.RedTeamScrollThumbColor;
             bReset = true;
             break;
         case 28:
-            RedTeamColor = default.RedTeamColor;
+            BlueTeamScrollThumbColor = default.BlueTeamScrollThumbColor;
             bReset = true;
             break;
         case 29:
-            BlueTeamColor = default.BlueTeamColor;
+            RedTeamColor = default.RedTeamColor;
             bReset = true;
             break;
         case 30:
-            TextColor = default.TextColor;
+            BlueTeamColor = default.BlueTeamColor;
             bReset = true;
             break;
         case 31:
-            SecondTextColor = default.SecondTextColor;
+            TextColor = default.TextColor;
             bReset = true;
             break;
         case 32:
-            HighlightTextColor = default.HighlightTextColor;
+            SecondTextColor = default.SecondTextColor;
             bReset = true;
             break;
         case 33:
+            HighlightTextColor = default.HighlightTextColor;
+            bReset = true;
+            break;
+        case 34:
             ReadyColor = default.ReadyColor;
             bReset = true;
             break;
@@ -465,32 +474,33 @@ defaultproperties
     Properties(5)=(Name="DividerSize",Type=HX_PROPERTY_Float,LowerLimit="0",UpperLimit="0.5");
     Properties(6)=(Name="FontSizeModifier",Type=HX_PROPERTY_Int,LowerLimit="-2",UpperLimit="2")
     Properties(7)=(Name="bAlternateRowColors",Type=HX_PROPERTY_Bool)
-    Properties(8)=(Name="bShowBotCallSigns",Type=HX_PROPERTY_Bool)
-    Properties(9)=(Name="bShowBotOrders",Type=HX_PROPERTY_Bool)
-    Properties(10)=(Name="HeaderColor",Type=HX_PROPERTY_Color)
-    Properties(11)=(Name="RedTeamHeaderColor",Type=HX_PROPERTY_Color)
-    Properties(12)=(Name="BlueTeamHeaderColor",Type=HX_PROPERTY_Color)
-    Properties(13)=(Name="RowColor",Type=HX_PROPERTY_Color)
-    Properties(14)=(Name="RedTeamRowColor",Type=HX_PROPERTY_Color)
-    Properties(15)=(Name="BlueTeamRowColor",Type=HX_PROPERTY_Color)
-    Properties(16)=(Name="AltRowColor",Type=HX_PROPERTY_Color)
-    Properties(17)=(Name="RedTeamAltRowColor",Type=HX_PROPERTY_Color)
-    Properties(18)=(Name="BlueTeamAltRowColor",Type=HX_PROPERTY_Color)
-    Properties(19)=(Name="BorderColor",Type=HX_PROPERTY_Color)
-    Properties(20)=(Name="RedTeamBorderColor",Type=HX_PROPERTY_Color)
-    Properties(21)=(Name="BlueTeamBorderColor",Type=HX_PROPERTY_Color)
-    Properties(22)=(Name="DividerColor",Type=HX_PROPERTY_Color)
-    Properties(23)=(Name="RedTeamDividerColor",Type=HX_PROPERTY_Color)
-    Properties(24)=(Name="BlueTeamDividerColor",Type=HX_PROPERTY_Color)
-    Properties(25)=(Name="ScrollThumbColor",Type=HX_PROPERTY_Color)
-    Properties(26)=(Name="RedTeamScrollThumbColor",Type=HX_PROPERTY_Color)
-    Properties(27)=(Name="BlueTeamScrollThumbColor",Type=HX_PROPERTY_Color)
-    Properties(28)=(Name="RedTeamColor",Type=HX_PROPERTY_Color)
-    Properties(29)=(Name="BlueTeamColor",Type=HX_PROPERTY_Color)
-    Properties(30)=(Name="TextColor",Type=HX_PROPERTY_Color)
-    Properties(31)=(Name="SecondTextColor",Type=HX_PROPERTY_Color)
-    Properties(32)=(Name="HighlightTextColor",Type=HX_PROPERTY_Color)
-    Properties(33)=(Name="ReadyColor",Type=HX_PROPERTY_Color)
+    Properties(8)=(Name="bShowPlayerPortraits",Type=HX_PROPERTY_Bool)
+    Properties(9)=(Name="bShowBotCallSigns",Type=HX_PROPERTY_Bool)
+    Properties(10)=(Name="bShowBotOrders",Type=HX_PROPERTY_Bool)
+    Properties(11)=(Name="HeaderColor",Type=HX_PROPERTY_Color)
+    Properties(12)=(Name="RedTeamHeaderColor",Type=HX_PROPERTY_Color)
+    Properties(13)=(Name="BlueTeamHeaderColor",Type=HX_PROPERTY_Color)
+    Properties(14)=(Name="RowColor",Type=HX_PROPERTY_Color)
+    Properties(15)=(Name="RedTeamRowColor",Type=HX_PROPERTY_Color)
+    Properties(16)=(Name="BlueTeamRowColor",Type=HX_PROPERTY_Color)
+    Properties(17)=(Name="AltRowColor",Type=HX_PROPERTY_Color)
+    Properties(18)=(Name="RedTeamAltRowColor",Type=HX_PROPERTY_Color)
+    Properties(19)=(Name="BlueTeamAltRowColor",Type=HX_PROPERTY_Color)
+    Properties(20)=(Name="BorderColor",Type=HX_PROPERTY_Color)
+    Properties(21)=(Name="RedTeamBorderColor",Type=HX_PROPERTY_Color)
+    Properties(22)=(Name="BlueTeamBorderColor",Type=HX_PROPERTY_Color)
+    Properties(23)=(Name="DividerColor",Type=HX_PROPERTY_Color)
+    Properties(24)=(Name="RedTeamDividerColor",Type=HX_PROPERTY_Color)
+    Properties(25)=(Name="BlueTeamDividerColor",Type=HX_PROPERTY_Color)
+    Properties(26)=(Name="ScrollThumbColor",Type=HX_PROPERTY_Color)
+    Properties(27)=(Name="RedTeamScrollThumbColor",Type=HX_PROPERTY_Color)
+    Properties(28)=(Name="BlueTeamScrollThumbColor",Type=HX_PROPERTY_Color)
+    Properties(29)=(Name="RedTeamColor",Type=HX_PROPERTY_Color)
+    Properties(30)=(Name="BlueTeamColor",Type=HX_PROPERTY_Color)
+    Properties(31)=(Name="TextColor",Type=HX_PROPERTY_Color)
+    Properties(32)=(Name="SecondTextColor",Type=HX_PROPERTY_Color)
+    Properties(33)=(Name="HighlightTextColor",Type=HX_PROPERTY_Color)
+    Properties(34)=(Name="ReadyColor",Type=HX_PROPERTY_Color)
 
     bEnabled=true
     BoardAlignment=HX_VALIGN_Top
@@ -499,6 +509,7 @@ defaultproperties
     DividerSize=0.2
     FontSizeModifier=0
     bAlternateRowColors=false
+    bShowPlayerPortraits=false
     bShowBotCallSigns=false
     bShowBotOrders=true
     HeaderColor=(R=0,G=0,B=20,A=196)

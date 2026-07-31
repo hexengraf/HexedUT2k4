@@ -304,7 +304,7 @@ defaultproperties
         Caption="Change"
         Hint="Select a color to change."
         INIOption="@INTERNAL"
-        Tag=10
+        Tag=11
         bReadOnly=true
         CaptionWidth=0.22
         OnLoadINI=ColorOnLoadINI
@@ -316,7 +316,7 @@ defaultproperties
     Begin Object class=moSlider Name=RedSlider
         Caption="Red"
         INIOption="@INTERNAL"
-        Tag=10
+        Tag=11
         MinValue=0
         MaxValue=255
         bIntSlider=true
@@ -330,7 +330,7 @@ defaultproperties
     Begin Object class=moSlider Name=GreenSlider
         Caption="Green"
         INIOption="@INTERNAL"
-        Tag=10
+        Tag=11
         MinValue=0
         MaxValue=255
         bIntSlider=true
@@ -344,7 +344,7 @@ defaultproperties
     Begin Object class=moSlider Name=BlueSlider
         Caption="Blue"
         INIOption="@INTERNAL"
-        Tag=10
+        Tag=11
         MinValue=0
         MaxValue=255
         bIntSlider=true
@@ -358,7 +358,7 @@ defaultproperties
     Begin Object class=moSlider Name=AlphaSlider
         Caption="Alpha"
         INIOption="@INTERNAL"
-        Tag=10
+        Tag=11
         MinValue=0
         MaxValue=255
         bIntSlider=true

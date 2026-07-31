@@ -5,26 +5,6 @@ var localized string TotalScoreLabel;
 var protected int TotalScoreWidth;
 var protected int TotalScoreHeight;
 
-simulated function ConfigureColumns()
-{
-    Columns[Columns.Length] = GetPositionColumnConfig();
-    Alignments[Alignments.Length] = TXTA_Center;
-    Columns[Columns.Length] = GetPlayerColumnConfig();
-    Alignments[Alignments.Length] = TXTA_Left;
-    Columns[Columns.Length] = GetOutColumnConfig();
-    Alignments[Alignments.Length] = TXTA_Center;
-    Columns[Columns.Length] = GetScoreColumnConfig();
-    Alignments[Alignments.Length] = TXTA_Center;
-    Columns[Columns.Length] = GetFragsColumnConfig();
-    Alignments[Alignments.Length] = TXTA_Center;
-    Columns[Columns.Length] = GetDeathsColumnConfig();
-    Alignments[Alignments.Length] = TXTA_Center;
-    Columns[Columns.Length] = GetPingColumnConfig();
-    Alignments[Alignments.Length] = TXTA_Center;
-    Columns[Columns.Length] = GetPPHColumnConfig();
-    Alignments[Alignments.Length] = TXTA_Center;
-}
-
 simulated function DrawTables(Canvas C, int TableHeight)
 {
     local int Left;
@@ -64,20 +44,13 @@ simulated function DrawHeadings(Canvas C, int Table)
     }
 }
 
-simulated function DrawRow(Canvas C, int Table, int Index, int Row, int Top)
+simulated function DrawPlayerLives(Canvas C, int Table, int Index, int Column, int Top)
 {
-    DrawPlayerPosition(C, Table, Index, 0, Top);
-    DrawTeamPlayerName(C, Table, Index, 1, Top);
     C.Font = MediumFont;
     if (Tables[Table].PRIs[Index].bOutOfLives)
     {
-        DrawTextCell(C, class'ScoreboardInvasion'.default.OutText, 2, Top);
+        DrawTextCell(C, class'ScoreBoardDeathMatch'.default.OutText, Column, Top);
     }
-    DrawTextCell(C, int(Tables[Table].PRIs[Index].Score), 3, Top);
-    DrawPlayerFrags(C, Table, Index, 4, Top);
-    DrawPlayerDeaths(C, Table, Index, 5, Top);
-    DrawPlayerPing(C, Table, Index, 6, Top);
-    DrawPlayerPPH(C, Table, Index, 7, Top);
 }
 
 simulated function UpdateTablePaddings(Canvas C)
@@ -120,15 +93,22 @@ simulated function HxSBColumnConfig GetPlayerColumnConfig()
     return Config;
 }
 
-simulated function HxSBColumnConfig GetOutColumnConfig()
+simulated function HxSBColumnConfig GetLivesColumnConfig()
 {
     local HxSBColumnConfig Config;
 
+    Config.Type = HX_SBCOL_Lives;
     Config.MinWidthValue = class'ScoreboardInvasion'.default.OutText;
     return Config;
 }
 
 defaultproperties
 {
+    ColumnTypes(3)=HX_SBCOL_Lives
+    ColumnTypes(4)=HX_SBCOL_Score
+    ColumnTypes(5)=HX_SBCOL_FragsAndEfficiency
+    ColumnTypes(6)=HX_SBCOL_DeathsAndSuicides
+    ColumnTypes(7)=HX_SBCOL_PingAndLoss
+    ColumnTypes(8)=HX_SBCOL_PPHAndTime
     TotalScoreLabel="TOTAL SCORE: "
 }

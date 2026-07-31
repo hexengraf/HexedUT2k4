@@ -2,35 +2,10 @@ class HxSBAssault extends HxTeamScoreBoard;
 
 var private int TrophySize;
 
-simulated function ConfigureColumns()
-{
-    Columns[Columns.Length] = GetPositionColumnConfig();
-    Alignments[Alignments.Length] = TXTA_Center;
-    Columns[Columns.Length] = GetPlayerColumnConfig();
-    Alignments[Alignments.Length] = TXTA_Left;
-    Columns[Columns.Length] = GetScoreColumnConfig();
-    Alignments[Alignments.Length] = TXTA_Center;
-    Columns[Columns.Length] = GetFragsColumnConfig();
-    Alignments[Alignments.Length] = TXTA_Center;
-    Columns[Columns.Length] = GetDeathsColumnConfig();
-    Alignments[Alignments.Length] = TXTA_Center;
-    Columns[Columns.Length] = GetPingColumnConfig();
-    Alignments[Alignments.Length] = TXTA_Center;
-    Columns[Columns.Length] = GetPPHColumnConfig();
-    Alignments[Alignments.Length] = TXTA_Center;
-}
-
 simulated function DrawRow(Canvas C, int Table, int Index, int Row, int Top)
 {
-    DrawPlayerPosition(C, Table, Index, 0, Top);
-    DrawPlayerName(C, Table, Index, 1, Top);
+    Super.DrawRow(C, Table, Index, Row, Top);
     DrawTrophies(C, ASPlayerReplicationInfo(Tables[Table].PRIs[Index]), Top);
-    C.Font = MediumFont;
-    DrawTextCell(C, int(Tables[Table].PRIs[Index].Score), 2, Top);
-    DrawPlayerFrags(C, Table, Index, 3, Top);
-    DrawPlayerDeaths(C, Table, Index, 4, Top);
-    DrawPlayerPing(C, Table, Index, 5, Top);
-    DrawPlayerPPH(C, Table, Index, 6, Top);
 }
 
 simulated function DrawTrophies(Canvas C, ASPlayerReplicationInfo ASPRI, int Top)
@@ -184,4 +159,8 @@ simulated function HxSBColumnConfig GetPlayerColumnConfig()
 
 defaultproperties
 {
+    ColumnTypes(4)=HX_SBCOL_FragsAndEfficiency
+    ColumnTypes(5)=HX_SBCOL_DeathsAndSuicides
+    ColumnTypes(6)=HX_SBCOL_PingAndLoss
+    ColumnTypes(7)=HX_SBCOL_PPHAndTime
 }

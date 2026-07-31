@@ -65,11 +65,11 @@ simulated function DrawHeadings(Canvas C, int Table)
         C.CurX = C.OrgX + IconPadding;
         C.CurY = C.OrgY + IconPadding;
         C.DrawTileJustified(GRI.TeamSymbols[Table], 1, IconSize, IconSize);
-        C.CurX = ColumnLefts[1];
+        C.CurX = IconSize + 2 * IconPadding;
         C.CurY = ScorePadding;
         C.Font = MediumFont;
         C.DrawTextClipped(Repl(TeamNameLabels[Table], "%", Tables[Table].PRIs.Length));
-        C.CurX = ColumnLefts[1];
+        C.CurX = IconSize + 2 * IconPadding;
         C.CurY = ScorePadding + MediumFontHeight;
         C.Font = BigFont;
         C.DrawTextClipped(string(int(GRI.Teams[Table].Score)));
@@ -189,9 +189,21 @@ simulated function UpdateTablePaddings(Canvas C)
 
 simulated function UpdateExtraSizes(Canvas C)
 {
+    local float TextWidth;
+    local float TextHeight;
+
     if (TeamScoreStyle == HX_SB_TSCORE_Compact)
     {
-        HeaderHeight = Max(HeaderHeight, ColumnWidths[0]);
+        if (PlayerColumn != 1)
+        {
+            C.Font = SmallFont;
+            C.StrLen("111", TextWidth, TextHeight);
+            HeaderHeight = (TextWidth + MediumFontHeight + 1) & ~1;
+        }
+        else
+        {
+            HeaderHeight = Max(HeaderHeight, ColumnWidths[0]);
+        }
         IconSize = (HeaderHeight * 0.8 + 1) & ~1;
         IconPadding = (HeaderHeight - IconSize) / 2;
         ScorePadding = FMax(

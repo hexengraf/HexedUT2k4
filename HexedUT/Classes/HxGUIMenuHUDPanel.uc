@@ -5,6 +5,7 @@ const SECTION_SP_TIMER = 1;
 
 var automated moCheckBox ch_EnhancedScoreboard;
 var automated moComboBox co_TeamScoreStyle;
+var automated moCheckBox ch_ShowPortraits;
 var automated moCheckBox ch_ShowBotCallSigns;
 var automated moCheckBox ch_ShowBotOrders;
 var automated GUIButton b_ChangeAppearance;
@@ -32,6 +33,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     Super.InitComponent(MyController, MyOwner);
     Sections[SECTION_SCOREBOARD].Insert(ch_EnhancedScoreboard);
     Sections[SECTION_SCOREBOARD].Insert(co_TeamScoreStyle);
+    Sections[SECTION_SCOREBOARD].Insert(ch_ShowPortraits);
     Sections[SECTION_SCOREBOARD].Insert(ch_ShowBotCallSigns);
     Sections[SECTION_SCOREBOARD].Insert(ch_ShowBotOrders);
     Sections[SECTION_SCOREBOARD].Insert(b_ChangeAppearance);
@@ -221,11 +223,22 @@ defaultproperties
     End Object
     co_TeamScoreStyle=TeamScoreStyleCheckBox
 
+    Begin Object class=moCheckBox Name=ShowPortraitsCheckBox
+        Caption="Show Player Portraits"
+        Hint="Show player portraits at the left of each row."
+        INIOption="@INTERNAL"
+        Tag=8
+        OnLoadINI=ScoreboardOnLoadINI
+        OnChange=ScoreboardOnChange
+        TabOrder=5
+    End Object
+    ch_ShowPortraits=ShowPortraitsCheckBox
+
     Begin Object class=moCheckBox Name=ShowBotCallSignsCheckBox
         Caption="Show Bot Call Signs"
         Hint="Show bot call signs at the end of their names (team games only)."
         INIOption="@INTERNAL"
-        Tag=8
+        Tag=9
         OnLoadINI=ScoreboardOnLoadINI
         OnChange=ScoreboardOnChange
         TabOrder=5
@@ -236,7 +249,7 @@ defaultproperties
         Caption="Show Bot Orders"
         Hint="Show bot orders in front of their location (team games only)."
         INIOption="@INTERNAL"
-        Tag=9
+        Tag=10
         OnLoadINI=ScoreboardOnLoadINI
         OnChange=ScoreboardOnChange
         TabOrder=5

@@ -1,6 +1,21 @@
 class HxScoreBoard extends ScoreBoard
     abstract;
 
+enum EHxSBColumnType
+{
+    HX_SBCOL_Position,
+    HX_SBCOL_Portrait,
+    HX_SBCOL_Player,
+    HX_SBCOL_Score,
+    HX_SBCOL_Lives,
+    HX_SBCOL_FragsAndEfficiency,
+    HX_SBCOL_DeathsAndSuicides,
+    HX_SBCOL_CapsAndGrabs,
+    HX_SBCOL_PingAndLoss,
+    HX_SBCOL_PPHAndTime,
+    HX_SBCOL_Custom,
+};
+
 enum EHxSBTeamScoreStyle
 {
     HX_SB_TSCORE_FullSize,
@@ -9,6 +24,7 @@ enum EHxSBTeamScoreStyle
 
 struct HxSBColumnConfig
 {
+    var EHxSBColumnType Type;
     var string Heading;
     var string SubHeading;
     var string MinWidthValue;
@@ -21,6 +37,9 @@ struct HxSBTable
 {
     var int TeamIndex;
     var array<PlayerReplicationInfo> PRIs;
+    var array<Material> Portraits;
+    var array<Vector> PortraitSizes;
+    var array<string> CharacterNames;
     var array<string> Pings;
     var array<string> PLs;
 };
@@ -70,6 +89,7 @@ var float BorderSize;
 var float DividerSize;
 var int FontSizeModifier;
 var bool bAlternateRowColors;
+var bool bShowPlayerPortraits;
 var bool bShowBotCallSigns;
 var bool bShowBotOrders;
 var Color HeaderColor;
@@ -84,9 +104,10 @@ var Color HighlightTextColor;
 var Color ReadyColor;
 
 var protected const array<HxSBTable> Tables;
+var protected const array<EHxSBColumnType> ColumnTypes;
 var protected array<HxSBColumnConfig> Columns;
 var protected array<GUI.eTextAlign> Alignments;
-var protected const int PlayerColumn;
+var protected int PlayerColumn;
 var protected bool bVerticalLayout;
 
 var protected int Border;
@@ -136,19 +157,23 @@ var private int FocusedIndex;
 var private int TopIndex;
 var private int FontIndex;
 var private int SpectatingRegionHeight;
+var private int PortraitSize;
 var private string SpectatingPlayers;
 var private string DetailedStatsHint;
 var private HxScoreBoardInteraction Interaction;
+var private array<xUtil.PlayerRecord> PlayerList;
 
-simulated function ConfigureColumns();
-simulated function DrawRow(Canvas C, int Table, int Index, int Row, int Top);
+simulated function InitializeCustomColumn(int Index);
 simulated function UpdateTablePaddings(Canvas C);
 simulated function UpdateExtraSizes(Canvas C);
 simulated function SetTableColors(int Table);
 
 simulated function Init()
 {
+    local int i;
+
     Super.Init();
+    class'xUtil'.static.GetPlayerList(PlayerList);
     BoardAlignment = class'HxScoreBoard'.default.BoardAlignment;
     HeadingAlignment = class'HxScoreBoard'.default.HeadingAlignment;
     TeamScoreStyle = class'HxScoreBoard'.default.TeamScoreStyle;
@@ -156,6 +181,7 @@ simulated function Init()
     DividerSize = class'HxScoreBoard'.default.DividerSize;
     FontSizeModifier = class'HxScoreBoard'.default.FontSizeModifier;
     bAlternateRowColors = class'HxScoreBoard'.default.bAlternateRowColors;
+    bShowPlayerPortraits = class'HxScoreBoard'.default.bShowPlayerPortraits;
     bShowBotCallSigns = class'HxScoreBoard'.default.bShowBotCallSigns;
     bShowBotOrders = class'HxScoreBoard'.default.bShowBotOrders;
     HeaderColor = class'HxScoreBoard'.default.HeaderColor;
@@ -176,7 +202,64 @@ simulated function Init()
     {
         bVerticalLayout = true;
     }
-    ConfigureColumns();
+    for (i = 0; i < ColumnTypes.Length; ++i)
+    {
+        InitializeColumn(ColumnTypes[i], i);
+    }
+}
+
+simulated function InitializeColumn(EHxSBColumnType Type, int Index)
+{
+    switch (Type)
+    {
+        case HX_SBCOL_Position:
+            Columns[Columns.Length] = GetPositionColumnConfig();
+            Alignments[Alignments.Length] = TXTA_Center;
+            break;
+        case HX_SBCOL_Portrait:
+            if (bShowPlayerPortraits)
+            {
+                Columns[Columns.Length] = GetPortraitColumnConfig();
+                Alignments[Alignments.Length] = TXTA_Center;
+            }
+            break;
+        case HX_SBCOL_Player:
+            PlayerColumn = Columns.Length;
+            Columns[Columns.Length] = GetPlayerColumnConfig();
+            Alignments[Alignments.Length] = TXTA_Left;
+            break;
+        case HX_SBCOL_Score:
+            Columns[Columns.Length] = GetScoreColumnConfig();
+            Alignments[Alignments.Length] = TXTA_Center;
+            break;
+        case HX_SBCOL_Lives:
+            Columns[Columns.Length] = GetLivesColumnConfig();
+            Alignments[Alignments.Length] = TXTA_Center;
+            break;
+        case HX_SBCOL_PingAndLoss:
+            Columns[Columns.Length] = GetPingColumnConfig();
+            Alignments[Alignments.Length] = TXTA_Center;
+            break;
+        case HX_SBCOL_FragsAndEfficiency:
+            Columns[Columns.Length] = GetFragsColumnConfig();
+            Alignments[Alignments.Length] = TXTA_Center;
+            break;
+        case HX_SBCOL_DeathsAndSuicides:
+            Columns[Columns.Length] = GetDeathsColumnConfig();
+            Alignments[Alignments.Length] = TXTA_Center;
+            break;
+        case HX_SBCOL_CapsAndGrabs:
+            Columns[Columns.Length] = GetCapturesColumnConfig();
+            Alignments[Alignments.Length] = TXTA_Center;
+            break;
+        case HX_SBCOL_PPHAndTime:
+            Columns[Columns.Length] = GetPPHColumnConfig();
+            Alignments[Alignments.Length] = TXTA_Center;
+            break;
+        case HX_SBCOL_Custom:
+            InitializeCustomColumn(Index);
+            break;
+    }
 }
 
 simulated function bool Initialized()
@@ -343,6 +426,22 @@ simulated function DrawTables(Canvas C, int TableHeight)
     bDisplayMessages = C.OrgY < (ScreenHeight / 2);
 }
 
+simulated function DrawScrollThumb(Canvas C)
+{
+    local float Top;
+    local int Height;
+
+    Height = ScrollZoneHeight * FMax(0.03, ScrollZoneHeight / float(RowCount * FullRowHeight));
+    Top = int((ScrollZoneHeight - Height) * (TopIndex / float(RowCount - MaxVisibleRows)));
+    C.DrawColor = ScrollThumbColor;
+    DrawBox(
+        C,
+        RowWidth + ScrollPadding,
+        Top + HeaderHeight + ScrollPadding + Divider,
+        ScrollThumbWidth,
+        Height);
+}
+
 simulated function DrawMapInfo(Canvas C)
 {
     local string StatusText;
@@ -485,20 +584,76 @@ simulated function DrawRows(Canvas C, int Table)
     }
 }
 
-simulated function DrawScrollThumb(Canvas C)
+simulated function DrawRow(Canvas C, int Table, int Index, int Row, int Top)
 {
-    local float Top;
-    local int Height;
+    local int i;
 
-    Height = ScrollZoneHeight * FMax(0.03, ScrollZoneHeight / float(RowCount * FullRowHeight));
-    Top = int((ScrollZoneHeight - Height) * (TopIndex / float(RowCount - MaxVisibleRows)));
-    C.DrawColor = ScrollThumbColor;
-    DrawBox(
-        C,
-        RowWidth + ScrollPadding,
-        Top + HeaderHeight + ScrollPadding + Divider,
-        ScrollThumbWidth,
-        Height);
+    for (i = 0; i < Columns.Length; ++i)
+    {
+        if (ColumnWidths[i] > 0)
+        {
+            switch (Columns[i].Type)
+            {
+                case HX_SBCOL_Position:
+                    DrawPlayerPosition(C, Table, Index, i, Top);
+                    break;
+                case HX_SBCOL_Portrait:
+                    DrawPlayerPortrait(C, Table, Index, i, Top);
+                    break;
+                case HX_SBCOL_Player:
+                    DrawPlayerName(C, Table, Index, i, Top);
+                    break;
+                case HX_SBCOL_Score:
+                    C.Font = MediumFont;
+                    DrawTextCell(C, int(Tables[Table].PRIs[Index].Score), i, Top);
+                    break;
+                case HX_SBCOL_Lives:
+                    DrawPlayerLives(C, Table, Index, i, Top);
+                    break;
+                case HX_SBCOL_FragsAndEfficiency:
+                    DrawPlayerFrags(C, Table, Index, i, Top);
+                    break;
+                case HX_SBCOL_DeathsAndSuicides:
+                    DrawPlayerDeaths(C, Table, Index, i, Top);
+                    break;
+                case HX_SBCOL_CapsAndGrabs:
+                    DrawPlayerCaptures(C, Table, Index, i, Top);
+                    break;
+                case HX_SBCOL_PingAndLoss:
+                    DrawPlayerPing(C, Table, Index, i, Top);
+                    break;
+                case HX_SBCOL_PPHAndTime:
+                    DrawPlayerPPH(C, Table, Index, i, Top);
+                    break;
+            }
+        }
+    }
+}
+
+simulated function DrawPlayerPortrait(Canvas C, int Table, int Index, int Column, int Top)
+{
+    local Color PreviousColor;
+    local Material Portrait;
+
+    Portrait = Tables[Table].Portraits[Index];
+    if (Portrait != None)
+    {
+        PreviousColor = C.DrawColor;
+        C.Style = ERenderStyle.STY_Normal;
+        C.DrawColor = HUDClass.default.WhiteColor;
+        C.CurX = ColumnLefts[Column];
+        C.CurY = Top + (RowHeight - PortraitSize) / 2.0;
+        C.DrawTile(
+            Portrait,
+            PortraitSize,
+            PortraitSize,
+            0,
+            Tables[Table].PortraitSizes[Index].Z,
+            Tables[Table].PortraitSizes[Index].X,
+            Tables[Table].PortraitSizes[Index].Y);
+        C.DrawColor = PreviousColor;
+        C.Style = ERenderStyle.STY_Alpha;
+    }
 }
 
 simulated function DrawPlayerPosition(Canvas C, int Table, int Index, int Column, int Top)
@@ -522,7 +677,7 @@ simulated function DrawPlayerPosition(Canvas C, int Table, int Index, int Column
     }
     else if (!DrawPlayerMarker(C, Table, Index, Column, Top))
     {
-        DrawTextCell(C, Index + 1, 0, Top);
+        DrawTextCell(C, Index + 1, Column, Top);
     }
 }
 
@@ -594,6 +749,19 @@ simulated function DrawTeamPlayerName(Canvas C, int Table, int Index, int Column
     C.DrawColor = SecondTextColor;
     DrawTextClipped(C, Zone, Alignments[Column], ColumnLefts[Column], ColumnWidths[Column]);
     C.DrawColor = PreviousColor;
+}
+
+simulated function DrawPlayerLives(Canvas C, int Table, int Index, int Column, int Top)
+{
+    C.Font = MediumFont;
+    if (Tables[Table].PRIs[Index].bOutOfLives)
+    {
+        DrawTextCell(C, class'ScoreBoardDeathMatch'.default.OutText, Column, Top);
+    }
+    else
+    {
+        DrawTextCell(C, int(GRI.MaxLives - Tables[Table].PRIs[Index].Deaths), Column, Top);
+    }
 }
 
 simulated function DrawPlayerFrags(Canvas C, int Table, int Index, int Column, int Top)
@@ -704,25 +872,19 @@ simulated final function DrawTextCellDual(Canvas C,
 {
     local Color PreviousColor;
 
-    if (ColumnWidths[Column] > 0)
-    {
-        C.Font = SmallFont;
-        C.CurY = Top + SmallRowPadding;
-        DrawTextClipped(C, MainText, Alignments[Column], ColumnLefts[Column], ColumnWidths[Column]);
-        PreviousColor = C.DrawColor;
-        C.DrawColor = SecondTextColor;
-        DrawTextClipped(C, SubText, Alignments[Column], ColumnLefts[Column], ColumnWidths[Column]);
-        C.DrawColor = PreviousColor;
-    }
+    C.Font = SmallFont;
+    C.CurY = Top + SmallRowPadding;
+    DrawTextClipped(C, MainText, Alignments[Column], ColumnLefts[Column], ColumnWidths[Column]);
+    PreviousColor = C.DrawColor;
+    C.DrawColor = SecondTextColor;
+    DrawTextClipped(C, SubText, Alignments[Column], ColumnLefts[Column], ColumnWidths[Column]);
+    C.DrawColor = PreviousColor;
 }
 
 simulated final function DrawTextCell(Canvas C, coerce string Text, int Column, float Top)
 {
-    if (ColumnWidths[Column] > 0)
-    {
-        DrawTextCentered(
-            C, Text, Alignments[Column], ColumnLefts[Column], Top, ColumnWidths[Column], RowHeight);
-    }
+    DrawTextCentered(
+        C, Text, Alignments[Column], ColumnLefts[Column], Top, ColumnWidths[Column], RowHeight);
 }
 
 simulated final function DrawTextCentered(Canvas C,
@@ -795,27 +957,6 @@ simulated final function DrawIconCell(Canvas C, Material Icon, int Column, Float
     C.DrawColor = PreviousColor;
 }
 
-simulated final function DrawTextureCell(Canvas C,
-                                         Texture Texture,
-                                         int Column,
-                                         Float Top,
-                                         float U,
-                                         float V,
-                                         float UL,
-                                         float VL)
-{
-    local Color PreviousColor;
-    local int Size;
-
-    PreviousColor = C.DrawColor;
-    Size = Min(ColumnWidths[Column], RowHeight);
-    C.DrawColor = HUDClass.default.WhiteColor;
-    C.CurX = ColumnLefts[Column] + (ColumnWidths[Column] - Size) / 2.0;
-    C.CurY = Top + (RowHeight - Size) / 2.0;
-    C.DrawTile(Texture, Size, Size, U, V, UL, VL);
-    C.DrawColor = PreviousColor;
-}
-
 simulated function UpdateSizes(Canvas C)
 {
     local int MaxHeight;
@@ -845,6 +986,14 @@ simulated function UpdateSizes(Canvas C)
     TableRegion[1] += Border;
     TableRegion[2] -= Border * 2;
     UpdateTablePaddings(C);
+    if (Divider == 0)
+    {
+        PortraitSize = (RowHeight * 0.97 + 1) & ~1;
+    }
+    else
+    {
+        PortraitSize = RowHeight;
+    }
     if (bVerticalLayout)
     {
         TableWidth = TableRegion[2] - TableLeftPadding;
@@ -1092,6 +1241,11 @@ simulated function bool UpdateTables()
     FocusedIndex = -1;
     for (i = 0; i < Tables.Length; ++i)
     {
+        Tables[i].Portraits.Length = Tables[i].PRIs.Length;
+        Tables[i].PortraitSizes.Length = Tables[i].PRIs.Length;
+        Tables[i].CharacterNames.Length = Tables[i].PRIs.Length;
+        Tables[i].Pings.Length = Tables[i].PRIs.Length;
+        Tables[i].PLs.Length = Tables[i].PRIs.Length;
         for (j = 0; j < Tables[i].PRIs.Length; ++j)
         {
             if (PC.PlayerReplicationInfo.bOnlySpectator)
@@ -1107,11 +1261,40 @@ simulated function bool UpdateTables()
                 FocusedTable = i;
                 FocusedIndex = j;
             }
+            if (bShowPlayerPortraits)
+            {
+                UpdatePlayerPortrait(i, j);
+            }
             Tables[i].Pings[j] = string(Min(999, 4 * Tables[i].PRIs[j].Ping));
             Tables[i].PLs[j] = string(Tables[i].PRIs[j].PacketLoss);
         }
     }
     return bUpdateVisible;
+}
+
+simulated function UpdatePlayerPortrait(int Table, int Index)
+{
+    local int i;
+
+    if (Tables[Table].CharacterNames[Index] != Tables[Table].PRIs[Index].CharacterName)
+    {
+        Tables[Table].CharacterNames[Index] = Tables[Table].PRIs[Index].CharacterName;
+        for (i = 0; i < PlayerList.Length; ++i)
+        {
+            if (PlayerList[i].DefaultName ~= Tables[Table].PRIs[Index].CharacterName)
+            {
+                Tables[Table].Portraits[Index] = PlayerList[i].Portrait;
+                Tables[Table].PortraitSizes[Index].X = 256;
+                Tables[Table].PortraitSizes[Index].Y = 256;
+                Tables[Table].PortraitSizes[Index].Z = 20;
+                return;
+            }
+        }
+        Tables[Table].Portraits[Index] = Texture'PlayerPictures.cDefault';
+        Tables[Table].PortraitSizes[Index].X = 256;
+        Tables[Table].PortraitSizes[Index].Y = 400;
+        Tables[Table].PortraitSizes[Index].Z = 56;
+    }
 }
 
 simulated function bool IsSystemSpectator(PlayerReplicationInfo PRI)
@@ -1166,6 +1349,11 @@ simulated function int GetMinimumColumnSize(Canvas C, int Column)
     local float TextWidth[3];
     local float TextHeight[3];
 
+    if ((bShowPlayerPortraits && Columns[Column].Type == HX_SBCOL_Position)
+        || Columns[Column].Type == HX_SBCOL_Portrait)
+    {
+        return (RowHeight * 1.2 + 1) & ~1;
+    }
     C.Font = SmallFont;
     if (Columns[Column].Heading != "")
     {
@@ -1204,9 +1392,20 @@ simulated function HxSBColumnConfig GetPositionColumnConfig()
 {
     local HxSBColumnConfig Config;
 
+    Config.Type = HX_SBCOL_Position;
     Config.MinWidthValue = "111";
     Config.MaxWidthValue = "191";
     Config.bSmall = true;
+    return Config;
+}
+
+simulated function HxSBColumnConfig GetPortraitColumnConfig()
+{
+    local HxSBColumnConfig Config;
+
+    Config.Type = HX_SBCOL_Portrait;
+    Config.MinWidthValue = "111";
+    Config.bCanHide = true;
     return Config;
 }
 
@@ -1214,6 +1413,7 @@ simulated function HxSBColumnConfig GetPlayerColumnConfig()
 {
     local HxSBColumnConfig Config;
 
+    Config.Type = HX_SBCOL_Player;
     Config.Heading = PlayerLabel;
     Config.MinWidthValue = MinNameWidthTestText;
     Config.MaxWidthValue = MaxNameWidthTestText;
@@ -1224,6 +1424,7 @@ simulated function HxSBColumnConfig GetScoreColumnConfig()
 {
     local HxSBColumnConfig Config;
 
+    Config.Type = HX_SBCOL_Score;
     Config.Heading = ScoreLabel;
     Config.MinWidthValue = "9999";
     Config.MaxWidthValue = "999999";
@@ -1234,6 +1435,7 @@ simulated function HxSBColumnConfig GetLivesColumnConfig()
 {
     local HxSBColumnConfig Config;
 
+    Config.Type = HX_SBCOL_Lives;
     Config.Heading = LivesLabel;
     Config.MinWidthValue = "9999";
     Config.MaxWidthValue = "999999";
@@ -1244,6 +1446,7 @@ simulated function HxSBColumnConfig GetPingColumnConfig()
 {
     local HxSBColumnConfig Config;
 
+    Config.Type = HX_SBCOL_PingAndLoss;
     Config.Heading = PingLabel;
     Config.SubHeading = PacketLossLabel;
     Config.MinWidthValue = "999";
@@ -1254,6 +1457,7 @@ simulated function HxSBColumnConfig GetFragsColumnConfig()
 {
     local HxSBColumnConfig Config;
 
+    Config.Type = HX_SBCOL_FragsAndEfficiency;
     Config.Heading = FragsLabel;
     Config.SubHeading = EfficiencyLabel;
     Config.MinWidthValue = "9999";
@@ -1266,6 +1470,7 @@ simulated function HxSBColumnConfig GetDeathsColumnConfig()
 {
     local HxSBColumnConfig Config;
 
+    Config.Type = HX_SBCOL_DeathsAndSuicides;
     Config.Heading = DeathsLabel;
     Config.SubHeading = SuicidesLabel;
     Config.MinWidthValue = "9999";
@@ -1278,6 +1483,7 @@ simulated function HxSBColumnConfig GetCapturesColumnConfig()
 {
     local HxSBColumnConfig Config;
 
+    Config.Type = HX_SBCOL_CapsAndGrabs;
     Config.Heading = CapturesLabel;
     Config.SubHeading = GrabsLabel;
     Config.MinWidthValue = "9999";
@@ -1290,6 +1496,7 @@ simulated function HxSBColumnConfig GetPPHColumnConfig()
 {
     local HxSBColumnConfig Config;
 
+    Config.Type = HX_SBCOL_PPHAndTime;
     Config.Heading = PPHLabel;
     Config.SubHeading = TimeLabel;
     Config.MinWidthValue = FormatTime(0);
@@ -1485,6 +1692,10 @@ simulated function UpdatePrecacheFonts()
 defaultproperties
 {
     Tables(0)=(TeamIndex=-1)
+    ColumnTypes(0)=HX_SBCOL_Position
+    ColumnTypes(1)=HX_SBCOL_Portrait
+    ColumnTypes(2)=HX_SBCOL_Player
+    ColumnTypes(3)=HX_SBCOL_Score
     BoardAlignment=HX_VALIGN_Top
     HeadingAlignment=HX_VALIGN_Center
     TeamScoreStyle=HX_SB_TSCORE_FullSize
@@ -1492,6 +1703,7 @@ defaultproperties
     DividerSize=0.2
     FontSizeModifier=0
     bAlternateRowColors=false
+    bShowPlayerPortraits=false
     bShowBotCallSigns=false
     bShowBotOrders=true
     HeaderColor=(R=0,G=0,B=20,A=196)
@@ -1504,7 +1716,6 @@ defaultproperties
     SecondTextColor=(R=200,G=210,B=220,A=255)
     HighlightTextColor=(R=255,G=255,B=0,A=255)
     ReadyColor=(R=64,G=255,B=64,A=255)
-    PlayerColumn=1
     LastUpdateTime=-5
 
     ReadyLabel="RDY"
