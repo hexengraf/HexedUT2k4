@@ -90,6 +90,7 @@ var float DividerSize;
 var int FontSizeModifier;
 var bool bAlternateRowColors;
 var bool bShowPlayerPortraits;
+var bool bShowPPHAndTime;
 var bool bShowBotCallSigns;
 var bool bShowBotOrders;
 var Color HeaderColor;
@@ -174,26 +175,7 @@ simulated function Init()
 
     Super.Init();
     class'xUtil'.static.GetPlayerList(PlayerList);
-    BoardAlignment = class'HxScoreBoard'.default.BoardAlignment;
-    HeadingAlignment = class'HxScoreBoard'.default.HeadingAlignment;
-    TeamScoreStyle = class'HxScoreBoard'.default.TeamScoreStyle;
-    BorderSize = class'HxScoreBoard'.default.BorderSize;
-    DividerSize = class'HxScoreBoard'.default.DividerSize;
-    FontSizeModifier = class'HxScoreBoard'.default.FontSizeModifier;
-    bAlternateRowColors = class'HxScoreBoard'.default.bAlternateRowColors;
-    bShowPlayerPortraits = class'HxScoreBoard'.default.bShowPlayerPortraits;
-    bShowBotCallSigns = class'HxScoreBoard'.default.bShowBotCallSigns;
-    bShowBotOrders = class'HxScoreBoard'.default.bShowBotOrders;
-    HeaderColor = class'HxScoreBoard'.default.HeaderColor;
-    RowColor = class'HxScoreBoard'.default.RowColor;
-    AltRowColor = class'HxScoreBoard'.default.AltRowColor;
-    BorderColor = class'HxScoreBoard'.default.BorderColor;
-    DividerColor = class'HxScoreBoard'.default.DividerColor;
-    ScrollThumbColor = class'HxScoreBoard'.default.ScrollThumbColor;
-    TextColor = class'HxScoreBoard'.default.TextColor;
-    SecondTextColor = class'HxScoreBoard'.default.SecondTextColor;
-    HighlightTextColor = class'HxScoreBoard'.default.HighlightTextColor;
-    ReadyColor = class'HxScoreBoard'.default.ReadyColor;
+    LoadDefaults();
     ScreenWidth = 0;
     ScreenHeight = 0;
     Columns.Length = 0;
@@ -206,6 +188,31 @@ simulated function Init()
     {
         InitializeColumn(ColumnTypes[i], i);
     }
+}
+
+simulated function LoadDefaults()
+{
+    BoardAlignment = class'HxScoreBoard'.default.BoardAlignment;
+    HeadingAlignment = class'HxScoreBoard'.default.HeadingAlignment;
+    TeamScoreStyle = class'HxScoreBoard'.default.TeamScoreStyle;
+    BorderSize = class'HxScoreBoard'.default.BorderSize;
+    DividerSize = class'HxScoreBoard'.default.DividerSize;
+    FontSizeModifier = class'HxScoreBoard'.default.FontSizeModifier;
+    bAlternateRowColors = class'HxScoreBoard'.default.bAlternateRowColors;
+    bShowPlayerPortraits = class'HxScoreBoard'.default.bShowPlayerPortraits;
+    bShowPPHAndTime = class'HxScoreBoard'.default.bShowPPHAndTime;
+    bShowBotCallSigns = class'HxScoreBoard'.default.bShowBotCallSigns;
+    bShowBotOrders = class'HxScoreBoard'.default.bShowBotOrders;
+    HeaderColor = class'HxScoreBoard'.default.HeaderColor;
+    RowColor = class'HxScoreBoard'.default.RowColor;
+    AltRowColor = class'HxScoreBoard'.default.AltRowColor;
+    BorderColor = class'HxScoreBoard'.default.BorderColor;
+    DividerColor = class'HxScoreBoard'.default.DividerColor;
+    ScrollThumbColor = class'HxScoreBoard'.default.ScrollThumbColor;
+    TextColor = class'HxScoreBoard'.default.TextColor;
+    SecondTextColor = class'HxScoreBoard'.default.SecondTextColor;
+    HighlightTextColor = class'HxScoreBoard'.default.HighlightTextColor;
+    ReadyColor = class'HxScoreBoard'.default.ReadyColor;
 }
 
 simulated function InitializeColumn(EHxSBColumnType Type, int Index)
@@ -253,8 +260,11 @@ simulated function InitializeColumn(EHxSBColumnType Type, int Index)
             Alignments[Alignments.Length] = TXTA_Center;
             break;
         case HX_SBCOL_PPHAndTime:
-            Columns[Columns.Length] = GetPPHColumnConfig();
-            Alignments[Alignments.Length] = TXTA_Center;
+            if (bShowPPHAndTime)
+            {
+                Columns[Columns.Length] = GetPPHColumnConfig();
+                Alignments[Alignments.Length] = TXTA_Center;
+            }
             break;
         case HX_SBCOL_Custom:
             InitializeCustomColumn(Index);
@@ -1706,6 +1716,7 @@ defaultproperties
     FontSizeModifier=0
     bAlternateRowColors=false
     bShowPlayerPortraits=false
+    bShowPPHAndTime=false
     bShowBotCallSigns=false
     bShowBotOrders=true
     HeaderColor=(R=0,G=0,B=20,A=196)

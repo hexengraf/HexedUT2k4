@@ -17,7 +17,7 @@ var private int IconPadding;
 var private float ScorePadding;
 var private bool bDrawSymbols;
 
-simulated function Init()
+simulated function LoadDefaults()
 {
     TeamHeaderColors[0] = class'HxTeamScoreBoard'.default.TeamHeaderColors[0];
     TeamHeaderColors[1] = class'HxTeamScoreBoard'.default.TeamHeaderColors[1];
@@ -33,7 +33,7 @@ simulated function Init()
     TeamScrollThumbColors[1] = class'HxTeamScoreBoard'.default.TeamScrollThumbColors[1];
     TeamColors[0] = class'HxTeamScoreBoard'.default.TeamColors[0];
     TeamColors[1] = class'HxTeamScoreBoard'.default.TeamColors[1];
-    Super.Init();
+    Super.LoadDefaults();
 }
 
 simulated function DrawTables(Canvas C, int TableHeight)
