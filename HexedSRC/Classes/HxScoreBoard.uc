@@ -295,7 +295,12 @@ simulated event Destroyed()
 {
     if (Interaction != None)
     {
-        PlayerController(Owner).Player.InteractionMaster.RemoveInteraction(Interaction);
+        PC = UnrealPlayer(Owner);
+        if (PC != None && PC.Player != None)
+        {
+            PC.Player.InteractionMaster.RemoveInteraction(Interaction);
+        }
+        Interaction = None;
     }
 }
 
