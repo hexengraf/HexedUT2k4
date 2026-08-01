@@ -819,7 +819,7 @@ simulated function DrawPlayerCaptures(Canvas C, int Table, int Index, int Column
     TeamPRI = TeamPlayerReplicationInfo(Tables[Table].PRIs[Index]);
     if (TeamPRI != None)
     {
-        DrawTextCellDual(C, TeamPRI.GoalsScored, TeamPRI.FlagTouches, 3, Top);
+        DrawTextCellDual(C, TeamPRI.GoalsScored, TeamPRI.FlagTouches, Column, Top);
     }
 }
 simulated function DrawPlayerPing(Canvas C, int Table, int Index, int Column, float Top)
