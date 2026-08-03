@@ -162,7 +162,6 @@ var private int PortraitSize;
 var private string SpectatingPlayers;
 var private string DetailedStatsHint;
 var private HxScoreBoardInteraction Interaction;
-var private array<xUtil.PlayerRecord> PlayerList;
 
 simulated function InitializeCustomColumn(int Index);
 simulated function UpdateTablePaddings(Canvas C);
@@ -174,7 +173,6 @@ simulated function Init()
     local int i;
 
     Super.Init();
-    class'xUtil'.static.GetPlayerList(PlayerList);
     LoadDefaults();
     ScreenWidth = 0;
     ScreenHeight = 0;
@@ -1291,26 +1289,27 @@ simulated function bool UpdateTables()
 
 simulated function UpdatePlayerPortrait(int Table, int Index)
 {
+    local xUtil.PlayerRecord Record;
     local int i;
 
     if (Tables[Table].CharacterNames[Index] != Tables[Table].PRIs[Index].CharacterName)
     {
         Tables[Table].CharacterNames[Index] = Tables[Table].PRIs[Index].CharacterName;
-        for (i = 0; i < PlayerList.Length; ++i)
+        Record = class'xUtil'.static.FindPlayerRecord(Tables[Table].CharacterNames[Index]);
+        if (Record.DefaultName ~= Tables[Table].CharacterNames[Index])
         {
-            if (PlayerList[i].DefaultName ~= Tables[Table].PRIs[Index].CharacterName)
-            {
-                Tables[Table].Portraits[Index] = PlayerList[i].Portrait;
-                Tables[Table].PortraitSizes[Index].X = 256;
-                Tables[Table].PortraitSizes[Index].Y = 256;
-                Tables[Table].PortraitSizes[Index].Z = 20;
-                return;
-            }
+            Tables[Table].Portraits[Index] = Record.Portrait;
+            Tables[Table].PortraitSizes[Index].X = 256;
+            Tables[Table].PortraitSizes[Index].Y = 256;
+            Tables[Table].PortraitSizes[Index].Z = 20;
         }
-        Tables[Table].Portraits[Index] = Texture'PlayerPictures.cDefault';
-        Tables[Table].PortraitSizes[Index].X = 256;
-        Tables[Table].PortraitSizes[Index].Y = 400;
-        Tables[Table].PortraitSizes[Index].Z = 56;
+        else
+        {
+            Tables[Table].Portraits[Index] = Texture'PlayerPictures.cDefault';
+            Tables[Table].PortraitSizes[Index].X = 256;
+            Tables[Table].PortraitSizes[Index].Y = 400;
+            Tables[Table].PortraitSizes[Index].Z = 56;
+        }
     }
 }
 
