@@ -288,33 +288,6 @@ function UpdateDynamicActors(int Index)
     }
 }
 
-function TemporaryFirstRunFix()
-{
-    local array<string> NewFontNames;
-    local int i;
-    local int j;
-
-    ResetProperty(6);
-    NewFontNames = default.FontNames;
-    for (i = 0; i < FontNames.Length; ++i)
-    {
-        for (j = 0; j < NewFontNames.Length; ++j)
-        {
-            if (FontNames[i] ~= NewFontNames[j])
-            {
-                break;
-            }
-        }
-        if (j == NewFontNames.Length)
-        {
-            NewFontNames[NewFontNames.Length] = FontNames[i];
-        }
-    }
-    FontNames = NewFontNames;
-    SaveConfig();
-    InitializeProperties();
-}
-
 defaultproperties
 {
     ObjectName="HexedUT"

@@ -34,11 +34,6 @@ simulated event PostBeginPlay()
         class'HxSkinHighlight'.static.PopulateReservedNames(SkinHighlightColors);
         HxSkinHighlightConfig(FindConfig(
             class'HxSkinHighlightConfig')).ValidateColors(SkinHighlightColors);
-        if (Manager.IsFirstRun())
-        {
-            // TODO: remove this in v10
-            HxHitEffectsConfig(FindConfig(class'HxHitEffectsConfig')).TemporaryFirstRunFix();
-        }
     }
 }
 
