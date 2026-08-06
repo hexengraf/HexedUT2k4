@@ -1290,7 +1290,6 @@ simulated function bool UpdateTables()
 simulated function UpdatePlayerPortrait(int Table, int Index)
 {
     local xUtil.PlayerRecord Record;
-    local int i;
 
     if (Tables[Table].CharacterNames[Index] != Tables[Table].PRIs[Index].CharacterName)
     {
