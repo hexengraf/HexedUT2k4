@@ -1,5 +1,5 @@
 class HxClientManager extends Actor
-    config(User);
+    config(HexedCache);
 
 var config bool bFirstRun;
 var config string MenuKeybind;
