@@ -2,11 +2,11 @@ class HxUTPlayerConfig extends HxConfig
     config(User)
     PerObjectConfig;
 
-var config HxUTPlayer.EHxViewSmoothing ViewSmoothing;
+var config HxUTPlayerInteraction.EHxViewSmoothing ViewSmoothing;
 
 function InitializeProperties()
 {
-    class'HxUTPlayer'.default.ViewSmoothing = ViewSmoothing;
+    class'HxUTPlayerInteraction'.default.ViewSmoothing = ViewSmoothing;
     UpdateDynamicActors(-1);
 }
 
@@ -15,7 +15,7 @@ function ApplyProperty(int Index)
     switch (Index)
     {
         case 0:
-            class'HxUTPlayer'.default.ViewSmoothing = ViewSmoothing;
+            class'HxUTPlayerInteraction'.default.ViewSmoothing = ViewSmoothing;
             break;
     }
     UpdateDynamicActors(Index);
@@ -34,24 +34,30 @@ function bool ResetProperty(int Index)
 
 function UpdateDynamicActors(int Index)
 {
-    local HxUTPlayer Player;
+    local PlayerController PC;
+    local HxUTPlayerInteraction Player;
 
     if (Level != None)
     {
-        ForEach Level.DynamicActors(class'HxUTPlayer', Player)
+        PC = Level.GetLocalPlayerController();
+        if (PC != None && PC.Player != None)
         {
-            if (Index < 0)
+            Player = class'HxUTPlayerInteraction'.static.Find(PC.Player);
+            if (Player != None)
             {
-                for (Index = 0; Index < Properties.Length; ++Index)
+                if (Index < 0)
+                {
+                    for (Index = 0; Index < Properties.Length; ++Index)
+                    {
+                        Player.SetPropertyText(
+                            Properties[Index].Name, GetPropertyText(Properties[Index].Name));
+                    }
+                }
+                else
                 {
                     Player.SetPropertyText(
                         Properties[Index].Name, GetPropertyText(Properties[Index].Name));
                 }
-            }
-            else
-            {
-                Player.SetPropertyText(
-                    Properties[Index].Name, GetPropertyText(Properties[Index].Name));
             }
         }
     }

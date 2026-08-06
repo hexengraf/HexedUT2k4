@@ -1,8 +1,4 @@
-class HxScoreBoardInteraction extends Interaction;
-
-event Initialized()
-{
-}
+class HxScoreBoardInteraction extends HxInteraction;
 
 function bool KeyEvent(out EInputKey Key, out EInputAction Action, FLOAT Delta)
 {
@@ -30,19 +26,9 @@ function bool KeyEvent(out EInputKey Key, out EInputAction Action, FLOAT Delta)
     return false;
 }
 
-static function HxScoreBoardInteraction AddInteraction(Player Owner)
+static function HxScoreBoardInteraction Add(Player Owner)
 {
-    local int i;
-
-    for (i = 0; i < Owner.LocalInteractions.Length; ++i)
-    {
-        if (Owner.LocalInteractions[i].Class == default.Class)
-        {
-            return HxScoreBoardInteraction(Owner.LocalInteractions[i]);
-        }
-    }
-    return HxScoreBoardInteraction(
-        Owner.InteractionMaster.AddInteraction(string(class'HxScoreBoardInteraction'), Owner));
+    return HxScoreBoardInteraction(AddInteraction(Owner, default.Class));
 }
 
 defaultproperties

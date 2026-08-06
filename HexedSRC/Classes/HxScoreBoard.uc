@@ -279,7 +279,7 @@ simulated function bool Initialized()
     }
     if (Interaction == None)
     {
-        Interaction = class'HxScoreBoardInteraction'.static.AddInteraction(PC.Player);
+        Interaction = class'HxScoreBoardInteraction'.static.Add(PC.Player);
     }
     if (GRI == None)
     {

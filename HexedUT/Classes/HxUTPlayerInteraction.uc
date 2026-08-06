@@ -1,5 +1,6 @@
-class HxUTPlayer extends Info
-    config(User);
+class HxUTPlayerInteraction extends HxInteraction;
+
+const MAXSTEPHEIGHT = 35.0;
 
 enum EHxViewSmoothing
 {
@@ -15,7 +16,7 @@ var private bool bAllowCustomViewSmoothing;
 
 simulated event Tick(float DeltaTime)
 {
-    PC = PlayerController(Owner);
+    PC = ViewportOwner.Actor;
     if (bAllowCustomViewSmoothing && PC != None && PC.Pawn != None
         && ViewSmoothing != HX_VS_Default)
     {
@@ -31,7 +32,7 @@ simulated function ModifyViewSmoothing(Pawn P, float DeltaTime)
         && (P.Physics == PHYS_Walking || P.Physics == PHYS_Spider))
     {
         DeltaZ = P.Location.Z - P.OldZ;
-        DeltaTime /= Level.TimeDilation;
+        DeltaTime /= P.Level.TimeDilation;
         switch (ViewSmoothing)
         {
             case HX_VS_Weak:
@@ -54,7 +55,7 @@ simulated function WeakViewSmoothing(Pawn P, float DeltaZ, float DeltaTime)
 
 simulated function DisableViewSmoothing(Pawn P, float DeltaZ, float DeltaTime)
 {
-    P.EyeHeight += FClamp(DeltaZ, -MAXSTEPHEIGHT, MAXSTEPHEIGHT);
+    P.EyeHeight += FClamp(DeltaZ, -P.MAXSTEPHEIGHT, P.MAXSTEPHEIGHT);
 }
 
 simulated function ApplyServerConfiguration(HxUTClient Client)
@@ -62,6 +63,18 @@ simulated function ApplyServerConfiguration(HxUTClient Client)
     bAllowCustomViewSmoothing = bool(Client.GetServerProperty("bAllowCustomViewSmoothing"));
 }
 
+static function HxUTPlayerInteraction Find(Player Owner)
+{
+    return HxUTPlayerInteraction(FindInteraction(Owner, default.Class));
+}
+
+static function HxUTPlayerInteraction Add(Player Owner)
+{
+    return HxUTPlayerInteraction(AddInteraction(Owner, default.Class));
+}
+
 defaultproperties
 {
+    bActive=true
+    bRequiresTick=true
 }

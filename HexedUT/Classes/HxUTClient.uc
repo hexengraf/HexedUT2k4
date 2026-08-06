@@ -12,7 +12,7 @@ var array<string> ModelList;
 
 var private HxHitEffects HitEffects;
 var private HxColors SkinHighlightColors;
-var private HxUTPlayer Player;
+var private HxUTPlayerInteraction Player;
 var private HxSPTimer SPTimer;
 var private HxHitSoundInfo HitSound;
 var private bool bInitialized;
@@ -117,9 +117,9 @@ simulated function bool InitializeClient()
 {
     if (PlayerOwner != None && PlayerOwner.GameReplicationInfo != None)
     {
-        if (Player == None)
+        if (Player == None && PlayerOwner.Player != None)
         {
-            Player = HxUTPlayer(SpawnUnique(class'HxUTPlayer', PlayerOwner));
+            Player = class'HxUTPlayerInteraction'.static.Add(PlayerOwner.Player);
             Player.ApplyServerConfiguration(Self);
         }
         if (PlayerOwner.myHUD != None)
