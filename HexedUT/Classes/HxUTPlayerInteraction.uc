@@ -1,10 +1,9 @@
 class HxUTPlayerInteraction extends HxInteraction;
 
-const MAXSTEPHEIGHT = 35.0;
-
 enum EHxViewSmoothing
 {
     HX_VS_Default,
+    HX_VS_Moderate,
     HX_VS_Weak,
     HX_VS_Disabled,
 };
@@ -26,36 +25,33 @@ simulated event Tick(float DeltaTime)
 
 simulated function ModifyViewSmoothing(Pawn P, float DeltaTime)
 {
+    local float MaxDeltaZ;
     local float DeltaZ;
 
     if (!P.bJustLanded && !P.bLandRecovery
         && (P.Physics == PHYS_Walking || P.Physics == PHYS_Spider))
     {
-        DeltaZ = P.Location.Z - P.OldZ;
-        DeltaTime /= P.Level.TimeDilation;
+        MaxDeltaZ = Abs(P.BaseEyeHeight - P.EyeHeight);
+        DeltaZ = FClamp(P.Location.Z - P.OldZ, -MaxDeltaZ, MaxDeltaZ);
         switch (ViewSmoothing)
         {
+            case HX_VS_Moderate:
+                if (p.Floor.Z > 0.5 && p.Floor.Z < 0.96)
+                {
+                    P.EyeHeight += DeltaZ;
+                }
+                break;
             case HX_VS_Weak:
-                WeakViewSmoothing(P, DeltaZ, DeltaTime);
+                if (p.Floor.Z > 0.5 && p.Floor.Z < 0.99)
+                {
+                    P.EyeHeight += DeltaZ;
+                }
                 break;
             case HX_VS_Disabled:
-                DisableViewSmoothing(P, DeltaZ, DeltaTime);
+                P.EyeHeight += DeltaZ;
                 break;
         }
     }
-}
-
-simulated function WeakViewSmoothing(Pawn P, float DeltaZ, float DeltaTime)
-{
-    if (Abs(DeltaZ) <= DeltaTime * P.GroundSpeed)
-    {
-        P.EyeHeight += DeltaZ;
-    }
-}
-
-simulated function DisableViewSmoothing(Pawn P, float DeltaZ, float DeltaTime)
-{
-    P.EyeHeight += FClamp(DeltaZ, -P.MAXSTEPHEIGHT, P.MAXSTEPHEIGHT);
 }
 
 simulated function ApplyServerConfiguration(HxUTClient Client)
