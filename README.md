@@ -184,8 +184,9 @@ ColorList=(Name="Purple",Color=(B=255,G=0,R=64,A=255),bRandom=False)
 [HexedUT HxUTPlayerConfig]
 ; Select the type of view smoothing:
 ;   HX_VS_Default - use the game's default view smoothing.
-;   HX_VS_Weak - greatly reduces view smoothing, similar to UTComp's new EyeHeight algorithm.
-;   HX_VS_Disabled - no view smoothing at all, very hard to play with.
+;   HX_VS_Moderate - disable view smoothing when walking on any surfaces with more than ~16 degrees of inclination.
+;   HX_VS_Weak - disable view smoothing when walking on any surfaces with more than ~8 degrees of inclination.
+;   HX_VS_Disabled - no view smoothing at all, prepare for a bumpy ride.
 ViewSmoothing=HX_VS_Default
 
 [HexedUT HxSPTimerConfig]

@@ -1,3 +1,18 @@
+# v9.0 hotfix
+
+If you only play offline, you don't need to upgrade from v9 to this hotfix version. Servers using HexedNET are highly encourage to upgrade!
+
+HexedNET hotfix:
+* Fixed `ProjectileCompensationLimit` not properly initialized in the server, causing rubberbanding in projectiles depending the amount of ping.
+
+Changes meant for v10 that ended up included here:
+* Fixed weak view smoothing causing jitter when playing on dedicated servers.
+* Added a new view smoothing option: moderate.
+  * Weak view smoothing disables view smoothing when walking on any surfaces with more than ~8 degrees of inclination.
+  * Moderate view smoothing disables view smoothing when walking on any surfaces with more than ~16 degrees of inclination.
+* Improved HexedNET's snapshot search algorithm to use binary search instead of a linear search.
+* Moved first run variables to `HexedCache.ini` to keep `User.ini` clean and tidy.
+
 # v9.0
 
 HexedUT changes:
