@@ -50,11 +50,13 @@ simulated event PostBeginPlay()
 {
     Super.PostBeginPlay();
     CustomMapVoteMenu = string(class'HxMapVotingPage');
-    if (Level.NetMode != NM_DedicatedServer)
-    {
-        Favorites = HxFavorites(Manager.LoadObject(class'HxFavorites', "Maps"));
-        MenuConfig = HxVTMenuConfig(FindConfig(class'HxVTMenuConfig'));
-    }
+}
+
+simulated function SetupClient(HxClientManager Manager)
+{
+    Super.SetupClient(Manager);
+    Favorites = HxFavorites(Manager.LoadObject(class'HxFavorites', "Maps"));
+    MenuConfig = HxVTMenuConfig(FindConfig(class'HxVTMenuConfig'));
 }
 
 simulated event Tick(float DeltaTime)

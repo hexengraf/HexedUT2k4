@@ -25,16 +25,13 @@ replication
         ClientNotifySpawn;
 }
 
-simulated event PostBeginPlay()
+simulated function SetupClient(HxClientManager Manager)
 {
-    Super.PostBeginPlay();
-    if (Level.NetMode != NM_DedicatedServer)
-    {
-        SkinHighlightColors = HxColors(Manager.LoadObject(class'HxColors', "HxSkinHighlight"));
-        class'HxSkinHighlight'.static.PopulateReservedNames(SkinHighlightColors);
-        HxSkinHighlightConfig(FindConfig(
-            class'HxSkinHighlightConfig')).ValidateColors(SkinHighlightColors);
-    }
+    SkinHighlightColors = HxColors(Manager.LoadObject(class'HxColors', "HxSkinHighlight"));
+    Super.SetupClient(Manager);
+    class'HxSkinHighlight'.static.PopulateReservedNames(SkinHighlightColors);
+    HxSkinHighlightConfig(FindConfig(
+        class'HxSkinHighlightConfig')).ValidateColors(SkinHighlightColors);
 }
 
 simulated event Tick(float DeltaTime)
@@ -124,7 +121,10 @@ simulated function bool InitializeClient()
         }
         if (PlayerOwner.myHUD != None)
         {
-            UpdateScoreBoardConfig();
+            if (bServerPropertiesReady)
+            {
+                UpdateScoreBoardConfig();
+            }
             if (HitEffects == None)
             {
                 HitEffects = HxHitEffects(SpawnOverlay(PlayerOwner.myHUD, class'HxHitEffects'));
@@ -144,7 +144,10 @@ simulated function NotifyServerPropertiesReady()
     {
         Player.ApplyServerConfiguration(Self);
     }
-    UpdateScoreBoardConfig();
+    if (PlayerOwner != None && PlayerOwner.myHUD != None)
+    {
+        UpdateScoreBoardConfig();
+    }
     UpdateSkinHighlightConfig();
 }
 

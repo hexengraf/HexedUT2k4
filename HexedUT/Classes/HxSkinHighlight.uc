@@ -190,11 +190,11 @@ auto state Startup
     {
         if (Client == None)
         {
-            foreach DynamicActors(class'HxUTClient', Client)
-            {
-                Colors = Client.GetSkinHighlightColors();
-                break;
-            }
+            foreach DynamicActors(class'HxUTClient', Client) break;
+        }
+        if (Client != None && Colors == None)
+        {
+            Colors = Client.GetSkinHighlightColors();
         }
         if (PC == None)
         {

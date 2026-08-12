@@ -28,7 +28,7 @@ var const byte Order;
 var PlayInfo ServerInfo;
 var array<HxConfig> Configs;
 
-var protected HxClientManager Manager;
+var protected HxClientManager ClientManager;
 var protected HxMutator MutatorOwner;
 var protected PlayerController PlayerOwner;
 var protected bool bServerPropertiesReady;
@@ -58,20 +58,9 @@ simulated function ReceiveCustomMessage(HxReplicationMessage Message);
 
 simulated event PostBeginPlay()
 {
-    local int i;
-
     Super.PostBeginPlay();
     ServerInfo = new(None) class'PlayInfo';
     MutatorClass.static.FillPlayInfo(ServerInfo);
-    if (Level.NetMode != NM_DedicatedServer)
-    {
-        Manager = class'HxClientManager'.static.Get(Self);
-        for (i = 0; i < ConfigClasses.Length; ++i)
-        {
-            Configs[i] = Manager.LoadConfig(ConfigClasses[i]);
-            Configs[i].Setup(Self);
-        }
-    }
 }
 
 simulated event PostNetReceive()
@@ -93,6 +82,19 @@ function SetupServer(HxMutator Mutator)
     PlayerOwner = PlayerController(Owner);
     bServerPropertiesRequested = (Level.NetMode == NM_DedicatedServer);
     bServerPropertiesReady = bServerPropertiesRequested;
+}
+
+simulated function SetupClient(HxClientManager Manager)
+{
+    local int i;
+
+    ClientManager = Manager;
+    for (i = 0; i < ConfigClasses.Length; ++i)
+    {
+        Configs[i] = ClientManager.LoadConfig(ConfigClasses[i]);
+        Configs[i].Setup(Self);
+    }
+    ClientManager.Register(Self);
 }
 
 simulated event Tick(float DeltaTime)
@@ -192,12 +194,12 @@ simulated function ClientReceiveMessage(HxReplicationMessage Message)
             if (bServerPropertiesReady)
             {
                 NotifyServerPropertyChanged(Message.Index, OldValue);
-                Manager.NotifyServerPropertyChanged(Self);
+                ClientManager.NotifyServerPropertyChanged(Self);
             }
             else if (Message.Index == ServerInfo.Settings.Length - 1)
             {
                 bServerPropertiesReady = true;
-                Manager.Register(Self);
+                SetupClient(class'HxClientManager'.static.Get(Self));
                 NotifyServerPropertiesReady();
             }
             break;
@@ -240,14 +242,17 @@ simulated function bool ShouldHideServerPropertyFromStatus(int Index)
 
 simulated function ClientOpenConfigurationMenu()
 {
-    Manager.OpenConfigurationMenu(Self);
+    if (ClientManager != None)
+    {
+        ClientManager.OpenConfigurationMenu(Self);
+    }
 }
 
 simulated event Destroyed()
 {
-    if (Level.NetMode != NM_DedicatedServer)
+    if (Level.NetMode != NM_DedicatedServer && ClientManager != None)
     {
-        Manager.Unregister(Self);
+        ClientManager.Unregister(Self);
     }
 }
 
