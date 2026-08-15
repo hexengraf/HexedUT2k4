@@ -36,13 +36,13 @@ simulated function ModifyViewSmoothing(Pawn P, float DeltaTime)
         switch (ViewSmoothing)
         {
             case HX_VS_Moderate:
-                if (p.Floor.Z > p.MINFLOORZ && p.Floor.Z < 0.96)
+                if (P.Floor.Z > P.MINFLOORZ && P.Floor.Z < 0.96)
                 {
                     P.EyeHeight += DeltaZ;
                 }
                 break;
             case HX_VS_Weak:
-                if (p.Floor.Z > p.MINFLOORZ && p.Floor.Z < 0.99)
+                if (P.Floor.Z > P.MINFLOORZ && P.Floor.Z < 0.99)
                 {
                     P.EyeHeight += DeltaZ;
                 }
