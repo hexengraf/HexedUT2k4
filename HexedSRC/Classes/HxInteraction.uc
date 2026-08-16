@@ -1,5 +1,7 @@
 class HxInteraction extends Interaction;
 
+var protected const bool bRemoveOnLevelChange;
+
 static function HxInteraction FindInteraction(Player Owner, class<HxInteraction> InteractionClass)
 {
     local int i;
@@ -28,6 +30,15 @@ static function HxInteraction AddInteraction(Player Owner, class<HxInteraction> 
     return HxInteraction(Owner.InteractionMaster.AddInteraction(string(InteractionClass), Owner));
 }
 
+event NotifyLevelChange()
+{
+    if (bRemoveOnLevelChange)
+    {
+        Master.RemoveInteraction(self);
+    }
+}
+
 defaultproperties
 {
+    bRemoveOnLevelChange=true
 }
