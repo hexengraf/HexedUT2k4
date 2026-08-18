@@ -29,6 +29,13 @@ enum EHxOperation
     HX_OPERATION_EqualTo_Implicit,
 };
 
+enum EHxVertAlignment
+{
+    HX_VALIGN_Top,
+    HX_VALIGN_Center,
+    HX_VALIGN_Bottom,
+};
+
 struct HxProperty
 {
     var const string Name;
@@ -54,11 +61,11 @@ struct HxDisplayProperty
     var const bool bHidden;
 };
 
-enum EHxVertAlignment
+struct HxVector
 {
-    HX_VALIGN_Top,
-    HX_VALIGN_Center,
-    HX_VALIGN_Bottom,
+    var float X;
+    var float Y;
+    var float Z;
 };
 
 static function string GetDataCharset(EHxDataType Type)
