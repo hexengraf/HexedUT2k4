@@ -82,7 +82,7 @@ simulated function bool ValidateReferences()
 {
     if (GC != None && VRI != None)
     {
-        return true;
+        return bServerPropertiesReady;
     }
     if (PlayerOwner != None)
     {
@@ -93,7 +93,7 @@ simulated function bool ValidateReferences()
         }
         VRI = VotingReplicationInfo(PlayerOwner.VoteReplicationInfo);
     }
-    return GC != None && VRI != None;
+    return GC != None && VRI != None && bServerPropertiesReady;
 }
 
 simulated function PopulateMapEntries()
