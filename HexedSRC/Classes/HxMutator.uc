@@ -4,6 +4,9 @@ class HxMutator extends Mutator
 
 var const array<HxTypes.HxProperty> Properties;
 var const array<HxTypes.HxDisplayProperty> DisplayInfo;
+var const array<class<HxConfig> > ConfigClasses;
+var const array<class<HxGUIMenuPanel> > PanelClasses;
+var const byte UIPriority;
 
 var protected const class<HxClientReplicationInfo> CRIClass;
 var protected array<HxClientReplicationInfo> CRIs;
@@ -32,10 +35,10 @@ event Tick(float DeltaTime)
         ClearURLOptions();
         bInitialized = true;
         Initialized();
-    }
-    else if (bDisableTick)
-    {
-        Disable('Tick');
+        if (bDisableTick)
+        {
+            Disable('Tick');
+        }
     }
 }
 
@@ -370,5 +373,6 @@ static final protected function string GetEnumData(int Index)
 
 defaultproperties
 {
+    UIPriority=255
     bAllowURLOptions=true
 }

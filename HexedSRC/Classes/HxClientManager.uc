@@ -99,7 +99,7 @@ simulated function Register(HxClientReplicationInfo CRI)
 
     for (i = 0; i < AllCRIs.Length; ++i)
     {
-        if (CRI.Order < AllCRIs[i].Order)
+        if (CRI.MutatorClass.default.UIPriority < AllCRIs[i].MutatorClass.default.UIPriority)
         {
             break;
         }
@@ -126,7 +126,7 @@ simulated function bool Unregister(HxClientReplicationInfo CRI)
             ConfigMenu = FindConfigurationMenu();
             if (ConfigMenu != None)
             {
-                ConfigMenu.PurgePanels(CRI.Class);
+                ConfigMenu.PurgePanels(CRI.MutatorClass);
             }
             AllCRIs.Remove(i, 1);
             UpdateUniqueCRIs();
@@ -150,7 +150,7 @@ simulated function UpdateUniqueCRIs()
         {
             if (CRIs[i] == None)
             {
-                ConfigMenu.PurgePanels(CRIClasses[i]);
+                ConfigMenu.PurgePanels(CRIClasses[i].default.MutatorClass);
             }
         }
     }

@@ -21,10 +21,6 @@ const PKG_STR_LIMIT = 480;
 const MESSAGES_PER_TICK = 16;
 
 var const class<HxMutator> MutatorClass;
-var const array<class<HxConfig> > ConfigClasses;
-var const array<class<HxGUIMenuPanel> > PanelClasses;
-var const byte Order;
-
 var PlayInfo ServerInfo;
 var array<HxConfig> Configs;
 
@@ -89,9 +85,9 @@ simulated function SetupClient(HxClientManager Manager)
     local int i;
 
     ClientManager = Manager;
-    for (i = 0; i < ConfigClasses.Length; ++i)
+    for (i = 0; i < MutatorClass.default.ConfigClasses.Length; ++i)
     {
-        Configs[i] = ClientManager.LoadConfig(ConfigClasses[i]);
+        Configs[i] = ClientManager.LoadConfig(MutatorClass.default.ConfigClasses[i]);
         Configs[i].Setup(Self);
     }
     ClientManager.Register(Self);
@@ -260,9 +256,9 @@ simulated final function HxConfig FindConfig(class<HxConfig> ConfigClass)
 {
     local int i;
 
-    for (i = 0; i < ConfigClasses.Length; ++i)
+    for (i = 0; i < MutatorClass.default.ConfigClasses.Length; ++i)
     {
-        if (ConfigClasses[i] == ConfigClass)
+        if (MutatorClass.default.ConfigClasses[i] == ConfigClass)
         {
             return Configs[i];
         }
@@ -374,5 +370,4 @@ defaultproperties
     bOnlyDirtyReplication=true
     NetUpdateFrequency=10
     bNetNotify=true
-    Order=255
 }

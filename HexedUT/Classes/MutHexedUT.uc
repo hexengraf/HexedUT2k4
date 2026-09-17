@@ -263,6 +263,15 @@ defaultproperties
     DisplayInfo(11)=(Section="HUD",Caption="Allow Spawn Protection Timer",Hint="Allow clients to enable/disable the spawn protection timer.")
     DisplayInfo(12)=(Section="HUD",Caption="Colored Death Messages",Hint="Use team colors in death messages (blue = killer and red = victim if no teams).")
     DisplayInfo(13)=(Section="Configuration Menu",Caption="Hide Disabled Features From Status",Hint="Hide disabled features from the server status list.")
+    ConfigClasses(0)=class'HxHitEffectsConfig'
+    ConfigClasses(1)=class'HxSkinHighlightConfig'
+    ConfigClasses(2)=class'HxUTPlayerConfig'
+    ConfigClasses(3)=class'HxScoreBoardConfig'
+    ConfigClasses(4)=class'HxSPTimerConfig'
+    PanelClasses(0)=class'HxGUIMenuHUDPanel'
+    PanelClasses(1)=class'HxGUIMenuHitEffectsPanel'
+    PanelClasses(2)=class'HxGUIMenuSkinHighlightPanel'
+    UIPriority=0
     bDisableTick=true
 
     bAllowHitSounds=true

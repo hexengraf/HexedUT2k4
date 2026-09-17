@@ -37,5 +37,7 @@ defaultproperties
     DisplayInfo(2)=(Section="Map Vote Menu",Caption="Preview Custom BG",Hint="Texture name to set as custom background of the map preview banner.",bAdvanced=true)
     DisplayInfo(3)=(Section="Map Vote Menu",Caption="Chat Box Custom BG",Hint="Texture name to set as custom background of the chat box.",bAdvanced=true)
     DisplayInfo(4)=(Section="Map Vote Menu",Caption="Map Preview Loaders",Hint="Auxiliary loader classes providing custom map previews.",bAdvanced=true)
+    ConfigClasses(0)=class'HxVTMenuConfig'
+    UIPriority=232
     bDisableTick=true
 }

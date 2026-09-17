@@ -257,13 +257,4 @@ simulated function HxColors GetSkinHighlightColors()
 defaultproperties
 {
     MutatorClass=class'MutHexedUT'
-    ConfigClasses(0)=class'HxHitEffectsConfig'
-    ConfigClasses(1)=class'HxSkinHighlightConfig'
-    ConfigClasses(2)=class'HxUTPlayerConfig'
-    ConfigClasses(3)=class'HxScoreBoardConfig'
-    ConfigClasses(4)=class'HxSPTimerConfig'
-    PanelClasses(0)=class'HxGUIMenuHUDPanel'
-    PanelClasses(1)=class'HxGUIMenuHitEffectsPanel'
-    PanelClasses(2)=class'HxGUIMenuSkinHighlightPanel'
-    Order=0
 }

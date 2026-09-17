@@ -41,28 +41,30 @@ function Refresh()
 
 function UpdatePanels(HxClientReplicationInfo CRI)
 {
+    local class<HxMutator> MC;
     local int i;
 
-    for (i = 0; i < CRI.PanelClasses.Length; ++i)
+    MC = CRI.MutatorClass;
+    for (i = 0; i < MC.default.PanelClasses.Length; ++i)
     {
-        if (!CRI.PanelClasses[i].static.CheckDependencies(CRI))
+        if (!MC.default.PanelClasses[i].static.CheckDependencies(CRI))
         {
-            RemovePanel(FindPanel(CRI.PanelClasses[i]));
+            RemovePanel(FindPanel(MC.default.PanelClasses[i]));
         }
-        else if (FindPanel(CRI.PanelClasses[i]) < 0)
+        else if (FindPanel(MC.default.PanelClasses[i]) < 0)
         {
-            AddPanel(CRI.PanelClasses[i], (CRI.Order << 8 | i));
+            AddPanel(MC.default.PanelClasses[i], (MC.default.UIPriority << 8 | i));
         }
     }
 }
 
-function PurgePanels(class<HxClientReplicationInfo> CRIClass)
+function PurgePanels(class<HxMutator> MC)
 {
     local int i;
 
-    for (i = 0; i < CRIClass.default.PanelClasses.Length; ++i)
+    for (i = 0; i < MC.default.PanelClasses.Length; ++i)
     {
-        RemovePanel(FindPanel(CRIClass.default.PanelClasses[i]));
+        RemovePanel(FindPanel(MC.default.PanelClasses[i]));
     }
 }
 

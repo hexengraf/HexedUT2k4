@@ -49,16 +49,18 @@ function PopulateOptionLists()
 
 function ProcessUserOptions(HxClientReplicationInfo CRI, optional int Index)
 {
+    local array<class<HxConfig> > ConfigClasses;
     local string SectionCaption;
     local bool bSectionAdded;
     local int i;
     local int j;
 
-    for (i = 0; i < CRI.ConfigClasses.Length; ++i)
+    ConfigClasses = CRI.MutatorClass.default.ConfigClasses;
+    for (i = 0; i < ConfigClasses.Length; ++i)
     {
-        for (j = 0; j < CRI.ConfigClasses[i].default.DisplayInfo.Length; ++j)
+        for (j = 0; j < ConfigClasses[i].default.DisplayInfo.Length; ++j)
         {
-            if (lb_Options.ShouldHideConfigProperty(CRI, CRI.ConfigClasses[i], j))
+            if (lb_Options.ShouldHideConfigProperty(CRI, ConfigClasses[i], j))
             {
                 continue;
             }
@@ -67,13 +69,12 @@ function ProcessUserOptions(HxClientReplicationInfo CRI, optional int Index)
                 lb_Options.AddSection(CRI.MutatorClass.default.FriendlyName);
                 bSectionAdded = true;
             }
-            if (CRI.ConfigClasses[i].default.DisplayInfo[j].Section != SectionCaption)
+            if (ConfigClasses[i].default.DisplayInfo[j].Section != SectionCaption)
             {
-                lb_Options.AddSubSection(CRI.ConfigClasses[i].default.DisplayInfo[j].Section);
-                SectionCaption = CRI.ConfigClasses[i].default.DisplayInfo[j].Section;
+                lb_Options.AddSubSection(ConfigClasses[i].default.DisplayInfo[j].Section);
+                SectionCaption = ConfigClasses[i].default.DisplayInfo[j].Section;
             }
-            lb_Options.AddConfigOption(
-                CRI.ConfigClasses[i], j, ClientManager.EncodeTag(Index, j, i));
+            lb_Options.AddConfigOption(ConfigClasses[i], j, ClientManager.EncodeTag(Index, j, i));
         }
     }
 }

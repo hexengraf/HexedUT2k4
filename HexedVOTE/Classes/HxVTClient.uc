@@ -517,6 +517,4 @@ static private final function string GetMapDescriptionFromRecord(CacheManager.Ma
 defaultproperties
 {
     MutatorClass=class'MutHexedVOTE'
-    ConfigClasses(0)=class'HxVTMenuConfig'
-    Order=232
 }

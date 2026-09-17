@@ -440,6 +440,7 @@ defaultproperties
     DisplayInfo(26)=(Section="Movement",Caption="Dodge Speed Multiplier",Hint="Coefficient to multiply dodge speed factor (between -10.0 and 10.0). Applied on spawn.")
     DisplayInfo(27)=(Section="Movement",Caption="Disable Wall Dodge",Hint="Disable wall dodge (UT Classic). Applied on spawn.")
     DisplayInfo(28)=(Section="Movement",Caption="Disable Dodge Jump",Hint="Disable dodge jump (UT Classic). Applied on spawn.")
+    UIPriority=128
     bDisableTick=true
 
     BonusHealth=0
