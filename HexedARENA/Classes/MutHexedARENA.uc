@@ -10,7 +10,7 @@ event PostBeginPlay()
     Super.PostBeginPlay();
     DefaultWeaponName = ArenaWeaponClassName;
     DefaultWeapon = class<Weapon>(DynamicLoadObject(DefaultWeaponName, class'Class'));
-    DisableWeaponLockers(Self);
+    DisableWeaponLockers(Level);
 }
 
 function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
@@ -70,13 +70,21 @@ function FindAmmoPickupClass()
     }
 }
 
-static function DisableWeaponLockers(Actor Requester)
+static function DisableWeaponLockers(LevelInfo Level)
 {
     local WeaponLocker L;
 
-    foreach Requester.AllActors(class'WeaponLocker', L)
+    foreach Level.AllActors(class'WeaponLocker', L)
     {
         L.GotoState('Disabled');
+    }
+}
+
+static function ClientInitialized(HxMutatorInfo Info)
+{
+    if (Info.Level.NetMode == NM_Client)
+    {
+        DisableWeaponLockers(Info.Level);
     }
 }
 
@@ -86,10 +94,10 @@ defaultproperties
     Description="Replace weapons and ammo in the map with the configured weapon."
     GroupName="Arena"
     bAddToServerPackages=true
-    CRIClass=class'HxARClient'
+    UniqueObjectName="HexedARENA"
     Properties(0)=(Name="ArenaWeaponClassName",Type=HX_PROPERTY_String,UpperLimit="100")
     DisplayInfo(0)=(Caption="Arena Weapon",Hint="Determines which weapon will be used in the arena match. Applied on restart/map change.")
-    UIPriority=127
+    Priority=127
     bDisableTick=true
 
     ArenaWeaponClassName="XWeapons.RocketLauncher"

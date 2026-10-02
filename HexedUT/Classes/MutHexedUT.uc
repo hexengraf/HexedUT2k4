@@ -32,7 +32,6 @@ var config bool bAllowCustomViewSmoothing;
 var config bool bAllowEnhancedScoreBoards;
 var config bool bAllowSpawnProtectionTimer;
 var config bool bColoredDeathMessages;
-var config bool bHideDisabledFeatures;
 
 function Mutate(string Command, PlayerController Sender)
 {
@@ -114,7 +113,7 @@ function bool CanForceModels()
     return AllowForcedModels != HX_FM_None;
 }
 
-function PropertyChanged(int Index, string OldValue)
+function PropertyChanged(int Index)
 {
     switch (Properties[Index].Name)
     {
@@ -151,9 +150,9 @@ function RegisterDamage(int Damage,
 
     if ((bAllowHitSounds || bAllowDamageNumbers) && CheckLOS(Injured, Inflictor))
     {
-        for (i = 0; i < CRIs.Length; ++i)
+        for (i = 0; i < Channels.Length; ++i)
         {
-            Client = HxUTClient(CRIs[i]);
+            Client = HxUTClient(Channels[i].GetClientReplicationInfo(UID));
             PC = PlayerController(Client.Owner);
             if (PC != None && PC.ViewTarget == Inflictor)
             {
@@ -177,12 +176,12 @@ function RegisterSpawn(Pawn Spawned)
 
     if (bAllowSpawnProtectionTimer)
     {
-        for (i = 0; i < CRIs.Length; ++i)
+        for (i = 0; i < Channels.Length; ++i)
         {
-            PC = PlayerController(CRIs[i].Owner);
+            PC = PlayerController(Channels[i].Owner);
             if (PC != None && PC.ViewTarget == Spawned)
             {
-                HxUTClient(CRIs[i]).NotifySpawn(Spawned);
+                HxUTClient(Channels[i].GetClientReplicationInfo(UID)).NotifySpawn(Spawned);
             }
         }
     }
@@ -234,7 +233,8 @@ defaultproperties
     FriendlyName="HexedUT %TAG%"
     Description="Provides hit sounds, damage numbers, skin highlights, enhanced scoreboards, and more."
     bAddToServerPackages=true
-    CRIClass=class'HxUTClient'
+    UniqueObjectName="HexedUT"
+    ClientReplicationInfoClass=class'HxUTClient'
     Properties(0)=(Name="bAllowHitSounds",Type=HX_PROPERTY_Bool)
     Properties(1)=(Name="bAllowDamageNumbers",Type=HX_PROPERTY_Bool)
     Properties(2)=(Name="bRequireLOS",Type=HX_PROPERTY_Bool)
@@ -248,7 +248,6 @@ defaultproperties
     Properties(10)=(Name="bAllowEnhancedScoreBoards",Type=HX_PROPERTY_Bool)
     Properties(11)=(Name="bAllowSpawnProtectionTimer",Type=HX_PROPERTY_Bool)
     Properties(12)=(Name="bColoredDeathMessages",Type=HX_PROPERTY_Bool)
-    Properties(13)=(Name="bHideDisabledFeatures",Type=HX_PROPERTY_Bool)
     DisplayInfo(0)=(Section="Hit Effects",Caption="Allow Hit Sounds",Hint="Allow clients to enable/disable hit sound effects.")
     DisplayInfo(1)=(Section="Hit Effects",Caption="Allow Damage Numbers",Hint="Allow clients to enable/disable damage number effects.")
     DisplayInfo(2)=(Section="Hit Effects",Caption="Require Line Of Sight",Hint="Require line of sight between player and target to trigger hit effects.")
@@ -262,7 +261,6 @@ defaultproperties
     DisplayInfo(10)=(Section="HUD",Caption="Allow Enhanced Scoreboards",Hint="Allow clients to enable/disable the enhanced scoreboards.")
     DisplayInfo(11)=(Section="HUD",Caption="Allow Spawn Protection Timer",Hint="Allow clients to enable/disable the spawn protection timer.")
     DisplayInfo(12)=(Section="HUD",Caption="Colored Death Messages",Hint="Use team colors in death messages (blue = killer and red = victim if no teams).")
-    DisplayInfo(13)=(Section="Configuration Menu",Caption="Hide Disabled Features From Status",Hint="Hide disabled features from the server status list.")
     ConfigClasses(0)=class'HxHitEffectsConfig'
     ConfigClasses(1)=class'HxSkinHighlightConfig'
     ConfigClasses(2)=class'HxUTPlayerConfig'
@@ -271,7 +269,7 @@ defaultproperties
     PanelClasses(0)=class'HxGUIMenuHUDPanel'
     PanelClasses(1)=class'HxGUIMenuHitEffectsPanel'
     PanelClasses(2)=class'HxGUIMenuSkinHighlightPanel'
-    UIPriority=0
+    Priority=0
     bDisableTick=true
 
     bAllowHitSounds=true
@@ -300,5 +298,4 @@ defaultproperties
     bAllowEnhancedScoreBoards=true
     bAllowSpawnProtectionTimer=true
     bColoredDeathMessages=true
-    bHideDisabledFeatures=false
 }

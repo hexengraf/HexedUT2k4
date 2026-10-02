@@ -24,12 +24,52 @@ var config string PreferredEnemyModel;
 var config string CurrentEnemyModel;
 var config bool bForceEnemyModel;
 
+var HxColors Colors;
 var MutHexedUT.EHxHitOverlay AllowHitOverlays;
 var MutHexedUT.EHxForcedModel AllowForcedModels;
 var private array<string> ModelList;
 var private const array<string> OfficialModelList;
 
-function ValidateColors(HxColors Colors)
+function Setup(LevelInfo Level, HxClientManager Manager)
+{
+
+    Super.Setup(Level, Manager);
+    Colors = HxColors(ClientManager.LoadObject(class'HxColors', "HxSkinHighlight"));
+    class'HxSkinHighlight'.static.PopulateReservedNames(Colors);
+    ValidateColors();
+}
+
+function InitializeProperties()
+{
+    class'HxSkinHighlight'.default.Teammates = Teammates;
+    class'HxSkinHighlight'.default.Enemies = Enemies;
+    class'HxSkinHighlight'.default.ShieldHit = ShieldHit;
+    class'HxSkinHighlight'.default.LinkHit = LinkHit;
+    class'HxSkinHighlight'.default.ShockHit = ShockHit;
+    class'HxSkinHighlight'.default.LightningHit = LightningHit;
+    class'HxSkinHighlight'.default.TeammateProtected = TeammateProtected;
+    class'HxSkinHighlight'.default.EnemyProtected = EnemyProtected;
+    class'HxSkinHighlight'.default.TeammateSkin = TeammateSkin;
+    class'HxSkinHighlight'.default.EnemySkin = EnemySkin;
+    class'HxSkinHighlight'.default.bRandomize = bRandomize;
+    class'HxSkinHighlight'.default.bDisableOnDeadBodies = bDisableOnDeadBodies;
+    class'HxSkinHighlight'.default.bDisableOnHeads = bDisableOnHeads;
+    class'HxSkinHighlight'.default.HighlightMode = HighlightMode;
+    class'HxSkinHighlight'.default.SpectatorTeam = SpectatorTeam;
+    class'HxSkinHighlight'.default.TeammateModel = CurrentTeammateModel;
+    class'HxSkinHighlight'.default.bForceTeammateModel = bForceTeammateModel;
+    class'HxSkinHighlight'.default.EnemyModel = CurrentEnemyModel;
+    class'HxSkinHighlight'.default.bForceEnemyModel = bForceEnemyModel;
+    UpdateDynamicActors();
+}
+
+function Destroy()
+{
+    Colors = None;
+    Super.Destroy();
+}
+
+function ValidateColors()
 {
     local bool bSave;
     local int i;
@@ -67,30 +107,6 @@ function RenameColor(string OldColorName, string NewColorName)
         InitializeProperties();
         SaveConfig();
     }
-}
-
-function InitializeProperties()
-{
-    class'HxSkinHighlight'.default.Teammates = Teammates;
-    class'HxSkinHighlight'.default.Enemies = Enemies;
-    class'HxSkinHighlight'.default.ShieldHit = ShieldHit;
-    class'HxSkinHighlight'.default.LinkHit = LinkHit;
-    class'HxSkinHighlight'.default.ShockHit = ShockHit;
-    class'HxSkinHighlight'.default.LightningHit = LightningHit;
-    class'HxSkinHighlight'.default.TeammateProtected = TeammateProtected;
-    class'HxSkinHighlight'.default.EnemyProtected = EnemyProtected;
-    class'HxSkinHighlight'.default.TeammateSkin = TeammateSkin;
-    class'HxSkinHighlight'.default.EnemySkin = EnemySkin;
-    class'HxSkinHighlight'.default.bRandomize = bRandomize;
-    class'HxSkinHighlight'.default.bDisableOnDeadBodies = bDisableOnDeadBodies;
-    class'HxSkinHighlight'.default.bDisableOnHeads = bDisableOnHeads;
-    class'HxSkinHighlight'.default.HighlightMode = HighlightMode;
-    class'HxSkinHighlight'.default.SpectatorTeam = SpectatorTeam;
-    class'HxSkinHighlight'.default.TeammateModel = CurrentTeammateModel;
-    class'HxSkinHighlight'.default.bForceTeammateModel = bForceTeammateModel;
-    class'HxSkinHighlight'.default.EnemyModel = CurrentEnemyModel;
-    class'HxSkinHighlight'.default.bForceEnemyModel = bForceEnemyModel;
-    UpdateDynamicActors();
 }
 
 function ApplyProperty(int Index)
@@ -270,11 +286,27 @@ function string ValidateString(int Index, string Value)
     return Value;
 }
 
-function ApplyServerConfiguration(HxUTClient Client)
+function NotifyMutatorInfoReady()
 {
-    SetPropertyText("AllowHitOverlays", Client.GetServerProperty("AllowHitOverlays"));
-    SetPropertyText("AllowForcedModels", Client.GetServerProperty("AllowForcedModels"));
-    ModelList = Client.ModelList;
+    ApplyServerConfiguration();
+}
+
+function NotifyMutatorPropertyChanged(int Index)
+{
+    switch (MutatorInfo.GetName(Index))
+    {
+        case "AllowHitOverlays":
+        case "AllowForcedModels":
+        case "ModelList":
+            ApplyServerConfiguration();
+            break;
+    }
+}
+function ApplyServerConfiguration()
+{
+    SetPropertyText("AllowHitOverlays", MutatorInfo.Get("AllowHitOverlays"));
+    SetPropertyText("AllowForcedModels", MutatorInfo.Get("AllowForcedModels"));
+    MutatorInfo.GetArray("ModelList", ModelList);
     switch (AllowForcedModels)
     {
         case HX_FM_OfficialOnly:
@@ -401,7 +433,6 @@ function UpdateDynamicActors()
 
 defaultproperties
 {
-    ObjectName="HexedUT"
     Properties(0)=(Name="Teammates",Type=HX_PROPERTY_String)
     Properties(1)=(Name="Enemies",Type=HX_PROPERTY_String)
     Properties(2)=(Name="ShieldHit",Type=HX_PROPERTY_String)

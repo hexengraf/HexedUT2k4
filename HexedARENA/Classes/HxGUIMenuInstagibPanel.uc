@@ -23,12 +23,11 @@ var automated moSlider sl_CrosshairScale;
 
 var localized string ScopeOverlayLabels[3];
 
-var private HxIGClient Client;
 var private HxZoomSuperShockRifleConfig Config;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
-    super.InitComponent(MyController, MyOwner);
+    Super.InitComponent(MyController, MyOwner);
     Sections[SECTION_SCOPE_OVERLAY].Insert(co_ScopeOverlay);
     Sections[SECTION_SCOPE_OVERLAY].Insert(ch_CustomCrosshair);
     Sections[SECTION_SCOPE_OVERLAY].Insert(ch_SoundEffects);
@@ -45,14 +44,9 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     Sections[SECTION_CROSSHAIR].Insert(sl_CrosshairBlueColor);
     Sections[SECTION_CROSSHAIR].Insert(sl_CrosshairOpacity);
     Sections[SECTION_CROSSHAIR].Insert(sl_CrosshairScale);
-    Client = HxIGClient(ClientManager.Find(class'HxIGClient'));
-    Config = HxZoomSuperShockRifleConfig(Client.FindConfig(class'HxZoomSuperShockRifleConfig'));
+    Config = HxZoomSuperShockRifleConfig(ClientManager.FindConfig(
+        class'MutHexedINSTAGIB', class'HxZoomSuperShockRifleConfig'));
     PopulateComboBoxes();
-}
-
-function bool CanShowPanel()
-{
-    return Client != None;
 }
 
 function PopulateComboBoxes()
@@ -150,7 +144,6 @@ function InternalOnChange(GUIComponent Sender)
 
 event Free()
 {
-    Client = None;
     Config = None;
     Super.Free();
 }

@@ -1,23 +1,17 @@
 class HxGUIServerMenu extends HxGUIFloatingWindow;
 
-struct HxModifiedMutatorOptions
-{
-    var array<GUIMenuOption> Senders;
-};
-
 var automated HxGUIFramedSection Section;
 var automated HxGUIMultiOptionListBox lb_Options;
 var automated moCheckBox ch_Advanced;
 
 var private HxClientManager ClientManager;
-var private array<HxModifiedMutatorOptions> ModifiedMutators;
 
 function InitComponent(GUIController MyController, GUIComponent MyComponent)
 {
     Super.InitComponent(MyController, MyComponent);
     Section.Insert(lb_Options);
     Section.Insert(ch_Advanced, 0.015, 0.015);
-    ForEach PlayerOwner().DynamicActors(class'HxClientManager', ClientManager) break;
+    ClientManager = class'HxClientManager'.static.Get(PlayerOwner().Player);
 }
 
 event Opened(GUIComponent Sender)
@@ -31,102 +25,38 @@ event Closed(GUIComponent Sender, bool bCancelled)
 {
     if (IsAdmin())
     {
-        UpdateServerProperties();
+        ClientManager.DispatchDelayedMutatorUpdates();
     }
     Super.Closed(Sender, bCancelled);
 }
 
-function UpdateServerProperties()
-{
-    local int i;
-    local int j;
-
-    for (i = 0; i < ModifiedMutators.Length; ++i)
-    {
-        for (j = 0; j < ModifiedMutators[i].Senders.Length; ++j)
-        {
-            if (ModifiedMutators[i].Senders[j] != None)
-            {
-                ClientManager.CRIs[i].ServerUpdateProperty(
-                    j, ModifiedMutators[i].Senders[j].GetComponentValue());
-                ModifiedMutators[i].Senders[j] = None;
-            }
-        }
-    }
-}
-
 function Refresh()
 {
-    PopulateOptionList();
-}
-
-function PopulateOptionList()
-{
     local bool bSavedCurMenuInitialized;
-    local int i;
 
     lb_Options.Clear();
     bSavedCurMenuInitialized = Controller.bCurMenuInitialized;
     Controller.bCurMenuInitialized = false;
-    ModifiedMutators.Length = ClientManager.CRIs.Length;
-    for (i = 0; i < ClientManager.CRIs.Length; ++i)
-    {
-        if (ClientManager.CRIs[i] != None)
-        {
-            ProcessMutatorOptions(ClientManager.CRIs[i], i);
-        }
-    }
+    ClientManager.PopulateMutatorProperties(lb_Options);
     Controller.bCurMenuInitialized = bSavedCurMenuInitialized;
     lb_Options.Refresh();
 }
 
-function ProcessMutatorOptions(HxClientReplicationInfo CRI, optional int Index)
-{
-    local string SectionCaption;
-    local bool bSectionAdded;
-    local int i;
-
-    ModifiedMutators[Index].Senders.Length = CRI.MutatorClass.default.DisplayInfo.Length;
-    for (i = 0; i < CRI.MutatorClass.default.DisplayInfo.Length; ++i)
-    {
-        if (lb_Options.ShouldHideServerProperty(CRI.MutatorClass, i))
-        {
-            continue;
-        }
-        if (!bSectionAdded)
-        {
-            lb_Options.AddSection(CRI.MutatorClass.default.FriendlyName);
-            bSectionAdded = true;
-        }
-        if (CRI.MutatorClass.default.DisplayInfo[i].Section != SectionCaption)
-        {
-            lb_Options.AddSubSection(CRI.MutatorClass.default.DisplayInfo[i].Section);
-            SectionCaption = CRI.MutatorClass.default.DisplayInfo[i].Section;
-        }
-        lb_Options.AddMutatorOption(CRI.MutatorClass, i, ClientManager.EncodeTag(Index, i));
-    }
-}
-
 function OptionsOnLoadINI(GUIComponent Sender, string s)
 {
-    local HxClientReplicationInfo CRI;
-    local int Index;
-
-    if (ClientManager.DecodeServerTag(Sender.Tag, CRI, Index) > -1)
+    if (Sender.Tag > -1)
     {
-        GUIMenuOption(Sender).SetComponentValue(CRI.GetServerPropertyByIndex(Index), true);
+        GUIMenuOption(Sender).SetComponentValue(
+            ClientManager.GetMutatorPropertyByTag(Sender.Tag), true);
     }
 }
 
 function OptionsOnChange(GUIComponent Sender)
 {
-    local int CRINumber;
-    local int Index;
-
-    CRINumber = ClientManager.DecodeServerTag(Sender.Tag,, Index);
-    if (CRINumber > -1)
+    if (Sender.Tag > -1)
     {
-        ModifiedMutators[CRINumber].Senders[Index] = GUIMenuOption(Sender);
+        ClientManager.SetMutatorPropertyDelayed(
+            Sender.Tag, GUIMenuOption(Sender).GetComponentValue());
     }
 }
 
@@ -211,5 +141,6 @@ defaultproperties
     WinTop=0.19
     WinWidth=0.42
     WinHeight=0.62
+    bPersistent=false
     OnKeyEvent=InternalOnKeyEvent
 }

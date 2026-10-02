@@ -9,17 +9,19 @@ enum EHxViewSmoothing
 };
 
 var EHxViewSmoothing ViewSmoothing;
-
-var private PlayerController PC;
-var private bool bAllowCustomViewSmoothing;
+var bool bAllowCustomViewSmoothing;
 
 simulated event Tick(float DeltaTime)
 {
-    PC = ViewportOwner.Actor;
-    if (bAllowCustomViewSmoothing && PC != None && PC.Pawn != None
-        && ViewSmoothing != HX_VS_Default)
+    local PlayerController PC;
+
+    if (bAllowCustomViewSmoothing && ViewSmoothing != HX_VS_Default)
     {
-        ModifyViewSmoothing(PC.Pawn, DeltaTime);
+        PC = ViewportOwner.Actor;
+        if (PC != None && PC.Pawn != None)
+        {
+            ModifyViewSmoothing(PC.Pawn, DeltaTime);
+        }
     }
 }
 
@@ -52,11 +54,6 @@ simulated function ModifyViewSmoothing(Pawn P, float DeltaTime)
                 break;
         }
     }
-}
-
-simulated function ApplyServerConfiguration(HxUTClient Client)
-{
-    bAllowCustomViewSmoothing = bool(Client.GetServerProperty("bAllowCustomViewSmoothing"));
 }
 
 static function HxUTPlayerInteraction Find(Player Owner)

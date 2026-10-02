@@ -290,7 +290,6 @@ function UpdateDynamicActors(int Index)
 
 defaultproperties
 {
-    ObjectName="HexedUT"
     Properties(0)=(Name="bHitSounds",Type=HX_PROPERTY_Bool)
     Properties(1)=(Name="HitSoundName",Type=HX_PROPERTY_String)
     Properties(2)=(Name="HitSoundVolume",Type=HX_PROPERTY_Float,LowerLimit="0.0",UpperLimit="1.0")

@@ -30,8 +30,9 @@ var localized string DisplayModeLabels[3];
 var localized string DamagePointLabels[5];
 var localized string AutoSelectFontLabel;
 
-var private HxUTClient Client;
+var private HxMutatorInfo MutatorInfo;
 var private HxHitEffectsConfig Config;
+var private HxUTClient Client;
 var private int DPIndex;
 var private bool bAllowHitSounds;
 var private bool bAllowDamageNumbers;
@@ -39,7 +40,7 @@ var private bool bDamageNumbersEnabled;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
-    super.InitComponent(MyController, MyOwner);
+    Super.InitComponent(MyController, MyOwner);
     Sections[SECTION_HIT_SOUNDS].Insert(ch_HitSounds);
     Sections[SECTION_HIT_SOUNDS].Insert(co_HitSoundNames);
     Sections[SECTION_HIT_SOUNDS].Insert(sl_HitSoundVolume);
@@ -56,32 +57,30 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     Sections[SECTION_INTERPOLATION_CURVE].Insert(sl_RedColor);
     Sections[SECTION_INTERPOLATION_CURVE].Insert(sl_GreenColor);
     Sections[SECTION_INTERPOLATION_CURVE].Insert(sl_BlueColor);
-    Client = HxUTClient(ClientManager.Find(class'HxUTClient'));
-    Config = HxHitEffectsConfig(Client.FindConfig(class'HxHitEffectsConfig'));
+    ClientManager.FindMutatorInfo(class'MutHexedUT', MutatorInfo);
+    Config = HxHitEffectsConfig(ClientManager.FindConfig(
+        class'MutHexedUT', class'HxHitEffectsConfig'));
+    foreach PlayerOwner().DynamicActors(class'HxUTClient', Client) break;
     PopulateComboBoxes();
     sl_HitSoundVolume.MySlider.OnClickSound = CS_None;
     sl_Pitch.MySlider.OnClickSound = CS_None;
 }
 
-function bool CanShowPanel()
-{
-    return Client != None;
-}
-
 function Refresh()
 {
-    if (Client != None)
+    if (Client == None)
     {
-        bAllowHitSounds = bool(Client.GetServerProperty("bAllowHitSounds"));
-        bAllowDamageNumbers = bool(Client.GetServerProperty("bAllowDamageNumbers"));
-        HitSoundsAfterChange();
-        DamageNumbersAfterChange();
-        RefreshDamagePointEditorSection();
-        Sections[SECTION_HIT_SOUNDS].SetHide(!bAllowHitSounds);
-        Sections[SECTION_DAMAGE_NUMBERS].SetHide(!bAllowDamageNumbers);
-        fl_DisplayPosX.SetVisibility(bAllowDamageNumbers);
-        fl_DisplayPosY.SetVisibility(bAllowDamageNumbers);
+        foreach PlayerOwner().DynamicActors(class'HxUTClient', Client) break;
     }
+    bAllowHitSounds = bool(MutatorInfo.Get("bAllowHitSounds"));
+    bAllowDamageNumbers = bool(MutatorInfo.Get("bAllowDamageNumbers"));
+    HitSoundsAfterChange();
+    DamageNumbersAfterChange();
+    RefreshDamagePointEditorSection();
+    Sections[SECTION_HIT_SOUNDS].SetHide(!bAllowHitSounds);
+    Sections[SECTION_DAMAGE_NUMBERS].SetHide(!bAllowDamageNumbers);
+    fl_DisplayPosX.SetVisibility(bAllowDamageNumbers);
+    fl_DisplayPosY.SetVisibility(bAllowDamageNumbers);
     Super.Refresh();
 }
 
@@ -389,8 +388,9 @@ function UpdateDamagePointConfig()
 
 event Free()
 {
-    Client = None;
+    MutatorInfo = None;
     Config = None;
+    Client = None;
     Super.Free();
 }
 

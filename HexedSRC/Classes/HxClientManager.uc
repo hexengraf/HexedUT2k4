@@ -1,27 +1,37 @@
-class HxClientManager extends Actor
+class HxClientManager extends HxInteraction
     config(HexedCache);
+
+struct HxMutatorEntry
+{
+    var class<HxMutator> MutatorClass;
+    var HxMutatorInfo MutatorInfo;
+    var array<HxConfig> Configs;
+    var array<int> DelayedIndices;
+    var bool bHasDelayedConfigs;
+};
+
+struct HxDelayedUpdate
+{
+    var int Tag;
+    var string Value;
+};
 
 var config bool bFirstRun;
 var config string MenuKeybind;
 
-var array<HxClientReplicationInfo> CRIs;
-var array<class<HxClientReplicationInfo> > CRIClasses;
-
 var const private class<HxGUIFloatingWindow> MenuClass;
 var const private class<HxGUITheme> ThemeClass;
-
-var private PlayerController PC;
-var private GUIController GC;
-var private array<HxClientReplicationInfo> AllCRIs;
+var private HxClientChannel Channel;
+var private array<HxMutatorEntry> Entries;
+var private array<HxDelayedUpdate> DelayedQueue;
 var private array<HxConfig> ConfigPool;
 var private array<Object> ObjectPool;
-var private bool bInitialized;
+var private bool bReceivedMutators;
 var private bool bShowFirstRunNotification;
 var private bool bIsFirstRun;
 
-simulated event PostBeginPlay()
+event Initialized()
 {
-    Super.PostBeginPlay();
     if (bFirstRun)
     {
         bShowFirstRunNotification = true;
@@ -29,53 +39,144 @@ simulated event PostBeginPlay()
         bFirstRun = false;
         SaveConfig();
     }
-}
-
-simulated event Tick(float DeltaTime)
-{
-    if (!bInitialized)
+    ThemeClass.static.RegisterStyles(GUIController(ViewportOwner.GUIController));
+    // TODO: remove this in v11
+    UpdateMenuKeybinds();
+    ValidateMenuKeybind();
+    if (bShowFirstRunNotification)
     {
-        bInitialized = InitializeClient();
+        ShowFirstTimeNotification(MenuKeybind);
     }
 }
 
-simulated function bool InitializeClient()
+event NotifyLevelChange()
 {
-    if (PC == None)
+    local int i;
+
+    for (i = 0; i < Entries.Length; ++i)
     {
-        PC = Level.GetLocalPlayerController();
+        Entries[i].MutatorInfo.NotifyLevelChange();
     }
-    if (PC != None && PC.Player != None)
+    Entries.Remove(0, Entries.Length);
+    for (i = 0; i < ConfigPool.Length; ++i)
     {
-        GC = GUIController(PC.Player.GUIController);
-        ThemeClass.static.RegisterStyles(GC);
-        ValidateMenuKeybind();
-        if (bShowFirstRunNotification)
+        ConfigPool[i].Destroy();
+    }
+    ConfigPool.Remove(0, ConfigPool.Length);
+    ObjectPool.Remove(0, ObjectPool.Length);
+    Super.NotifyLevelChange();
+}
+
+function Setup(HxClientChannel Channel)
+{
+    Self.Channel = Channel;
+}
+
+function ReceiveMutatorClass(class<HxMutator> MutatorClass, coerce bool bLast)
+{
+    local int UID;
+    local int i;
+
+    if (!bReceivedMutators)
+    {
+        UID = Entries.Length;
+        Entries.Insert(UID, 1);
+        Entries[UID].MutatorClass = MutatorClass;
+        Entries[UID].MutatorInfo = new (None) MutatorClass.default.MutatorInfoClass;
+        Entries[UID].MutatorInfo.Setup(MutatorClass, Channel.Level, Channel.PlayerOwner);
+        Entries[UID].Configs.Length = MutatorClass.default.ConfigClasses.Length;
+        for (i = 0; i < Entries[UID].Configs.Length; ++i)
         {
-            ShowFirstTimeNotification(MenuKeybind);
+            Entries[UID].Configs[i] = LoadConfig(MutatorClass, i);
+            Entries[UID].Configs[i].Setup(Channel.Level, Self);
         }
+        Entries[UID].DelayedIndices.Length = MutatorClass.default.Properties.Length;
+        for (i = 0; i < Entries[UID].DelayedIndices.Length; ++i)
+        {
+            Entries[UID].DelayedIndices[i] = -1;
+        }
+        bReceivedMutators = bLast;
     }
-    return PC != None && GC != None;
 }
 
-simulated function NotifyServerPropertyChanged(HxClientReplicationInfo Sender)
+function ReceiveMutatorProperty(int UID,
+                                int Index,
+                                string Value,
+                                optional HxClientReplicationInfo CRI)
 {
-    if (Level.NetMode == NM_Client)
+    local int i;
+
+    if (Entries[UID].MutatorClass.default.Properties[Index].Type != HX_PROPERTY_Array)
     {
+        Entries[UID].MutatorInfo.SetByIndex(Index, Value);
+    }
+    if (Entries[UID].MutatorInfo.IsInitialized())
+    {
+        Entries[UID].MutatorClass.static.ClientMutatorPropertyChanged(
+            Entries[UID].MutatorInfo, Index);
+        if (CRI != None)
+        {
+            CRI.NotifyMutatorPropertyChanged(Index);
+        }
+        for (i = 0; i < Entries[UID].Configs.Length; ++i)
+        {
+            Entries[UID].Configs[i].NotifyMutatorPropertyChanged(Index);
+        }
+        RefreshConfigurationMenu();
+    }
+    else if (Entries[UID].MutatorInfo.IsLast(Index))
+    {
+        Entries[UID].MutatorInfo.Initialized();
+        Entries[UID].MutatorClass.static.ClientInitialized(Entries[UID].MutatorInfo);
+        if (CRI != None)
+        {
+            CRI.SetMutatorInfo(Entries[UID].MutatorInfo);
+        }
+        for (i = 0; i < Entries[UID].Configs.Length; ++i)
+        {
+            Entries[UID].Configs[i].SetMutatorInfo(Entries[UID].MutatorInfo);
+        }
         RefreshConfigurationMenu();
     }
 }
 
-simulated function OpenConfigurationMenu(optional HxClientReplicationInfo Sender)
+function ReceiveMutatorArrayElement(int UID, int Index, int ElementIndex, string Value)
 {
-    if (bInitialized)
+    Entries[UID].MutatorInfo.SetArrayElementByIndex(Index, ElementIndex, Value);
+}
+
+exec function HexedMenu()
+{
+    if (Channel != None)
     {
-        PC.ClientOpenMenu(string(MenuClass));
+        ViewportOwner.GUIController.OpenMenu(string(MenuClass));
     }
 }
 
-simulated function RefreshConfigurationMenu()
+function ShowFirstTimeNotification(string KeyName)
 {
+    local string MenuKey;
+    local string MenuKeyName;
+    local GUIController GC;
+
+    if (KeyName != "")
+    {
+        MenuKey = Execute("KEYNUMBER"@KeyName);
+        MenuKeyName = Execute("LOCALIZEDKEYNAME"@MenuKey);
+    }
+    GC = GUIController(ViewportOwner.GUIController);
+    if (GC.OpenMenu(string(class'HxGUIFirstRunNotification'), MenuKey, MenuKeyName))
+    {
+        HxGUIFirstRunNotification(GC.ActivePage).ClientManager = Self;
+    }
+    bShowFirstRunNotification = false;
+}
+
+function RefreshConfigurationMenu()
+{
+    local GUIController GC;
+
+    GC = GUIController(ViewportOwner.GUIController);
     if (GC != None)
     {
         if (HxGUIMenu(GC.ActivePage) != None)
@@ -93,119 +194,309 @@ simulated function RefreshConfigurationMenu()
     }
 }
 
-simulated function Register(HxClientReplicationInfo CRI)
+function PopulateConfigProperties(HxGUIMultiOptionListBox List)
 {
+    local string SectionCaption;
+    local bool bMutatorSectionAdded;
+    local int UID;
     local int i;
+    local int j;
 
-    for (i = 0; i < AllCRIs.Length; ++i)
+    for (UID = 0; UID < Entries.Length; ++UID)
     {
-        if (CRI.MutatorClass.default.UIPriority < AllCRIs[i].MutatorClass.default.UIPriority)
+        if (!Entries[UID].MutatorInfo.IsInitialized())
         {
-            break;
+            continue;
+        }
+        SectionCaption = "";
+        bMutatorSectionAdded = false;
+        for (i = 0; i < Entries[UID].Configs.Length; ++i)
+        {
+            for (j = 0; j < Entries[UID].Configs[i].DisplayInfo.Length; ++j)
+            {
+                if (List.ShouldHideConfigProperty(Entries[UID].Configs[i].Class, j)
+                    || Entries[UID].Configs[i].IsMissingDependency(j))
+                {
+                    continue;
+                }
+                if (!bMutatorSectionAdded)
+                {
+                    List.AddSection(Entries[UID].MutatorClass.default.FriendlyName);
+                    bMutatorSectionAdded = true;
+                }
+                if (Entries[UID].Configs[i].DisplayInfo[j].Section != SectionCaption)
+                {
+                    SectionCaption = Entries[UID].Configs[i].DisplayInfo[j].Section;
+                    List.AddSubSection(SectionCaption);
+                }
+                List.AddConfigOption(
+                    Entries[UID].Configs[i].Class,
+                    j,
+                    class'HxClientChannel'.static.EncodeTag(UID, j, i));
+            }
         }
     }
-    AllCRIs.Insert(i, 1);
-    AllCRIs[i] = CRI;
-    if (i > 0 && AllCRIs[i - 1].Class == AllCRIs[i].Class)
-    {
-        Warn(Name$": Duplicate "$CRI.Class$" instances found!");
-    }
-    UpdateUniqueCRIs();
-    RefreshConfigurationMenu();
 }
 
-simulated function bool Unregister(HxClientReplicationInfo CRI)
+function PopulateMutatorProperties(HxGUIMultiOptionListBox List)
 {
-    local HxGUIMenu ConfigMenu;
+    local string HeaderCaption;
+    local string SectionCaption;
+    local int UID;
     local int i;
 
-    for (i = 0; i < AllCRIs.Length; ++i)
+    for (UID = 0; UID < Entries.Length; ++UID)
     {
-        if (AllCRIs[i] == CRI)
+        if (!Entries[UID].MutatorInfo.IsInitialized())
         {
-            ConfigMenu = FindConfigurationMenu();
-            if (ConfigMenu != None)
+            continue;
+        }
+        SectionCaption = "";
+        for (i = 0; i < Entries[UID].MutatorClass.default.DisplayInfo.Length; ++i)
+        {
+            if (List.ShouldHideServerProperty(Entries[UID].MutatorClass, i))
             {
-                ConfigMenu.PurgePanels(CRI.MutatorClass);
+                continue;
             }
-            AllCRIs.Remove(i, 1);
-            UpdateUniqueCRIs();
-            RefreshConfigurationMenu();
-            return true;
+            if (Entries[UID].MutatorClass.default.FriendlyName != HeaderCaption)
+            {
+                HeaderCaption = Entries[UID].MutatorClass.default.FriendlyName;
+                List.AddSection(HeaderCaption);
+            }
+            if (Entries[UID].MutatorClass.default.DisplayInfo[i].Section != SectionCaption)
+            {
+                SectionCaption = Entries[UID].MutatorClass.default.DisplayInfo[i].Section;
+                List.AddSubSection(SectionCaption);
+            }
+            List.AddMutatorOption(
+                Entries[UID].MutatorClass, i, class'HxClientChannel'.static.EncodeTag(UID, i));
+        }
+    }
+}
+
+function PopulateMutatorStatus(HxGUIMultiOptionListBox List)
+{
+    local string HeaderCaption;
+    local string SectionCaption;
+    local int UID;
+    local int i;
+
+    for (UID = 0; UID < Entries.Length; ++UID)
+    {
+        if (!Entries[UID].MutatorInfo.IsInitialized())
+        {
+            continue;
+        }
+        SectionCaption = "";
+        for (i = 0; i < Entries[UID].MutatorClass.default.DisplayInfo.Length; ++i)
+        {
+            if (Entries[UID].MutatorClass.default.FriendlyName != HeaderCaption)
+            {
+                HeaderCaption = Entries[UID].MutatorClass.default.FriendlyName;
+                List.AddSection(HeaderCaption);
+            }
+            // TODO: create new option to control server status verbosity
+            // CRI.ShouldHideServerPropertyFromStatus(i)
+            if (List.ShouldHideServerProperty(Entries[UID].MutatorClass, i))
+            {
+                continue;
+            }
+            if (Entries[UID].MutatorClass.default.DisplayInfo[i].Section != SectionCaption)
+            {
+                SectionCaption = Entries[UID].MutatorClass.default.DisplayInfo[i].Section;
+                List.AddSubSection(SectionCaption);
+            }
+            List.AddLabel(
+                Entries[UID].MutatorClass.default.DisplayInfo[i].Caption,
+                class'HxClientChannel'.static.EncodeTag(UID, i));
+        }
+    }
+}
+
+function array<HxMutatorInfo> GetPopulatedMutatorInfos()
+{
+    local array<HxMutatorInfo> MutatorInfos;
+    local int UID;
+
+    for (UID = 0; UID < Entries.Length; ++UID)
+    {
+        if (Entries[UID].MutatorInfo.IsInitialized())
+        {
+            MutatorInfos[MutatorInfos.Length] = Entries[UID].MutatorInfo;
+        }
+    }
+    return MutatorInfos;
+}
+
+function string GetMutatorPropertyByTag(int Tag)
+{
+    local int UID;
+    local int Index;
+
+    if (class'HxClientChannel'.static.DecodeTag(Tag, UID, Index))
+    {
+        return Entries[UID].MutatorInfo.GetByIndex(Index);
+    }
+    return "";
+}
+
+function string GetMutatorStatus(int Tag)
+{
+    local int UID;
+    local int Index;
+    local string Value;
+
+    if (class'HxClientChannel'.static.DecodeTag(Tag, UID, Index))
+    {
+        Value = Entries[UID].MutatorInfo.GetByIndex(Index);
+        switch (Entries[UID].MutatorClass.default.Properties[Index].Type)
+        {
+            case HX_PROPERTY_Float:
+                Value = Left(Value, Len(Value) - 4);
+                break;
+            case HX_PROPERTY_Enum:
+                Value = Entries[UID].MutatorClass.static.GetEnumLabel(Index, Value);
+                break;
+        }
+        return Value;
+    }
+    return "";
+}
+
+function string GetConfigPropertyByTag(int Tag)
+{
+    local int UID;
+    local int Index;
+    local int ConfigIndex;
+
+    if (class'HxClientChannel'.static.DecodeTag(Tag, UID, Index, ConfigIndex))
+    {
+        return Entries[UID].Configs[ConfigIndex].GetProperty(Index);
+    }
+    return "";
+}
+
+function SetMutatorPropertyDelayed(int Tag, string Value)
+{
+    local int UID;
+    local int Index;
+    local int QueueIndex;
+
+    if (Channel != None && Channel.DecodeTag(Tag, UID, Index))
+    {
+        if (Entries[UID].DelayedIndices[Index] > -1)
+        {
+            QueueIndex = Entries[UID].DelayedIndices[Index];
+        }
+        else
+        {
+            QueueIndex = DelayedQueue.Length;
+            DelayedQueue.Insert(QueueIndex, 1);
+            Entries[UID].DelayedIndices[Index] = QueueIndex;
+        }
+        DelayedQueue[QueueIndex].Tag = Tag;
+        DelayedQueue[QueueIndex].Value = Value;
+    }
+}
+
+function SetConfigPropertyDelayed(int Tag, string Value)
+{
+    local int UID;
+    local int Index;
+    local int ConfigIndex;
+
+    if (class'HxClientChannel'.static.DecodeTag(Tag, UID, Index, ConfigIndex))
+    {
+        Entries[UID].bHasDelayedConfigs = true;
+        Entries[UID].Configs[ConfigIndex].SetPropertyDelayed(Index, Value);
+    }
+}
+
+function DispatchDelayedMutatorUpdates()
+{
+    local int UID;
+    local int Index;
+    local int i;
+
+    if (Channel != None)
+    {
+        for (i = 0; i < DelayedQueue.Length; ++i)
+        {
+            if (Channel.DecodeTag(DelayedQueue[i].Tag, UID, Index))
+            {
+                Entries[UID].DelayedIndices[Index] = -1;
+                Channel.RequestMutatorPropertyUpdate(DelayedQueue[i].Tag, DelayedQueue[i].Value);
+            }
+        }
+    }
+    DelayedQueue.Remove(0, DelayedQueue.Length);
+}
+
+function DispatchDelayedConfigUpdates()
+{
+    local int UID;
+    local int i;
+
+    for (UID = 0; UID < Entries.Length; ++UID)
+    {
+        if (Entries[UID].bHasDelayedConfigs)
+        {
+            for (i = 0; i < Entries[UID].Configs.Length; ++i)
+            {
+                Entries[UID].Configs[i].ApplyDelayedUpdates();
+            }
+            Entries[UID].bHasDelayedConfigs = false;
+        }
+    }
+}
+
+final function bool IsFirstRun()
+{
+    return bIsFirstRun;
+}
+
+final function bool FindMutatorInfo(class<HxMutator> MutatorClass, out HxMutatorInfo MutatorInfo)
+{
+    local int UID;
+
+    for (UID = 0; UID < Entries.Length; ++UID)
+    {
+        if (Entries[UID].MutatorClass == MutatorClass)
+        {
+            MutatorInfo = Entries[UID].MutatorInfo;
+            return Entries[UID].MutatorInfo.IsInitialized();
         }
     }
     return false;
 }
 
-simulated function UpdateUniqueCRIs()
+final function HxConfig FindConfig(class<HxMutator> MutatorClass, class<HxConfig> ConfigClass)
 {
-    local class<HxClientReplicationInfo> LastCRIClass;
-    local HxGUIMenu ConfigMenu;
+    local int UID;
     local int i;
 
-    ConfigMenu = FindConfigurationMenu();
-    if (ConfigMenu != None)
+    for (UID = 0; UID < Entries.Length; ++UID)
     {
-        for (i = 0; i < CRIs.Length; ++i)
+        if (Entries[UID].MutatorClass == MutatorClass)
         {
-            if (CRIs[i] == None)
+            for (i = 0; i < Entries[UID].Configs.Length; ++i)
             {
-                ConfigMenu.PurgePanels(CRIClasses[i].default.MutatorClass);
+                if (Entries[UID].Configs[i].Class == ConfigClass)
+                {
+                    return Entries[UID].Configs[i];
+                }
             }
         }
     }
-    CRIs.Length = 0;
-    CRIClasses.Length = 0;
-    for (i = 0; i < AllCRIs.Length; ++i)
-    {
-        if (AllCRIs[i].Class != LastCRIClass)
-        {
-            CRIs[CRIs.Length] = AllCRIs[i];
-            CRIClasses[CRIClasses.Length] = AllCRIs[i].Class;
-            LastCRIClass = AllCRIs[i].Class;
-        }
-    }
-}
-
-simulated function HxGUIMenu FindConfigurationMenu()
-{
-    if (GC != None)
-    {
-        return HxGUIMenu(GC.FindPersistentMenuByClass(class'HxGUIMenu'));
-    }
     return None;
 }
 
-simulated function HxClientReplicationInfo Find(class<HxClientReplicationInfo> CRIClass)
+final function HxInteraction LoadInteraction(class<HxInteraction> InteractionClass)
 {
-    local int i;
-
-    for (i = 0; i < AllCRIs.Length; ++i)
-    {
-        if (AllCRIs[i].Class == CRIClass)
-        {
-            return AllCRIs[i];
-        }
-    }
-    return None;
+    return AddInteraction(ViewportOwner, InteractionClass);
 }
 
-simulated function HxConfig LoadConfig(class<HxConfig> ConfigClass)
-{
-    local int i;
-
-    for (i = 0; i < ConfigPool.Length; ++i)
-    {
-        if (ConfigPool[i].Class == ConfigClass)
-        {
-            return ConfigPool[i];
-        }
-    }
-    ConfigPool[i] = ConfigClass.static.Load();
-    return ConfigPool[i];
-}
-
-simulated function Object LoadObject(class<Object> ObjectClass, optional string Name)
+final function Object LoadObject(class<Object> ObjectClass, optional string Name)
 {
     local int i;
 
@@ -223,24 +514,24 @@ simulated function Object LoadObject(class<Object> ObjectClass, optional string 
     return ObjectPool[i];
 }
 
-simulated function ShowFirstTimeNotification(string KeyName)
+private function HxConfig LoadConfig(class<HxMutator> MutatorClass, int Index)
 {
-    local string MenuKey;
-    local string MenuKeyName;
+    local class<HxConfig> ConfigClass;
+    local int i;
 
-    if (KeyName != "")
+    ConfigClass = MutatorClass.default.ConfigClasses[Index];
+    for (i = 0; i < ConfigPool.Length; ++i)
     {
-        MenuKey = PC.ConsoleCommand("KEYNUMBER"@KeyName);
-        MenuKeyName = PC.ConsoleCommand("LOCALIZEDKEYNAME"@MenuKey);
+        if (ConfigPool[i].Class == ConfigClass)
+        {
+            return ConfigPool[i];
+        }
     }
-    if (GC.OpenMenu(string(class'HxGUIFirstRunNotification'), MenuKey, MenuKeyName))
-    {
-        HxGUIFirstRunNotification(GC.ActivePage).ClientManager = Self;
-    }
-    bShowFirstRunNotification = false;
+    ConfigPool[i] = new(None, MutatorClass.default.UniqueObjectName) ConfigClass;
+    return ConfigPool[i];
 }
 
-simulated private function ValidateMenuKeybind()
+private function ValidateMenuKeybind()
 {
     local string KeyName;
     local int i;
@@ -250,7 +541,7 @@ simulated private function ValidateMenuKeybind()
         MenuKeybind = "";
         for (i = 0; i < 255; ++i)
         {
-            KeyName = PC.ConsoleCommand("KEYNAME"@i);
+            KeyName = Execute("KEYNAME"@i);
             if (IsMenuKeybind(KeyName))
             {
                 MenuKeybind = KeyName;
@@ -261,98 +552,56 @@ simulated private function ValidateMenuKeybind()
     }
 }
 
-simulated private function bool IsMenuKeybind(string KeyName)
+// TODO: remove this in v11
+private function UpdateMenuKeybinds()
 {
-    return InStr(Caps(PC.ConsoleCommand("KEYBINDING"@KeyName)), "HEXEDMENU") > -1;
+    local string KeyName;
+    local int i;
+
+    for (i = 0; i < 255; ++i)
+    {
+        KeyName = Execute("KEYNAME"@i);
+        if (InStr(Caps(Execute("KEYBINDING"@KeyName)), "MUTATE HEXEDMENU") > -1)
+        {
+            Execute("SET INPUT"@KeyName@"HexedMenu");
+        }
+    }
 }
 
-simulated private function bool TrySetKeybind(string Keybind)
+private function bool IsMenuKeybind(string KeyName)
 {
-    if (PC.ConsoleCommand("KEYBINDING"@Keybind) == "")
+    return InStr(Caps(Execute("KEYBINDING"@KeyName)), "HEXEDMENU") > -1;
+}
+
+private function bool TrySetKeybind(string Keybind)
+{
+    if (Execute("KEYBINDING"@Keybind) == "")
     {
-        PC.ConsoleCommand("SET INPUT"@Keybind@"mutate HexedMenu");
+        Execute("SET INPUT"@Keybind@"HexedMenu");
         return true;
     }
     return false;
 }
 
-simulated function int EncodeTag(int CRINumber, int Index, optional int ConfigNumber)
+private function string Execute(string Command)
 {
-    return ((CRINumber & 0x3ff) << 20) | ((ConfigNumber & 0x3ff) << 10) | (Index & 0x3ff);
+    return ViewportOwner.Actor.ConsoleCommand(Command);
 }
 
-simulated function int DecodeServerTag(int Tag,
-                                       optional out HxClientReplicationInfo CRI,
-                                       optional out int Index)
+static function HxClientManager Get(Player Owner)
 {
-    local int CRINumber;
-
-    if (Tag >= 0)
+    if (Owner != None)
     {
-        Index = Tag & 0x3ff;
-        CRINumber = (Tag >> 20) & 0x3ff;
-        CRI = CRIs[CRINumber];
-        if (CRI != None)
-        {
-            return CRINumber;
-        }
+        return HxClientManager(AddInteraction(Owner, default.Class));
     }
-    return -1;
-}
-
-simulated function bool DecodeUserTag(int Tag, out HxConfig Config, out int Index)
-{
-    local int CRINumber;
-    local int ConfigNumber;
-
-    if (Tag >= 0)
-    {
-        Index = Tag & 0x3ff;
-        ConfigNumber = (Tag >> 10) & 0x3ff;
-        CRINumber = (Tag >> 20) & 0x3ff;
-        if (CRIs[CRINumber] != None)
-        {
-            Config = CRIs[CRINumber].Configs[ConfigNumber];
-            return Config != None;
-        }
-    }
-    return false;
-}
-
-simulated function bool IsFirstRun()
-{
-    return bIsFirstRun;
-}
-
-simulated event Destroyed()
-{
-    CRIs.Remove(0, CRIs.Length);
-    CRIClasses.Remove(0, CRIClasses.Length);
-    AllCRIs.Remove(0, AllCRIs.Length);
-    ConfigPool.Remove(0, ConfigPool.Length);
-    ObjectPool.Remove(0, ObjectPool.Length);
-    Super.Destroyed();
-}
-
-static function HxClientManager Get(HxClientReplicationInfo Requester)
-{
-    local HxClientManager Manager;
-
-    ForEach Requester.DynamicActors(class'HxClientManager', Manager) break;
-    if (Manager == None)
-    {
-        Manager = Requester.Spawn(class'HxClientManager');
-    }
-    return Manager;
+    return None;
 }
 
 defaultproperties
 {
-    RemoteRole=ROLE_None
-    bHidden=true
+    bActive=false
     MenuClass=class'HxGUIMenu'
     ThemeClass=class'HxGUIThemeDefault'
-
     bFirstRun=true
     MenuKeybind="H"
 }

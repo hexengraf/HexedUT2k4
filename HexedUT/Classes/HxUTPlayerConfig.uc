@@ -4,10 +4,24 @@ class HxUTPlayerConfig extends HxConfig
 
 var config HxUTPlayerInteraction.EHxViewSmoothing ViewSmoothing;
 
+var private HxUTPlayerInteraction Player;
+
 function InitializeProperties()
 {
+    local int i;
+
     class'HxUTPlayerInteraction'.default.ViewSmoothing = ViewSmoothing;
-    UpdateDynamicActors(-1);
+    Player = HxUTPlayerInteraction(ClientManager.LoadInteraction(class'HxUTPlayerInteraction'));
+    for (i = 0; i < Properties.Length; ++i)
+    {
+        Player.SetPropertyText(Properties[i].Name, GetPropertyText(Properties[i].Name));
+    }
+}
+
+function Destroy()
+{
+    Player = None;
+    Super.Destroy();
 }
 
 function ApplyProperty(int Index)
@@ -16,56 +30,41 @@ function ApplyProperty(int Index)
     {
         case 0:
             class'HxUTPlayerInteraction'.default.ViewSmoothing = ViewSmoothing;
+            Player.SetPropertyText(Properties[Index].Name, GetPropertyText(Properties[Index].Name));
             break;
     }
-    UpdateDynamicActors(Index);
 }
+
 function bool ResetProperty(int Index)
 {
     switch (Index)
     {
         case 0:
             ViewSmoothing = default.ViewSmoothing;
-            UpdateDynamicActors(Index);
+            Player.SetPropertyText(Properties[Index].Name, GetPropertyText(Properties[Index].Name));
             return true;
     }
     return false;
 }
 
-function UpdateDynamicActors(int Index)
+function NotifyMutatorInfoReady()
 {
-    local PlayerController PC;
-    local HxUTPlayerInteraction Player;
+    Player.SetPropertyText(
+        "bAllowCustomViewSmoothing", MutatorInfo.Get("bAllowCustomViewSmoothing"));
+}
 
-    if (Level != None)
+function NotifyMutatorPropertyChanged(int Index)
+{
+    switch (MutatorInfo.GetName(Index))
     {
-        PC = Level.GetLocalPlayerController();
-        if (PC != None && PC.Player != None)
-        {
-            Player = class'HxUTPlayerInteraction'.static.Find(PC.Player);
-            if (Player != None)
-            {
-                if (Index < 0)
-                {
-                    for (Index = 0; Index < Properties.Length; ++Index)
-                    {
-                        Player.SetPropertyText(
-                            Properties[Index].Name, GetPropertyText(Properties[Index].Name));
-                    }
-                }
-                else
-                {
-                    Player.SetPropertyText(
-                        Properties[Index].Name, GetPropertyText(Properties[Index].Name));
-                }
-            }
-        }
+        case "bAllowCustomViewSmoothing":
+            Player.SetPropertyText("bAllowCustomViewSmoothing", MutatorInfo.GetByIndex(Index));
+            break;
     }
 }
 
 defaultproperties
 {
-    ObjectName="HexedUT"
     Properties(0)=(Name="ViewSmoothing",Type=HX_PROPERTY_Enum,UpperLimit="4",EnumType=enum'EHxViewSmoothing')
     DisplayInfo(0)=(Section="Player",Caption="View Smoothing",Hint="Choose which type of view smoothing to apply.",EnumLabels=("Strong (Default)","Moderate","Weak","Disabled"),Dependency="bAllowCustomViewSmoothing")
 

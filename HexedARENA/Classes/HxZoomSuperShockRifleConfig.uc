@@ -168,7 +168,6 @@ function UpdateDynamicActors()
 
 defaultproperties
 {
-    ObjectName="HexedARENA"
     Properties(0)=(Name="ScopeOverlay",Type=HX_PROPERTY_Enum,UpperLimit="3",EnumType=enum'EHxScopeOverlay')
     Properties(1)=(Name="bSoundEffects",Type=HX_PROPERTY_Bool)
     Properties(2)=(Name="bShowChargeBar",Type=HX_PROPERTY_Bool)

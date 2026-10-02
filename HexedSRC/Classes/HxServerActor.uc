@@ -14,7 +14,7 @@ event PostBeginPlay()
         M = FindMutator();
         if (M != None)
         {
-            M.ValidateClientReplicationInfos();
+            M.ValidateClientChannels();
         }
     }
 }

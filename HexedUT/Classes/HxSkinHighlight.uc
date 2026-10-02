@@ -51,7 +51,7 @@ var protected bool bProtectionEnded;
 var protected bool bOldProtectionEnded;
 var protected bool bDead;
 var protected PlayerController PC;
-var protected HxUTClient Client;
+var protected HxClientManager ClientManager;
 var protected HxColors Colors;
 var protected EHxSkinType SkinType;
 var protected array<Material> Materials;
@@ -188,13 +188,14 @@ auto state Startup
 
     simulated event Tick(float DeltaTime)
     {
-        if (Client == None)
+        if (ClientManager == None)
         {
-            foreach DynamicActors(class'HxUTClient', Client) break;
+            ClientManager = class'HxClientManager'.static.Get(
+                Level.GetLocalPlayerController().Player);
         }
-        if (Client != None && Colors == None)
+        if (ClientManager != None && Colors == None)
         {
-            Colors = Client.GetSkinHighlightColors();
+            Colors = HxColors(ClientManager.LoadObject(class'HxColors', "HxSkinHighlight"));
         }
         if (PC == None)
         {

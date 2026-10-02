@@ -306,7 +306,6 @@ simulated event DrawScoreboard(Canvas C)
 {
     local int SpectatingCount;
     local float TimeSinceLastUpdate;
-    local float RealSecond;
     local bool bUpdateVisible;
 
     if (Initialized())
@@ -317,10 +316,9 @@ simulated event DrawScoreboard(Canvas C)
         }
         TimeSinceLastUpdate = Level.TimeSeconds - LastUpdateTime;
         SpectatingCount = Len(SpectatingPlayers);
-        RealSecond = 1 / Level.TimeDilation;
-        if (TimeSinceLastUpdate > RealSecond)
+        if (TimeSinceLastUpdate > Level.TimeDilation)
         {
-            if (TimeSinceLastUpdate > 3 * RealSecond)
+            if (TimeSinceLastUpdate > 3 * Level.TimeDilation)
             {
                 CenterOnFocused();
                 DetailedStatsHint = class'GameInfo'.static.GetKeyBindName("ShowStats", PC);

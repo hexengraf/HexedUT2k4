@@ -14,7 +14,7 @@ function InitComponent(GUIController MyController, GUIComponent MyComponent)
     t_WindowTitle.DockedTabs = t_TabControl;
     t_WindowTitle.DockAlign = PGA_Top;
     PC = PlayerOwner();
-    ForEach PC.DynamicActors(class'HxClientManager', ClientManager) break;
+    ClientManager = class'HxClientManager'.static.Get(PC.Player);
     MenuKey = byte(PC.ConsoleCommand("KEYNUMBER"@ClientManager.MenuKeybind));
     AddPanel(class'HxGUIMenuGeneralPanel', 0);
 }
@@ -27,11 +27,13 @@ event Opened(GUIComponent Sender)
 
 function Refresh()
 {
+    local array<HxMutatorInfo> MutatorInfos;
     local int i;
 
-    for (i = 0; i < ClientManager.CRIs.Length; ++i)
+    MutatorInfos = ClientManager.GetPopulatedMutatorInfos();
+    for (i = 0; i < MutatorInfos.Length; ++i)
     {
-        UpdatePanels(ClientManager.CRIs[i]);
+        UpdatePanels(MutatorInfos[i]);
     }
     for (i = 0; i < Panels.Length; ++i)
     {
@@ -39,21 +41,21 @@ function Refresh()
     }
 }
 
-function UpdatePanels(HxClientReplicationInfo CRI)
+function UpdatePanels(HxMutatorInfo Info)
 {
     local class<HxMutator> MC;
     local int i;
 
-    MC = CRI.MutatorClass;
+    MC = Info.MutatorClass;
     for (i = 0; i < MC.default.PanelClasses.Length; ++i)
     {
-        if (!MC.default.PanelClasses[i].static.CheckDependencies(CRI))
+        if (!MC.default.PanelClasses[i].static.CheckDependencies(Info))
         {
             RemovePanel(FindPanel(MC.default.PanelClasses[i]));
         }
         else if (FindPanel(MC.default.PanelClasses[i]) < 0)
         {
-            AddPanel(MC.default.PanelClasses[i], (MC.default.UIPriority << 8 | i));
+            AddPanel(MC.default.PanelClasses[i], (MC.default.Priority << 8 | i));
         }
     }
 }

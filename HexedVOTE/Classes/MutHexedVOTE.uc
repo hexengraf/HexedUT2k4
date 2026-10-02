@@ -26,7 +26,8 @@ defaultproperties
     FriendlyName="HexedVOTE %TAG%"
     Description="Provides an enhanced map vote menu on top of xVoting."
     bAddToServerPackages=true
-    CRIClass=class'HxVTClient'
+    UniqueObjectName="HexedVOTE"
+    ClientReplicationInfoClass=class'HxVTClient'
     Properties(0)=(Name="VoteListCustomBG",Type=HX_PROPERTY_String,UpperLimit="100")
     Properties(1)=(Name="MapListCustomBG",Type=HX_PROPERTY_String,UpperLimit="100")
     Properties(2)=(Name="PreviewCustomBG",Type=HX_PROPERTY_String,UpperLimit="100")
@@ -38,6 +39,6 @@ defaultproperties
     DisplayInfo(3)=(Section="Map Vote Menu",Caption="Chat Box Custom BG",Hint="Texture name to set as custom background of the chat box.",bAdvanced=true)
     DisplayInfo(4)=(Section="Map Vote Menu",Caption="Map Preview Loaders",Hint="Auxiliary loader classes providing custom map previews.",bAdvanced=true)
     ConfigClasses(0)=class'HxVTMenuConfig'
-    UIPriority=232
+    Priority=232
     bDisableTick=true
 }

@@ -24,7 +24,6 @@ struct HxMapResources
 var VotingReplicationInfo VRI;
 var array<HxMapEntry> Maps;
 
-var private HxVTMenuConfig MenuConfig;
 var private GUIController GC;
 var private HxFavorites Favorites;
 var private array<HxMapResources> Resources;
@@ -55,25 +54,21 @@ simulated event PostBeginPlay()
 simulated function SetupClient(HxClientManager Manager)
 {
     Super.SetupClient(Manager);
-    Favorites = HxFavorites(Manager.LoadObject(class'HxFavorites', "Maps"));
-    MenuConfig = HxVTMenuConfig(FindConfig(class'HxVTMenuConfig'));
+    Favorites = HxFavorites(ClientManager.LoadObject(class'HxFavorites', "Maps"));
 }
 
 simulated event Tick(float DeltaTime)
 {
     Super.Tick(DeltaTime);
-    if (Level.NetMode != NM_DedicatedServer)
+    if (Level.NetMode != NM_DedicatedServer && ValidateReferences())
     {
-        if (ValidateReferences())
+        if (bReplaceMapVoteMenu)
         {
-            if (bReplaceMapVoteMenu)
-            {
-                TryReplaceMapVoteMenu();
-            }
-            if (Maps.Length < VRI.MapList.Length)
-            {
-                PopulateMapEntries();
-            }
+            TryReplaceMapVoteMenu();
+        }
+        if (Maps.Length < VRI.MapList.Length && Favorites != None)
+        {
+            PopulateMapEntries();
         }
     }
 }
@@ -82,18 +77,17 @@ simulated function bool ValidateReferences()
 {
     if (GC != None && VRI != None)
     {
-        return bServerPropertiesReady;
+        return true;
     }
     if (PlayerOwner != None)
     {
         if (PlayerOwner.Player != None)
         {
             GC = GUIController(PlayerOwner.Player.GUIController);
-            UpdateReplaceMapVoteMenu();
         }
         VRI = VotingReplicationInfo(PlayerOwner.VoteReplicationInfo);
     }
-    return GC != None && VRI != None && bServerPropertiesReady;
+    return GC != None && VRI != None;
 }
 
 simulated function PopulateMapEntries()
@@ -254,21 +248,18 @@ simulated function NotifyResourcesUpdated()
     }
 }
 
-simulated function UpdateReplaceMapVoteMenu()
+simulated function SetReplaceMapVoteMenu(bool bDisable)
 {
-    if (GC != None && bServerPropertiesReady)
+    // TODO: wait for OU stable release before using CustomMapVotingMenu.
+    if (bDisable)
     {
-        // TODO: wait for OU stable release before using CustomMapVotingMenu.
-        if (MenuConfig.bDisableMapVoteMenu)
-        {
-            // GC.SetPropertyText("CustomMapVotingMenu", "");
-            bReplaceMapVoteMenu = false;
-        }
-        else
-        {
-            // bReplaceMapVoteMenu = !GC.SetPropertyText("CustomMapVotingMenu", CustomMapVoteMenu);
-            bReplaceMapVoteMenu = true;
-        }
+        // GC.SetPropertyText("CustomMapVotingMenu", "");
+        bReplaceMapVoteMenu = false;
+    }
+    else
+    {
+        // bReplaceMapVoteMenu = !GC.SetPropertyText("CustomMapVotingMenu", CustomMapVoteMenu);
+        bReplaceMapVoteMenu = true;
     }
 }
 
@@ -293,28 +284,18 @@ simulated function TryReplaceMapVoteMenu()
 
 simulated function UpdateResourcePreviews()
 {
-    local int i;
-
-    for (i = 0; i < Resources.Length; ++i)
-    {
-        Resources[i].bPreviewReady = Resources[i].Preview != None;
-    }
-    NotifyResourcesUpdated();
-}
-
-simulated function ParseArrayProperty(int Index, array<string> Values)
-{
     local class<Object> LoaderClass;
+    local array<string> Loaders;
     local int i;
 
-    if (MutatorClass.default.Properties[Index].Name == "MapPreviewLoaders")
+    if (MutatorInfo.GetArray("MapPreviewLoaders", Loaders))
     {
         PreviewLoaders.Length = 0;
-        for (i = 0; i < Values.Length; ++i)
+        for (i = 0; i < Loaders.Length; ++i)
         {
-            if (Values[i] != "")
+            if (Loaders[i] != "")
             {
-                LoaderClass = class<Object>(DynamicLoadObject(Values[i], class'Class', true));
+                LoaderClass = class<Object>(DynamicLoadObject(Loaders[i], class'Class', true));
                 if (LoaderClass != None)
                 {
                     PreviewLoaders[PreviewLoaders.Length] = LoaderClass;
@@ -322,45 +303,42 @@ simulated function ParseArrayProperty(int Index, array<string> Values)
             }
         }
     }
+    for (i = 0; i < Resources.Length; ++i)
+    {
+        Resources[i].bPreviewReady = Resources[i].Preview != None;
+    }
+    NotifyResourcesUpdated();
 }
 
-simulated function NotifyServerPropertiesReady()
+simulated function NotifyMutatorInfoReady()
 {
-    UpdateReplaceMapVoteMenu();
-    class'HxMapVotingPage'.default.VoteListCustomBG = GetServerProperty("VoteListCustomBG");
-    class'HxMapVotingPage'.default.MapListCustomBG = GetServerProperty("MapListCustomBG");
-    class'HxMapVotingPage'.default.PreviewCustomBG = GetServerProperty("PreviewCustomBG");
-    class'HxMapVotingPage'.default.ChatBoxCustomBG = GetServerProperty("ChatBoxCustomBG");
+    SetReplaceMapVoteMenu(HxVTMenuConfig(FindConfig(class'HxVTMenuConfig')).bDisableMapVoteMenu);
+    class'HxMapVotingPage'.default.VoteListCustomBG = MutatorInfo.Get("VoteListCustomBG");
+    class'HxMapVotingPage'.default.MapListCustomBG = MutatorInfo.Get("MapListCustomBG");
+    class'HxMapVotingPage'.default.PreviewCustomBG = MutatorInfo.Get("PreviewCustomBG");
+    class'HxMapVotingPage'.default.ChatBoxCustomBG = MutatorInfo.Get("ChatBoxCustomBG");
     UpdateResourcePreviews();
 }
 
-simulated function NotifyServerPropertyChanged(int Index, string OldValue)
+simulated function NotifyMutatorPropertyChanged(int Index)
 {
     switch (MutatorClass.default.Properties[Index].Name)
     {
         case "VoteListCustomBG":
-            class'HxMapVotingPage'.default.VoteListCustomBG = GetServerProperty("VoteListCustomBG");
+            class'HxMapVotingPage'.default.VoteListCustomBG = MutatorInfo.Get("VoteListCustomBG");
             break;
         case "MapListCustomBG":
-            class'HxMapVotingPage'.default.MapListCustomBG = GetServerProperty("MapListCustomBG");
+            class'HxMapVotingPage'.default.MapListCustomBG = MutatorInfo.Get("MapListCustomBG");
             break;
         case "PreviewCustomBG":
-            class'HxMapVotingPage'.default.PreviewCustomBG = GetServerProperty("PreviewCustomBG");
+            class'HxMapVotingPage'.default.PreviewCustomBG = MutatorInfo.Get("PreviewCustomBG");
             break;
         case "ChatBoxCustomBG":
-            class'HxMapVotingPage'.default.ChatBoxCustomBG = GetServerProperty("ChatBoxCustomBG");
+            class'HxMapVotingPage'.default.ChatBoxCustomBG = MutatorInfo.Get("ChatBoxCustomBG");
             break;
         case "MapPreviewLoaders":
             UpdateResourcePreviews();
             break;
-    }
-}
-
-simulated function NotifyUserPropertyChanged(HxConfig Config, int Index, string OldValue)
-{
-    if (Config == MenuConfig)
-    {
-        UpdateReplaceMapVoteMenu();
     }
 }
 
@@ -475,11 +453,6 @@ simulated final function SetMapTag(int Index, HxFavorites.EHxTag Tag)
     }
     Favorites.Save(VRI.MapList[Index].MapName, Tag);
     Maps[Index].Tag = Tag;
-}
-
-simulated function bool ShouldHideServerPropertyFromStatus(int Index)
-{
-    return true;
 }
 
 static private final function string GetMapDescriptionFromRecord(CacheManager.MapRecord Record)

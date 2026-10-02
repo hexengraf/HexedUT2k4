@@ -1,15 +1,25 @@
 class HxConfig extends HxTypes
     abstract;
 
-var const string ObjectName;
+struct HxDelayedUpdate
+{
+    var int Index;
+    var string Value;
+};
+
 var const array<HxProperty> Properties;
 var const array<HxDisplayProperty> DisplayInfo;
 
 var protected LevelInfo Level;
-var protected HxClientReplicationInfo ClientOwner;
+var protected HxClientManager ClientManager;
+var protected HxMutatorInfo MutatorInfo;
+var private array<int> DelayedIndices;
+var private array<HxDelayedUpdate> DelayedUpdates;
 
 function InitializeProperties();
 function ApplyProperty(int Index);
+function NotifyMutatorInfoReady();
+function NotifyMutatorPropertyChanged(int Index);
 
 function Created()
 {
@@ -24,35 +34,74 @@ function Created()
                 Properties[i].Name, ValidateProperty(i, GetPropertyText(Properties[i].Name)));
         }
     }
+    DelayedIndices.Length = Properties.Length;
+    for (i = 0; i < DelayedIndices.Length; ++i)
+    {
+        DelayedIndices[i] = -1;
+    }
     SaveConfig();
 }
 
-function Setup(HxClientReplicationInfo Owner)
+function Setup(LevelInfo Level, HxClientManager Manager)
 {
-    Level = Owner.Level;
-    ClientOwner = Owner;
+    Self.Level = Level;
+    ClientManager = Manager;
     InitializeProperties();
+}
+
+simulated function SetMutatorInfo(HxMutatorInfo Info)
+{
+    MutatorInfo = Info;
+    NotifyMutatorInfoReady();
+}
+
+function Destroy()
+{
+    Level = None;
+    ClientManager = None;
+    MutatorInfo = None;
 }
 
 function bool SetProperty(int Index, coerce string Value)
 {
-    local string OldValue;
-
     if (IsValidPropertyIndex(Index))
     {
-        OldValue = GetPropertyText(Properties[Index].Name);
         if (SetPropertyText(Properties[Index].Name, ValidateProperty(Index, Value)))
         {
             ApplyProperty(Index);
-            if (ClientOwner != None)
-            {
-                ClientOwner.NotifyUserPropertyChanged(Self, Index, OldValue);
-            }
             SaveConfig();
             return true;
         }
     }
     return false;
+}
+
+function bool SetPropertyDelayed(int Index, coerce string Value)
+{
+    if (IsValidPropertyIndex(Index))
+    {
+        if (DelayedIndices[Index] == -1)
+        {
+            DelayedIndices[Index] = DelayedUpdates.Length;
+            DelayedUpdates.Insert(DelayedIndices[Index], 1);
+        }
+        DelayedUpdates[DelayedIndices[Index]].Index = Index;
+        DelayedUpdates[DelayedIndices[Index]].Value = Value;
+        return true;
+    }
+    return false;
+}
+
+function ApplyDelayedUpdates()
+{
+    local int i;
+
+    for (i = 0; i < DelayedUpdates.Length; ++i)
+    {
+        DelayedIndices[DelayedUpdates[i].Index] = -1;
+        SetProperty(DelayedUpdates[i].Index, DelayedUpdates[i].Value);
+    }
+    DelayedUpdates.Remove(0, DelayedUpdates.Length);
 }
 
 function string GetProperty(int Index)
@@ -144,17 +193,13 @@ final function bool IsValidPropertyIndex(int Index)
     return Index > -1 && Index < Properties.Length;
 }
 
-function UpdateConfiguration(Object TargetObject)
+final function bool IsMissingDependency(int Index)
 {
-    local int i;
-
-    for (i = 0; i < Properties.Length; ++i)
-    {
-        TargetObject.SetPropertyText(Properties[i].Name, GetProperty(i));
-    }
+    return DisplayInfo[Index].Dependency != ""
+        && !bool(MutatorInfo.Get(DisplayInfo[Index].Dependency));
 }
 
-function HudOverlay FindHudOverlay(class<HudOverlay> OverlayClass)
+final function HudOverlay FindHudOverlay(class<HudOverlay> OverlayClass)
 {
     local PlayerController PC;
     local int i;
@@ -174,12 +219,6 @@ function HudOverlay FindHudOverlay(class<HudOverlay> OverlayClass)
         }
     }
     return None;
-}
-
-
-static function HxConfig Load()
-{
-    return new(None, default.ObjectName) default.Class;
 }
 
 defaultproperties

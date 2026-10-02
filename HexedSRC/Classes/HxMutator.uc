@@ -2,22 +2,25 @@ class HxMutator extends Mutator
     abstract
     DependsOn(HxTypes);
 
+var const string UniqueObjectName;
+var const class<HxMutatorInfo> MutatorInfoClass;
+var const class<HxClientReplicationInfo> ClientReplicationInfoClass;
 var const array<HxTypes.HxProperty> Properties;
 var const array<HxTypes.HxDisplayProperty> DisplayInfo;
 var const array<class<HxConfig> > ConfigClasses;
 var const array<class<HxGUIMenuPanel> > PanelClasses;
-var const byte UIPriority;
+var const byte Priority;
+var int UID;
 
-var protected const class<HxClientReplicationInfo> CRIClass;
-var protected array<HxClientReplicationInfo> CRIs;
 var protected const bool bAllowURLOptions;
 var protected const bool bDisableTick;
-
+var protected array<HxClientChannel> Channels;
+var private HxMutator Leader;
 var private array<int> LoadedURLOptions;
 var private bool bInitialized;
 
 function Initialized();
-function PropertyChanged(int Index, string OldValue);
+function PropertyChanged(int Index);
 
 event PostBeginPlay()
 {
@@ -26,6 +29,16 @@ event PostBeginPlay()
     {
         ParseURLOptions(GetURLOptions(Level.GetLocalURL()));
     }
+    Leader = Self;
+}
+
+function AddMutator(Mutator M)
+{
+    Super.AddMutator(M);
+    if (HxMutator(M) != None && Leader == Self)
+    {
+        HxMutator(M).Leader = Self;
+    }
 }
 
 event Tick(float DeltaTime)
@@ -33,6 +46,7 @@ event Tick(float DeltaTime)
     if (!bInitialized)
     {
         ClearURLOptions();
+        TriggerLocalPostNetReceive();
         bInitialized = true;
         Initialized();
         if (bDisableTick)
@@ -72,6 +86,20 @@ function ClearURLOptions()
     }
 }
 
+function TriggerLocalPostNetReceive()
+{
+    Local HxClientChannel Channel;
+
+    if (Level.NetMode != NM_DedicatedServer)
+    {
+        Channel = GetClientChannel(Level.GetLocalPlayerController());
+        if (Channel != None)
+        {
+            Channel.LocalPostNetReceive();
+        }
+    }
+}
+
 function UpdateServerInfo(PlayInfo ServerInfo)
 {
     local int Index;
@@ -98,12 +126,12 @@ function Mutate(string Command, PlayerController Sender)
 
 function OpenConfigurationMenu(PlayerController Sender)
 {
-    local HxClientReplicationInfo CRI;
+    local HxClientChannel Channel;
 
-    CRI = GetClientReplicationInfo(Sender);
-    if (CRI != None)
+    Channel = GetClientChannel(Sender);
+    if (Channel != None)
     {
-        CRI.ClientOpenConfigurationMenu();
+        Channel.ClientOpenConfigurationMenu();
     }
 }
 
@@ -111,8 +139,7 @@ static function FillPlayInfo(PlayInfo PlayInfo)
 {
     local int i;
 
-    super.FillPlayInfo(PlayInfo);
-
+    Super.FillPlayInfo(PlayInfo);
     for (i = 0; i < default.DisplayInfo.Length; ++i)
     {
         PlayInfo.AddSetting(
@@ -157,16 +184,14 @@ static simulated function int GetPropertyIndex(string PropertyName)
 
 function SetProperty(int Index, string Value)
 {
-    local string OldValue;
     local int i;
 
-    OldValue = GetPropertyText(Properties[Index].Name);
     SetPropertyText(Properties[Index].Name, Value);
-    for (i = 0; i < CRIs.Length; ++i)
+    PropertyChanged(Index);
+    for (i = 0; i < Channels.Length; ++i)
     {
-        CRIs[i].SetServerProperty(Index, Value);
+        Channels[i].EnqueueMutatorPropertyUpdate(UID, Index);
     }
-    PropertyChanged(Index, OldValue);
     SaveConfig();
 }
 
@@ -179,9 +204,17 @@ function array<string> GetArrayProperty(int Index)
 
 function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
 {
-    if (Other.IsA('PlayerController') && !Other.IsA('MessagingSpectator'))
+    if (Other.IsA('PlayerController'))
     {
-        SpawnClientReplicationInfo(PlayerController(Other));
+        if (Leader == Self && !Other.IsA('MessagingSpectator'))
+        {
+            SpawnClientChannel(PlayerController(Other));
+        }
+    }
+    else if (Other.IsA('HxClientChannel'))
+    {
+        HxClientChannel(Other).AddMutator(Self);
+        Channels[Channels.Length] = HxClientChannel(Other);
     }
     return true;
 }
@@ -190,58 +223,80 @@ function NotifyLogout(Controller Exiting)
 {
     local int i;
 
-    for (i = 0; i < CRIs.Length; ++i)
+    for (i = Channels.Length - 1; i >= 0; --i)
     {
-        if (CRIs[i].Owner == Exiting)
+        if (Channels[i] == None)
         {
-            CRIs[i].Destroy();
-            CRIs.Remove(i, 1);
+            Channels.Remove(i, 1);
+        }
+        else if (Channels[i].Owner == Exiting)
+        {
+            if (Leader == Self)
+            {
+                Channels[i].Destroy();
+            }
+            Channels.Remove(i, 1);
             break;
         }
     }
     Super.NotifyLogout(Exiting);
 }
 
-function ValidateClientReplicationInfos()
+function ValidateClientChannels()
 {
     local Controller P;
-    local PlayerController PC;
+    local int i;
 
-    for (P = Level.ControllerList; P != None; P = P.nextController)
+    if (Leader == Self)
     {
-        if (P.IsA('PlayerController') && !P.IsA('MessagingSpectator'))
+        for (P = Level.ControllerList; P != None; P = P.nextController)
         {
-            PC = PlayerController(P);
-            if (GetClientReplicationInfo(PC) == None)
+            if (P.IsA('PlayerController') && !P.IsA('MessagingSpectator'))
             {
-                SpawnClientReplicationInfo(PC);
+                SpawnClientChannel(PlayerController(P));
             }
+        }
+    }
+    else
+    {
+        Channels = Leader.Channels;
+        for (i = 0; i < Channels.Length; ++i)
+        {
+            Channels[i].AddMutator(Self);
         }
     }
 }
 
-function SpawnClientReplicationInfo(PlayerController ClientOwner)
+function SpawnClientChannel(PlayerController ClientOwner)
 {
-    local HxClientReplicationInfo CRI;
-
-    CRI = ClientOwner.Spawn(CRIClass, ClientOwner,, ClientOwner.Location);
-    CRI.SetupServer(Self);
-    CRIs[CRIs.Length] = CRI;
+    ClientOwner.Spawn(class'HxClientChannel', ClientOwner,, ClientOwner.Location);
 }
 
-function HxClientReplicationInfo GetClientReplicationInfo(PlayerController ClientOwner)
+function HxClientChannel GetClientChannel(PlayerController ClientOwner)
 {
     local int i;
 
     if (ClientOwner != None)
     {
-        for (i = 0; i < CRIs.Length; ++i)
+        for (i = 0; i < Channels.Length; ++i)
         {
-            if (CRIs[i].Owner == ClientOwner)
+            if (Channels[i].Owner == ClientOwner)
             {
-                return CRIs[i];
+                return Channels[i];
             }
         }
+    }
+    return None;
+}
+
+function HxClientReplicationInfo GetClientReplicationInfo(PlayerController ClientOwner)
+{
+    local HxClientChannel Channel;
+
+    Channel = GetClientChannel(ClientOwner);
+    if (Channel != None)
+    {
+        return Channel.GetClientReplicationInfo(UID);
     }
     return None;
 }
@@ -371,8 +426,12 @@ static final protected function string GetEnumData(int Index)
     return Data;
 }
 
+static function ClientInitialized(HxMutatorInfo Info);
+static function ClientMutatorPropertyChanged(HxMutatorInfo Info, int Index);
+
 defaultproperties
 {
-    UIPriority=255
+    MutatorInfoClass=class'HxMutatorInfo'
+    Priority=255
     bAllowURLOptions=true
 }

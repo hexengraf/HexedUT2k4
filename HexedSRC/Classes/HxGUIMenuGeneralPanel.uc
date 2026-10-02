@@ -10,11 +10,17 @@ var automated GUIButton b_ServerMenu;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
-    super.InitComponent(MyController, MyOwner);
+    Super.InitComponent(MyController, MyOwner);
     Sections[SECTION_USER_OPTIONS].Insert(lb_Options);
     Sections[SECTION_USER_OPTIONS].Insert(ch_Advanced, 0.015, 0.015);
     Sections[SECTION_SERVER_STATUS].Insert(lb_Status);
     Sections[SECTION_SERVER_STATUS].Insert(b_ServerMenu, 0.015, 0.015);
+}
+
+event Closed(GUIComponent Sender, bool bCancelled)
+{
+    ClientManager.DispatchDelayedConfigUpdates();
+    Super.Closed(Sender, bCancelled);
 }
 
 function Refresh()
@@ -28,126 +34,41 @@ function Refresh()
 function PopulateOptionLists()
 {
     local bool bSavedCurMenuInitialized;
-    local int i;
 
     lb_Options.Clear();
     lb_Status.Clear();
     bSavedCurMenuInitialized = Controller.bCurMenuInitialized;
     Controller.bCurMenuInitialized = false;
-    for (i = 0; i < ClientManager.CRIs.Length; ++i)
-    {
-        if (ClientManager.CRIs[i] != None)
-        {
-            ProcessUserOptions(ClientManager.CRIs[i], i);
-            ProcessServerStatus(ClientManager.CRIs[i], i);
-        }
-    }
+    ClientManager.PopulateConfigProperties(lb_Options);
+    ClientManager.PopulateMutatorStatus(lb_Status);
     Controller.bCurMenuInitialized = bSavedCurMenuInitialized;
     lb_Options.Refresh();
     lb_Status.Refresh();
 }
 
-function ProcessUserOptions(HxClientReplicationInfo CRI, optional int Index)
-{
-    local array<class<HxConfig> > ConfigClasses;
-    local string SectionCaption;
-    local bool bSectionAdded;
-    local int i;
-    local int j;
-
-    ConfigClasses = CRI.MutatorClass.default.ConfigClasses;
-    for (i = 0; i < ConfigClasses.Length; ++i)
-    {
-        for (j = 0; j < ConfigClasses[i].default.DisplayInfo.Length; ++j)
-        {
-            if (lb_Options.ShouldHideConfigProperty(CRI, ConfigClasses[i], j))
-            {
-                continue;
-            }
-            if (!bSectionAdded)
-            {
-                lb_Options.AddSection(CRI.MutatorClass.default.FriendlyName);
-                bSectionAdded = true;
-            }
-            if (ConfigClasses[i].default.DisplayInfo[j].Section != SectionCaption)
-            {
-                lb_Options.AddSubSection(ConfigClasses[i].default.DisplayInfo[j].Section);
-                SectionCaption = ConfigClasses[i].default.DisplayInfo[j].Section;
-            }
-            lb_Options.AddConfigOption(ConfigClasses[i], j, ClientManager.EncodeTag(Index, j, i));
-        }
-    }
-}
-
-function ProcessServerStatus(HxClientReplicationInfo CRI, int Index)
-{
-    local string HeaderCaption;
-    local string SectionCaption;
-    local int i;
-
-    for (i = 0; i < CRI.MutatorClass.default.DisplayInfo.Length; ++i)
-    {
-        if (CRI.ShouldHideServerPropertyFromStatus(i)
-            || lb_Status.ShouldHideServerProperty(CRI.MutatorClass, i))
-        {
-            continue;
-        }
-        if (CRI.MutatorClass.default.FriendlyName != HeaderCaption)
-        {
-            lb_Status.AddSection(CRI.MutatorClass.default.FriendlyName);
-            HeaderCaption = CRI.MutatorClass.default.FriendlyName;
-        }
-        if (CRI.MutatorClass.default.DisplayInfo[i].Section != SectionCaption)
-        {
-            lb_Status.AddSubSection(CRI.MutatorClass.default.DisplayInfo[i].Section);
-            SectionCaption = CRI.MutatorClass.default.DisplayInfo[i].Section;
-        }
-        lb_Status.AddLabel(
-            CRI.MutatorClass.default.DisplayInfo[i].Caption, ClientManager.EncodeTag(Index, i));
-    }
-}
-
 function UserOptionOnLoadINI(GUIComponent Sender, string s)
 {
-    local HxConfig Config;
-    local int Index;
-
-    if (ClientManager.DecodeUserTag(Sender.Tag, Config, Index))
+    if (Sender.Tag > -1)
     {
-        GUIMenuOption(Sender).SetComponentValue(Config.GetProperty(Index), true);
+        GUIMenuOption(Sender).SetComponentValue(
+            ClientManager.GetConfigPropertyByTag(Sender.Tag), true);
     }
 }
 
 function ServerStatusOnLoadINI(GUIComponent Sender, string s)
 {
-    local HxClientReplicationInfo CRI;
-    local int Index;
-    local string Value;
-
-    if (ClientManager.DecodeServerTag(Sender.Tag, CRI, Index) > -1)
+    if (Sender.Tag > -1)
     {
-        Value = CRI.GetServerPropertyByIndex(Index);
-        switch (CRI.MutatorClass.default.Properties[Index].Type)
-        {
-            case HX_PROPERTY_Float:
-                Value = Left(Value, Len(Value) - 4);
-                break;
-            case HX_PROPERTY_Enum:
-                Value = CRI.MutatorClass.static.GetEnumLabel(Index, Value);
-                break;
-        }
-        GUIMenuOption(Sender).SetComponentValue(Value, true);
+        GUIMenuOption(Sender).SetComponentValue(ClientManager.GetMutatorStatus(Sender.Tag), true);
     }
 }
 
 function UserOptionOnChange(GUIComponent Sender)
 {
-    local HxConfig Config;
-    local int Index;
-
-    if (ClientManager.DecodeUserTag(Sender.Tag, Config, Index))
+    if (Sender.Tag > -1)
     {
-        Config.SetProperty(Index, GUIMenuOption(Sender).GetComponentValue());
+       ClientManager.SetConfigPropertyDelayed(
+        Sender.Tag, GUIMenuOption(Sender).GetComponentValue());
     }
 }
 

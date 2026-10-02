@@ -10,7 +10,7 @@ var localized string PressLabel;
 
 var HxClientManager ClientManager;
 var private const string ProjectName;
-var private const string MutateCommand;
+var private const string MenuCommand;
 var private const Color HighlightColor;
 var private string Version;
 var private byte Keybind;
@@ -31,7 +31,7 @@ event HandleParameters(string Param1, string Param2)
     }
     else
     {
-        ReplaceText(l_Instructions.Caption, "%", ExecuteLabel@Highlight$MutateCommand$Restore);
+        ReplaceText(l_Instructions.Caption, "%", ExecuteLabel@Highlight$MenuCommand$Restore);
     }
 }
 
@@ -40,7 +40,7 @@ function bool InternalOnKeyEvent(out byte Key, out byte State, float Delta)
     if (Key == Keybind && EInputAction(State) == IST_Release)
     {
         Controller.CloseMenu(False);
-        ClientManager.OpenConfigurationMenu();
+        ClientManager.HexedMenu();
         return true;
     }
     return false;
@@ -115,7 +115,7 @@ defaultproperties
     WinWidth=0.55
     WinHeight=0.17
     ProjectName="HexedUT2k4 v"
-    MutateCommand="mutate HexedMenu"
+    MenuCommand="HexedMenu"
     HighlightColor=(R=255,G=210,B=0,A=255)
     ExecuteLabel="Execute"
     PressLabel="Press"

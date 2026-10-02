@@ -246,13 +246,13 @@ event Free()
     Super.Free();
 }
 
-static function bool CheckDependencies(HxClientReplicationInfo CRI)
+static function bool CheckDependencies(HxMutatorInfo Info)
 {
     local int i;
 
     for (i = 0; i < default.Dependencies.Length; ++i)
     {
-        if (bool(CRI.GetServerProperty(default.Dependencies[i])))
+        if (bool(Info.Get(default.Dependencies[i])))
         {
             return true;
         }

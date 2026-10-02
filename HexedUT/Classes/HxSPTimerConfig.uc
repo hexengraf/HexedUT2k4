@@ -109,7 +109,6 @@ function UpdateDynamicActors(int Index)
 
 defaultproperties
 {
-    ObjectName="HexedUT"
     Properties(0)=(Name="bEnabled",Type=HX_PROPERTY_Bool)
     Properties(1)=(Name="bUseHUDColor",Type=HX_PROPERTY_Bool)
     Properties(2)=(Name="bPulsingDigits",Type=HX_PROPERTY_Bool)

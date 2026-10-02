@@ -23,7 +23,7 @@ var automated moSlider sl_ColorAlpha;
 
 var localized string TeamScoreStyleLabels[2];
 
-var private HxUTClient Client;
+var private HxMutatorInfo MutatorInfo;
 var private HxScoreBoardConfig ScoreboardConfig;
 var private HxSPTimerConfig SPTimerConfig;
 
@@ -47,9 +47,11 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     Sections[SECTION_SP_TIMER].Insert(sl_ColorGreen);
     Sections[SECTION_SP_TIMER].Insert(sl_ColorBlue);
     Sections[SECTION_SP_TIMER].Insert(sl_ColorAlpha);
-    Client = HxUTClient(ClientManager.Find(class'HxUTClient'));
-    ScoreboardConfig = HxScoreBoardConfig(Client.FindConfig(class'HxScoreBoardConfig'));
-    SPTimerConfig = HxSPTimerConfig(Client.FindConfig(class'HxSPTimerConfig'));
+    ClientManager.FindMutatorInfo(class'MutHexedUT', MutatorInfo);
+    ScoreboardConfig = HxScoreBoardConfig(ClientManager.FindConfig(
+        class'MutHexedUT', class'HxScoreBoardConfig'));
+    SPTimerConfig = HxSPTimerConfig(ClientManager.FindConfig(
+        class'MutHexedUT', class'HxSPTimerConfig'));
     co_TeamScoreStyle.MyComboBox.MyListBox.MyList.bInitializeList = false;
     for (i = 0; i < ArrayCount(TeamScoreStyleLabels); ++i)
     {
@@ -58,23 +60,15 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     }
 }
 
-function bool CanShowPanel()
-{
-    return Client != None;
-}
-
 function Refresh()
 {
     local bool bAllowSpawnProtectionTimer;
 
-    if (Client != None)
-    {
-        bAllowSpawnProtectionTimer = bool(Client.GetServerProperty("bAllowSpawnProtectionTimer"));
-        Sections[SECTION_SP_TIMER].SetHide(!bAllowSpawnProtectionTimer);
-        fl_PosX.SetVisibility(bAllowSpawnProtectionTimer);
-        fl_PosY.SetVisibility(bAllowSpawnProtectionTimer);
-        SPTimerAfterChange();
-    }
+    bAllowSpawnProtectionTimer = bool(MutatorInfo.Get("bAllowSpawnProtectionTimer"));
+    Sections[SECTION_SP_TIMER].SetHide(!bAllowSpawnProtectionTimer);
+    fl_PosX.SetVisibility(bAllowSpawnProtectionTimer);
+    fl_PosY.SetVisibility(bAllowSpawnProtectionTimer);
+    SPTimerAfterChange();
     Super.Refresh();
 }
 
@@ -174,12 +168,12 @@ function bool OnClickChangeAppearance(GUIComponent Sender)
 
 function OnCloseChangeAppearance(optional bool bCancelled)
 {
-    ClientManager.OpenConfigurationMenu();
+    ClientManager.HexedMenu();
 }
 
 event Free()
 {
-    Client = None;
+    MutatorInfo = None;
     ScoreBoardConfig = None;
     SPTimerConfig = None;
     Super.Free();

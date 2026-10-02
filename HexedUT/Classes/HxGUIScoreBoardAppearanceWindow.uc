@@ -21,7 +21,6 @@ var localized string ColorNameLabels[24];
 var localized string RestoreDefaultColorsMessage;
 
 var private HxClientManager ClientManager;
-var private HxUTClient Client;
 var private HxScoreBoardConfig Config;
 var private int SelectedColorIndex;
 var Color SelectedColor;
@@ -32,7 +31,6 @@ function InitComponent(GUIController MyController, GUIComponent MyComponent)
     local int i;
 
     Super.InitComponent(MyController, MyComponent);
-    ForEach PlayerOwner().DynamicActors(class'HxClientManager', ClientManager) break;
     LeftSection.Insert(co_BoardAlignment);
     LeftSection.Insert(co_HeadingAlignment);
     LeftSection.Insert(sl_BorderSize);
@@ -45,8 +43,9 @@ function InitComponent(GUIController MyController, GUIComponent MyComponent)
     RightSection.Insert(sl_ColorBlue);
     RightSection.Insert(sl_ColorAlpha);
     RightSection.Insert(b_RestoreColors);
-    Client = HxUTClient(ClientManager.Find(class'HxUTClient'));
-    Config = HxScoreBoardConfig(Client.FindConfig(class'HxScoreBoardConfig'));
+    ClientManager = class'HxClientManager'.static.Get(PlayerOwner().Player);
+    Config = HxScoreBoardConfig(ClientManager.FindConfig(
+        class'MutHexedUT', class'HxScoreBoardConfig'));
     co_BoardAlignment.MyComboBox.MyListBox.MyList.bInitializeList = false;
     co_HeadingAlignment.MyComboBox.MyListBox.MyList.bInitializeList = false;
     for (i = 0; i < ArrayCount(AlignmentLabels); ++i)
@@ -203,7 +202,6 @@ function OnButtonClickRestoreColors(byte bButton)
 event Free()
 {
     ClientManager = None;
-    Client = None;
     Config = None;
     Super.Free();
 }

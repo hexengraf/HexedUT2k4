@@ -8,11 +8,7 @@ struct HxHitSoundInfo
 
 const HIT_SOUND_INTERVAL = 0.02;
 
-var array<string> ModelList;
-
 var private HxHitEffects HitEffects;
-var private HxColors SkinHighlightColors;
-var private HxUTPlayerInteraction Player;
 var private HxSPTimer SPTimer;
 var private HxHitSoundInfo HitSound;
 var private bool bInitialized;
@@ -25,13 +21,19 @@ replication
         ClientNotifySpawn;
 }
 
-simulated function SetupClient(HxClientManager Manager)
+simulated function bool InitializeClient()
 {
-    SkinHighlightColors = HxColors(Manager.LoadObject(class'HxColors', "HxSkinHighlight"));
-    Super.SetupClient(Manager);
-    class'HxSkinHighlight'.static.PopulateReservedNames(SkinHighlightColors);
-    HxSkinHighlightConfig(FindConfig(
-        class'HxSkinHighlightConfig')).ValidateColors(SkinHighlightColors);
+    if (PlayerOwner != None && PlayerOwner.GameReplicationInfo != None && PlayerOwner.myHUD != None)
+    {
+        if (IsMutatorInfoReady())
+        {
+            HxScoreBoardConfig(FindConfig(class'HxScoreBoardConfig')).UpdateScoreBoard();
+        }
+        HitEffects = HxHitEffects(SpawnOverlay(PlayerOwner.myHUD, class'HxHitEffects'));
+        SPTimer = HxSPTimer(SpawnOverlay(PlayerOwner.myHUD, class'HxSPTimer'));
+        return true;
+    }
+    return false;
 }
 
 simulated event Tick(float DeltaTime)
@@ -104,154 +106,10 @@ function NotifySpawn(Pawn Spawned)
 
 simulated function ClientNotifySpawn(float SpawnProtectionTime)
 {
-    if (Level.NetMode != NM_DedicatedServer && SPTimer != None)
+    if (SPTimer != None)
     {
         SPTimer.SetProtected(SpawnProtectionTime);
     }
-}
-
-simulated function bool InitializeClient()
-{
-    if (PlayerOwner != None && PlayerOwner.GameReplicationInfo != None)
-    {
-        if (Player == None && PlayerOwner.Player != None)
-        {
-            Player = class'HxUTPlayerInteraction'.static.Add(PlayerOwner.Player);
-            Player.ApplyServerConfiguration(Self);
-        }
-        if (PlayerOwner.myHUD != None)
-        {
-            if (bServerPropertiesReady)
-            {
-                UpdateScoreBoardConfig();
-            }
-            if (HitEffects == None)
-            {
-                HitEffects = HxHitEffects(SpawnOverlay(PlayerOwner.myHUD, class'HxHitEffects'));
-            }
-            if (SPTimer == None)
-            {
-                SPTimer = HxSPTimer(SpawnOverlay(PlayerOwner.myHUD, class'HxSPTimer'));
-            }
-        }
-    }
-    return Player != None && HitEffects != None && SPTimer != None;
-}
-
-simulated function NotifyServerPropertiesReady()
-{
-    if (Player != None)
-    {
-        Player.ApplyServerConfiguration(Self);
-    }
-    if (PlayerOwner != None && PlayerOwner.myHUD != None)
-    {
-        UpdateScoreBoardConfig();
-    }
-    UpdateSkinHighlightConfig();
-}
-
-simulated function NotifyServerPropertyChanged(int Index, string OldValue)
-{
-    switch (MutatorClass.default.Properties[Index].Name)
-    {
-        case "AllowHitOverlays":
-        case "AllowForcedModels":
-        case "ModelList":
-            UpdateSkinHighlightConfig();
-            break;
-        case "bAllowCustomViewSmoothing":
-            if (Player != None)
-            {
-                Player.ApplyServerConfiguration(Self);
-            }
-            break;
-        case "bAllowEnhancedScoreBoards":
-            UpdateScoreBoardConfig();
-            break;
-    }
-}
-
-simulated function bool ShouldHideServerPropertyFromStatus(int Index)
-{
-    if (bool(GetServerProperty("bHideDisabledFeatures")))
-    {
-        if (IsAdmin())
-        {
-            return Super.ShouldHideServerPropertyFromStatus(Index);
-        }
-        switch (MutatorClass.default.Properties[Index].Name)
-        {
-            case "bRequireLOS":
-                return !bool(GetServerProperty("bAllowHitSounds"))
-                    && !bool(GetServerProperty("bAllowDamageNumbers"));
-            case "SkinHighlightIntensity":
-            case "SkinOverlayIntensity":
-                return !bool(GetServerProperty("bAllowSkinHighlight"));
-            case "AllowHitOverlays":
-                return ShouldHideAllowHitOverlays();
-            case "AllowForcedModels":
-                return ShouldHideAllowForcedModels();
-            case "ModelList":
-            case "bHideDisabledFeatures":
-                return true;
-        }
-        return !bool(GetServerPropertyByIndex(Index));;
-    }
-    return Super.ShouldHideServerPropertyFromStatus(Index);
-}
-
-simulated function bool ShouldHideAllowHitOverlays()
-{
-    local HxSkinHighlightConfig Config;
-
-    if (bool(GetServerProperty("bAllowSkinHighlight")))
-    {
-        Config = HxSkinHighlightConfig(FindConfig(class'HxSkinHighlightConfig'));
-        return Config.AllowHitOverlays != HX_HO_UserControlled;
-    }
-    return true;
-}
-
-simulated function bool ShouldHideAllowForcedModels()
-{
-    local HxSkinHighlightConfig Config;
-
-    if (bool(GetServerProperty("bAllowSkinHighlight")))
-    {
-        Config = HxSkinHighlightConfig(FindConfig(class'HxSkinHighlightConfig'));
-        return Config.AllowForcedModels != HX_FM_Any;
-    }
-    return true;
-}
-
-simulated function UpdateSkinHighlightConfig()
-{
-    local HxSkinHighlightConfig Config;
-
-    Config = HxSkinHighlightConfig(FindConfig(class'HxSkinHighlightConfig'));
-    Config.ApplyServerConfiguration(Self);
-}
-
-simulated function UpdateScoreBoardConfig()
-{
-    local HxScoreBoardConfig Config;
-
-    Config = HxScoreBoardConfig(FindConfig(class'HxScoreBoardConfig'));
-    Config.SetAllowed(GetServerProperty("bAllowEnhancedScoreBoards"));
-}
-
-simulated function ParseArrayProperty(int Index, array<string> Values)
-{
-    if (MutatorClass.default.Properties[Index].Name == "ModelList")
-    {
-        ModelList = Values;
-    }
-}
-
-simulated function HxColors GetSkinHighlightColors()
-{
-    return SkinHighlightColors;
 }
 
 defaultproperties

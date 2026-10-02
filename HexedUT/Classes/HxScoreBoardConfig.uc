@@ -79,7 +79,7 @@ function InitializeProperties()
     class'HxScoreBoard'.default.SecondTextColor = SecondTextColor;
     class'HxScoreBoard'.default.HighlightTextColor = HighlightTextColor;
     class'HxScoreBoard'.default.ReadyColor = ReadyColor;
-    UpdateDynamicActors();
+    UpdateScoreBoard();
 }
 
 function ApplyProperty(int Index)
@@ -192,7 +192,7 @@ function ApplyProperty(int Index)
             class'HxScoreBoard'.default.ReadyColor = ReadyColor;
             break;
     }
-    UpdateDynamicActors();
+    UpdateScoreBoard();
 }
 
 function bool ResetProperty(int Index)
@@ -348,18 +348,29 @@ function bool ResetProperty(int Index)
     }
     if (bReset)
     {
-        UpdateDynamicActors();
+        UpdateScoreBoard();
     }
     return bReset;
 }
 
-function SetAllowed(coerce bool bValue)
+function NotifyMutatorInfoReady()
 {
-    bAllowed = bValue;
-    UpdateDynamicActors();
+    bAllowed = bool(MutatorInfo.Get("bAllowEnhancedScoreBoards"));
+    UpdateScoreBoard();
 }
 
-function UpdateDynamicActors()
+function NotifyMutatorPropertyChanged(int Index)
+{
+    switch (MutatorInfo.GetName(Index))
+    {
+        case "bAllowEnhancedScoreBoards":
+            bAllowed = bool(MutatorInfo.Get("bAllowEnhancedScoreBoards"));
+            UpdateScoreBoard();
+            break;
+    }
+}
+
+function UpdateScoreBoard()
 {
     local PlayerController PC;
 
@@ -474,7 +485,6 @@ function RestoreScoreBoard(PlayerController PC)
 
 defaultproperties
 {
-    ObjectName="HexedUT"
     Properties(0)=(Name="bEnabled",Type=HX_PROPERTY_Bool)
     Properties(1)=(Name="BoardAlignment",Type=HX_PROPERTY_Enum,UpperLimit="3",EnumType=enum'EHxVertAlignment')
     Properties(2)=(Name="HeadingAlignment",Type=HX_PROPERTY_Enum,UpperLimit="3",EnumType=enum'EHxVertAlignment')

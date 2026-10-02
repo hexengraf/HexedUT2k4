@@ -24,7 +24,6 @@ var string PreviewCustomBG;
 var string ChatBoxCustomBG;
 
 var HxMapFilterManager FilterManager;
-var private HxClientManager ClientManager;
 var private HxVTClient Client;
 var private int SelectedGameType;
 var private int SelectedMap;
@@ -43,7 +42,6 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     SetupWindowHeader();
     Unpause();
     AdjustWindowSize(Controller.ResX, Controller.ResY);
-    ForEach PlayerOwner().DynamicActors(class'HxClientManager', ClientManager) break;
     UpdateClient();
     SetTimer(0.02, true);
 }
@@ -165,7 +163,7 @@ function bool InternalOnKeyEvent(out byte Key, out byte State, float Delta)
 
 function UpdateClient()
 {
-    Client = HxVTClient(ClientManager.Find(class'HxVTClient'));
+    foreach PlayerOwner().DynamicActors(class'HxVTClient', Client) break;
     if (Client != None)
     {
         lb_VoteList.SetClient(Client);

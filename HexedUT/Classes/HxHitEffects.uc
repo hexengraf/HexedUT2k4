@@ -141,7 +141,7 @@ simulated function InitializeWidget(int i)
 {
     Widgets[i].Value = 0;
     Widgets[i].DeltaY = 0;
-    Widgets[i].Duration = DMGNUM_DURATION / Level.TimeDilation;
+    Widgets[i].Duration = DMGNUM_DURATION * Level.TimeDilation;
 }
 
 simulated Event Tick(float DeltaTime)
@@ -152,7 +152,7 @@ simulated Event Tick(float DeltaTime)
     {
         if (Widgets[i].Value > 0)
         {
-            Widgets[i].Duration -= DeltaTime / Level.TimeDilation;
+            Widgets[i].Duration -= DeltaTime;
             if (Widgets[i].Duration <= 0)
             {
                 InitializeWidget(i);

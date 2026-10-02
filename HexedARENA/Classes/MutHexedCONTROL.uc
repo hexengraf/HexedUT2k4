@@ -173,7 +173,7 @@ function string RecommendCombo(string ComboName)
     return ComboName;
 }
 
-function PropertyChanged(int Index, string OldValue)
+function PropertyChanged(int Index)
 {
     switch (Properties[Index].Name)
     {
@@ -376,12 +376,204 @@ static function ModifyPickupBase(xPickUpBase PickupBase, coerce bool bDisabled)
     }
 }
 
+static function ModifyPlayerCombos(HxMutatorInfo Info, xPlayer Player)
+{
+    local string NullComboName;
+    local int i;
+
+    if (Player != None)
+    {
+        NullComboName = string(class'HxComboNull');
+        for (i = 0; i < ArrayCount(Player.ComboNameList); ++i)
+        {
+            if (Player.ComboNameList[i] == "")
+            {
+                break;
+            }
+            if (Player.ComboNameList[i] == NullComboName)
+            {
+                if (!StaticIsDisabledCombo(Info, Player.default.ComboNameList[i]))
+                {
+                    Player.ComboNameList[i] = Player.default.ComboNameList[i];
+                    Player.ComboList[i] = class<Combo>(
+                        DynamicLoadObject(Player.ComboNameList[i], class'Class', true));
+                }
+            }
+            else if (StaticIsDisabledCombo(Info, Player.ComboNameList[i]))
+            {
+                Player.ComboNameList[i] = NullComboName;
+                Player.ComboList[i] = class'HxComboNull';
+            }
+        }
+    }
+}
+
+static function StaticModifyPickupBases(HxMutatorInfo Info, class<Pickup> PickupClass)
+{
+    local xPickUpBase PickupBase;
+    local bool bDisabled;
+
+    if (Info.Level.NetMode == NM_Client)
+    {
+        bDisabled = StaticIsDisabledPickup(Info, PickupClass);
+        foreach Info.Level.AllActors(class'xPickUpBase', PickupBase)
+        {
+            if (PickupBase.IsA('WildcardBase'))
+            {
+                StaticModifyWildcardBase(Info, WildcardBase(PickupBase));
+            }
+            else if (ClassIsChildOf(PickupBase.PowerUp, PickupClass))
+            {
+                ModifyPickupBase(PickupBase, bDisabled);
+            }
+        }
+    }
+}
+
+static function StaticModifyWildcardBase(HxMutatorInfo Info, WildcardBase PickupBase)
+{
+    local int i;
+    local int j;
+
+    for (i = 0; i < ArrayCount(PickupBase.default.PickupClasses); ++i)
+    {
+        if (PickupBase.default.PickupClasses[i] == None)
+        {
+            break;
+        }
+        if (StaticIsDisabledPickup(Info, PickupBase.default.PickupClasses[i]))
+        {
+            continue;
+        }
+        PickupBase.PickupClasses[j] = PickupBase.default.PickupClasses[i];
+        ++j;
+    }
+    if (PickupBase.NumClasses != j)
+    {
+        if (PickupBase.NumClasses == 0)
+        {
+            ModifyPickupBase(PickupBase, false);
+        }
+        else if (j == 0)
+        {
+            ModifyPickupBase(PickupBase, true);
+        }
+        PickupBase.NumClasses = j;
+    }
+}
+
+static function bool StaticIsDisabledCombo(HxMutatorInfo Info, coerce string Name)
+{
+    if (Name ~= "XGame.ComboSpeed")
+    {
+        return bool(Info.Get("bNoSpeedCombo"));
+    }
+    if (Name ~= "XGame.ComboBerserk")
+    {
+        return bool(Info.Get("bNoBerserkCombo"));
+    }
+    if (Name ~= "XGame.ComboDefensive")
+    {
+        return bool(Info.Get("bNoBoosterCombo"));
+    }
+    if (Name ~= "XGame.ComboInvis")
+    {
+        return bool(Info.Get("bNoInvisibleCombo"));
+    }
+    return false;
+}
+
+static function bool StaticIsDisabledPickup(HxMutatorInfo Info, class PickupClass)
+{
+    if (ClassIsChildOf(PickupClass, class'AdrenalinePickup'))
+    {
+        return bool(Info.Get("bNoAdrenalinePills"));
+    }
+    if (ClassIsChildOf(PickupClass, class'MiniHealthPack'))
+    {
+        return bool(Info.Get("bNoHealthVials"));
+    }
+    if (ClassIsChildOf(PickupClass, class'HealthPack'))
+    {
+        return bool(Info.Get("bNoHealthPacks"));
+    }
+    if (ClassIsChildOf(PickupClass, class'SuperHealthPack'))
+    {
+        return bool(Info.Get("bNoSuperHealthPacks"));
+    }
+    if (ClassIsChildOf(PickupClass, class'ShieldPack'))
+    {
+        return bool(Info.Get("bNoShieldPacks"));
+    }
+    if (ClassIsChildOf(PickupClass, class'SuperShieldPack'))
+    {
+        return bool(Info.Get("bNoSuperShieldPacks"));
+    }
+    if (ClassIsChildOf(PickupClass, class'UDamagePack'))
+    {
+        return bool(Info.Get("bNoUDamagePacks"));
+    }
+    if (ClassIsChildOf(PickupClass, class'Ammo'))
+    {
+        return bool(Info.Get("bNoAmmoPacks"));
+    }
+    return false;
+}
+
+static function ClientInitialized(HxMutatorInfo Info)
+{
+    local xPickUpBase PickupBase;
+
+    ModifyPlayerCombos(Info, xPlayer(Info.PlayerOwner));
+    if (Info.Level.NetMode == NM_Client)
+    {
+        foreach Info.Level.AllActors(class'xPickUpBase', PickupBase)
+        {
+            if (ClassIsChildOf(PickupBase.Class, class'WildcardBase'))
+            {
+                StaticModifyWildcardBase(Info, WildcardBase(PickupBase));
+            }
+            else if (StaticIsDisabledPickup(Info, PickupBase.PowerUp))
+            {
+                ModifyPickupBase(PickupBase, true);
+            }
+        }
+    }
+}
+
+static function ClientMutatorPropertyChanged(HxMutatorInfo Info, int Index)
+{
+    switch (Info.GetName(Index))
+    {
+        case "bNoSpeedCombo":
+        case "bNoBerserkCombo":
+        case "bNoBoosterCombo":
+        case "bNoInvisibleCombo":
+            ModifyPlayerCombos(Info, xPlayer(Info.PlayerOwner));
+            break;
+        case "bNoHealthPacks":
+            StaticModifyPickupBases(Info, class'HealthPack');
+            break;
+        case "bNoSuperHealthPacks":
+            StaticModifyPickupBases(Info, class'SuperHealthPack');
+            break;
+        case "bNoShieldPacks":
+            StaticModifyPickupBases(Info, class'ShieldPack');
+            break;
+        case "bNoSuperShieldPacks":
+            StaticModifyPickupBases(Info, class'SuperShieldPack');
+            break;
+        case "bNoUDamagePacks":
+            StaticModifyPickupBases(Info, class'UDamagePack');
+            break;
+    }
+}
+
 defaultproperties
 {
     FriendlyName="HexedCONTROL %TAG%"
     Description="Enhanced control over game mechanics: modify starting values, disable specific combos, disable specific pick-ups, modify movement parameters, and more."
     bAddToServerPackages=true
-    CRIClass=class'HxCTClient'
     Properties(0)=(Name="BonusHealth",Type=HX_PROPERTY_Int,LowerLimit="-99",UpperLimit="99")
     Properties(1)=(Name="BonusShield",Type=HX_PROPERTY_Int,LowerLimit="0",UpperLimit="150")
     Properties(2)=(Name="BonusARGrenades",Type=HX_PROPERTY_Int,LowerLimit="-4",UpperLimit="99")
@@ -440,7 +632,7 @@ defaultproperties
     DisplayInfo(26)=(Section="Movement",Caption="Dodge Speed Multiplier",Hint="Coefficient to multiply dodge speed factor (between -10.0 and 10.0). Applied on spawn.")
     DisplayInfo(27)=(Section="Movement",Caption="Disable Wall Dodge",Hint="Disable wall dodge (UT Classic). Applied on spawn.")
     DisplayInfo(28)=(Section="Movement",Caption="Disable Dodge Jump",Hint="Disable dodge jump (UT Classic). Applied on spawn.")
-    UIPriority=128
+    Priority=128
     bDisableTick=true
 
     BonusHealth=0

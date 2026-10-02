@@ -26,7 +26,7 @@ event PostBeginPlay()
     {
         DeathMatch(Level.Game).bOverrideTranslocator = true;
     }
-    HidePickupBases(Self);
+    HidePickupBases(Level);
 }
 
 function ModifyPlayer(Pawn Pawn)
@@ -85,17 +85,17 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
     return Super.CheckReplacement(Other, bSuperRelevant);
 }
 
-function PropertyChanged(int Index, string OldValue)
+function PropertyChanged(int Index)
 {
     local int i;
 
     if (Properties[Index].Name == "FireRate")
     {
-        for (i = 0; i < CRIs.Length; ++i)
+        for (i = 0; i < Channels.Length; ++i)
         {
-            if (PlayerController(CRIs[i].Owner).Pawn != None)
+            if (PlayerController(Channels[i].Owner).Pawn != None)
             {
-                ModifyFireRate(PlayerController(CRIs[i].Owner).Pawn, true);
+                ModifyFireRate(PlayerController(Channels[i].Owner).Pawn, true);
             }
         }
     }
@@ -123,12 +123,12 @@ function ModifyFireRate(Pawn Pawn, optional bool bForce)
     }
 }
 
-static function HidePickupBases(Actor Requester)
+static function HidePickupBases(LevelInfo Level)
 {
     local xPickupBase P;
     local WeaponLocker L;
 
-    foreach Requester.AllActors(class'xPickupBase', P)
+    foreach Level.AllActors(class'xPickupBase', P)
     {
         P.bHidden = true;
         if (P.bStatic)
@@ -140,9 +140,17 @@ static function HidePickupBases(Actor Requester)
             P.myEmitter.Destroy();
         }
     }
-    foreach Requester.AllActors(class'WeaponLocker', L)
+    foreach Level.AllActors(class'WeaponLocker', L)
     {
         L.GotoState('Disabled');
+    }
+}
+
+static function ClientInitialized(HxMutatorInfo Info)
+{
+    if (Info.Level.NetMode == NM_Client)
+    {
+        HidePickupBases(Info.Level);
     }
 }
 
@@ -152,7 +160,6 @@ defaultproperties
     Description="Instant-kill combat with modified Shock Rifles with options to enable zoom and change fire rate."
     GroupName="Arena"
     bAddToServerPackages=true
-    CRIClass=class'HxIGClient'
     Properties(0)=(Name="bAllowTranslocator",Type=HX_PROPERTY_Bool)
     Properties(1)=(Name="bAllowBoost",Type=HX_PROPERTY_Bool)
     Properties(2)=(Name="bZoomInstagib",Type=HX_PROPERTY_Bool)
@@ -163,6 +170,6 @@ defaultproperties
     DisplayInfo(3)=(Caption="Fire Rate",Hint="Change the default fire rate of shock rifles (0 = default). Applied instantly.",bAdvanced=true)
     ConfigClasses(0)=class'HxZoomSuperShockRifleConfig'
     PanelClasses(0)=class'HxGUIMenuInstagibPanel'
-    UIPriority=126
+    Priority=126
     bDisableTick=true
 }

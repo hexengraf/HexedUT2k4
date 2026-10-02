@@ -271,17 +271,13 @@ function Clear()
     List.Clear();
 }
 
-final function bool ShouldHideConfigProperty(HxClientReplicationInfo CRI,
-                                             class<HxConfig> ConfigClass,
-                                             int Index)
+final function bool ShouldHideConfigProperty(class<HxConfig> ConfigClass, int Index)
 {
     return ConfigClass.default.DisplayInfo[Index].bHidden
         || ConfigClass.default.Properties[Index].Type == HX_PROPERTY_Array
         || ConfigClass.default.Properties[Index].Type == HX_PROPERTY_Color
         || ConfigClass.default.Properties[Index].Type == HX_PROPERTY_Struct
-        || (!Controller.bExpertMode && ConfigClass.default.DisplayInfo[Index].bAdvanced)
-        || (ConfigClass.default.DisplayInfo[Index].Dependency != ""
-            && !bool(CRI.GetServerProperty(ConfigClass.default.DisplayInfo[Index].Dependency)));
+        || (!Controller.bExpertMode && ConfigClass.default.DisplayInfo[Index].bAdvanced);
 }
 
 final function bool ShouldHideServerProperty(class<HxMutator> MutatorClass, int Index)

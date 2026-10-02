@@ -24,9 +24,8 @@ var localized string ConfirmColorDeletionLabel;
 var localized string InvalidNameMessage;
 
 var HxClientManager ClientManager;
-var private HxUTClient Client;
+var private HxMutatorInfo MutatorInfo;
 var private HxSkinHighlightConfig Config;
-var private HxColors Colors;
 var private HxSkinHighlightPreview Preview;
 var private string PreviewCharacterName;
 var private bool bRenderPreview;
@@ -45,13 +44,13 @@ function InitComponent(GUIController MyController, GUIComponent MyComponent)
     RightSection.Insert(co_PreviewSkin);
     RightSection.Insert(b_PreviewBox);
     RightSection.Insert(b_ChangeModel);
-    ForEach PlayerOwner().DynamicActors(class'HxClientManager', ClientManager) break;
-    Client = HxUTClient(ClientManager.Find(class'HxUTClient'));
-    Config = HxSkinHighlightConfig(Client.FindConfig(class'HxSkinHighlightConfig'));
-    Colors = Client.GetSkinHighlightColors();
+    ClientManager = class'HxClientManager'.static.Get(PlayerOwner().Player);
+    ClientManager.FindMutatorInfo(class'MutHexedUT', MutatorInfo);
+    Config = HxSkinHighlightConfig(ClientManager.FindConfig(
+        class'MutHexedUT', class'HxSkinHighlightConfig'));
     PreviewCharacterName = Config.CurrentEnemyModel;
-    HighlightIntensity = float(Client.GetServerProperty("SkinHighlightIntensity"));
-    OverlayIntensity = float(Client.GetServerProperty("SkinOverlayIntensity"));
+    HighlightIntensity = float(MutatorInfo.Get("SkinHighlightIntensity"));
+    OverlayIntensity = float(MutatorInfo.Get("SkinOverlayIntensity"));
     PopulateColorComboBoxes();
     class'HxGUIMenuSkinHighlightPanel'.static.PopulateSkinTypeComboBox(co_PreviewSkin);
     co_PreviewSkin.SetIndex(class'HxSkinHighlightPreview'.default.ActiveSkin);
@@ -59,9 +58,12 @@ function InitComponent(GUIController MyController, GUIComponent MyComponent)
 
 event Opened(GUIComponent Sender)
 {
+    local PlayerController PC;
+
+    PC = PlayerOwner();
     if (Preview == None)
     {
-        Preview = ClientManager.Spawn(class'HxSkinHighlightPreview');
+        Preview = PC.Spawn(class'HxSkinHighlightPreview');
         Preview.DisplayFOV = 33;
         Preview.SetIntensities(HighlightIntensity, OverlayIntensity);
         Preview.SetAllowHitOverlays(Config.AllowHitOverlays);
@@ -70,7 +72,7 @@ event Opened(GUIComponent Sender)
         Preview.SetPropertyText("ActiveSkin", co_PreviewSkin.GetComponentValue());
         Preview.Setup(PreviewCharacterName);
     }
-    Preview.UpdateRotation(PlayerOwner());
+    Preview.UpdateRotation(PC);
     Super.Opened(Sender);
 }
 
@@ -92,9 +94,9 @@ function PopulateColorComboBoxes()
     Index = co_EditColor.GetIndex();
     co_EditColor.ResetComponent();
     co_EditColor.MyComboBox.MyListBox.MyList.bInitializeList = Index < 0;
-    for (i = 0; i < Colors.ColorList.Length; ++i)
+    for (i = 0; i < Config.Colors.ColorList.Length; ++i)
     {
-        co_EditColor.AddItem(Colors.ColorList[i].Name,, Colors.ColorList[i].Name);
+        co_EditColor.AddItem(Config.Colors.ColorList[i].Name,, Config.Colors.ColorList[i].Name);
     }
     if (Index > -1)
     {
@@ -108,12 +110,12 @@ function InternalOnLoadINI(GUIComponent Sender, string s)
 
     if (Sender == ch_AllowOnRandom)
     {
-        Colors.FindEntry(co_EditColor.GetComponentValue(), ColorEntry);
+        Config.Colors.FindEntry(co_EditColor.GetComponentValue(), ColorEntry);
         ch_AllowOnRandom.Checked(ColorEntry.bRandom);
     }
     else
     {
-        Colors.FindEntry(co_EditColor.GetComponentValue(), ColorEntry);
+        Config.Colors.FindEntry(co_EditColor.GetComponentValue(), ColorEntry);
         switch (Sender)
         {
             case sl_ColorRed:
@@ -140,23 +142,23 @@ function InternalOnChange(GUIComponent Sender)
     }
     else if (Sender == ch_AllowOnRandom)
     {
-        if (Colors.SetRandom(Index, ch_AllowOnRandom.IsChecked()))
+        if (Config.Colors.SetRandom(Index, ch_AllowOnRandom.IsChecked()))
         {
             Config.UpdateDynamicActors();
         }
     }
-    else if (Index < Colors.ColorList.Length)
+    else if (Index < Config.Colors.ColorList.Length)
     {
         switch (Sender)
         {
             case sl_ColorRed:
-                Colors.ColorList[Index].Color.R = sl_ColorRed.GetValue();
+                Config.Colors.ColorList[Index].Color.R = sl_ColorRed.GetValue();
                 break;
             case sl_ColorGreen:
-                Colors.ColorList[Index].Color.G = sl_ColorGreen.GetValue();
+                Config.Colors.ColorList[Index].Color.G = sl_ColorGreen.GetValue();
                 break;
             case sl_ColorBlue:
-                Colors.ColorList[Index].Color.B = sl_ColorBlue.GetValue();
+                Config.Colors.ColorList[Index].Color.B = sl_ColorBlue.GetValue();
                 break;
         }
         Config.UpdateDynamicActors();
@@ -173,7 +175,7 @@ function UpdateDisplayedColor(string ColorName)
 {
     local HxColors.HxColor ColorEntry;
 
-    Colors.FindEntry(ColorName, ColorEntry);
+    Config.Colors.FindEntry(ColorName, ColorEntry);
     sl_ColorRed.SetComponentValue(ColorEntry.Color.R, true);
     sl_ColorGreen.SetComponentValue(ColorEntry.Color.G, true);
     sl_ColorBlue.SetComponentValue(ColorEntry.Color.B, true);
@@ -228,7 +230,7 @@ function bool OnClickNewColor(GUIComponent Sender)
 {
     if (Controller.OpenMenu(string(class'HxGUIGetDataMenu'), NewColorPageCaption, NameLabel))
     {
-        Controller.ActivePage.SetDataString(Colors.RandomName());
+        Controller.ActivePage.SetDataString(Config.Colors.RandomName());
         Controller.ActivePage.OnClose = OnCloseNewColor;
         bRenderPreview = false;
     }
@@ -243,7 +245,7 @@ function OnCloseNewColor(optional bool bCancelled)
     if (!bCancelled)
     {
         ColorName = Controller.ActivePage.GetDataString();
-        Index = Colors.Insert(ColorName);
+        Index = Config.Colors.Insert(ColorName);
         if (Index != -1)
         {
             PopulateColorComboBoxes();
@@ -280,7 +282,7 @@ function OnCloseRenameColor(optional bool bCancelled)
         ColorName = Controller.ActivePage.GetDataString();
         if (ColorName != OldColorName)
         {
-            if (Colors.Rename(co_EditColor.GetIndex(), ColorName))
+            if (Config.Colors.Rename(co_EditColor.GetIndex(), ColorName))
             {
                 Config.RenameColor(OldColorName, ColorName);
                 PopulateColorComboBoxes();
@@ -309,11 +311,11 @@ function bool OnClickDeleteColor(GUIComponent Sender)
 
 function OnButtonClickDeleteColor(byte bButton)
 {
-    if (bButton == QBTN_Yes && Colors.Remove(co_EditColor.GetIndex()))
+    if (bButton == QBTN_Yes && Config.Colors.Remove(co_EditColor.GetIndex()))
     {
         PopulateColorComboBoxes();
         UpdateDisplayedColor(co_EditColor.GetComponentValue());
-        Config.ValidateColors(Colors);
+        Config.ValidateColors();
     }
 }
 
@@ -382,6 +384,13 @@ function bool PreviewOnCapturedMouseMove(float DeltaX, float DeltaY)
 {
     Preview.Spin(DeltaX);
     return true;
+}
+
+event Free()
+{
+    ClientManager = None;
+    Config = None;
+    Super.Free();
 }
 
 defaultproperties

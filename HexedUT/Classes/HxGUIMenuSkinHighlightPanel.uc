@@ -39,9 +39,8 @@ var localized string ModeLabels[2];
 var localized string RoleLabels[2];
 var localized string TeamLabels[2];
 
-var private HxUTClient Client;
+var private HxMutatorInfo MutatorInfo;
 var private HxSkinHighlightConfig Config;
-var private HxColors Colors;
 var private HxSkinHighlightPreview TeammatePreview;
 var private HxSkinHighlightPreview EnemyPreview;
 var private bool bRenderPreviews;
@@ -53,7 +52,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
     local int i;
 
-    super.InitComponent(MyController, MyOwner);
+    Super.InitComponent(MyController, MyOwner);
     Sections[SECTION_TEAMMATES].Insert(co_Teammates);
     Sections[SECTION_TEAMMATES].Insert(co_TeammateProtected);
     Sections[SECTION_TEAMMATES].Insert(co_TeammateSkin);
@@ -76,11 +75,11 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     Sections[SECTION_ADVANCED].Insert(co_HighlightMode);
     Sections[SECTION_ADVANCED].Insert(co_SpectateAs);
     Sections[SECTION_ADVANCED].Insert(b_CustomizeColors);
-    Client = HxUTClient(ClientManager.Find(class'HxUTClient'));
-    Config = HxSkinHighlightConfig(Client.FindConfig(class'HxSkinHighlightConfig'));
-    Colors = Client.GetSkinHighlightColors();
-    HighlightIntensity = float(Client.GetServerProperty("SkinHighlightIntensity"));
-    OverlayIntensity = float(Client.GetServerProperty("SkinOverlayIntensity"));
+    ClientManager.FindMutatorInfo(class'MutHexedUT', MutatorInfo);
+    Config = HxSkinHighlightConfig(ClientManager.FindConfig(
+        class'MutHexedUT', class'HxSkinHighlightConfig'));
+    HighlightIntensity = float(MutatorInfo.Get("SkinHighlightIntensity"));
+    OverlayIntensity = float(MutatorInfo.Get("SkinOverlayIntensity"));
     PopulateColorComboBoxes();
     PopulateSkinTypeComboBox(co_TeammateSkin);
     PopulateSkinTypeComboBox(co_EnemySkin);
@@ -96,16 +95,14 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     }
 }
 
-function bool CanShowPanel()
-{
-    return Client != None;
-}
-
 event Opened(GUIComponent Sender)
 {
+    local PlayerController PC;
+
+    PC = PlayerOwner();
     if (TeammatePreview == None)
     {
-        TeammatePreview = ClientManager.Spawn(class'HxSkinHighlightPreview');
+        TeammatePreview = PC.Spawn(class'HxSkinHighlightPreview');
         TeammatePreview.SetIntensities(HighlightIntensity, OverlayIntensity);
         TeammatePreview.SetTeamNumber(0);
         TeammatePreview.DisplayFOV = 15;
@@ -113,14 +110,14 @@ event Opened(GUIComponent Sender)
     }
     if (EnemyPreview == None)
     {
-        EnemyPreview = ClientManager.Spawn(class'HxSkinHighlightPreview');
+        EnemyPreview = PC.Spawn(class'HxSkinHighlightPreview');
         EnemyPreview.SetIntensities(HighlightIntensity, OverlayIntensity);
         EnemyPreview.SetTeamNumber(1);
         EnemyPreview.DisplayFOV = 15;
         EnemyPreview.Setup(Config.CurrentEnemyModel);
     }
-    TeammatePreview.UpdateRotation(PlayerOwner());
-    EnemyPreview.UpdateRotation(PlayerOwner());
+    TeammatePreview.UpdateRotation(PC);
+    EnemyPreview.UpdateRotation(PC);
     Super.Opened(Sender);
 }
 
@@ -141,12 +138,9 @@ event Closed(GUIComponent Sender, bool bCancelled)
 
 function Refresh()
 {
-    if (Client != None)
-    {
-        HighlightIntensity = float(Client.GetServerProperty("SkinHighlightIntensity"));
-        OverlayIntensity = float(Client.GetServerProperty("SkinOverlayIntensity"));
-        SetPropertyText("AllowHitOverlays", Client.GetServerProperty("AllowHitOverlays"));
-    }
+    HighlightIntensity = float(MutatorInfo.Get("SkinHighlightIntensity"));
+    OverlayIntensity = float(MutatorInfo.Get("SkinOverlayIntensity"));
+    SetPropertyText("AllowHitOverlays", MutatorInfo.Get("AllowHitOverlays"));
     if (TeammatePreview != None)
     {
         TeammatePreview.SetIntensities(HighlightIntensity, OverlayIntensity);
@@ -232,9 +226,10 @@ function PopulateColorComboBoxes()
     for (i = 0; i < ComboBoxes.Length; ++i)
     {
         ComboBoxes[i].AddItem(DisabledLabel,,class'HxSkinHighlight'.default.NoHighlight);
-        for (j = 0; j < Colors.ColorList.Length; ++j)
+        for (j = 0; j < Config.Colors.ColorList.Length; ++j)
         {
-            ComboBoxes[i].AddItem(Colors.ColorList[j].Name,, Colors.ColorList[j].Name);
+            ComboBoxes[i].AddItem(
+                Config.Colors.ColorList[j].Name,, Config.Colors.ColorList[j].Name);
         }
         ComboBoxes[i].LoadINI();
     }
@@ -406,9 +401,8 @@ static function PopulateSkinTypeComboBox(moComboBox ComboBox, optional bool bIni
 
 event Free()
 {
-    Client = None;
+    MutatorInfo = None;
     Config = None;
-    Colors = None;
     if (TeammatePreview != None)
     {
         TeammatePreview.Destroy();
