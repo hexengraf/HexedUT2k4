@@ -1,4 +1,5 @@
 class HxClientManager extends HxInteraction
+    DependsOn(HxTypes)
     config(HexedCache);
 
 struct HxMutatorEntry
@@ -16,14 +17,22 @@ struct HxDelayedUpdate
     var string Value;
 };
 
+const GLOBAL_UID = 1023;
+const INFO_INDEX = 1023;
+
 var config bool bFirstRun;
 var config string MenuKeybind;
+var HxTypes.EHxLevel StatusVerbosity;
+
+var const localized string PlatformLabel;
+var const localized string ActiveMutatorsLabel;
 
 var const private class<HxGUIFloatingWindow> MenuClass;
 var const private class<HxGUITheme> ThemeClass;
 var private HxClientChannel Channel;
 var private array<HxMutatorEntry> Entries;
 var private array<HxDelayedUpdate> DelayedQueue;
+var private array<int> DelayedGlobalIndices;
 var private array<HxConfig> ConfigPool;
 var private array<Object> ObjectPool;
 var private bool bReceivedMutators;
@@ -32,12 +41,19 @@ var private bool bIsFirstRun;
 
 event Initialized()
 {
+    local int i;
+
     if (bFirstRun)
     {
         bShowFirstRunNotification = true;
         bIsFirstRun = true;
         bFirstRun = false;
         SaveConfig();
+    }
+    DelayedGlobalIndices.Length = class'HxMutator'.default.GlobalProperties.Length;
+    for (i = 0; i < DelayedGlobalIndices.Length; ++i)
+    {
+        DelayedGlobalIndices[i] = -1;
     }
     ThemeClass.static.RegisterStyles(GUIController(ViewportOwner.GUIController));
     // TODO: remove this in v11
@@ -97,6 +113,12 @@ function ReceiveMutatorClass(class<HxMutator> MutatorClass, coerce bool bLast)
         }
         bReceivedMutators = bLast;
     }
+}
+
+function ReceiveGlobalProperty(int Index, string Value)
+{
+    SetPropertyText(class'HxMutator'.default.GlobalProperties[Index].Name, Value);
+    RefreshConfigurationMenu();
 }
 
 function ReceiveMutatorProperty(int UID,
@@ -221,7 +243,7 @@ function PopulateConfigProperties(HxGUIMultiOptionListBox List)
                 }
                 if (!bMutatorSectionAdded)
                 {
-                    List.AddSection(Entries[UID].MutatorClass.default.FriendlyName);
+                    List.AddSection(Entries[UID].MutatorClass.default.QualifiedName);
                     bMutatorSectionAdded = true;
                 }
                 if (Entries[UID].Configs[i].DisplayInfo[j].Section != SectionCaption)
@@ -245,31 +267,43 @@ function PopulateMutatorProperties(HxGUIMultiOptionListBox List)
     local int UID;
     local int i;
 
+    for (i = 0; i < class'HxMutator'.default.GlobalProperties.Length; ++i)
+    {
+        if (!List.ShouldHideGlobalProperty(i))
+        {
+            if (class'HxMutator'.default.GlobalDisplayInfo[i].Section != HeaderCaption)
+            {
+                HeaderCaption = class'HxMutator'.default.GlobalDisplayInfo[i].Section;
+                List.AddSection(HeaderCaption);
+            }
+            List.AddGlobalOption(i, class'HxClientChannel'.static.EncodeTag(GLOBAL_UID, i));
+        }
+    }
     for (UID = 0; UID < Entries.Length; ++UID)
     {
         if (!Entries[UID].MutatorInfo.IsInitialized())
         {
             continue;
         }
+        HeaderCaption = "";
         SectionCaption = "";
         for (i = 0; i < Entries[UID].MutatorClass.default.DisplayInfo.Length; ++i)
         {
-            if (List.ShouldHideServerProperty(Entries[UID].MutatorClass, i))
+            if (!List.ShouldHideServerProperty(Entries[UID].MutatorClass, i))
             {
-                continue;
+                if (Entries[UID].MutatorClass.default.QualifiedName != HeaderCaption)
+                {
+                    HeaderCaption = Entries[UID].MutatorClass.default.QualifiedName;
+                    List.AddSection(HeaderCaption);
+                }
+                if (Entries[UID].MutatorClass.default.DisplayInfo[i].Section != SectionCaption)
+                {
+                    SectionCaption = Entries[UID].MutatorClass.default.DisplayInfo[i].Section;
+                    List.AddSubSection(SectionCaption);
+                }
+                List.AddMutatorOption(
+                    Entries[UID].MutatorClass, i, class'HxClientChannel'.static.EncodeTag(UID, i));
             }
-            if (Entries[UID].MutatorClass.default.FriendlyName != HeaderCaption)
-            {
-                HeaderCaption = Entries[UID].MutatorClass.default.FriendlyName;
-                List.AddSection(HeaderCaption);
-            }
-            if (Entries[UID].MutatorClass.default.DisplayInfo[i].Section != SectionCaption)
-            {
-                SectionCaption = Entries[UID].MutatorClass.default.DisplayInfo[i].Section;
-                List.AddSubSection(SectionCaption);
-            }
-            List.AddMutatorOption(
-                Entries[UID].MutatorClass, i, class'HxClientChannel'.static.EncodeTag(UID, i));
         }
     }
 }
@@ -281,25 +315,26 @@ function PopulateMutatorStatus(HxGUIMultiOptionListBox List)
     local int UID;
     local int i;
 
+    PopulateGeneralStatus(List);
     for (UID = 0; UID < Entries.Length; ++UID)
     {
         if (!Entries[UID].MutatorInfo.IsInitialized())
         {
             continue;
         }
+        HeaderCaption = "";
         SectionCaption = "";
         for (i = 0; i < Entries[UID].MutatorClass.default.DisplayInfo.Length; ++i)
         {
-            if (Entries[UID].MutatorClass.default.FriendlyName != HeaderCaption)
-            {
-                HeaderCaption = Entries[UID].MutatorClass.default.FriendlyName;
-                List.AddSection(HeaderCaption);
-            }
-            // TODO: create new option to control server status verbosity
-            // CRI.ShouldHideServerPropertyFromStatus(i)
-            if (List.ShouldHideServerProperty(Entries[UID].MutatorClass, i))
+            if (List.ShouldHideServerProperty(Entries[UID].MutatorClass, i)
+                || ShouldHideMutatorPropertyFromStatus(UID, i))
             {
                 continue;
+            }
+            if (Entries[UID].MutatorClass.default.QualifiedName != HeaderCaption)
+            {
+                HeaderCaption = Entries[UID].MutatorClass.default.QualifiedName;
+                List.AddSection(HeaderCaption);
             }
             if (Entries[UID].MutatorClass.default.DisplayInfo[i].Section != SectionCaption)
             {
@@ -310,6 +345,45 @@ function PopulateMutatorStatus(HxGUIMultiOptionListBox List)
                 Entries[UID].MutatorClass.default.DisplayInfo[i].Caption,
                 class'HxClientChannel'.static.EncodeTag(UID, i));
         }
+    }
+}
+
+function PopulateGeneralStatus(HxGUIMultiOptionListBox List)
+{
+    local string HeaderCaption;
+    local int i;
+
+    HeaderCaption = class'HxMutator'.default.GlobalDisplayInfo[0].Section;
+    List.AddSection(HeaderCaption);
+    for (i = 0; i < Entries.Length; ++i)
+    {
+        if (i == 0)
+        {
+            List.AddLabel(
+                ActiveMutatorsLabel,
+                class'HxClientChannel'.static.EncodeTag(GLOBAL_UID, INFO_INDEX));
+        }
+        else
+        {
+            List.AddLabel("", class'HxClientChannel'.static.EncodeTag(GLOBAL_UID, INFO_INDEX, i));
+        }
+    }
+    List.AddLabel(
+        PlatformLabel, class'HxClientChannel'.static.EncodeTag(GLOBAL_UID, INFO_INDEX, i));
+    for (i = 0; i < class'HxMutator'.default.GlobalProperties.Length; ++i)
+    {
+        if (List.ShouldHideGlobalProperty(i) || ShouldHideGlobalPropertyFromStatus(i))
+        {
+            continue;
+        }
+        if (class'HxMutator'.default.GlobalDisplayInfo[i].Section != HeaderCaption)
+        {
+            HeaderCaption = class'HxMutator'.default.GlobalDisplayInfo[i].Section;
+            List.AddSection(HeaderCaption);
+        }
+        List.AddLabel(
+            class'HxMutator'.default.GlobalDisplayInfo[i].Caption,
+            class'HxClientChannel'.static.EncodeTag(GLOBAL_UID, i));
     }
 }
 
@@ -335,6 +409,10 @@ function string GetMutatorPropertyByTag(int Tag)
 
     if (class'HxClientChannel'.static.DecodeTag(Tag, UID, Index))
     {
+        if (UID == GLOBAL_UID)
+        {
+            return GetPropertyText(class'HxMutator'.default.GlobalProperties[Index].Name);
+        }
         return Entries[UID].MutatorInfo.GetByIndex(Index);
     }
     return "";
@@ -342,23 +420,61 @@ function string GetMutatorPropertyByTag(int Tag)
 
 function string GetMutatorStatus(int Tag)
 {
+    local HxTypes.EHxPropertyType Type;
     local int UID;
     local int Index;
+    local int ExtraIndex;
     local string Value;
 
-    if (class'HxClientChannel'.static.DecodeTag(Tag, UID, Index))
+    if (class'HxClientChannel'.static.DecodeTag(Tag, UID, Index, ExtraIndex))
     {
-        Value = Entries[UID].MutatorInfo.GetByIndex(Index);
-        switch (Entries[UID].MutatorClass.default.Properties[Index].Type)
+        if (UID == GLOBAL_UID)
+        {
+            if (Index == INFO_INDEX)
+            {
+                return GetGeneralStatus(ExtraIndex);
+            }
+            Type = class'HxMutator'.default.GlobalProperties[Index].Type;
+            Value = GetPropertyText(class'HxMutator'.default.GlobalProperties[Index].Name);
+        }
+        else
+        {
+            Type = Entries[UID].MutatorClass.default.Properties[Index].Type;
+            Value = Entries[UID].MutatorInfo.GetByIndex(Index);
+        }
+        switch (Type)
         {
             case HX_PROPERTY_Float:
                 Value = Left(Value, Len(Value) - 4);
                 break;
             case HX_PROPERTY_Enum:
-                Value = Entries[UID].MutatorClass.static.GetEnumLabel(Index, Value);
+                if (UID == GLOBAL_UID)
+                {
+                    Value = class'HxMutator'.static.GetGlobalEnumLabel(Index, Value);
+                }
+                else
+                {
+                    Value = Entries[UID].MutatorClass.static.GetEnumLabel(Index, Value);
+                }
                 break;
         }
         return Value;
+    }
+    return "";
+}
+
+function string GetGeneralStatus(int Index)
+{
+    local string PackageName;
+    local string Version;
+
+    if (Index < Entries.Length)
+    {
+        return Entries[Index].MutatorClass.default.FriendlyName;
+    }
+    if (class'HxTypes'.static.ExtractVersion(Class, Version, PackageName))
+    {
+        return PackageName@"v"$Version;
     }
     return "";
 }
@@ -384,15 +500,31 @@ function SetMutatorPropertyDelayed(int Tag, string Value)
 
     if (Channel != None && Channel.DecodeTag(Tag, UID, Index))
     {
-        if (Entries[UID].DelayedIndices[Index] > -1)
+        if (UID == GLOBAL_UID)
         {
-            QueueIndex = Entries[UID].DelayedIndices[Index];
+            if (DelayedGlobalIndices[Index] > -1)
+            {
+                QueueIndex = DelayedGlobalIndices[Index];
+            }
+            else
+            {
+                QueueIndex = DelayedQueue.Length;
+                DelayedQueue.Insert(QueueIndex, 1);
+                DelayedGlobalIndices[Index] = QueueIndex;
+            }
         }
         else
         {
-            QueueIndex = DelayedQueue.Length;
-            DelayedQueue.Insert(QueueIndex, 1);
-            Entries[UID].DelayedIndices[Index] = QueueIndex;
+            if (Entries[UID].DelayedIndices[Index] > -1)
+            {
+                QueueIndex = Entries[UID].DelayedIndices[Index];
+            }
+            else
+            {
+                QueueIndex = DelayedQueue.Length;
+                DelayedQueue.Insert(QueueIndex, 1);
+                Entries[UID].DelayedIndices[Index] = QueueIndex;
+            }
         }
         DelayedQueue[QueueIndex].Tag = Tag;
         DelayedQueue[QueueIndex].Value = Value;
@@ -424,8 +556,17 @@ function DispatchDelayedMutatorUpdates()
         {
             if (Channel.DecodeTag(DelayedQueue[i].Tag, UID, Index))
             {
-                Entries[UID].DelayedIndices[Index] = -1;
-                Channel.RequestMutatorPropertyUpdate(DelayedQueue[i].Tag, DelayedQueue[i].Value);
+                if (UID == GLOBAL_UID)
+                {
+                    DelayedGlobalIndices[Index] = -1;
+                    Channel.RequestGlobalPropertyUpdate(Index, DelayedQueue[i].Value);
+                }
+                else
+                {
+                    Entries[UID].DelayedIndices[Index] = -1;
+                    Channel.RequestMutatorPropertyUpdate(
+                        DelayedQueue[i].Tag, DelayedQueue[i].Value);
+                }
             }
         }
     }
@@ -450,9 +591,37 @@ function DispatchDelayedConfigUpdates()
     }
 }
 
+final function bool ShouldHideMutatorPropertyFromStatus(int UID, int Index)
+{
+    return !IsAdmin()
+        && (StatusVerbosity == HX_LVL_Lowest
+            || Entries[UID].MutatorClass.default.DisplayInfo[Index].Verbosity > StatusVerbosity
+            || (StatusVerbosity < HX_LVL_High
+                && Entries[UID].MutatorClass.default.Properties[Index].Type == HX_PROPERTY_Bool
+                && !bool(Entries[UID].MutatorInfo.GetByIndex(Index))));
+}
+
+final function bool ShouldHideGlobalPropertyFromStatus(int Index)
+{
+    return !IsAdmin()
+        && (StatusVerbosity == HX_LVL_Lowest
+            || class'HxMutator'.default.GlobalDisplayInfo[Index].Verbosity > StatusVerbosity
+            || (StatusVerbosity < HX_LVL_High
+                && class'HxMutator'.default.GlobalProperties[Index].Type == HX_PROPERTY_Bool
+                && !bool(GetPropertyText(class'HxMutator'.default.GlobalProperties[Index].Name))));
+}
+
 final function bool IsFirstRun()
 {
     return bIsFirstRun;
+}
+
+final function bool IsAdmin()
+{
+    return ViewportOwner.Actor != None
+        && (ViewportOwner.Actor.Level.NetMode == NM_Standalone
+            || (ViewportOwner.Actor.PlayerReplicationInfo != None
+                && ViewportOwner.Actor.PlayerReplicationInfo.bAdmin));
 }
 
 final function bool FindMutatorInfo(class<HxMutator> MutatorClass, out HxMutatorInfo MutatorInfo)
@@ -527,7 +696,7 @@ private function HxConfig LoadConfig(class<HxMutator> MutatorClass, int Index)
             return ConfigPool[i];
         }
     }
-    ConfigPool[i] = new(None, MutatorClass.default.UniqueObjectName) ConfigClass;
+    ConfigPool[i] = new(None, MutatorClass.default.QualifiedName) ConfigClass;
     return ConfigPool[i];
 }
 
@@ -604,4 +773,6 @@ defaultproperties
     ThemeClass=class'HxGUIThemeDefault'
     bFirstRun=true
     MenuKeybind="H"
+    PlatformLabel="Platform Version"
+    ActiveMutatorsLabel="Active Mutators"
 }

@@ -66,7 +66,7 @@ function NotifyMutatorPropertyChanged(int Index)
 defaultproperties
 {
     Properties(0)=(Name="ViewSmoothing",Type=HX_PROPERTY_Enum,UpperLimit="4",EnumType=enum'EHxViewSmoothing')
-    DisplayInfo(0)=(Section="Player",Caption="View Smoothing",Hint="Choose which type of view smoothing to apply.",EnumLabels=("Strong (Default)","Moderate","Weak","Disabled"),Dependency="bAllowCustomViewSmoothing")
+    DisplayInfo(0)=(Caption="View Smoothing",Hint="Choose which type of view smoothing to apply.",EnumLabels=("Strong (Default)","Moderate","Weak","Disabled"),Dependency="bAllowCustomViewSmoothing")
 
     ViewSmoothing=HX_VS_Default
 }

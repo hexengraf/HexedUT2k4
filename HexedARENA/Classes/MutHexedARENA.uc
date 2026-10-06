@@ -94,9 +94,9 @@ defaultproperties
     Description="Replace weapons and ammo in the map with the configured weapon."
     GroupName="Arena"
     bAddToServerPackages=true
-    UniqueObjectName="HexedARENA"
+    QualifiedName="HexedARENA"
     Properties(0)=(Name="ArenaWeaponClassName",Type=HX_PROPERTY_String,UpperLimit="100")
-    DisplayInfo(0)=(Caption="Arena Weapon",Hint="Determines which weapon will be used in the arena match. Applied on restart/map change.")
+    DisplayInfo(0)=(Caption="Arena Weapon",Hint="Determines which weapon will be used in the arena match. Applied on restart/map change.",Verbosity=HX_LVL_Medium)
     Priority=127
     bDisableTick=true
 

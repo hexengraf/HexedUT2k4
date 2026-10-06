@@ -1,8 +1,14 @@
 class HxMutator extends Mutator
     abstract
-    DependsOn(HxTypes);
+    DependsOn(HxTypes)
+    config(HexedMutators);
 
-var const string UniqueObjectName;
+var globalconfig HxTypes.EHxLevel StatusVerbosity;
+
+var const localized string GlobalSettingsGroup;
+var const array<HxTypes.HxProperty> GlobalProperties;
+var const array<HxTypes.HxDisplayProperty> GlobalDisplayInfo;
+var const string QualifiedName;
 var const class<HxMutatorInfo> MutatorInfoClass;
 var const class<HxClientReplicationInfo> ClientReplicationInfoClass;
 var const array<HxTypes.HxProperty> Properties;
@@ -63,7 +69,7 @@ function ParseURLOptions(string Options)
     local int i;
 
     PI = new(None) class'PlayInfo';
-    FillPlayInfo(PI);
+    FillOwnedPlayInfo(PI);
     for (i = 0; i < Properties.Length; ++i)
     {
         Value = class'GameInfo'.static.ParseOption(Options, Properties[i].Name);
@@ -135,53 +141,6 @@ function OpenConfigurationMenu(PlayerController Sender)
     }
 }
 
-static function FillPlayInfo(PlayInfo PlayInfo)
-{
-    local int i;
-
-    Super.FillPlayInfo(PlayInfo);
-    for (i = 0; i < default.DisplayInfo.Length; ++i)
-    {
-        PlayInfo.AddSetting(
-            default.FriendlyName,
-            default.Properties[i].Name,
-            default.DisplayInfo[i].Caption,
-            default.DisplayInfo[i].SecLevel,
-            i,
-            GetPlayInfoType(i),
-            GetData(i),
-            default.DisplayInfo[i].Privileges,
-            default.DisplayInfo[i].bMPOnly,
-            default.DisplayInfo[i].bAdvanced);
-    }
-}
-
-static event string GetDescriptionText(string PropertyName)
-{
-    local int i;
-
-    i = GetPropertyIndex(PropertyName);
-    if (i >= 0)
-    {
-        return default.DisplayInfo[i].Hint;
-    }
-    return Super.GetDescriptionText(PropertyName);
-}
-
-static simulated function int GetPropertyIndex(string PropertyName)
-{
-    local int i;
-
-    for (i = 0; i < default.Properties.Length; ++i)
-    {
-        if (PropertyName == default.Properties[i].Name)
-        {
-            return i;
-        }
-    }
-    return -1;
-}
-
 function SetProperty(int Index, string Value)
 {
     local int i;
@@ -191,6 +150,18 @@ function SetProperty(int Index, string Value)
     for (i = 0; i < Channels.Length; ++i)
     {
         Channels[i].EnqueueMutatorPropertyUpdate(UID, Index);
+    }
+    SaveConfig();
+}
+
+function SetGlobalProperty(int Index, string Value)
+{
+    local int i;
+
+    SetPropertyText(GlobalProperties[Index].Name, Value);
+    for (i = 0; i < Channels.Length; ++i)
+    {
+        Channels[i].EnqueueGlobalPropertyUpdate(Index, Value);
     }
     SaveConfig();
 }
@@ -369,9 +340,121 @@ static function string GetEnumLabel(int Index, string Value)
     return Value;
 }
 
-static final protected function string GetPlayInfoType(int Index)
+static function string GetGlobalEnumLabel(int Index, string Value)
 {
-    switch (default.Properties[Index].Type)
+    if (default.GlobalProperties[Index].Name == "StatusVerbosity")
+    {
+        switch (Value)
+        {
+            case "HX_LVL_Lowest":
+                return default.GlobalDisplayInfo[Index].EnumLabels[0];
+            case "HX_LVL_Low":
+                return default.GlobalDisplayInfo[Index].EnumLabels[1];
+            case "HX_LVL_Medium":
+                return default.GlobalDisplayInfo[Index].EnumLabels[2];
+            case "HX_LVL_High":
+                return default.GlobalDisplayInfo[Index].EnumLabels[3];
+        }
+    }
+    return Value;
+}
+
+static function FillPlayInfo(PlayInfo PlayInfo)
+{
+    FillGlobalPlayInfo(PlayInfo);
+    FillOwnedPlayInfo(PlayInfo);
+}
+
+static function FillOwnedPlayInfo(PlayInfo PlayInfo)
+{
+    local int i;
+
+    Super.FillPlayInfo(PlayInfo);
+    for (i = 0; i < default.DisplayInfo.Length; ++i)
+    {
+        PlayInfo.AddSetting(
+            default.FriendlyName,
+            default.Properties[i].Name,
+            default.DisplayInfo[i].Caption,
+            default.DisplayInfo[i].SecLevel,
+            i,
+            GetPlayInfoType(default.Properties[i].Type),
+            GetOwnedData(i),
+            default.DisplayInfo[i].Privileges,
+            default.DisplayInfo[i].bMPOnly,
+            default.DisplayInfo[i].bAdvanced);
+    }
+}
+
+static function FillGlobalPlayInfo(PlayInfo PlayInfo)
+{
+    local int i;
+
+    PlayInfo.AddClass(class'HxMutator');
+    for (i = 0; i < default.GlobalDisplayInfo.Length; ++i)
+    {
+        PlayInfo.AddSetting(
+            default.GlobalSettingsGroup,
+            default.GlobalProperties[i].Name,
+            default.GlobalDisplayInfo[i].Caption,
+            default.GlobalDisplayInfo[i].SecLevel,
+            i,
+            GetPlayInfoType(default.GlobalProperties[i].Type),
+            GetGlobalData(i),
+            default.GlobalDisplayInfo[i].Privileges,
+            default.GlobalDisplayInfo[i].bMPOnly,
+            default.GlobalDisplayInfo[i].bAdvanced);
+    }
+}
+
+static event string GetDescriptionText(string PropertyName)
+{
+    local int i;
+
+    i = GetPropertyIndex(PropertyName);
+    if (i >= 0)
+    {
+        return default.DisplayInfo[i].Hint;
+    }
+    i = GetGlobalPropertyIndex(PropertyName);
+    if (i >= 0)
+    {
+        return default.GlobalDisplayInfo[i].Hint;
+    }
+    return Super.GetDescriptionText(PropertyName);
+}
+
+static simulated function int GetPropertyIndex(string PropertyName)
+{
+    local int i;
+
+    for (i = 0; i < default.Properties.Length; ++i)
+    {
+        if (PropertyName == default.Properties[i].Name)
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
+static simulated function int GetGlobalPropertyIndex(string PropertyName)
+{
+    local int i;
+
+    for (i = 0; i < default.GlobalProperties.Length; ++i)
+    {
+        if (PropertyName == default.GlobalProperties[i].Name)
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
+static final protected function string GetPlayInfoType(HxTypes.EHxPropertyType Type)
+{
+    switch (Type)
     {
         case HX_PROPERTY_Bool:
             return "Check";
@@ -383,29 +466,43 @@ static final protected function string GetPlayInfoType(int Index)
     return "Text";
 }
 
-static final protected function string GetData(int Index)
+static final protected function string GetOwnedData(int Index)
 {
     switch (default.Properties[Index].Type)
     {
         case HX_PROPERTY_Int:
         case HX_PROPERTY_Float:
-            return GetNumericData(Index);
+            return "8;"$default.Properties[Index].LowerLimit$":"
+                $default.Properties[Index].UpperLimit;
         case HX_PROPERTY_String:
             return default.Properties[Index].UpperLimit;
         case HX_PROPERTY_Enum:
-            return GetEnumData(Index);
+            return GetOwnedEnumData(Index);
         case HX_PROPERTY_Array:
             return ";;"$default.DisplayInfo[Index].ConfigPage;
     }
     return "";
 }
 
-static final protected function string GetNumericData(int Index)
+static final protected function string GetGlobalData(int Index)
 {
-    return "8;"$default.Properties[Index].LowerLimit$":"$default.Properties[Index].UpperLimit;
+    switch (default.GlobalProperties[Index].Type)
+    {
+        case HX_PROPERTY_Int:
+        case HX_PROPERTY_Float:
+            return "8;"$default.GlobalProperties[Index].LowerLimit$":"
+                $default.GlobalProperties[Index].UpperLimit;
+        case HX_PROPERTY_String:
+            return default.GlobalProperties[Index].UpperLimit;
+        case HX_PROPERTY_Enum:
+            return GetGlobalEnumData(Index);
+        case HX_PROPERTY_Array:
+            return ";;"$default.GlobalDisplayInfo[Index].ConfigPage;
+    }
+    return "";
 }
 
-static final protected function string GetEnumData(int Index)
+static final protected function string GetOwnedEnumData(int Index)
 {
     local string Data;
     local int Start;
@@ -426,12 +523,37 @@ static final protected function string GetEnumData(int Index)
     return Data;
 }
 
+static final protected function string GetGlobalEnumData(int Index)
+{
+    local string Data;
+    local int Start;
+    local int Limit;
+    local int i;
+
+    Limit = int(default.GlobalProperties[Index].UpperLimit);
+    Start = int(default.GlobalProperties[Index].LowerLimit);
+    for (i = Start; i < Limit; ++i)
+    {
+        if (i > Start)
+        {
+            Data $= ";";
+        }
+        Data $= GetEnum(default.GlobalProperties[Index].EnumType, i)$";"
+            $default.GlobalDisplayInfo[Index].EnumLabels[i];
+    }
+    return Data;
+}
+
 static function ClientInitialized(HxMutatorInfo Info);
 static function ClientMutatorPropertyChanged(HxMutatorInfo Info, int Index);
 
 defaultproperties
 {
+    GlobalSettingsGroup="Hexed Settings"
+    GlobalProperties(0)=(Name="StatusVerbosity",Type=HX_PROPERTY_Enum,UpperLimit="3",EnumType=enum'EHxLevel')
+    GlobalDisplayInfo(0)=(Section="General",Caption="Status Verbosity",Hint="Control how much information is displayed in the server status for each mutator.",EnumLabels=("Lowest","Low","Medium","High"),bAdvanced=true,Verbosity=HX_LVL_High)
     MutatorInfoClass=class'HxMutatorInfo'
     Priority=255
     bAllowURLOptions=true
+    StatusVerbosity=HX_LVL_Medium
 }

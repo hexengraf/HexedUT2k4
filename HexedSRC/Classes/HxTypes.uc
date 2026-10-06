@@ -1,7 +1,15 @@
 class HxTypes extends Object
     abstract;
 
-enum HxPropertyType
+enum EHxLevel
+{
+    HX_LVL_Lowest,
+    HX_LVL_Low,
+    HX_LVL_Medium,
+    HX_LVL_High,
+};
+
+enum EHxPropertyType
 {
     HX_PROPERTY_Bool,
     HX_PROPERTY_Int,
@@ -39,7 +47,7 @@ enum EHxVertAlignment
 struct HxProperty
 {
     var const string Name;
-    var const HxPropertyType Type;
+    var const EHxPropertyType Type;
     var const string LowerLimit;
     var const string UpperLimit;
     var const Object EnumType;
@@ -59,6 +67,7 @@ struct HxDisplayProperty
     var const bool bMPOnly;
     var const bool bAdvanced;
     var const bool bHidden;
+    var const EHxLevel Verbosity;
 };
 
 struct HxVector

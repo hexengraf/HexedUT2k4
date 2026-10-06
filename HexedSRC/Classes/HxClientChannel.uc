@@ -4,6 +4,7 @@ class HxClientChannel extends ReplicationInfo
 
 enum EHxReplicationMessageType
 {
+    HX_PROXY_MSG_GlobalProperty,
     HX_PROXY_MSG_MutatorClass,
     HX_PROXY_MSG_MutatorProperty,
     HX_PROXY_MSG_ArrayElement,
@@ -22,6 +23,7 @@ const MESSAGES_PER_TICK = 16;
 
 var PlayerController PlayerOwner;
 var private HxClientManager ClientManager;
+var private PlayInfo GlobalInfo;
 var private array<HxMutator> Mutators;
 var private array<HxClientReplicationInfo> CRIs;
 var private array<HxReplicationMessage> S2CQueue;
@@ -50,6 +52,8 @@ simulated event PostBeginPlay()
         {
             ServerRequestMutatorInfo();
         }
+        GlobalInfo = new (None) class'PlayInfo';
+        class'HxMutator'.static.FillGlobalPlayInfo(GlobalInfo);
     }
 }
 
@@ -141,6 +145,9 @@ simulated function ClientReceiveMessage(HxReplicationMessage Message)
 
     switch (Message.Type)
     {
+        case HX_PROXY_MSG_GlobalProperty:
+            ClientManager.ReceiveGlobalProperty(Message.Tag, Message.Value);
+            break;
         case HX_PROXY_MSG_MutatorClass:
             MutatorClass = class<HxMutator>(DynamicLoadObject(Message.Value, class'Class'));
             if (MutatorClass != None)
@@ -176,14 +183,20 @@ function ServerReceiveMessage(HxReplicationMessage Message)
     local int UID;
     local int Index;
 
-    switch (Message.Type)
+    if (IsAdmin())
     {
-        case HX_PROXY_MSG_MutatorProperty:
-            if (IsAdmin() && DecodeTag(Message.Tag, UID, Index))
-            {
-                Mutators[UID].SetProperty(Index, Message.Value);
-            }
-            break;
+        switch (Message.Type)
+        {
+            case HX_PROXY_MSG_GlobalProperty:
+                Mutators[0].SetGlobalProperty(Message.Tag, Message.Value);
+                break;
+            case HX_PROXY_MSG_MutatorProperty:
+                if (DecodeTag(Message.Tag, UID, Index))
+                {
+                    Mutators[UID].SetProperty(Index, Message.Value);
+                }
+                break;
+        }
     }
 }
 
@@ -193,6 +206,10 @@ function ServerRequestMutatorInfo()
     local int UID;
     local int i;
 
+    for (i = 0; i < GlobalInfo.Settings.Length; ++i)
+    {
+        EnqueueGlobalPropertyUpdate(i, GlobalInfo.Settings[i].Value);
+    }
     for (UID = 0; UID < Mutators.Length; ++UID)
     {
         Message.Type = HX_PROXY_MSG_MutatorClass;
@@ -238,6 +255,16 @@ function EnqueueMutatorPropertyUpdate(int UID, int Index)
     S2CQueue[S2CQueue.Length] = Message;
 }
 
+function EnqueueGlobalPropertyUpdate(int Index, string Value)
+{
+    local HxReplicationMessage Message;
+
+    Message.Type = HX_PROXY_MSG_GlobalProperty;
+    Message.Value = Value;
+    Message.Tag = Index;
+    S2CQueue[S2CQueue.Length] = Message;
+}
+
 simulated function RequestMutatorPropertyUpdate(int Tag, string Value)
 {
     local int i;
@@ -245,6 +272,17 @@ simulated function RequestMutatorPropertyUpdate(int Tag, string Value)
     i = C2SQueue.Length;
     C2SQueue.Insert(i, 1);
     C2SQueue[i].Type = HX_PROXY_MSG_MutatorProperty;
+    C2SQueue[i].Tag = Tag;
+    C2SQueue[i].Value = Value;
+}
+
+simulated function RequestGlobalPropertyUpdate(int Tag, string Value)
+{
+    local int i;
+
+    i = C2SQueue.Length;
+    C2SQueue.Insert(i, 1);
+    C2SQueue[i].Type = HX_PROXY_MSG_GlobalProperty;
     C2SQueue[i].Tag = Tag;
     C2SQueue[i].Value = Value;
 }

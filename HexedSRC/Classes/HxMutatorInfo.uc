@@ -18,7 +18,7 @@ function Setup(class<HxMutator> MutatorClass, LevelInfo Level, PlayerController 
     Self.MutatorClass = MutatorClass;
     Self.Level = Level;
     self.PlayerOwner = PlayerOwner;
-    MutatorClass.static.FillPlayInfo(Self);
+    MutatorClass.static.FillOwnedPlayInfo(Self);
     Arrays.Length = Settings.Length;
 }
 

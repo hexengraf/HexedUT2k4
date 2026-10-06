@@ -116,6 +116,52 @@ function GUIMenuOption AddMutatorOption(class<HxMutator> MutatorClass, int Index
     return Option;
 }
 
+function GUIMenuOption AddGlobalOption(int Index, int Tag)
+{
+    local GUIMenuOption Option;
+
+    switch (class'HxMutator'.default.GlobalProperties[Index].Type)
+    {
+        case HX_PROPERTY_Bool:
+            Option = List.AddItem(
+                "XInterface.moCheckbox",,
+                class'HxMutator'.default.GlobalDisplayInfo[Index].Caption);
+            break;
+        case HX_PROPERTY_Int:
+            Option = AddNumericEdit(
+                class'HxMutator'.default.GlobalDisplayInfo[Index].Caption,
+                class'HxMutator'.default.GlobalProperties[Index].LowerLimit,
+                class'HxMutator'.default.GlobalProperties[Index].UpperLimit,
+                class'HxMutator'.default.GlobalDisplayInfo[Index].Step);
+            break;
+        case HX_PROPERTY_Float:
+            Option = AddFloatEdit(
+                class'HxMutator'.default.GlobalDisplayInfo[Index].Caption,
+                class'HxMutator'.default.GlobalProperties[Index].LowerLimit,
+                class'HxMutator'.default.GlobalProperties[Index].UpperLimit,
+                class'HxMutator'.default.GlobalDisplayInfo[Index].Step);
+            break;
+        case HX_PROPERTY_String:
+            Option = AddEditBox(
+                class'HxMutator'.default.GlobalDisplayInfo[Index].Caption,
+                class'HxMutator'.default.GlobalProperties[Index].UpperLimit);
+            break;
+        case HX_PROPERTY_Enum:
+            Option = AddComboBox(
+                class'HxMutator'.default.GlobalDisplayInfo[Index].Caption,
+                int(class'HxMutator'.default.GlobalProperties[Index].LowerLimit),
+                class'HxMutator'.default.GlobalProperties[Index].EnumType,
+                class'HxMutator'.default.GlobalDisplayInfo[Index].EnumLabels);
+            break;
+    }
+    if (Option != None)
+    {
+        Option.SetHint(class'HxMutator'.default.GlobalDisplayInfo[Index].Hint);
+        Option.Tag = Tag;
+    }
+    return Option;
+}
+
 function HxGUIMultiOptionListLabel AddLabel(string Caption, int Tag)
 {
     local HxGUIMultiOptionListLabel Label;
@@ -287,6 +333,15 @@ final function bool ShouldHideServerProperty(class<HxMutator> MutatorClass, int 
         || MutatorClass.default.Properties[Index].Type == HX_PROPERTY_Color
         || MutatorClass.default.Properties[Index].Type == HX_PROPERTY_Struct
         || (!Controller.bExpertMode && MutatorClass.default.DisplayInfo[Index].bAdvanced);
+}
+
+final function bool ShouldHideGlobalProperty(int Index)
+{
+    return class'HxMutator'.default.GlobalDisplayInfo[Index].bHidden
+        || class'HxMutator'.default.GlobalProperties[Index].Type == HX_PROPERTY_Array
+        || class'HxMutator'.default.GlobalProperties[Index].Type == HX_PROPERTY_Color
+        || class'HxMutator'.default.GlobalProperties[Index].Type == HX_PROPERTY_Struct
+        || (!Controller.bExpertMode && class'HxMutator'.default.GlobalDisplayInfo[Index].bAdvanced);
 }
 
 defaultproperties
