@@ -1,14 +1,6 @@
 class HxTypes extends Object
     abstract;
 
-enum EHxLevel
-{
-    HX_LVL_Lowest,
-    HX_LVL_Low,
-    HX_LVL_Medium,
-    HX_LVL_High,
-};
-
 enum EHxPropertyType
 {
     HX_PROPERTY_Bool,
@@ -62,19 +54,8 @@ struct HxDisplayProperty
     var const string Step;
     var const string Dependency;
     var const string ConfigPage;
-    var const string Privileges;
-    var const int SecLevel;
     var const bool bMPOnly;
     var const bool bAdvanced;
-    var const bool bHidden;
-    var const EHxLevel Verbosity;
-};
-
-struct HxVector
-{
-    var float X;
-    var float Y;
-    var float Z;
 };
 
 static function string GetDataCharset(EHxDataType Type)

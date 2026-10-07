@@ -1,6 +1,4 @@
-class HxClientChannel extends ReplicationInfo
-    DependsOn(HxTypes)
-    DependsOn(PlayInfo);
+class HxClientChannel extends ReplicationInfo;
 
 enum EHxReplicationMessageType
 {
@@ -18,12 +16,11 @@ struct HxReplicationMessage
     var HxClientReplicationInfo CRI;
 };
 
-const PKG_STR_LIMIT = 480;
 const MESSAGES_PER_TICK = 16;
 
 var PlayerController PlayerOwner;
+var string ServerName;
 var private HxClientManager ClientManager;
-var private PlayInfo GlobalInfo;
 var private array<HxMutator> Mutators;
 var private array<HxClientReplicationInfo> CRIs;
 var private array<HxReplicationMessage> S2CQueue;
@@ -33,7 +30,7 @@ var private bool bDelayedSetupClient;
 replication
 {
     reliable if (Role == ROLE_Authority && bNetInitial)
-        PlayerOwner;
+        PlayerOwner, ServerName;
 
     reliable if (Role == ROLE_Authority)
         ClientReceiveMessage, ClientOpenConfigurationMenu;
@@ -48,12 +45,7 @@ simulated event PostBeginPlay()
     if (Role == ROLE_Authority)
     {
         PlayerOwner = PlayerController(Owner);
-        GlobalInfo = new (None) class'PlayInfo';
-        class'HxMutator'.static.FillGlobalPlayInfo(GlobalInfo);
-        if (Level.NetMode != NM_DedicatedServer)
-        {
-            ServerRequestMutatorInfo();
-        }
+        ServerName = class'GameReplicationInfo'.default.ServerName;
     }
 }
 
@@ -206,9 +198,9 @@ function ServerRequestMutatorInfo()
     local int UID;
     local int i;
 
-    for (i = 0; i < GlobalInfo.Settings.Length; ++i)
+    for (i = 0; i < class'HxMutator'.default.GlobalProperties.Length; ++i)
     {
-        EnqueueGlobalPropertyUpdate(i, GlobalInfo.Settings[i].Value);
+        EnqueueGlobalPropertyUpdate(i, Mutators[0].GetGlobalProperty(i));
     }
     for (UID = 0; UID < Mutators.Length; ++UID)
     {

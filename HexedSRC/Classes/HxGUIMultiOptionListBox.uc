@@ -319,8 +319,7 @@ function Clear()
 
 final function bool ShouldHideConfigProperty(class<HxConfig> ConfigClass, int Index)
 {
-    return ConfigClass.default.DisplayInfo[Index].bHidden
-        || ConfigClass.default.Properties[Index].Type == HX_PROPERTY_Array
+    return ConfigClass.default.Properties[Index].Type == HX_PROPERTY_Array
         || ConfigClass.default.Properties[Index].Type == HX_PROPERTY_Color
         || ConfigClass.default.Properties[Index].Type == HX_PROPERTY_Struct
         || (!Controller.bExpertMode && ConfigClass.default.DisplayInfo[Index].bAdvanced);
@@ -328,8 +327,7 @@ final function bool ShouldHideConfigProperty(class<HxConfig> ConfigClass, int In
 
 final function bool ShouldHideServerProperty(class<HxMutator> MutatorClass, int Index)
 {
-    return MutatorClass.default.DisplayInfo[Index].bHidden
-        || MutatorClass.default.Properties[Index].Type == HX_PROPERTY_Array
+    return MutatorClass.default.Properties[Index].Type == HX_PROPERTY_Array
         || MutatorClass.default.Properties[Index].Type == HX_PROPERTY_Color
         || MutatorClass.default.Properties[Index].Type == HX_PROPERTY_Struct
         || (!Controller.bExpertMode && MutatorClass.default.DisplayInfo[Index].bAdvanced);
@@ -337,8 +335,7 @@ final function bool ShouldHideServerProperty(class<HxMutator> MutatorClass, int 
 
 final function bool ShouldHideGlobalProperty(int Index)
 {
-    return class'HxMutator'.default.GlobalDisplayInfo[Index].bHidden
-        || class'HxMutator'.default.GlobalProperties[Index].Type == HX_PROPERTY_Array
+    return class'HxMutator'.default.GlobalProperties[Index].Type == HX_PROPERTY_Array
         || class'HxMutator'.default.GlobalProperties[Index].Type == HX_PROPERTY_Color
         || class'HxMutator'.default.GlobalProperties[Index].Type == HX_PROPERTY_Struct
         || (!Controller.bExpertMode && class'HxMutator'.default.GlobalDisplayInfo[Index].bAdvanced);

@@ -21,6 +21,9 @@ struct HxMapResources
     var bool bPreviewReady;
 };
 
+const PKG_STR_LIMIT = 480;
+const MESSAGES_PER_TICK = 32;
+
 var VotingReplicationInfo VRI;
 var array<HxMapEntry> Maps;
 
@@ -96,7 +99,7 @@ simulated function PopulateMapEntries()
     local int Limit;
     local int i;
 
-    Limit = 2 * MESSAGES_PER_TICK;
+    Limit = MESSAGES_PER_TICK;
     for (i = Maps.Length; i < VRI.MapList.Length; ++i)
     {
         Record = class'CacheManager'.static.GetMapRecord(VRI.MapList[i].MapName);

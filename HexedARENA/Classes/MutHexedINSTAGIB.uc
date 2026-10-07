@@ -168,7 +168,7 @@ defaultproperties
     DisplayInfo(0)=(Caption="Allow Translocator",Hint="Players get a Translocator in their inventory. Applied on restart/map change.")
     DisplayInfo(1)=(Caption="Allow Teammate Boosting",Hint="Teammates get a big boost when shot by the instagib rifle. Applied on restart/map change.")
     DisplayInfo(2)=(Caption="Allow Zoom",Hint="Instagib rifles have sniper scopes. Applied on restart/map change.")
-    DisplayInfo(3)=(Caption="Fire Rate",Hint="Change the default fire rate of shock rifles (0 = default). Applied instantly.",bAdvanced=true,Verbosity=HX_LVL_Medium)
+    DisplayInfo(3)=(Caption="Fire Rate",Hint="Change the default fire rate of shock rifles (0 = default). Applied instantly.",bAdvanced=true,Verbosity=HX_VERB_Medium)
     ConfigClasses(0)=class'HxZoomSuperShockRifleConfig'
     PanelClasses(0)=class'HxGUIMenuInstagibPanel'
     Priority=126

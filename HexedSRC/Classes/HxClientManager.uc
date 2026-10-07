@@ -1,5 +1,6 @@
 class HxClientManager extends HxInteraction
     DependsOn(HxTypes)
+    DependsOn(HxMutator)
     config(HexedCache);
 
 struct HxMutatorEntry
@@ -17,26 +18,50 @@ struct HxDelayedUpdate
     var string Value;
 };
 
-const GLOBAL_UID = 1023;
-const INFO_INDEX = 1023;
+struct HxNotification
+{
+    var string FullMessage;
+    var float Duration;
+    var array<string> Lines;
+    var Font Font;
+    var float Fade;
+    var float Width;
+    var float Height;
+    var float LineHeight;
+};
+
+const RSVD_UID = 1023;
+const RSVD_INDEX = 1023;
 
 var config bool bFirstRun;
 var config string MenuKeybind;
-var HxTypes.EHxLevel StatusVerbosity;
+var float MinimumNotifyDuration;
+var HxMutator.EHxNotifyRunning NotifyRunning;
+var HxMutator.EHxVerbosityLevel StatusVerbosity;
 
 var const localized string PlatformLabel;
 var const localized string ActiveMutatorsLabel;
+var const localized string RunningMessage;
+var const localized string OpenMenuMessage;
+var const localized string PressMessage;
+var const localized string ExecMessage;
+var const string ProjectName;
+var const string MenuCommand;
 
 var const private class<HxGUIFloatingWindow> MenuClass;
 var const private class<HxGUITheme> ThemeClass;
+var const private Color BaseColor;
+var const private Color HighlightColor;
 var private HxClientChannel Channel;
 var private array<HxMutatorEntry> Entries;
 var private array<HxDelayedUpdate> DelayedQueue;
 var private array<int> DelayedGlobalIndices;
+var private array<HxNotification> PendingNotifications;
+var private HxNotification Notification;
 var private array<HxConfig> ConfigPool;
 var private array<Object> ObjectPool;
+var private string LastServerName;
 var private bool bReceivedMutators;
-var private bool bShowFirstRunNotification;
 var private bool bIsFirstRun;
 
 event Initialized()
@@ -45,7 +70,6 @@ event Initialized()
 
     if (bFirstRun)
     {
-        bShowFirstRunNotification = true;
         bIsFirstRun = true;
         bFirstRun = false;
         SaveConfig();
@@ -59,10 +83,6 @@ event Initialized()
     // TODO: remove this in v11
     UpdateMenuKeybinds();
     ValidateMenuKeybind();
-    if (bShowFirstRunNotification)
-    {
-        ShowFirstTimeNotification(MenuKeybind);
-    }
 }
 
 event NotifyLevelChange()
@@ -86,6 +106,145 @@ event NotifyLevelChange()
 function Setup(HxClientChannel Channel)
 {
     Self.Channel = Channel;
+}
+
+function EnqueueNotification(string Message)
+{
+    local HxNotification NewNotification;
+
+    NewNotification.FullMessage = Message;
+    NewNotification.Duration =
+        FMax(MinimumNotifyDuration, Len(Message) * 0.05) * ViewportOwner.Actor.Level.TimeDilation;
+    PendingNotifications[PendingNotifications.Length] = NewNotification;
+    if (!IsInState('DisplayNotification'))
+    {
+        GotoState('DisplayNotification');
+    }
+}
+
+state DisplayNotification
+{
+    function BeginState()
+    {
+        bVisible = true;
+        bRequiresTick = true;
+        if (PendingNotifications.Length == 0)
+        {
+            GotoState('');
+        }
+        else
+        {
+            Notification = PendingNotifications[0];
+            PendingNotifications.Remove(0, 1);
+            if (Len(Notification.FullMessage) == 0)
+            {
+                GotoState('');
+            }
+        }
+    }
+
+    function EndState()
+    {
+        bVisible = false;
+        bRequiresTick = false;
+        if (PendingNotifications.Length > 0)
+        {
+            GotoState('DisplayNotification');
+        }
+    }
+
+    function Tick(float DeltaTime)
+    {
+        Notification.Duration -= DeltaTime;
+        if (Notification.Duration <= 0)
+        {
+            GotoState('');
+        }
+        else
+        {
+            Notification.Fade = FMin(Notification.Duration / 0.5, 1.0);
+        }
+    }
+
+    function PreRender(Canvas C)
+    {
+        local float TextWidth;
+        local float TextHeight;
+        local Font SavedFont;
+        local int i;
+
+        if (Notification.Font == None)
+        {
+            Notification.Font = class'HxGUIFontMidGame'.static.GetMediumFont(C);
+            SavedFont = C.Font;
+            C.Font = Notification.Font;
+            C.WrapStringToArray(Notification.FullMessage, Notification.Lines, C.ClipX * 0.3, "|");
+            for (i = 0; i < Notification.Lines.Length; ++i)
+            {
+                C.TextSize(Notification.Lines[i], TextWidth, TextHeight);
+                if (TextWidth > Notification.Width)
+                {
+                    Notification.Width = TextWidth;
+                }
+                Notification.Height += TextHeight;
+            }
+            C.TextSize("W0", TextWidth, Notification.LineHeight);
+            C.Font = SavedFont;
+        }
+    }
+
+    function PostRender(Canvas C)
+    {
+        local Font SavedFont;
+        local Color SavedColor;
+        local float SavedW;
+        local byte SavedStyle;
+        local float Left;
+        local float Top;
+        local float FullWidth;
+        local float FullHeight;
+        local float LineSpacing;
+        local int i;
+
+        SavedFont = C.Font;
+        SavedColor = C.DrawColor;
+        SavedStyle = C.Style;
+        SavedW = C.ColorModulate.W;
+        C.DrawColor = class'HUD'.default.WhiteColor;
+        C.ColorModulate.W = Notification.Fade;
+        C.Style = 5; // STY_Alpha
+        Left = (C.ClipX - Notification.Width) / 2;
+        Top = C.ClipY * 0.16 + Notification.LineHeight;
+        LineSpacing = Notification.LineHeight / 2;
+        FullWidth = Notification.Width + Notification.LineHeight * 2;
+        FullHeight = Notification.Height + Notification.LineHeight * 2
+            + LineSpacing * (Notification.Lines.Length - 1);
+        C.SetPos(Left - Notification.LineHeight, Top - Notification.LineHeight);
+		C.DrawTileStretched(Texture'InterfaceContent.Menu.BorderBoxD', FullWidth, FullHeight);
+        C.DrawColor = BaseColor;
+        C.Font = Notification.Font;
+        for (i = 0; i < Notification.Lines.Length; ++i)
+        {
+            C.DrawTextJustified(
+                Notification.Lines[i],
+                1,
+                Left,
+                Top,
+                Left + Notification.Width,
+                Top + Notification.LineHeight);
+            Top += Notification.LineHeight + LineSpacing;
+        }
+        C.Font = SavedFont;
+        C.Style = SavedStyle;
+        C.DrawColor = SavedColor;
+        C.ColorModulate.W = SavedW;
+    }
+
+    event NotifyLevelChange()
+    {
+        Global.NotifyLevelChange();
+        GotoState('');
+    }
 }
 
 function ReceiveMutatorClass(class<HxMutator> MutatorClass, coerce bool bLast)
@@ -118,6 +277,10 @@ function ReceiveMutatorClass(class<HxMutator> MutatorClass, coerce bool bLast)
 function ReceiveGlobalProperty(int Index, string Value)
 {
     SetPropertyText(class'HxMutator'.default.GlobalProperties[Index].Name, Value);
+    if (class'HxMutator'.default.GlobalProperties[Index].Name == "NotifyRunning")
+    {
+        CheckNotifyRunning(Channel.ServerName);
+    }
     RefreshConfigurationMenu();
 }
 
@@ -175,23 +338,51 @@ exec function HexedMenu()
     }
 }
 
-function ShowFirstTimeNotification(string KeyName)
+function CheckNotifyRunning(string ServerName)
 {
-    local string MenuKey;
-    local string MenuKeyName;
-    local GUIController GC;
+    switch (NotifyRunning)
+    {
+        case HX_NRUN_PerVersion:
+            if (bIsFirstRun)
+            {
+                EnqueueRunningNotification();
+            }
+            break;
+        case HX_NRUN_PerSession:
+            if (default.LastServerName != ServerName)
+            {
+                EnqueueRunningNotification();
+                default.LastServerName = ServerName;
+            }
+            break;
+        case HX_NRUN_Always:
+            EnqueueRunningNotification();
+            break;
+    }
+}
 
-    if (KeyName != "")
+function EnqueueRunningNotification()
+{
+    local string Message;
+    local string MenuKeyName;
+    local string Version;
+    local string Highlight;
+    local string Base;
+
+    Highlight = class'GUIComponent'.static.MakeColorCode(HighlightColor);
+    Base = class'GUIComponent'.static.MakeColorCode(BaseColor);
+    class'HxTypes'.static.ExtractVersion(Class, Version);
+    Message = Repl(RunningMessage, "%", Highlight$ProjectName$" v"$Version$Base)$"|";
+    if (MenuKeybind != "")
     {
-        MenuKey = Execute("KEYNUMBER"@KeyName);
-        MenuKeyName = Execute("LOCALIZEDKEYNAME"@MenuKey);
+        MenuKeyName = Execute("LOCALIZEDKEYNAME"@Execute("KEYNUMBER"@MenuKeybind));
+        Message $= Repl(OpenMenuMessage, "%", PressMessage@Highlight$MenuKeyName$Base);
     }
-    GC = GUIController(ViewportOwner.GUIController);
-    if (GC.OpenMenu(string(class'HxGUIFirstRunNotification'), MenuKey, MenuKeyName))
+    else
     {
-        HxGUIFirstRunNotification(GC.ActivePage).ClientManager = Self;
+        Message $= Repl(OpenMenuMessage, "%", ExecMessage@Highlight$MenuCommand$Base);
     }
-    bShowFirstRunNotification = false;
+    EnqueueNotification(Message);
 }
 
 function RefreshConfigurationMenu()
@@ -276,7 +467,7 @@ function PopulateMutatorProperties(HxGUIMultiOptionListBox List)
                 HeaderCaption = class'HxMutator'.default.GlobalDisplayInfo[i].Section;
                 List.AddSection(HeaderCaption);
             }
-            List.AddGlobalOption(i, class'HxClientChannel'.static.EncodeTag(GLOBAL_UID, i));
+            List.AddGlobalOption(i, class'HxClientChannel'.static.EncodeTag(RSVD_UID, i));
         }
     }
     for (UID = 0; UID < Entries.Length; ++UID)
@@ -361,15 +552,15 @@ function PopulateGeneralStatus(HxGUIMultiOptionListBox List)
         {
             List.AddLabel(
                 ActiveMutatorsLabel,
-                class'HxClientChannel'.static.EncodeTag(GLOBAL_UID, INFO_INDEX));
+                class'HxClientChannel'.static.EncodeTag(RSVD_UID, RSVD_INDEX));
         }
         else
         {
-            List.AddLabel("", class'HxClientChannel'.static.EncodeTag(GLOBAL_UID, INFO_INDEX, i));
+            List.AddLabel("", class'HxClientChannel'.static.EncodeTag(RSVD_UID, RSVD_INDEX, i));
         }
     }
     List.AddLabel(
-        PlatformLabel, class'HxClientChannel'.static.EncodeTag(GLOBAL_UID, INFO_INDEX, i));
+        PlatformLabel, class'HxClientChannel'.static.EncodeTag(RSVD_UID, RSVD_INDEX, i));
     for (i = 0; i < class'HxMutator'.default.GlobalProperties.Length; ++i)
     {
         if (List.ShouldHideGlobalProperty(i) || ShouldHideGlobalPropertyFromStatus(i))
@@ -383,7 +574,7 @@ function PopulateGeneralStatus(HxGUIMultiOptionListBox List)
         }
         List.AddLabel(
             class'HxMutator'.default.GlobalDisplayInfo[i].Caption,
-            class'HxClientChannel'.static.EncodeTag(GLOBAL_UID, i));
+            class'HxClientChannel'.static.EncodeTag(RSVD_UID, i));
     }
 }
 
@@ -409,7 +600,7 @@ function string GetMutatorPropertyByTag(int Tag)
 
     if (class'HxClientChannel'.static.DecodeTag(Tag, UID, Index))
     {
-        if (UID == GLOBAL_UID)
+        if (UID == RSVD_UID)
         {
             return GetPropertyText(class'HxMutator'.default.GlobalProperties[Index].Name);
         }
@@ -428,9 +619,9 @@ function string GetMutatorStatus(int Tag)
 
     if (class'HxClientChannel'.static.DecodeTag(Tag, UID, Index, ExtraIndex))
     {
-        if (UID == GLOBAL_UID)
+        if (UID == RSVD_UID)
         {
-            if (Index == INFO_INDEX)
+            if (Index == RSVD_INDEX)
             {
                 return GetGeneralStatus(ExtraIndex);
             }
@@ -448,7 +639,7 @@ function string GetMutatorStatus(int Tag)
                 Value = Left(Value, Len(Value) - 4);
                 break;
             case HX_PROPERTY_Enum:
-                if (UID == GLOBAL_UID)
+                if (UID == RSVD_UID)
                 {
                     Value = class'HxMutator'.static.GetGlobalEnumLabel(Index, Value);
                 }
@@ -500,7 +691,7 @@ function SetMutatorPropertyDelayed(int Tag, string Value)
 
     if (Channel != None && Channel.DecodeTag(Tag, UID, Index))
     {
-        if (UID == GLOBAL_UID)
+        if (UID == RSVD_UID)
         {
             if (DelayedGlobalIndices[Index] > -1)
             {
@@ -556,7 +747,7 @@ function DispatchDelayedMutatorUpdates()
         {
             if (Channel.DecodeTag(DelayedQueue[i].Tag, UID, Index))
             {
-                if (UID == GLOBAL_UID)
+                if (UID == RSVD_UID)
                 {
                     DelayedGlobalIndices[Index] = -1;
                     Channel.RequestGlobalPropertyUpdate(Index, DelayedQueue[i].Value);
@@ -594,9 +785,9 @@ function DispatchDelayedConfigUpdates()
 final function bool ShouldHideMutatorPropertyFromStatus(int UID, int Index)
 {
     return !IsAdmin()
-        && (StatusVerbosity == HX_LVL_Lowest
+        && (StatusVerbosity == HX_VERB_Lowest
             || Entries[UID].MutatorClass.default.DisplayInfo[Index].Verbosity > StatusVerbosity
-            || (StatusVerbosity < HX_LVL_High
+            || (StatusVerbosity < HX_VERB_High
                 && Entries[UID].MutatorClass.default.Properties[Index].Type == HX_PROPERTY_Bool
                 && !bool(Entries[UID].MutatorInfo.GetByIndex(Index))));
 }
@@ -604,9 +795,9 @@ final function bool ShouldHideMutatorPropertyFromStatus(int UID, int Index)
 final function bool ShouldHideGlobalPropertyFromStatus(int Index)
 {
     return !IsAdmin()
-        && (StatusVerbosity == HX_LVL_Lowest
+        && (StatusVerbosity == HX_VERB_Lowest
             || class'HxMutator'.default.GlobalDisplayInfo[Index].Verbosity > StatusVerbosity
-            || (StatusVerbosity < HX_LVL_High
+            || (StatusVerbosity < HX_VERB_High
                 && class'HxMutator'.default.GlobalProperties[Index].Type == HX_PROPERTY_Bool
                 && !bool(GetPropertyText(class'HxMutator'.default.GlobalProperties[Index].Name))));
 }
@@ -773,6 +964,14 @@ defaultproperties
     ThemeClass=class'HxGUIThemeDefault'
     bFirstRun=true
     MenuKeybind="H"
+    ProjectName="HexedUT2k4"
+    MenuCommand="HexedMenu"
+    BaseColor=(R=240,G=240,B=240,A=255)
+    HighlightColor=(R=255,G=210,B=0,A=255)
     PlatformLabel="Platform Version"
     ActiveMutatorsLabel="Active Mutators"
+    RunningMessage="This server is running %!"
+    OpenMenuMessage="% to open the configuration menu."
+    PressMessage="Press"
+    ExecMessage="Execute"
 }

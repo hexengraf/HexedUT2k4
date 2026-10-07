@@ -1,18 +1,55 @@
 class HxMutator extends Mutator
     abstract
-    DependsOn(HxTypes)
     config(HexedMutators);
 
-var globalconfig HxTypes.EHxLevel StatusVerbosity;
+enum EHxNotifyRunning
+{
+    HX_NRUN_Never,
+    HX_NRUN_PerVersion,
+    HX_NRUN_PerSession,
+    HX_NRUN_Always,
+};
+
+enum EHxVerbosityLevel
+{
+    HX_VERB_Lowest,
+    HX_VERB_Low,
+    HX_VERB_Medium,
+    HX_VERB_High,
+};
+
+// TODO: engine bug? if extending HxTypes.HxDisplayProperty the server crashes on init
+struct HxMutatorDisplayProperty
+{
+    // From HxTypes.HxDisplayProperty
+    var const localized string Section;
+    var const localized string Caption;
+    var const localized string Hint;
+    var const localized array<string> EnumLabels;
+    var const string Step;
+    var const string Dependency;
+    var const string ConfigPage;
+    var const bool bMPOnly;
+    var const bool bAdvanced;
+    // New properties
+    var const string Privileges;
+    var const int SecLevel;
+    var const EHxVerbosityLevel Verbosity;
+};
+
+var globalconfig float MinimumNotifyDuration;
+// Engine bug: NEVER use an enum from a different class as config (unless it is perobjectconfig)
+var globalconfig EHxNotifyRunning NotifyRunning;
+var globalconfig EHxVerbosityLevel StatusVerbosity;
 
 var const localized string GlobalSettingsGroup;
 var const array<HxTypes.HxProperty> GlobalProperties;
-var const array<HxTypes.HxDisplayProperty> GlobalDisplayInfo;
+var const array<HxMutatorDisplayProperty> GlobalDisplayInfo;
 var const string QualifiedName;
 var const class<HxMutatorInfo> MutatorInfoClass;
 var const class<HxClientReplicationInfo> ClientReplicationInfoClass;
 var const array<HxTypes.HxProperty> Properties;
-var const array<HxTypes.HxDisplayProperty> DisplayInfo;
+var const array<HxMutatorDisplayProperty> DisplayInfo;
 var const array<class<HxConfig> > ConfigClasses;
 var const array<class<HxGUIMenuPanel> > PanelClasses;
 var const byte Priority;
@@ -103,18 +140,6 @@ function TriggerLocalPostNetReceive()
         {
             Channel.LocalPostNetReceive();
         }
-    }
-}
-
-function UpdateServerInfo(PlayInfo ServerInfo)
-{
-    local int Index;
-    local int i;
-
-    for (i = 0; i < LoadedURLOptions.Length; ++i)
-    {
-        Index = LoadedURLOptions[i];
-        ServerInfo.StoreSetting(Index, GetPropertyText(Properties[Index].Name));
     }
 }
 
@@ -330,6 +355,11 @@ function bool DestroyLinkedPRI(PlayerReplicationInfo PRI,
     return false;
 }
 
+function string GetGlobalProperty(int Index)
+{
+    return GetPropertyText(GlobalProperties[Index].Name);
+}
+
 static function string GetURLOptions(string FullURL)
 {
     return Right(FullURL, Len(FullURL) - InStr(FullURL, "?"));
@@ -342,17 +372,31 @@ static function string GetEnumLabel(int Index, string Value)
 
 static function string GetGlobalEnumLabel(int Index, string Value)
 {
+    if (default.GlobalProperties[Index].Name == "NotifyRunning")
+    {
+        switch (Value)
+        {
+            case "HX_NRUN_Never":
+                return default.GlobalDisplayInfo[Index].EnumLabels[0];
+            case "HX_NRUN_PerVersion":
+                return default.GlobalDisplayInfo[Index].EnumLabels[1];
+            case "HX_NRUN_PerSession":
+                return default.GlobalDisplayInfo[Index].EnumLabels[2];
+            case "HX_NRUN_Always":
+                return default.GlobalDisplayInfo[Index].EnumLabels[3];
+        }
+    }
     if (default.GlobalProperties[Index].Name == "StatusVerbosity")
     {
         switch (Value)
         {
-            case "HX_LVL_Lowest":
+            case "HX_VERB_Lowest":
                 return default.GlobalDisplayInfo[Index].EnumLabels[0];
-            case "HX_LVL_Low":
+            case "HX_VERB_Low":
                 return default.GlobalDisplayInfo[Index].EnumLabels[1];
-            case "HX_LVL_Medium":
+            case "HX_VERB_Medium":
                 return default.GlobalDisplayInfo[Index].EnumLabels[2];
-            case "HX_LVL_High":
+            case "HX_VERB_High":
                 return default.GlobalDisplayInfo[Index].EnumLabels[3];
         }
     }
@@ -361,8 +405,21 @@ static function string GetGlobalEnumLabel(int Index, string Value)
 
 static function FillPlayInfo(PlayInfo PlayInfo)
 {
-    FillGlobalPlayInfo(PlayInfo);
+    local int i;
+
     FillOwnedPlayInfo(PlayInfo);
+    for (i = 0; i < PlayInfo.InfoClasses.Length; ++i)
+    {
+        if (PlayInfo.InfoClasses[i] == class'HxMutator')
+        {
+            break;
+        }
+    }
+    if (i == PlayInfo.InfoClasses.Length)
+    {
+        FillGlobalPlayInfo(PlayInfo);
+        PlayInfo.PopClass();
+    }
 }
 
 static function FillOwnedPlayInfo(PlayInfo PlayInfo)
@@ -550,10 +607,16 @@ static function ClientMutatorPropertyChanged(HxMutatorInfo Info, int Index);
 defaultproperties
 {
     GlobalSettingsGroup="Hexed Settings"
-    GlobalProperties(0)=(Name="StatusVerbosity",Type=HX_PROPERTY_Enum,UpperLimit="3",EnumType=enum'EHxLevel')
-    GlobalDisplayInfo(0)=(Section="General",Caption="Status Verbosity",Hint="Control how much information is displayed in the server status for each mutator.",EnumLabels=("Lowest","Low","Medium","High"),bAdvanced=true,Verbosity=HX_LVL_High)
+    GlobalProperties(0)=(Name="MinimumNotifyDuration",Type=HX_PROPERTY_Float,LowerLimit="1.0",UpperLimit="10.0")
+    GlobalProperties(1)=(Name="NotifyRunning",Type=HX_PROPERTY_Enum,UpperLimit="4",EnumType=enum'EHxNotifyRunning')
+    GlobalProperties(2)=(Name="StatusVerbosity",Type=HX_PROPERTY_Enum,UpperLimit="3",EnumType=enum'EHxVerbosityLevel')
+    GlobalDisplayInfo(0)=(Section="General",Caption="Minimum Notify Duration",Hint="Minimum duration of notifications (in seconds). Actual duration might be higher depending the amount of text displayed.",bAdvanced=true,Verbosity=HX_VERB_High)
+    GlobalDisplayInfo(1)=(Section="General",Caption="Notify Running",Hint="Frequency to notify the mutators are running after a map loads.",EnumLabels=("Never","Per Version","Per Session","Always"),bAdvanced=true,Verbosity=HX_VERB_High)
+    GlobalDisplayInfo(2)=(Section="General",Caption="Status Verbosity",Hint="Level of information to be displayed in the server status for each mutator.",EnumLabels=("Lowest","Low","Medium","High"),bAdvanced=true,Verbosity=HX_VERB_High)
     MutatorInfoClass=class'HxMutatorInfo'
     Priority=255
     bAllowURLOptions=true
-    StatusVerbosity=HX_LVL_Medium
+    MinimumNotifyDuration=5.0
+    NotifyRunning=HX_NRUN_PerVersion
+    StatusVerbosity=HX_VERB_Medium
 }

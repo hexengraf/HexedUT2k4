@@ -1,9 +1,6 @@
 class HxClientReplicationInfo extends ReplicationInfo
     abstract;
 
-const PKG_STR_LIMIT = 480;
-const MESSAGES_PER_TICK = 16;
-
 var protected const class<HxMutator> MutatorClass;
 var protected PlayerController PlayerOwner;
 var protected HxMutator MutatorOwner;
