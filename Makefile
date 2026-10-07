@@ -19,7 +19,7 @@ PROJECT:=HexedUT2k4
 TAG:=vDEV
 OUTDIR:=build
 TAGGEDPKGS:=HexedSRC HexedUT HexedVOTE HexedARENA HexedNET
-HELPFILES:=README.md LICENSE CHANGELOG.md
+HELPFILES:=README.md CONFIGURATION.md LICENSE CHANGELOG.md
 REQUIREDIRS:=System Textures Sounds StaticMeshes Animations
 VERBOSITY:=success|export|error|warning
 
@@ -131,7 +131,7 @@ $(inifiles): $(OUTDIR)/%.ini: $(OUTDIR)/%/Config.make
 	done
 	echo "EditPackages=$*" >> "$@"
 
-$(releasezip): $(ufiles) $(uz2files) $(HELPFILES:%=$(OUTDIR)/Help/$(PROJECT)$(TAG)-%)
+$(releasezip): $(ufiles) $(uz2files) $(HELPFILES:%=$(OUTDIR)/Help/$(PROJECT)-%)
 	@echo "[RELEASE] $@"
 	rm -f $@
 	cd $(OUTDIR)
@@ -153,7 +153,7 @@ $(OUTDIR)/System/%.u.uz2: $(OUTDIR)/System/%.u
 $(OUTDIR)/%.u.uz2: $(OUTDIR)/System/%.u.uz2
 	@mv $(OUTDIR)/System/$*.u.uz2 $@
 
-$(OUTDIR)/Help/$(PROJECT)$(TAG)-%: % | $(OUTDIR)/Help
+$(OUTDIR)/Help/$(PROJECT)-%: % | $(OUTDIR)/Help
 	@cp $^ $@
 
 $(OUTDIR) $(OUTDIR)/Help:
