@@ -19,7 +19,6 @@ PROJECT:=HexedUT2k4
 TAG:=vDEV
 OUTDIR:=build
 TAGGEDPKGS:=HexedSRC HexedUT HexedVOTE HexedARENA HexedNET
-UNTAGGEDPKGS:=HexedPatches
 HELPFILES:=README.md LICENSE CHANGELOG.md
 REQUIREDIRS:=System Textures Sounds StaticMeshes Animations
 VERBOSITY:=success|export|error|warning

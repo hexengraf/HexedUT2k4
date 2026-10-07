@@ -1,1 +1,0 @@
-HexedPatches_EXTDEPS:=UnrealGame XGame XInterface UT2k4Assault BonusPack SkaarjPack Onslaught UTClassic GUI2K4

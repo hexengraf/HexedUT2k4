@@ -8,9 +8,7 @@ This is a collection of mutators for Unreal Tournament 2004:
 * **HexedINSTAGIB** (`HexedARENAv9.MutHexedINSTAGIB`) - similar to the built-in Instagib mutator, but provides a custom zoom overlay and an option to change the fire rate.
 * **HexedNET** (`HexedNETv9.MutHexedNET`) - provides a modified version of WSUTComp's enhanced netcode (NewNet weapons).
 
-Additionally, some QoL improvements are provided in the form of a client-only package called HexedPatches.
-With the launch of OldUnreal patches, most of the features of this package are deprecated.
-Better font scaling for higher than 1080p resolutions is the only remaining feature for OldUnreal installations.
+HexedPatches has been moved to its own [repository](https://github.com/hexengraf/HexedUT2k4-Patches).
 
 ## Installation
 
@@ -539,31 +537,6 @@ bRubberbandingFix=False
 ; Link meshes for collision detection. Disable this if experiencing crashes. Helps with hit detection in vehicles.
 bLinkMeshes=True
 ```
-
-### HexedPatches
-
-To enable HexedPatches, open `System/UT2004.ini` and replace the default value of `GUIController` with `HexedPatches.HxGUIController`:
-```ini
-; GUIController=GUI2K4.UT2K4GUIController
-GUIController=HexedPatches.HxGUIController
-```
-
-> [!CAUTION]
-> **DO NOT** change the `GUIController` if you plan to join servers running AntiTCC, otherwise you will most likely be **BANNED**.
-
-All configuration can be changed through a new tab called "HexedPatches" in the settings.
-
-The following QoL improvements are provided (any game version):
-* Better font scaling for higher resolutions (may cause some font cropping/overflow, since some background elements are not properly scaled).
-
-The following QoL improvements are provided for the legacy 3369 version of the game:
-* Modern resolutions available in the settings menu.
-* Small cursor to compensate absurd scaling when using high resolutions.
-* Correct widescreen scaling for default HUDs.
-* Higher FOV limit in the settings menu.
-* Player models are no longer cropped in the settings menu (when using a widescreen resolution).
-* Persistent custom network speed (applied on every level change).
-* Master server selector (either 333network or OpenSpy).
 
 ## Credits
 
