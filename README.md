@@ -33,7 +33,7 @@ This menu gives access to all configurations (both user and server), so it is hi
 > [!TIP]
 > **SERVER ADMINS**: all mutators support URL options to modify their configurations (use the same name as the configuration you want to modify).
 
-See additional configuration guidelines for each mutator in the sections below.
+Check out [CONFIGURATION.md](Configuration.md) for detailed descriptions of all available configuration options.
 
 ### HexedUT
 
