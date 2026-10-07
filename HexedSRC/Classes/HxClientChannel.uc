@@ -48,12 +48,12 @@ simulated event PostBeginPlay()
     if (Role == ROLE_Authority)
     {
         PlayerOwner = PlayerController(Owner);
+        GlobalInfo = new (None) class'PlayInfo';
+        class'HxMutator'.static.FillGlobalPlayInfo(GlobalInfo);
         if (Level.NetMode != NM_DedicatedServer)
         {
             ServerRequestMutatorInfo();
         }
-        GlobalInfo = new (None) class'PlayInfo';
-        class'HxMutator'.static.FillGlobalPlayInfo(GlobalInfo);
     }
 }
 
