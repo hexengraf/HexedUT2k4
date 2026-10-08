@@ -31,6 +31,8 @@ var config float DodgeSpeedMultiplier;
 var config bool bNoWallDodge;
 var config bool bNoDodgeJump;
 
+var private HxCTGameRules GameRules;
+
 function Initialized()
 {
     local xPickUpBase PickupBase;
@@ -54,7 +56,7 @@ function Initialized()
             ModifyPickup(Pickup, true);
         }
     }
-    Spawn(class'HxCTGameRules', Self);
+    GameRules = Spawn(class'HxCTGameRules', Self);
 }
 
 function ModifyPlayer(Pawn Pawn)
@@ -119,7 +121,10 @@ function ServerTraveling(string URL, bool bItems)
 
 function NotifyLogout(Controller Exiting)
 {
-    DestroyLinkedPRI(Exiting.PlayerReplicationInfo, class'HxCTPlayerInfo');
+    if (GameRules != None)
+    {
+        GameRules.ResetHealthLeech(Exiting);
+    }
     Super.NotifyLogout(Exiting);
 }
 
@@ -150,10 +155,6 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
         {
             ModifyPickupBase(xPickUpBase(Other), true);
         }
-    }
-    else if (Other.IsA('PlayerReplicationInfo'))
-    {
-        SpawnLinkedPRI(PlayerReplicationInfo(Other), class'HxCTPlayerInfo');
     }
     else if (Other.IsA('Controller'))
     {

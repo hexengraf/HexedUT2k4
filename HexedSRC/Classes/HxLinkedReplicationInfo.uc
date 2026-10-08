@@ -1,19 +1,29 @@
-class HxLinkedReplicationInfo extends LinkedReplicationInfo;
+class HxLinkedReplicationInfo extends ReplicationInfo
+    abstract;
 
-static function HxLinkedReplicationInfo Find(PlayerReplicationInfo PRI,
-                                             class<HxLinkedReplicationInfo> TargetClass)
+var HxPlayerReplicationInfo HexedPRI;
+var HxLinkedReplicationInfo PrevReplicationInfo;
+var HxLinkedReplicationInfo NextReplicationInfo;
+
+replication
 {
-    local LinkedReplicationInfo LinkedPRI;
+    reliable if (Role == ROLE_Authority && bNetInitial)
+        HexedPRI, PrevReplicationInfo, NextReplicationInfo;
+}
 
-    if (PRI != None)
+event Destroyed()
+{
+    if (PrevReplicationInfo != None)
     {
-        LinkedPRI = PRI.CustomReplicationInfo;
-        while (LinkedPRI != None && !LinkedPRI.IsA(TargetClass.Name))
+        PrevReplicationInfo.NextReplicationInfo = NextReplicationInfo;
+        if (NextReplicationInfo != None)
         {
-            LinkedPRI = LinkedPRI.NextReplicationInfo;
+            NextReplicationInfo.PrevReplicationInfo = PrevReplicationInfo;
         }
     }
-    return HxLinkedReplicationInfo(LinkedPRI);
+    PrevReplicationInfo = None;
+    NextReplicationInfo = None;
+    HexedPRI = None;
 }
 
 defaultproperties

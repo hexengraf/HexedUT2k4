@@ -1,12 +1,13 @@
 class HxCTGameRules extends GameRules;
 
-var private MutHexedCONTROL HexedControl;
+var private MutHexedCONTROL HexedCONTROL;
+var private array<float> AccumulatedLeeches;
 
 event PostBeginPlay()
 {
     Super.PostBeginPlay();
-    HexedControl = MutHexedCONTROL(Owner);
-    if (HexedControl != None)
+    HexedCONTROL = MutHexedCONTROL(Owner);
+    if (HexedCONTROL != None)
     {
         Level.Game.AddGameModifier(Self);
     }
@@ -33,11 +34,11 @@ function int NetDamage(int Original,
     {
         if (Injured.Controller == Inflictor.Controller)
         {
-            Damage *= HexedControl.SelfDamageScale;
+            Damage *= HexedCONTROL.SelfDamageScale;
         }
-        else if (HexedControl.HealthLeechLimit != 0 && Damage > 0 && IsEnemy(Injured, Inflictor))
+        else if (HexedCONTROL.HealthLeechLimit != 0 && Damage > 0 && IsEnemy(Injured, Inflictor))
         {
-            class'HxCTPlayerInfo'.static.RegisterDamage(Damage, Injured, Inflictor, Type);
+            UpdateHealthLeech(Damage, Inflictor);
         }
     }
     return Damage;
@@ -45,11 +46,51 @@ function int NetDamage(int Original,
 
 function ScoreKill(Controller Killer, Controller Killed)
 {
-    if (HexedControl.HealthLeechLimit != 0)
+    if (HexedCONTROL.HealthLeechLimit != 0)
     {
-        class'HxCTPlayerInfo'.static.RegisterKill(Killer, Killed);
+        ResetHealthLeech(Killed);
     }
     Super.ScoreKill(Killer, Killed);
+}
+
+function UpdateHealthLeech(int Damage, Pawn Inflictor)
+{
+    local HxPlayerReplicationInfo HexedPRI;
+    local float HealthLeechValue;
+    local int IntegerValue;
+
+    HexedPRI = class'HxPlayerReplicationInfo'.static.Get(Inflictor.PlayerReplicationInfo);
+    if (HexedPRI != None)
+    {
+        HealthLeechValue = Damage * HexedCONTROL.HealthLeechRatio;
+        IntegerValue = int(HealthLeechValue);
+        if (AccumulatedLeeches.Length <= HexedPRI.PlayerID)
+        {
+            AccumulatedLeeches.Length = HexedPRI.PlayerID + 1;
+        }
+        AccumulatedLeeches[HexedPRI.PlayerID] += HealthLeechValue - float(IntegerValue);
+        if (AccumulatedLeeches[HexedPRI.PlayerID] >= 1.0)
+        {
+            IntegerValue += 1;
+            AccumulatedLeeches[HexedPRI.PlayerID] -= 1;
+        }
+        Inflictor.GiveHealth(IntegerValue, HexedCONTROL.HealthLeechLimit);
+    }
+}
+
+function ResetHealthLeech(Controller C)
+{
+    local HxPlayerReplicationInfo HexedPRI;
+
+    HexedPRI = class'HxPlayerReplicationInfo'.static.Get(C.PlayerReplicationInfo);
+    if (HexedPRI != None)
+    {
+        if (AccumulatedLeeches.Length <= HexedPRI.PlayerID)
+        {
+            AccumulatedLeeches.Length = HexedPRI.PlayerID + 1;
+        }
+        AccumulatedLeeches[HexedPRI.PlayerID] = 0;
+    }
 }
 
 static function bool IsEnemy(Pawn Injured, Pawn Inflictor)

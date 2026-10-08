@@ -60,6 +60,8 @@ var protected const bool bDisableTick;
 var protected array<HxClientChannel> Channels;
 var private HxMutator Leader;
 var private array<int> LoadedURLOptions;
+var private array<int> AvailableIDs;
+var private int CurrentID;
 var private bool bInitialized;
 
 function Initialized();
@@ -212,6 +214,13 @@ function bool CheckReplacement(Actor Other, out byte bSuperRelevant)
         HxClientChannel(Other).AddMutator(Self);
         Channels[Channels.Length] = HxClientChannel(Other);
     }
+    else if (Other.IsA('PlayerReplicationInfo'))
+    {
+        if (Leader == Self)
+        {
+            SpawnHexedPlayerReplicationInfo(PlayerReplicationInfo(Other));
+        }
+    }
     return true;
 }
 
@@ -235,6 +244,10 @@ function NotifyLogout(Controller Exiting)
             break;
         }
     }
+    if (Leader == Self)
+    {
+        DestroyHexedPlayerReplicationInfo(Exiting.PlayerReplicationInfo);
+    }
     Super.NotifyLogout(Exiting);
 }
 
@@ -251,6 +264,10 @@ function ValidateClientChannels()
             {
                 SpawnClientChannel(PlayerController(P));
             }
+            if (P.PlayerReplicationInfo != None)
+            {
+                SpawnHexedPlayerReplicationInfo(P.PlayerReplicationInfo);
+            }
         }
     }
     else
@@ -266,6 +283,37 @@ function ValidateClientChannels()
 function SpawnClientChannel(PlayerController ClientOwner)
 {
     ClientOwner.Spawn(class'HxClientChannel', ClientOwner,, ClientOwner.Location);
+}
+
+function SpawnHexedPlayerReplicationInfo(PlayerReplicationInfo PRI)
+{
+    local HxPlayerReplicationInfo HexedPRI;
+
+    HexedPRI = class'HxPlayerReplicationInfo'.static.Create(PRI);
+    if (HexedPRI != None)
+    {
+        if (AvailableIDs.Length > 0)
+        {
+            HexedPRI.PlayerID = AvailableIDs[0];
+            AvailableIDs.Remove(0, 1);
+        }
+        else
+        {
+            HexedPRI.PlayerID = CurrentID;
+            ++CurrentID;
+        }
+    }
+}
+
+function DestroyHexedPlayerReplicationInfo(PlayerReplicationInfo PRI)
+{
+    local int DeletedID;
+
+    DeletedID = class'HxPlayerReplicationInfo'.static.Delete(PRI);
+    if (DeletedID > -1)
+    {
+        AvailableIDs[AvailableIDs.Length] = DeletedID;
+    }
 }
 
 function HxClientChannel GetClientChannel(PlayerController ClientOwner)
@@ -295,64 +343,6 @@ function HxClientReplicationInfo GetClientReplicationInfo(PlayerController Clien
         return Channel.GetClientReplicationInfo(UID);
     }
     return None;
-}
-
-function LinkedReplicationInfo SpawnLinkedPRI(PlayerReplicationInfo PRI,
-                                              class<LinkedReplicationInfo> LinkedPRIClass)
-{
-    local LinkedReplicationInfo LinkedPRI;
-
-    if (MessagingSpectator(PRI.Owner) != None)
-    {
-        return LinkedPRI;
-    }
-    if (PRI.CustomReplicationInfo == None)
-    {
-        PRI.CustomReplicationInfo = Self.Spawn(LinkedPRIClass, Self);
-        PRI.NetUpdateTime = PRI.Level.TimeSeconds - 1;
-        return PRI.CustomReplicationInfo;
-    }
-    LinkedPRI = PRI.CustomReplicationInfo;
-    while (LinkedPRI.NextReplicationInfo != None)
-    {
-        LinkedPRI = LinkedPRI.NextReplicationInfo;
-    }
-    LinkedPRI.NextReplicationInfo = Self.Spawn(LinkedPRIClass, Self);
-    LinkedPRI.NetUpdateTime = PRI.Level.TimeSeconds - 1;
-    LinkedPRI.NextReplicationInfo.NetUpdateTime = PRI.Level.TimeSeconds - 1;
-    return LinkedPRI.NextReplicationInfo;
-}
-
-function bool DestroyLinkedPRI(PlayerReplicationInfo PRI,
-                               class<LinkedReplicationInfo> LinkedPRIClass)
-{
-    local LinkedReplicationInfo LinkedPRI;
-    local LinkedReplicationInfo NextLinkedPRI;
-
-    if (PRI == None || MessagingSpectator(PRI.Owner) != None || PRI.CustomReplicationInfo == None)
-    {
-        return false;
-    }
-    if (PRI.CustomReplicationInfo.Class == LinkedPRIClass)
-    {
-        NextLinkedPRI = PRI.CustomReplicationInfo.NextReplicationInfo;
-        PRI.CustomReplicationInfo.Destroy();
-        PRI.CustomReplicationInfo = NextLinkedPRI;
-        return true;
-    }
-    LinkedPRI = PRI.CustomReplicationInfo;
-    while (LinkedPRI.NextReplicationInfo != None)
-    {
-        if (LinkedPRI.NextReplicationInfo.Class == LinkedPRIClass)
-        {
-            NextLinkedPRI = LinkedPRI.NextReplicationInfo.NextReplicationInfo;
-            LinkedPRI.NextReplicationInfo.Destroy();
-            LinkedPRI.NextReplicationInfo = NextLinkedPRI;
-            return true;
-        }
-        LinkedPRI = LinkedPRI.NextReplicationInfo;
-    }
-    return false;
 }
 
 function GetServerDetails(out GameInfo.ServerResponseLine ServerState)
