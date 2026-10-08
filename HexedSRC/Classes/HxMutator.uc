@@ -345,16 +345,6 @@ function HxClientReplicationInfo GetClientReplicationInfo(PlayerController Clien
     return None;
 }
 
-function GetServerDetails(out GameInfo.ServerResponseLine ServerState)
-{
-    local int i;
-
-    i = ServerState.ServerInfo.Length;
-    ServerState.ServerInfo.Length = i + 1;
-    ServerState.ServerInfo[i].Key = "Mutator";
-    ServerState.ServerInfo[i].Value = FriendlyName;
-}
-
 function string GetGlobalProperty(int Index)
 {
     return GetPropertyText(GlobalProperties[Index].Name);
