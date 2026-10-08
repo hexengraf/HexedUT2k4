@@ -38,10 +38,16 @@ struct HxSBTable
     var int TeamIndex;
     var array<PlayerReplicationInfo> PRIs;
     var array<Material> Portraits;
-    var array<Vector> PortraitSizes;
+    var array<HxTypes.HxImageCrop> PortraitCrops;
     var array<string> CharacterNames;
     var array<string> Pings;
     var array<string> PLs;
+};
+
+struct HxPortraitCrop
+{
+    var string ModelName;
+    var HxTypes.HxImageCrop Crop;
 };
 
 var localized string ReadyLabel;
@@ -162,6 +168,9 @@ var private int PortraitSize;
 var private string SpectatingPlayers;
 var private string DetailedStatsHint;
 var private HxScoreBoardInteraction Interaction;
+var private const array<HxPortraitCrop> BestPortraitCrops;
+var private const HxTypes.HxImageCrop FallbackPortraitCrop;
+var private const HxTypes.HxImageCrop UnknownPortraitCrop;
 
 simulated function InitializeCustomColumn(int Index);
 simulated function UpdateTablePaddings(Canvas C);
@@ -660,10 +669,10 @@ simulated function DrawPlayerPortrait(Canvas C, int Table, int Index, int Column
             Portrait,
             PortraitSize,
             PortraitSize,
-            0,
-            Tables[Table].PortraitSizes[Index].Z,
-            Tables[Table].PortraitSizes[Index].X,
-            Tables[Table].PortraitSizes[Index].Y);
+            Tables[Table].PortraitCrops[Index].Left,
+            Tables[Table].PortraitCrops[Index].Top,
+            Tables[Table].PortraitCrops[Index].Width,
+            Tables[Table].PortraitCrops[Index].Height);
         C.DrawColor = PreviousColor;
         C.Style = ERenderStyle.STY_Alpha;
     }
@@ -1255,7 +1264,7 @@ simulated function bool UpdateTables()
     for (i = 0; i < Tables.Length; ++i)
     {
         Tables[i].Portraits.Length = Tables[i].PRIs.Length;
-        Tables[i].PortraitSizes.Length = Tables[i].PRIs.Length;
+        Tables[i].PortraitCrops.Length = Tables[i].PRIs.Length;
         Tables[i].CharacterNames.Length = Tables[i].PRIs.Length;
         Tables[i].Pings.Length = Tables[i].PRIs.Length;
         Tables[i].PLs.Length = Tables[i].PRIs.Length;
@@ -1296,16 +1305,12 @@ simulated function UpdatePlayerPortrait(int Table, int Index)
         if (Record.DefaultName ~= Tables[Table].CharacterNames[Index])
         {
             Tables[Table].Portraits[Index] = Record.Portrait;
-            Tables[Table].PortraitSizes[Index].X = 256;
-            Tables[Table].PortraitSizes[Index].Y = 256;
-            Tables[Table].PortraitSizes[Index].Z = 20;
+            Tables[Table].PortraitCrops[Index] = GetBestPortraitCrop(Record.DefaultName);
         }
         else
         {
             Tables[Table].Portraits[Index] = Texture'PlayerPictures.cDefault';
-            Tables[Table].PortraitSizes[Index].X = 256;
-            Tables[Table].PortraitSizes[Index].Y = 400;
-            Tables[Table].PortraitSizes[Index].Z = 56;
+            Tables[Table].PortraitCrops[Index] = UnknownPortraitCrop;
         }
     }
 }
@@ -1702,6 +1707,35 @@ simulated function UpdatePrecacheFonts()
     class'HxGUIFontMidGame'.static.PrecacheFonts();
 }
 
+static function HxTypes.HxImageCrop GetBestPortraitCrop(string ModelName)
+{
+    local int Compare;
+    local int Middle;
+    local int Low;
+    local int High;
+
+    Low = 0;
+    High = default.BestPortraitCrops.Length - 1;
+    while (Low <= High)
+    {
+        Middle = (Low + High) / 2;
+        Compare = StrCmp(ModelName, default.BestPortraitCrops[Middle].ModelName);
+        if (Compare == 0)
+        {
+            return default.BestPortraitCrops[Middle].Crop;
+        }
+        if (Compare > 0)
+        {
+            Low = Middle + 1;
+        }
+        else
+        {
+            High = Middle - 1;
+        }
+    }
+    return default.FallbackPortraitCrop;
+}
+
 defaultproperties
 {
     Tables(0)=(TeamIndex=-1)
@@ -1731,7 +1765,95 @@ defaultproperties
     HighlightTextColor=(R=255,G=255,B=0,A=255)
     ReadyColor=(R=64,G=255,B=64,A=255)
     LastUpdateTime=-5
-
+    // Huge thanks to 21 for creating this list of crops!
+    BestPortraitCrops(0)=(ModelName="Abaddon",Crop=(Left=18,Top=69,Width=221,Height=221))
+    BestPortraitCrops(1)=(ModelName="Ambrosia",Crop=(Left=14,Top=57,Width=227,Height=227))
+    BestPortraitCrops(2)=(ModelName="Annika",Crop=(Left=61,Top=43,Width=195,Height=195))
+    BestPortraitCrops(3)=(ModelName="Arclite",Crop=(Left=29,Top=7,Width=227,Height=227))
+    BestPortraitCrops(4)=(ModelName="Asp",Crop=(Left=35,Top=87,Width=186,Height=186))
+    BestPortraitCrops(5)=(ModelName="Axon",Crop=(Left=21,Top=37,Width=170,Height=170))
+    BestPortraitCrops(6)=(ModelName="Azure",Crop=(Left=52,Top=56,Width=163,Height=163))
+    BestPortraitCrops(7)=(ModelName="Baird",Crop=(Left=14,Top=13,Width=215,Height=215))
+    BestPortraitCrops(8)=(ModelName="Barktooth",Crop=(Left=57,Top=24,Width=151,Height=151))
+    BestPortraitCrops(9)=(ModelName="BlackJack",Crop=(Left=26,Top=19,Width=204,Height=204))
+    BestPortraitCrops(10)=(ModelName="Brock",Crop=(Left=41,Top=40,Width=215,Height=215))
+    BestPortraitCrops(11)=(ModelName="Brutalis",Crop=(Left=15,Top=43,Width=227,Height=227))
+    BestPortraitCrops(12)=(ModelName="Cannonball",Crop=(Left=28,Top=29,Width=227,Height=227))
+    BestPortraitCrops(13)=(ModelName="Cathode",Crop=(Left=73,Top=50,Width=146,Height=146))
+    BestPortraitCrops(14)=(ModelName="ClanLord",Crop=(Left=22,Top=29,Width=227,Height=227))
+    BestPortraitCrops(15)=(ModelName="Cleopatra",Crop=(Left=45,Top=100,Width=178,Height=178))
+    BestPortraitCrops(16)=(ModelName="Cobalt",Crop=(Left=41,Top=94,Width=215,Height=215))
+    BestPortraitCrops(17)=(ModelName="Corrosion",Crop=(Left=0,Top=56,Width=256,Height=256))
+    BestPortraitCrops(18)=(ModelName="Cyclops",Crop=(Left=0,Top=64,Width=227,Height=227))
+    BestPortraitCrops(19)=(ModelName="Damarus",Crop=(Left=38,Top=115,Width=204,Height=204))
+    BestPortraitCrops(20)=(ModelName="Diva",Crop=(Left=42,Top=70,Width=170,Height=170))
+    BestPortraitCrops(21)=(ModelName="Divisor",Crop=(Left=16,Top=22,Width=240,Height=240))
+    BestPortraitCrops(22)=(ModelName="Domina",Crop=(Left=0,Top=80,Width=256,Height=256))
+    BestPortraitCrops(23)=(ModelName="Dominator",Crop=(Left=38,Top=45,Width=204,Height=204))
+    BestPortraitCrops(24)=(ModelName="Drekorig",Crop=(Left=86,Top=43,Width=170,Height=170))
+    BestPortraitCrops(25)=(ModelName="Enigma",Crop=(Left=23,Top=5,Width=186,Height=186))
+    BestPortraitCrops(26)=(ModelName="Faraleth",Crop=(Left=36,Top=115,Width=195,Height=195))
+    BestPortraitCrops(27)=(ModelName="Fate",Crop=(Left=29,Top=22,Width=227,Height=227))
+    BestPortraitCrops(28)=(ModelName="Frostbite",Crop=(Left=27,Top=20,Width=215,Height=215))
+    BestPortraitCrops(29)=(ModelName="Gaargod",Crop=(Left=67,Top=11,Width=178,Height=178))
+    BestPortraitCrops(30)=(ModelName="Garrett",Crop=(Left=0,Top=37,Width=240,Height=240))
+    BestPortraitCrops(31)=(ModelName="Gkublok",Crop=(Left=14,Top=48,Width=215,Height=215))
+    BestPortraitCrops(32)=(ModelName="Gorge",Crop=(Left=21,Top=37,Width=199,Height=199))
+    BestPortraitCrops(33)=(ModelName="Greith",Crop=(Left=8,Top=0,Width=240,Height=240))
+    BestPortraitCrops(34)=(ModelName="Guardian",Crop=(Left=39,Top=32,Width=204,Height=204))
+    BestPortraitCrops(35)=(ModelName="Harlequin",Crop=(Left=37,Top=61,Width=195,Height=195))
+    BestPortraitCrops(36)=(ModelName="Horus",Crop=(Left=36,Top=55,Width=195,Height=195))
+    BestPortraitCrops(37)=(ModelName="Hyena",Crop=(Left=26,Top=71,Width=204,Height=204))
+    BestPortraitCrops(38)=(ModelName="Kaela",Crop=(Left=0,Top=0,Width=240,Height=240))
+    BestPortraitCrops(39)=(ModelName="Kane",Crop=(Left=0,Top=12,Width=204,Height=204))
+    BestPortraitCrops(40)=(ModelName="Karag",Crop=(Left=0,Top=102,Width=215,Height=215))
+    BestPortraitCrops(41)=(ModelName="Komek",Crop=(Left=14,Top=67,Width=215,Height=215))
+    BestPortraitCrops(42)=(ModelName="Kraagesh",Crop=(Left=52,Top=20,Width=204,Height=204))
+    BestPortraitCrops(43)=(ModelName="Kragoth",Crop=(Left=61,Top=81,Width=163,Height=163))
+    BestPortraitCrops(44)=(ModelName="Lauren",Crop=(Left=16,Top=22,Width=240,Height=240))
+    BestPortraitCrops(45)=(ModelName="Lilith",Crop=(Left=7,Top=29,Width=227,Height=227))
+    BestPortraitCrops(46)=(ModelName="Makreth",Crop=(Left=25,Top=83,Width=204,Height=204))
+    BestPortraitCrops(47)=(ModelName="Malcolm",Crop=(Left=16,Top=45,Width=240,Height=240))
+    BestPortraitCrops(48)=(ModelName="Mandible",Crop=(Left=38,Top=58,Width=204,Height=204))
+    BestPortraitCrops(49)=(ModelName="Matrix",Crop=(Left=0,Top=40,Width=256,Height=256))
+    BestPortraitCrops(50)=(ModelName="Mekkor",Crop=(Left=0,Top=104,Width=256,Height=256))
+    BestPortraitCrops(51)=(ModelName="Memphis",Crop=(Left=35,Top=52,Width=186,Height=186))
+    BestPortraitCrops(52)=(ModelName="Mokara",Crop=(Left=26,Top=96,Width=204,Height=204))
+    BestPortraitCrops(53)=(ModelName="Motig",Crop=(Left=0,Top=80,Width=256,Height=256))
+    BestPortraitCrops(54)=(ModelName="Mr.Crow",Crop=(Left=25,Top=38,Width=204,Height=204))
+    BestPortraitCrops(55)=(ModelName="Nebri",Crop=(Left=14,Top=99,Width=227,Height=227))
+    BestPortraitCrops(56)=(ModelName="Ophelia",Crop=(Left=4,Top=62,Width=248,Height=248))
+    BestPortraitCrops(57)=(ModelName="Outlaw",Crop=(Left=0,Top=16,Width=256,Height=256))
+    BestPortraitCrops(58)=(ModelName="Prism",Crop=(Left=15,Top=57,Width=227,Height=227))
+    BestPortraitCrops(59)=(ModelName="Rae",Crop=(Left=10,Top=13,Width=221,Height=221))
+    BestPortraitCrops(60)=(ModelName="Rapier",Crop=(Left=51,Top=97,Width=163,Height=163))
+    BestPortraitCrops(61)=(ModelName="Ravage",Crop=(Left=24,Top=61,Width=195,Height=195))
+    BestPortraitCrops(62)=(ModelName="Reinha",Crop=(Left=14,Top=28,Width=227,Height=227))
+    BestPortraitCrops(63)=(ModelName="Remus",Crop=(Left=4,Top=16,Width=248,Height=248))
+    BestPortraitCrops(64)=(ModelName="Renegade",Crop=(Left=0,Top=37,Width=240,Height=240))
+    BestPortraitCrops(65)=(ModelName="Riker",Crop=(Left=0,Top=0,Width=256,Height=256))
+    BestPortraitCrops(66)=(ModelName="Roc",Crop=(Left=17,Top=83,Width=221,Height=221))
+    BestPortraitCrops(67)=(ModelName="Romulus",Crop=(Left=8,Top=15,Width=240,Height=240))
+    BestPortraitCrops(68)=(ModelName="Rylisa",Crop=(Left=16,Top=37,Width=240,Height=240))
+    BestPortraitCrops(69)=(ModelName="Sapphire",Crop=(Left=4,Top=16,Width=248,Height=248))
+    BestPortraitCrops(70)=(ModelName="Satin",Crop=(Left=0,Top=32,Width=256,Height=256))
+    BestPortraitCrops(71)=(ModelName="Scarab",Crop=(Left=11,Top=70,Width=186,Height=186))
+    BestPortraitCrops(72)=(ModelName="Selig",Crop=(Left=13,Top=94,Width=215,Height=215))
+    BestPortraitCrops(73)=(ModelName="Siren",Crop=(Left=29,Top=40,Width=210,Height=210))
+    BestPortraitCrops(74)=(ModelName="Skakruk",Crop=(Left=27,Top=27,Width=215,Height=215))
+    BestPortraitCrops(75)=(ModelName="Skrilax",Crop=(Left=11,Top=11,Width=178,Height=178))
+    BestPortraitCrops(76)=(ModelName="Subversa",Crop=(Left=16,Top=45,Width=240,Height=240))
+    BestPortraitCrops(77)=(ModelName="Syzygy",Crop=(Left=57,Top=59,Width=190,Height=190))
+    BestPortraitCrops(78)=(ModelName="Thannis",Crop=(Left=35,Top=58,Width=186,Height=186))
+    BestPortraitCrops(79)=(ModelName="Thorax",Crop=(Left=12,Top=54,Width=195,Height=195))
+    BestPortraitCrops(80)=(ModelName="Torch",Crop=(Left=13,Top=40,Width=215,Height=215))
+    BestPortraitCrops(81)=(ModelName="Virus",Crop=(Left=45,Top=59,Width=146,Height=146))
+    BestPortraitCrops(82)=(ModelName="Widowmaker",Crop=(Left=26,Top=64,Width=204,Height=204))
+    BestPortraitCrops(83)=(ModelName="Wraith",Crop=(Left=29,Top=14,Width=227,Height=227))
+    BestPortraitCrops(84)=(ModelName="Xan",Crop=(Left=0,Top=55,Width=195,Height=195))
+    BestPortraitCrops(85)=(ModelName="Zarina",Crop=(Left=52,Top=11,Width=186,Height=186))
+    FallbackPortraitCrop=(Left=0,Top=20,Width=256,Height=256)
+    UnknownPortraitCrop=(Left=0,Top=56,Width=256,Height=400)
     ReadyLabel="RDY"
     PlayerLabel="PLAYER (%)"
     LocationLabel="location"

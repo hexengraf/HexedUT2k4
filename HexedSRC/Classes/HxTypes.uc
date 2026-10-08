@@ -58,6 +58,14 @@ struct HxDisplayProperty
     var const bool bAdvanced;
 };
 
+struct HxImageCrop
+{
+    var float Left;
+    var float Top;
+    var float Width;
+    var float Height;
+};
+
 static function string GetDataCharset(EHxDataType Type)
 {
     switch (Type)
