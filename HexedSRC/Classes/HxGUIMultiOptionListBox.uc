@@ -3,11 +3,36 @@ class HxGUIMultiOptionListBox extends GUIMultiOptionListBox;
 var float ComponentWidth;
 var float ScrollbarWidth;
 
+var private array<HxGUIMultiOptionListLabel> StatusElements;
+
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
     DefaultListClass = string(class'HxGUIMultiOptionList');
     Super.InitComponent(MyController, MyOwner);
     HxGUIVertScrollBar(MyScrollBar).StandardWidth = ScrollbarWidth;
+}
+
+event Opened(GUIComponent Sender)
+{
+    SetTimer(2.2, true);
+    Super.Opened(Sender);
+}
+
+event Closed(GUIComponent Sender, bool bCancelled)
+{
+    KillTimer();
+    Super.Closed(Sender, bCancelled);
+}
+
+event Timer()
+{
+    local int i;
+
+    for (i = 0; i < StatusElements.Length; ++i)
+    {
+        StatusElements[i].LoadINI();
+    }
+    Super.Timer();
 }
 
 function InitBaseList(GUIListBase LocalList)
@@ -162,6 +187,23 @@ function GUIMenuOption AddGlobalOption(int Index, int Tag)
     return Option;
 }
 
+function HxGUIMultiOptionListLabel AddStatus(string Caption, int Tag)
+{
+    local HxGUIMultiOptionListLabel Label;
+
+    Label = HxGUIMultiOptionListLabel(
+        List.AddItem(string(class'HxGUIMultiOptionListLabel'),, Caption));
+    if (Label != None)
+    {
+        Label.Tag = Tag;
+        Label.CaptionWidth = 0.2;
+        Label.ComponentWidth = -1;
+        Label.bAutoSizeCaption = true;
+        StatusElements[StatusElements.Length] = Label;
+    }
+    return Label;
+}
+
 function HxGUIMultiOptionListLabel AddLabel(string Caption, int Tag)
 {
     local HxGUIMultiOptionListLabel Label;
@@ -314,6 +356,7 @@ function ListCreateComponent(GUIMenuOption NewComp, GUIMultiOptionList Sender)
 
 function Clear()
 {
+	StatusElements.Remove(0, StatusElements.Length);
     List.Clear();
 }
 

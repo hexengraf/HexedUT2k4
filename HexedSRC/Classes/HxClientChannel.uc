@@ -335,9 +335,15 @@ simulated private function DispatchMessages()
     }
 }
 
-static final function int EncodeTag(int UID, int Index, optional int ExtraIndex)
+static final function int EncodeTag(int UID,
+                                    int Index,
+                                    optional int ExtraIndex,
+                                    optional bool bControl)
 {
-    return ((UID & 0x3ff) << 20) | ((ExtraIndex & 0x3ff) << 10) | (Index & 0x3ff);
+    return (int(bControl) << 30)
+        | ((UID & 0x3ff) << 20)
+        | ((ExtraIndex & 0x3ff) << 10)
+        | (Index & 0x3ff);
 }
 
 static final function bool DecodeTag(int Tag,
@@ -345,14 +351,10 @@ static final function bool DecodeTag(int Tag,
                                      out int Index,
                                      optional out int ExtraIndex)
 {
-    if (Tag >= 0)
-    {
-        Index = Tag & 0x3ff;
-        ExtraIndex = (Tag >>> 10) & 0x3ff;
-        UID = (Tag >>> 20) & 0x3ff;
-        return true;
-    }
-    return false;
+    Index = Tag & 0x3ff;
+    ExtraIndex = (Tag >>> 10) & 0x3ff;
+    UID = (Tag >>> 20) & 0x3ff;
+    return !bool((Tag >>> 30) & 0x1);
 }
 
 defaultproperties

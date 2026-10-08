@@ -9,6 +9,7 @@ struct HxDelayedUpdate
 
 var const array<HxProperty> Properties;
 var const array<HxDisplayProperty> DisplayInfo;
+var const array<HxDisplayProperty> StatusInfo;
 
 var protected LevelInfo Level;
 var protected HxClientManager ClientManager;
@@ -125,6 +126,16 @@ function int GetPropertyIndex(string Name)
         }
     }
     return -1;
+}
+
+function bool ShouldShowStatus(int Index)
+{
+    return false;
+}
+
+function string GetStatus(int Index)
+{
+    return "";
 }
 
 function bool ResetProperty(int Index)

@@ -30,7 +30,6 @@ struct HxNotification
     var float LineHeight;
 };
 
-const RSVD_UID = 1023;
 const RSVD_INDEX = 1023;
 
 var config bool bFirstRun;
@@ -451,6 +450,15 @@ function PopulateConfigProperties(HxGUIMultiOptionListBox List)
                     j,
                     class'HxClientChannel'.static.EncodeTag(UID, j, i));
             }
+            for (j = 0; j < Entries[UID].Configs[i].StatusInfo.Length; ++j)
+            {
+                if (Entries[UID].Configs[i].ShouldShowStatus(j))
+                {
+                    List.AddStatus(
+                        Entries[UID].Configs[i].StatusInfo[i].Caption,
+                        class'HxClientChannel'.static.EncodeTag(UID, j, i, true));
+                }
+            }
         }
     }
 }
@@ -471,7 +479,7 @@ function PopulateMutatorProperties(HxGUIMultiOptionListBox List)
                 HeaderCaption = class'HxMutator'.default.GlobalDisplayInfo[i].Section;
                 List.AddSection(HeaderCaption);
             }
-            List.AddGlobalOption(i, class'HxClientChannel'.static.EncodeTag(RSVD_UID, i));
+            List.AddGlobalOption(i, class'HxClientChannel'.static.EncodeTag(0, i,, true));
         }
     }
     for (UID = 0; UID < Entries.Length; ++UID)
@@ -510,7 +518,7 @@ function PopulateMutatorStatus(HxGUIMultiOptionListBox List)
     local int UID;
     local int i;
 
-    PopulateGeneralStatus(List);
+    PopulateServerGeneralStatus(List);
     for (UID = 0; UID < Entries.Length; ++UID)
     {
         if (!Entries[UID].MutatorInfo.IsInitialized())
@@ -543,7 +551,7 @@ function PopulateMutatorStatus(HxGUIMultiOptionListBox List)
     }
 }
 
-function PopulateGeneralStatus(HxGUIMultiOptionListBox List)
+function PopulateServerGeneralStatus(HxGUIMultiOptionListBox List)
 {
     local string HeaderCaption;
     local int i;
@@ -555,16 +563,15 @@ function PopulateGeneralStatus(HxGUIMultiOptionListBox List)
         if (i == 0)
         {
             List.AddLabel(
-                ActiveMutatorsLabel,
-                class'HxClientChannel'.static.EncodeTag(RSVD_UID, RSVD_INDEX));
+                ActiveMutatorsLabel, class'HxClientChannel'.static.EncodeTag(0, RSVD_INDEX,, true));
         }
         else
         {
-            List.AddLabel("", class'HxClientChannel'.static.EncodeTag(RSVD_UID, RSVD_INDEX, i));
+            List.AddLabel("", class'HxClientChannel'.static.EncodeTag(0, RSVD_INDEX, i, true));
         }
     }
     List.AddLabel(
-        PlatformLabel, class'HxClientChannel'.static.EncodeTag(RSVD_UID, RSVD_INDEX, i));
+        PlatformLabel, class'HxClientChannel'.static.EncodeTag(0, RSVD_INDEX, i, true));
     for (i = 0; i < class'HxMutator'.default.GlobalProperties.Length; ++i)
     {
         if (List.ShouldHideGlobalProperty(i) || ShouldHideGlobalPropertyFromStatus(i))
@@ -578,7 +585,7 @@ function PopulateGeneralStatus(HxGUIMultiOptionListBox List)
         }
         List.AddLabel(
             class'HxMutator'.default.GlobalDisplayInfo[i].Caption,
-            class'HxClientChannel'.static.EncodeTag(RSVD_UID, i));
+            class'HxClientChannel'.static.EncodeTag(0, i,, true));
     }
 }
 
@@ -604,13 +611,9 @@ function string GetMutatorPropertyByTag(int Tag)
 
     if (class'HxClientChannel'.static.DecodeTag(Tag, UID, Index))
     {
-        if (UID == RSVD_UID)
-        {
-            return GetPropertyText(class'HxMutator'.default.GlobalProperties[Index].Name);
-        }
         return Entries[UID].MutatorInfo.GetByIndex(Index);
     }
-    return "";
+    return GetPropertyText(class'HxMutator'.default.GlobalProperties[Index].Name);
 }
 
 function string GetMutatorStatus(int Tag)
@@ -619,43 +622,41 @@ function string GetMutatorStatus(int Tag)
     local int UID;
     local int Index;
     local int ExtraIndex;
+    local bool bOwned;
     local string Value;
 
-    if (class'HxClientChannel'.static.DecodeTag(Tag, UID, Index, ExtraIndex))
+    bOwned = class'HxClientChannel'.static.DecodeTag(Tag, UID, Index, ExtraIndex);
+    if (bOwned)
     {
-        if (UID == RSVD_UID)
-        {
-            if (Index == RSVD_INDEX)
-            {
-                return GetGeneralStatus(ExtraIndex);
-            }
-            Type = class'HxMutator'.default.GlobalProperties[Index].Type;
-            Value = GetPropertyText(class'HxMutator'.default.GlobalProperties[Index].Name);
-        }
-        else
-        {
-            Type = Entries[UID].MutatorClass.default.Properties[Index].Type;
-            Value = Entries[UID].MutatorInfo.GetByIndex(Index);
-        }
-        switch (Type)
-        {
-            case HX_PROPERTY_Float:
-                Value = Left(Value, Len(Value) - 4);
-                break;
-            case HX_PROPERTY_Enum:
-                if (UID == RSVD_UID)
-                {
-                    Value = class'HxMutator'.static.GetGlobalEnumLabel(Index, Value);
-                }
-                else
-                {
-                    Value = Entries[UID].MutatorClass.static.GetEnumLabel(Index, Value);
-                }
-                break;
-        }
-        return Value;
+        Type = Entries[UID].MutatorClass.default.Properties[Index].Type;
+        Value = Entries[UID].MutatorInfo.GetByIndex(Index);
     }
-    return "";
+    else
+    {
+        if (Index == RSVD_INDEX)
+        {
+            return GetGeneralStatus(ExtraIndex);
+        }
+        Type = class'HxMutator'.default.GlobalProperties[Index].Type;
+        Value = GetPropertyText(class'HxMutator'.default.GlobalProperties[Index].Name);
+    }
+    switch (Type)
+    {
+        case HX_PROPERTY_Float:
+            Value = Left(Value, Len(Value) - 4);
+            break;
+        case HX_PROPERTY_Enum:
+            if (bOwned)
+            {
+                Value = Entries[UID].MutatorClass.static.GetEnumLabel(Index, Value);
+            }
+            else
+            {
+                Value = class'HxMutator'.static.GetGlobalEnumLabel(Index, Value);
+            }
+            break;
+    }
+    return Value;
 }
 
 function string GetGeneralStatus(int Index)
@@ -684,7 +685,7 @@ function string GetConfigPropertyByTag(int Tag)
     {
         return Entries[UID].Configs[ConfigIndex].GetProperty(Index);
     }
-    return "";
+    return Entries[UID].Configs[ConfigIndex].GetStatus(Index);
 }
 
 function SetMutatorPropertyDelayed(int Tag, string Value)
@@ -693,22 +694,9 @@ function SetMutatorPropertyDelayed(int Tag, string Value)
     local int Index;
     local int QueueIndex;
 
-    if (Channel != None && Channel.DecodeTag(Tag, UID, Index))
+    if (Channel != None)
     {
-        if (UID == RSVD_UID)
-        {
-            if (DelayedGlobalIndices[Index] > -1)
-            {
-                QueueIndex = DelayedGlobalIndices[Index];
-            }
-            else
-            {
-                QueueIndex = DelayedQueue.Length;
-                DelayedQueue.Insert(QueueIndex, 1);
-                DelayedGlobalIndices[Index] = QueueIndex;
-            }
-        }
-        else
+        if (Channel.DecodeTag(Tag, UID, Index))
         {
             if (Entries[UID].DelayedIndices[Index] > -1)
             {
@@ -719,6 +707,19 @@ function SetMutatorPropertyDelayed(int Tag, string Value)
                 QueueIndex = DelayedQueue.Length;
                 DelayedQueue.Insert(QueueIndex, 1);
                 Entries[UID].DelayedIndices[Index] = QueueIndex;
+            }
+        }
+        else
+        {
+            if (DelayedGlobalIndices[Index] > -1)
+            {
+                QueueIndex = DelayedGlobalIndices[Index];
+            }
+            else
+            {
+                QueueIndex = DelayedQueue.Length;
+                DelayedQueue.Insert(QueueIndex, 1);
+                DelayedGlobalIndices[Index] = QueueIndex;
             }
         }
         DelayedQueue[QueueIndex].Tag = Tag;
@@ -751,17 +752,13 @@ function DispatchDelayedMutatorUpdates()
         {
             if (Channel.DecodeTag(DelayedQueue[i].Tag, UID, Index))
             {
-                if (UID == RSVD_UID)
-                {
-                    DelayedGlobalIndices[Index] = -1;
-                    Channel.RequestGlobalPropertyUpdate(Index, DelayedQueue[i].Value);
-                }
-                else
-                {
-                    Entries[UID].DelayedIndices[Index] = -1;
-                    Channel.RequestMutatorPropertyUpdate(
-                        DelayedQueue[i].Tag, DelayedQueue[i].Value);
-                }
+                Entries[UID].DelayedIndices[Index] = -1;
+                Channel.RequestMutatorPropertyUpdate(DelayedQueue[i].Tag, DelayedQueue[i].Value);
+            }
+            else
+            {
+                DelayedGlobalIndices[Index] = -1;
+                Channel.RequestGlobalPropertyUpdate(Index, DelayedQueue[i].Value);
             }
         }
     }
