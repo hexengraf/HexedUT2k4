@@ -35,7 +35,7 @@ const RSVD_INDEX = 1023;
 
 var config bool bFirstRun;
 var config string MenuKeybind;
-var float MinimumNotifyDuration;
+var float MaxNotifyDuration;
 var HxMutator.EHxNotifyRunning NotifyRunning;
 var HxMutator.EHxVerbosityLevel StatusVerbosity;
 
@@ -52,6 +52,7 @@ var const private class<HxGUIFloatingWindow> MenuClass;
 var const private class<HxGUITheme> ThemeClass;
 var const private Color BaseColor;
 var const private Color HighlightColor;
+var private LevelInfo Level;
 var private HxClientChannel Channel;
 var private array<HxMutatorEntry> Entries;
 var private array<HxDelayedUpdate> DelayedQueue;
@@ -74,6 +75,7 @@ event Initialized()
         bFirstRun = false;
         SaveConfig();
     }
+    Level = ViewportOwner.Actor.Level;
     DelayedGlobalIndices.Length = class'HxMutator'.default.GlobalProperties.Length;
     for (i = 0; i < DelayedGlobalIndices.Length; ++i)
     {
@@ -113,8 +115,7 @@ function EnqueueNotification(string Message)
     local HxNotification NewNotification;
 
     NewNotification.FullMessage = Message;
-    NewNotification.Duration =
-        FMax(MinimumNotifyDuration, Len(Message) * 0.05) * ViewportOwner.Actor.Level.TimeDilation;
+    NewNotification.Duration = FMin(MaxNotifyDuration, Len(Message) * 0.05) * Level.TimeDilation;
     PendingNotifications[PendingNotifications.Length] = NewNotification;
     if (!IsInState('DisplayNotification'))
     {
@@ -340,24 +341,27 @@ exec function HexedMenu()
 
 function CheckNotifyRunning(string ServerName)
 {
-    switch (NotifyRunning)
+    if (Level.NetMode != NM_Standalone)
     {
-        case HX_NRUN_PerVersion:
-            if (bIsFirstRun)
-            {
+        switch (NotifyRunning)
+        {
+            case HX_NRUN_PerVersion:
+                if (bIsFirstRun)
+                {
+                    EnqueueRunningNotification();
+                }
+                break;
+            case HX_NRUN_PerSession:
+                if (default.LastServerName != ServerName)
+                {
+                    EnqueueRunningNotification();
+                    default.LastServerName = ServerName;
+                }
+                break;
+            case HX_NRUN_Always:
                 EnqueueRunningNotification();
-            }
-            break;
-        case HX_NRUN_PerSession:
-            if (default.LastServerName != ServerName)
-            {
-                EnqueueRunningNotification();
-                default.LastServerName = ServerName;
-            }
-            break;
-        case HX_NRUN_Always:
-            EnqueueRunningNotification();
-            break;
+                break;
+        }
     }
 }
 
@@ -809,10 +813,10 @@ final function bool IsFirstRun()
 
 final function bool IsAdmin()
 {
-    return ViewportOwner.Actor != None
-        && (ViewportOwner.Actor.Level.NetMode == NM_Standalone
-            || (ViewportOwner.Actor.PlayerReplicationInfo != None
-                && ViewportOwner.Actor.PlayerReplicationInfo.bAdmin));
+    return Level.NetMode == NM_Standalone
+        || (ViewportOwner.Actor != None
+            && ViewportOwner.Actor.PlayerReplicationInfo != None
+            && ViewportOwner.Actor.PlayerReplicationInfo.bAdmin);
 }
 
 final function bool FindMutatorInfo(class<HxMutator> MutatorClass, out HxMutatorInfo MutatorInfo)

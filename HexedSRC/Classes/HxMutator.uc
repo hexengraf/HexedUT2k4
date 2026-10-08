@@ -37,7 +37,7 @@ struct HxMutatorDisplayProperty
     var const EHxVerbosityLevel Verbosity;
 };
 
-var globalconfig float MinimumNotifyDuration;
+var globalconfig float MaxNotifyDuration;
 // Engine bug: NEVER use an enum from a different class as config (unless it is perobjectconfig)
 var globalconfig EHxNotifyRunning NotifyRunning;
 var globalconfig EHxVerbosityLevel StatusVerbosity;
@@ -597,16 +597,16 @@ static function ClientMutatorPropertyChanged(HxMutatorInfo Info, int Index);
 defaultproperties
 {
     GlobalSettingsGroup="Hexed Settings"
-    GlobalProperties(0)=(Name="MinimumNotifyDuration",Type=HX_PROPERTY_Float,LowerLimit="1.0",UpperLimit="10.0")
+    GlobalProperties(0)=(Name="MaxNotifyDuration",Type=HX_PROPERTY_Float,LowerLimit="1.0",UpperLimit="30.0")
     GlobalProperties(1)=(Name="NotifyRunning",Type=HX_PROPERTY_Enum,UpperLimit="4",EnumType=enum'EHxNotifyRunning')
     GlobalProperties(2)=(Name="StatusVerbosity",Type=HX_PROPERTY_Enum,UpperLimit="3",EnumType=enum'EHxVerbosityLevel')
-    GlobalDisplayInfo(0)=(Section="General",Caption="Minimum Notify Duration",Hint="Minimum duration of notifications (in seconds). Actual duration might be higher depending the amount of text displayed.",bAdvanced=true,Verbosity=HX_VERB_High)
+    GlobalDisplayInfo(0)=(Section="General",Caption="Maximum Notify Duration",Hint="Maximum duration of notifications (in seconds). Actual duration varies depending the amount of text displayed.",bAdvanced=true,Verbosity=HX_VERB_High)
     GlobalDisplayInfo(1)=(Section="General",Caption="Notify Running",Hint="Frequency to notify the mutators are running after a map loads.",EnumLabels=("Never","Per Version","Per Session","Always"),bAdvanced=true,Verbosity=HX_VERB_High)
     GlobalDisplayInfo(2)=(Section="General",Caption="Status Verbosity",Hint="Level of information to be displayed in the server status for each mutator.",EnumLabels=("Lowest","Low","Medium","High"),bAdvanced=true,Verbosity=HX_VERB_High)
     MutatorInfoClass=class'HxMutatorInfo'
     Priority=255
     bAllowURLOptions=true
-    MinimumNotifyDuration=5.0
+    MaxNotifyDuration=10.0
     NotifyRunning=HX_NRUN_PerVersion
     StatusVerbosity=HX_VERB_Medium
 }
