@@ -14,7 +14,14 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 
 event Opened(GUIComponent Sender)
 {
-    SetTimer(2.2, true);
+    if (Controller.ViewportOwner != None && Controller.ViewportOwner.Actor != None)
+    {
+        SetTimer(Controller.ViewportOwner.Actor.Level.TimeDilation * 2, true);
+    }
+    else
+    {
+        SetTimer(2.2, true);
+    }
     Super.Opened(Sender);
 }
 
