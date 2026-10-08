@@ -163,7 +163,7 @@ state DisplayNotification
         }
         else
         {
-            Notification.Fade = FMin(Notification.Duration / 0.5, 1.0);
+            Notification.Fade = FMin(Notification.Duration / 0.33, 1.0);
         }
     }
 
@@ -179,7 +179,7 @@ state DisplayNotification
             Notification.Font = class'HxGUIFontMidGame'.static.GetMediumFont(C);
             SavedFont = C.Font;
             C.Font = Notification.Font;
-            C.WrapStringToArray(Notification.FullMessage, Notification.Lines, C.ClipX * 0.3, "|");
+            C.WrapStringToArray(Notification.FullMessage, Notification.Lines, 0.65 * C.ClipY, "|");
             for (i = 0; i < Notification.Lines.Length; ++i)
             {
                 C.TextSize(Notification.Lines[i], TextWidth, TextHeight);
@@ -215,7 +215,7 @@ state DisplayNotification
         C.ColorModulate.W = Notification.Fade;
         C.Style = 5; // STY_Alpha
         Left = (C.ClipX - Notification.Width) / 2;
-        Top = C.ClipY * 0.16 + Notification.LineHeight;
+        Top = C.ClipY * 0.15 + Notification.LineHeight;
         LineSpacing = Notification.LineHeight / 2;
         FullWidth = Notification.Width + Notification.LineHeight * 2;
         FullHeight = Notification.Height + Notification.LineHeight * 2
