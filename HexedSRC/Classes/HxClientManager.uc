@@ -39,7 +39,7 @@ var HxMutator.EHxNotifyRunning NotifyRunning;
 var HxMutator.EHxVerbosityLevel StatusVerbosity;
 
 var const localized string PlatformLabel;
-var const localized string ActiveMutatorsLabel;
+var const localized string MutatorListLabel;
 var const localized string RunningMessage;
 var const localized string OpenMenuMessage;
 var const localized string PressMessage;
@@ -563,7 +563,7 @@ function PopulateServerGeneralStatus(HxGUIMultiOptionListBox List)
         if (i == 0)
         {
             List.AddLabel(
-                ActiveMutatorsLabel, class'HxClientChannel'.static.EncodeTag(0, RSVD_INDEX,, true));
+                MutatorListLabel, class'HxClientChannel'.static.EncodeTag(0, RSVD_INDEX,, true));
         }
         else
         {
@@ -970,7 +970,7 @@ defaultproperties
     BaseColor=(R=240,G=240,B=240,A=255)
     HighlightColor=(R=255,G=210,B=0,A=255)
     PlatformLabel="Platform Version"
-    ActiveMutatorsLabel="Active Mutators"
+    MutatorListLabel="Mutator List"
     RunningMessage="This server is running %!"
     OpenMenuMessage="% to open the configuration menu."
     PressMessage="Press"
