@@ -1,64 +1,156 @@
-class HxColors extends Object
+class HxColors extends HxManagedObject
     config(User)
     perObjectConfig;
 
-struct HxColor
+struct HxColorEntry
 {
     var string Name;
     var Color Color;
     var bool bRandom;
 };
 
-struct HxColorChoice
+var config array<HxColorEntry> ColorList;
+
+var private HxStringMap Cache;
+var private HxStringMap OldCache;
+var private HxStringArray ReservedNames;
+var private HxStringArray ReferencePool;
+var private HxStringArray PriorityPool;
+var private HxStringArray RandomPool;
+var private array<int> Counts;
+
+event Created()
 {
-    var string Key;
-    var string Value;
-};
+    local HxColorEntry Entry;
+    local int i;
+    local int j;
 
-var config array<HxColor> ColorList;
-var config array<HxColorChoice> RandomChoices;
-var config bool bPruneUnusedChoices;
+    Super.Created();
+    for (i = 1; i < ColorList.Length; i++)
+    {
+        Entry = ColorList[i];
+        j = i - 1;
+        while (j >= 0 && ColorList[j].Name > Entry.Name)
+        {
+            ColorList[j + 1] = ColorList[j];
+            --j;
+        }
+        ColorList[j + 1] = Entry;
+    }
+    SaveConfig();
+}
 
-var private array<string> ReservedNames;
-var private array<string> RandomPool;
-var private array<HxColorChoice> OldRandomChoices;
-
-function Created()
+function Setup(LevelInfo Level, HxClientManager Manager)
 {
     local int i;
 
-    if (ValidateMap(RandomChoices))
+    Super.Setup(Level, Manager);
+    Cache = new (None, Name$"Cache") class'HxStringMap';
+    OldCache = new (None, Name$"OldCache") class'HxStringMap';
+    ReservedNames = new (None, Name$"ReservedNames") class'HxStringArray';
+    ReferencePool = new (None, Name$"ReferencePool") class'HxStringArray';
+    PriorityPool = new (None, Name$"PriorityPool") class'HxStringArray';
+    RandomPool = new (None, Name$"RandomPool") class'HxStringArray';
+    for (i = Cache.Map.Length - 1; i >= 0; --i)
     {
-        SaveConfig();
-    }
-    PopulateRandomPool();
-    if (bPruneUnusedChoices)
-    {
-        OldRandomChoices = RandomChoices;
-        RandomChoices.Remove(0, RandomChoices.Length);
-    }
-    else
-    {
-        for (i = 0; i < RandomChoices.Length; ++i)
+        if (FindIndex(Cache.Map[i].Value))
         {
-            RemoveFromRandomPool(RandomChoices[i].Value);
+            PriorityPool.SortedRemove(Cache.Map[i].Value);
+        }
+        else
+        {
+            Cache.Map.Remove(i, 1);
         }
     }
+    OldCache.Copy(Cache);
+    if (!OldCache.bSorted)
+    {
+        OldCache.Sort();
+    }
+    Cache.Clear();
+    Counts.Length = ColorList.Length;
+    for (i = 0; i < ColorList.Length; ++i)
+    {
+        if (ColorList[i].bRandom)
+        {
+            ReferencePool.SortedInsert(ColorList[i].Name);
+        }
+    }
+    PriorityPool.Copy(ReferencePool);
+    RandomPool.Copy(ReferencePool);
 }
 
-function int Insert(string Name, optional Color Color, optional bool bRandom)
+function Destroy()
 {
+    Cache.SaveConfig();
+    Cache = None;
+    OldCache = None;
+    ReservedNames = None;
+    ReferencePool = None;
+    PriorityPool = None;
+    RandomPool = None;
+    Super.Destroy();
+}
+
+function string CachedRandomColorName(string Key)
+{
+    local string ColorName;
     local int Index;
 
-    if (Find(Name) < 0)
+    if (Cache.BinarySearch(Key, ColorName))
     {
-        Index = ColorList.Length;
-        ColorList.Length = Index + 1;
-        ColorList[Index].Name = Name;
-        ColorList[Index].Color = Color;
-        ColorList[Index].bRandom = bRandom;
-        SaveConfig();
-        return Index;
+        return ColorName;
+    }
+    if (!OldCache.BinarySearch(Key, ColorName)
+        || (OldCache.Size() < ReferencePool.Size() && Cache.Size() < ReferencePool.Size()
+            && (!FindIndex(ColorName, Index) || Counts[Index] > 0)))
+    {
+        ColorName = RandomColorName();
+        FindIndex(ColorName, Index);
+    }
+    ++Counts[Index];
+    Cache.SortedInsert(Key, ColorName);
+    Cache.SaveConfig();
+    return ColorName;
+}
+
+function string RandomColorName()
+{
+    local string ColorName;
+
+    if (!PriorityPool.IsEmpty())
+    {
+        return PriorityPool.PopRandom();
+    }
+    ColorName = RandomPool.PopRandom();
+    if (RandomPool.IsEmpty())
+    {
+        RandomPool.Copy(ReferencePool);
+    }
+    return ColorName;
+}
+
+function int Insert(string ColorName, optional Color Color, optional bool bRandom)
+{
+    local int i;
+
+    if (ColorName != "" && !IsReservedName(ColorName) && !FindIndex(ColorName))
+    {
+        for (i = 0; i < ColorList.Length; ++i)
+        {
+            if (ColorList[i].Name > ColorName)
+            {
+                ColorList.Insert(i, 1);
+                ColorList[i].Name = ColorName;
+                ColorList[i].Color = Color;
+                ColorList[i].bRandom = bRandom;
+                Counts.Insert(i, 1);
+                ReferencePool.Insert(ColorName);
+                RandomPool.Insert(ColorName);
+                SaveConfig();
+                return i;
+            }
+        }
     }
     return -1;
 }
@@ -67,278 +159,145 @@ function bool Remove(int Index)
 {
     if (IsValidIndex(Index))
     {
-        ValidateMap(RandomChoices);
-        if (bPruneUnusedChoices)
-        {
-            ValidateMap(OldRandomChoices);
-        }
-        RemoveFromRandomPool(ColorList[Index].Name);
+        RemoveFromChoices(ColorList[Index].Name);
         ColorList.Remove(Index, 1);
+        Counts.Remove(Index, 1);
         SaveConfig();
         return true;
     }
     return false;
 }
 
-function bool Rename(int Index, string Name)
+function bool Rename(int Index, string NewName)
 {
-    local int i;
-
-    if (!IsValidIndex(Index) || Find(Name) > -1)
+    if (NewName != "" && IsValidIndex(Index) && !IsReservedName(NewName) && !FindIndex(NewName))
     {
-        return false;
-    }
-    for (i = 0; i < RandomChoices.Length; ++i)
-    {
-        if (RandomChoices[i].Value == ColorList[Index].Name)
+        ReferencePool.SortedReplace(ColorList[Index].Name, NewName);
+        PriorityPool.SortedReplace(ColorList[Index].Name, NewName);
+        RandomPool.SortedReplace(ColorList[Index].Name, NewName);
+        OldCache.ReplaceValue(ColorList[Index].Name, NewName);
+        if (Cache.ReplaceValue(ColorList[Index].Name, NewName))
         {
-            RandomChoices[i].Value = Name;
+            Cache.SaveConfig();
         }
+        ColorList[Index].Name = NewName;
+        SaveConfig();
+        return true;
     }
-    if (bPruneUnusedChoices)
-    {
-        for (i = 0; i < OldRandomChoices.Length; ++i)
-        {
-            if (OldRandomChoices[i].Value == ColorList[Index].Name)
-            {
-                OldRandomChoices[i].Value = Name;
-            }
-        }
-    }
-    for (i = 0; i < RandomPool.Length; ++i)
-    {
-        if (RandomPool[i] == ColorList[Index].Name)
-        {
-            RandomPool[i] = Name;
-        }
-    }
-    ColorList[Index].Name = Name;
-    SaveConfig();
-    return true;
-}
-
-function int Find(string Name, optional out Color Color)
-{
-    local int i;
-
-    if (Name != "" && !IsReservedName(Name))
-    {
-        for (i = 0; i < ColorList.Length; ++i)
-        {
-            if (ColorList[i].Name == Name)
-            {
-                Color = ColorList[i].Color;
-                return i;
-            }
-        }
-    }
-    return -1;
-}
-
-function int FindEntry(string Name, optional out HxColor ColorEntry)
-{
-    local int i;
-
-    if (Name == "" || IsReservedName(Name))
-    {
-        return -1;
-    }
-    for (i = 0; i < ColorList.Length; ++i)
-    {
-        if (ColorList[i].Name == Name)
-        {
-            ColorEntry = ColorList[i];
-            return i;
-        }
-    }
-    return -1;
-}
-
-function string SavedRandom(string Key)
-{
-    local int i;
-
-    for (i = 0; i < RandomChoices.Length; ++i)
-    {
-        if (RandomChoices[i].Key == Key)
-        {
-            return RandomChoices[i].Value;
-        }
-    }
-    if (bPruneUnusedChoices)
-    {
-        for (i = 0; i < OldRandomChoices.Length; ++i)
-        {
-            if  (OldRandomChoices[i].Key == Key)
-            {
-                RandomChoices[RandomChoices.Length] = OldRandomChoices[i];
-                RemoveFromRandomPool(OldRandomChoices[i].Value);
-                SaveConfig();
-                return OldRandomChoices[i].Value;
-            }
-        }
-    }
-    i = RandomChoices.Length;
-    RandomChoices.Length = i + 1;
-    RandomChoices[i].Key = Key;
-    RandomChoices[i].Value = UniqueRandom();
-    SaveConfig();
-    return RandomChoices[i].Value;
-}
-
-function string UniqueRandom()
-{
-    local int Index;
-    local string Name;
-
-    Index = Rand(RandomPool.Length);
-    Name = RandomPool[Index];
-    RandomPool.Remove(Index, 1);
-    if (RandomPool.Length == 0)
-    {
-        PopulateRandomPool();
-    }
-    return Name;
+    return false;
 }
 
 function bool SetRandom(int Index, bool bRandom)
 {
-    local int i;
-
-    if (!IsValidIndex(Index))
+    if (IsValidIndex(Index))
     {
-        return false;
-    }
-    if (ColorList[Index].bRandom ^^ bRandom)
-    {
-        for (i = 0; i < RandomChoices.Length; ++i)
+        if (ColorList[Index].bRandom)
         {
-            if (RandomChoices[i].Value == ColorList[Index].Name)
+            if (!bRandom)
             {
-                RandomChoices.Remove(i, 1);
-                --i;
+                RemoveFromChoices(ColorList[Index].Name);
             }
         }
-        if (bPruneUnusedChoices)
+        else if (bRandom)
         {
-            for (i = 0; i < OldRandomChoices.Length; ++i)
-            {
-                if (OldRandomChoices[i].Value == ColorList[Index].Name)
-                {
-                    OldRandomChoices.Remove(i, 1);
-                    --i;
-                }
-            }
+            ReferencePool.SortedInsert(ColorList[Index].Name);
+            PriorityPool.SortedInsert(ColorList[Index].Name);
+            RandomPool.SortedInsert(ColorList[Index].Name);
         }
-        for (i = 0; i < RandomPool.Length; ++i)
-        {
-            if (RandomPool[i] == ColorList[Index].Name)
-            {
-                RandomPool.Remove(i, 1);
-                break;
-            }
-        }
+        ColorList[Index].bRandom = bRandom;
+        SaveConfig();
+        return true;
     }
-    ColorList[Index].bRandom = bRandom;
-    return true;
+    return false;
 }
 
-function bool Reserve(string Name)
+function int Find(string ColorName, optional out Color Color)
 {
-    local int i;
+    local int Index;
 
-    for (i = 0; i < ReservedNames.Length; ++i)
+    if (FindIndex(ColorName, Index))
     {
-        if (Name ~= ReservedNames[i])
-        {
-            return false;
-        }
+        Color = ColorList[Index].Color;
+        return Index;
     }
-    ReservedNames[i] = Name;
-    return true;
+    return -1;
 }
 
-function bool IsValidName(string Name)
+function bool FindEntry(string ColorName, optional out HxColorEntry Entry)
 {
-    return IsReservedName(Name) || Find(Name) > -1;
-}
+    local int Index;
 
-function bool IsReservedName(string Name)
-{
-    local int i;
-
-    for (i = 0; i < ReservedNames.Length; ++i)
+    if (FindIndex(ColorName, Index))
     {
-        if (Name == ReservedNames[i])
+        Entry = ColorList[Index];
+        return true;
+    }
+    return false;
+}
+
+function bool FindIndex(string ColorName, optional out int Index)
+{
+    local int Compare;
+    local int Middle;
+    local int Low;
+    local int High;
+
+    Low = 0;
+    High = ColorList.Length - 1;
+    while (Low <= High)
+    {
+        Middle = (Low + High) / 2;
+        Compare = StrCmp(ColorName, ColorList[Middle].Name,, true);
+        if (Compare == 0)
         {
+            Index = Middle;
             return true;
+        }
+        if (Compare > 0)
+        {
+            Low = Middle + 1;
+        }
+        else
+        {
+            High = Middle - 1;
         }
     }
     return false;
 }
 
-private function bool ValidateMap(out array<HxColorChoice> Map)
-{
-    local bool bChanged;
-    local int i;
-    local int j;
-
-    for (i = Map.Length - 1; i >= 0; --i)
-    {
-        for (j = 0; j < ColorList.Length; ++j)
-        {
-            if (Map[i].Value == ColorList[j].Name)
-            {
-                if (!ColorList[j].bRandom)
-                {
-                    j = ColorList.Length;
-                }
-                break;
-            }
-        }
-        if (j == ColorList.Length)
-        {
-            Map.Remove(i, 1);
-            bChanged = true;
-        }
-    }
-    return bChanged;
-}
-
-private function PopulateRandomPool()
-{
-    local int i;
-
-    for (i = 0; i < ColorList.Length; ++i)
-    {
-        if (ColorList[i].bRandom)
-        {
-            RandomPool[RandomPool.Length] = ColorList[i].Name;
-        }
-    }
-}
-
-private function RemoveFromRandomPool(string Name)
-{
-    local int i;
-
-    for (i = 0; i < RandomPool.Length; ++i)
-    {
-        if (RandomPool[i] == Name)
-        {
-            RandomPool.Remove(i, 1);
-            break;
-        }
-    }
-    if (RandomPool.Length == 0)
-    {
-        PopulateRandomPool();
-    }
-}
-
-private function bool IsValidIndex(int Index)
+function bool IsValidIndex(int Index)
 {
     return Index >= 0 && Index < ColorList.Length;
+}
+
+function bool IsValidName(string ColorName)
+{
+    return IsReservedName(ColorName) || FindIndex(ColorName);
+}
+
+function int ReserveName(string ColorName)
+{
+    return ReservedNames.Insert(ColorName, true);
+}
+
+function bool IsReservedName(string ColorName)
+{
+    return ReservedNames.Search(ColorName);
+}
+
+private function RemoveFromChoices(string ColorName)
+{
+    ReferencePool.SortedRemove(ColorName);
+    PriorityPool.SortedRemove(ColorName);
+    if (RandomPool.SortedRemove(ColorName) && RandomPool.IsEmpty())
+    {
+        RandomPool.Copy(ReferencePool);
+    }
+    OldCache.RemoveValue(ColorName);
+    if (Cache.RemoveValue(ColorName))
+    {
+        Cache.SaveConfig();
+    }
 }
 
 static function string RandomName()
@@ -348,12 +307,11 @@ static function string RandomName()
 
 defaultproperties
 {
-    ColorList(0)=(Name="Red",Color=(R=255,G=0,B=0,A=255),bRandom=true)
-    ColorList(1)=(Name="Blue",Color=(R=0,G=0,B=255,A=255),bRandom=false)
-    ColorList(2)=(Name="Green",Color=(R=0,G=255,B=0,A=255),bRandom=true)
+    ColorList(0)=(Name="Blue",Color=(R=0,G=0,B=255,A=255),bRandom=true)
+    ColorList(1)=(Name="Green",Color=(R=0,G=255,B=0,A=255),bRandom=true)
+    ColorList(2)=(Name="Orange",Color=(R=255,G=100,B=0,A=255),bRandom=true)
     ColorList(3)=(Name="Pink",Color=(R=255,G=0,B=255,A=255),bRandom=true)
-    ColorList(4)=(Name="Teal",Color=(R=0,G=255,B=255,A=255),bRandom=true)
-    ColorList(5)=(Name="Yellow",Color=(R=255,G=255,B=0,A=255),bRandom=true)
-    ColorList(6)=(Name="Purple",Color=(R=64,G=0,B=255,A=255),bRandom=false)
-    bPruneUnusedChoices=true
+    ColorList(4)=(Name="Red",Color=(R=255,G=0,B=0,A=255),bRandom=true)
+    ColorList(5)=(Name="Teal",Color=(R=0,G=255,B=255,A=255),bRandom=true)
+    ColorList(6)=(Name="Yellow",Color=(R=255,G=255,B=0,A=255),bRandom=true)
 }

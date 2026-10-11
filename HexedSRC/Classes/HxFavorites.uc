@@ -1,4 +1,4 @@
-class HxFavorites extends Object
+class HxFavorites extends HxManagedObject
     config(HexedFavorites)
     PerObjectConfig;
 

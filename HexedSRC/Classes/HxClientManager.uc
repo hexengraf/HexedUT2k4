@@ -59,7 +59,7 @@ var private array<int> DelayedGlobalIndices;
 var private array<HxNotification> PendingNotifications;
 var private HxNotification Notification;
 var private array<HxConfig> ConfigPool;
-var private array<Object> ObjectPool;
+var private array<HxManagedObject> ObjectPool;
 var private string LastServerName;
 var private bool bReceivedMutators;
 var private bool bIsFirstRun;
@@ -100,6 +100,10 @@ event NotifyLevelChange()
         ConfigPool[i].Destroy();
     }
     ConfigPool.Remove(0, ConfigPool.Length);
+    for (i = 0; i < ObjectPool.Length; ++i)
+    {
+        ObjectPool[i].Destroy();
+    }
     ObjectPool.Remove(0, ObjectPool.Length);
     Super.NotifyLevelChange();
 }
@@ -258,12 +262,12 @@ function ReceiveMutatorClass(class<HxMutator> MutatorClass, coerce bool bLast)
         Entries.Insert(UID, 1);
         Entries[UID].MutatorClass = MutatorClass;
         Entries[UID].MutatorInfo = new (None) MutatorClass.default.MutatorInfoClass;
-        Entries[UID].MutatorInfo.Setup(MutatorClass, Channel.Level, Channel.PlayerOwner);
+        Entries[UID].MutatorInfo.Setup(MutatorClass, Level, Channel.PlayerOwner);
         Entries[UID].Configs.Length = MutatorClass.default.ConfigClasses.Length;
         for (i = 0; i < Entries[UID].Configs.Length; ++i)
         {
             Entries[UID].Configs[i] = LoadConfig(MutatorClass, i);
-            Entries[UID].Configs[i].Setup(Channel.Level, Self);
+            Entries[UID].Configs[i].Setup(Level, Self);
         }
         Entries[UID].DelayedIndices.Length = MutatorClass.default.Properties.Length;
         for (i = 0; i < Entries[UID].DelayedIndices.Length; ++i)
@@ -857,7 +861,7 @@ final function HxInteraction LoadInteraction(class<HxInteraction> InteractionCla
     return AddInteraction(ViewportOwner, InteractionClass);
 }
 
-final function Object LoadObject(class<Object> ObjectClass, optional string Name)
+final function HxManagedObject LoadObject(class<HxManagedObject> ObjectClass, optional string Name)
 {
     local int i;
 
@@ -872,6 +876,7 @@ final function Object LoadObject(class<Object> ObjectClass, optional string Name
         }
     }
     ObjectPool[i] = new (None, Name) ObjectClass;
+    ObjectPool[i].Setup(Level, Self);
     return ObjectPool[i];
 }
 

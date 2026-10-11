@@ -818,7 +818,7 @@ simulated function string GetHighlightColorName()
     {
         if (bRandomize && !Level.GRI.bTeamGame)
         {
-            return Colors.SavedRandom(PRI.PlayerName);
+            return Colors.CachedRandomColorName(PRI.PlayerName);
         }
         return Enemies;
     }
@@ -982,9 +982,9 @@ static final function ResetMaterial(Material M)
 
 static final function PopulateReservedNames(HxColors Colors)
 {
-    Colors.Reserve(default.NoHighlight);
-    Colors.Reserve(default.NativeHighlight);
-    Colors.Reserve(default.DefaultHighlight);
+    Colors.ReserveName(default.NoHighlight);
+    Colors.ReserveName(default.NativeHighlight);
+    Colors.ReserveName(default.DefaultHighlight);
 }
 
 static final function Texture GetTextureFromMaterial(Material Material)

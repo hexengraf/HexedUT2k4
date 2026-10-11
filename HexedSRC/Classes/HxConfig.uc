@@ -1,4 +1,4 @@
-class HxConfig extends HxTypes
+class HxConfig extends HxManagedObject
     abstract;
 
 struct HxDelayedUpdate
@@ -11,8 +11,6 @@ var const array<HxProperty> Properties;
 var const array<HxDisplayProperty> DisplayInfo;
 var const array<HxDisplayProperty> StatusInfo;
 
-var protected LevelInfo Level;
-var protected HxClientManager ClientManager;
 var protected HxMutatorInfo MutatorInfo;
 var private array<int> DelayedIndices;
 var private array<HxDelayedUpdate> DelayedUpdates;
@@ -45,8 +43,7 @@ function Created()
 
 function Setup(LevelInfo Level, HxClientManager Manager)
 {
-    Self.Level = Level;
-    ClientManager = Manager;
+    Super.Setup(Level, Manager);
     InitializeProperties();
 }
 
@@ -58,8 +55,7 @@ simulated function SetMutatorInfo(HxMutatorInfo Info)
 
 function Destroy()
 {
-    Level = None;
-    ClientManager = None;
+    Super.Destroy();
     MutatorInfo = None;
 }
 

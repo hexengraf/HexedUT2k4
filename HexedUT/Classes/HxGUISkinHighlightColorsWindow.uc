@@ -88,10 +88,15 @@ event Closed(GUIComponent Sender, bool bCancelled)
 
 function PopulateColorComboBoxes()
 {
+    local string SelectedColor;
     local int Index;
     local int i;
 
     Index = co_EditColor.GetIndex();
+    if (Index > -1)
+    {
+        SelectedColor = Config.Colors.ColorList[Index].Name;
+    }
     co_EditColor.ResetComponent();
     co_EditColor.MyComboBox.MyListBox.MyList.bInitializeList = Index < 0;
     for (i = 0; i < Config.Colors.ColorList.Length; ++i)
@@ -100,13 +105,14 @@ function PopulateColorComboBoxes()
     }
     if (Index > -1)
     {
-        co_EditColor.SilentSetIndex(Min(Index, co_EditColor.ItemCount() - 1));
+        Index = Config.Colors.Find(SelectedColor);
+        co_EditColor.SilentSetIndex(Clamp(Index, 0, co_EditColor.ItemCount() - 1));
     }
 }
 
 function InternalOnLoadINI(GUIComponent Sender, string s)
 {
-    local HxColors.HxColor ColorEntry;
+    local HxColors.HxColorEntry ColorEntry;
 
     if (Sender == ch_AllowOnRandom)
     {
@@ -161,6 +167,7 @@ function InternalOnChange(GUIComponent Sender)
                 Config.Colors.ColorList[Index].Color.B = sl_ColorBlue.GetValue();
                 break;
         }
+        Config.Colors.SaveConfig();
         Config.UpdateDynamicActors();
     }
 }
@@ -173,7 +180,7 @@ function PreviewSkinOnChange(GUIComponent Sender)
 
 function UpdateDisplayedColor(string ColorName)
 {
-    local HxColors.HxColor ColorEntry;
+    local HxColors.HxColorEntry ColorEntry;
 
     Config.Colors.FindEntry(ColorName, ColorEntry);
     sl_ColorRed.SetComponentValue(ColorEntry.Color.R, true);
@@ -230,7 +237,7 @@ function bool OnClickNewColor(GUIComponent Sender)
 {
     if (Controller.OpenMenu(string(class'HxGUIGetDataMenu'), NewColorPageCaption, NameLabel))
     {
-        Controller.ActivePage.SetDataString(Config.Colors.RandomName());
+        Controller.ActivePage.SetDataString(class'HxColors'.static.RandomName());
         Controller.ActivePage.OnClose = OnCloseNewColor;
         bRenderPreview = false;
     }
@@ -239,13 +246,15 @@ function bool OnClickNewColor(GUIComponent Sender)
 
 function OnCloseNewColor(optional bool bCancelled)
 {
+    local Color NewColor;
     local string ColorName;
     local int Index;
 
     if (!bCancelled)
     {
+        NewColor.A = 255;
         ColorName = Controller.ActivePage.GetDataString();
-        Index = Config.Colors.Insert(ColorName);
+        Index = Config.Colors.Insert(ColorName, NewColor, true);
         if (Index != -1)
         {
             PopulateColorComboBoxes();
