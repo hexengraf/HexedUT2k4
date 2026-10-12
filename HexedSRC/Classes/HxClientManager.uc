@@ -224,7 +224,7 @@ state DisplayNotification
         FullHeight = Notification.Height + Notification.LineHeight * 2
             + LineSpacing * (Notification.Lines.Length - 1);
         C.SetPos(Left - Notification.LineHeight, Top - Notification.LineHeight);
-		C.DrawTileStretched(Texture'InterfaceContent.Menu.BorderBoxD', FullWidth, FullHeight);
+        C.DrawTileStretched(Texture'InterfaceContent.Menu.BorderBoxD', FullWidth, FullHeight);
         C.DrawColor = BaseColor;
         C.Font = Notification.Font;
         for (i = 0; i < Notification.Lines.Length; ++i)
