@@ -5,6 +5,15 @@ var float ScrollbarWidth;
 
 var private array<HxGUIMultiOptionListLabel> StatusElements;
 
+var private array<GUIMenuOption> HeaderPool;
+var private array<GUIMenuOption> SpacerPool;
+var private array<GUIMenuOption> LabelPool;
+var private array<GUIMenuOption> CheckBoxPool;
+var private array<GUIMenuOption> ComboBoxPool;
+var private array<GUIMenuOption> NumericEditPool;
+var private array<GUIMenuOption> FloatEditPool;
+var private array<GUIMenuOption> TextEditPool;
+
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
     DefaultListClass = string(class'HxGUIMultiOptionList');
@@ -66,7 +75,9 @@ function GUIMenuOption AddConfigOption(class<HxConfig> ConfigClass, int Index, i
     {
         case HX_PROPERTY_Bool:
             Option = List.AddItem(
-                "XInterface.moCheckbox",, ConfigClass.default.DisplayInfo[Index].Caption);
+                string(class'HxGUImoCheckBox'),
+                GetFromCheckBoxPool(),
+                ConfigClass.default.DisplayInfo[Index].Caption);
             break;
         case HX_PROPERTY_Int:
             Option = AddNumericEdit(
@@ -111,7 +122,9 @@ function GUIMenuOption AddMutatorOption(class<HxMutator> MutatorClass, int Index
     {
         case HX_PROPERTY_Bool:
             Option = List.AddItem(
-                "XInterface.moCheckbox",, MutatorClass.default.DisplayInfo[Index].Caption);
+                string(class'HxGUImoCheckBox'),
+                GetFromCheckBoxPool(),
+                MutatorClass.default.DisplayInfo[Index].Caption);
             break;
         case HX_PROPERTY_Int:
             Option = AddNumericEdit(
@@ -156,7 +169,8 @@ function GUIMenuOption AddGlobalOption(int Index, int Tag)
     {
         case HX_PROPERTY_Bool:
             Option = List.AddItem(
-                "XInterface.moCheckbox",,
+                string(class'HxGUImoCheckBox'),
+                GetFromCheckBoxPool(),
                 class'HxMutator'.default.GlobalDisplayInfo[Index].Caption);
             break;
         case HX_PROPERTY_Int:
@@ -199,7 +213,7 @@ function HxGUIMultiOptionListLabel AddStatus(string Caption, int Tag)
     local HxGUIMultiOptionListLabel Label;
 
     Label = HxGUIMultiOptionListLabel(
-        List.AddItem(string(class'HxGUIMultiOptionListLabel'),, Caption));
+        List.AddItem(string(class'HxGUIMultiOptionListLabel'), GetFromLabelPool(), Caption));
     if (Label != None)
     {
         Label.Tag = Tag;
@@ -216,7 +230,7 @@ function HxGUIMultiOptionListLabel AddLabel(string Caption, int Tag)
     local HxGUIMultiOptionListLabel Label;
 
     Label = HxGUIMultiOptionListLabel(
-        List.AddItem(string(class'HxGUIMultiOptionListLabel'),, Caption));
+        List.AddItem(string(class'HxGUIMultiOptionListLabel'), GetFromLabelPool(), Caption));
     if (Label != None)
     {
         Label.Tag = Tag;
@@ -250,19 +264,20 @@ function HxGUIMultiOptionListHeader AddHeader(string Caption)
 {
     local HxGUIMultiOptionListHeader Header;
     local GUIMenuOption HeaderFiller;
+    local string HeaderClass;
     local int FillerCount;
     local int i;
 
+    HeaderClass = string(class'HxGUIMultiOptionListHeader');
     FillerCount = List.Elements.Length % NumColumns;
     while (FillerCount-- > 0)
     {
-        List.AddItem("XInterface.GUIListSpacer");
+        List.AddItem(string(class'HxGUIListSpacer'), GetFromSpacerPool());
     }
-    Header = HxGUIMultiOptionListHeader(
-        List.AddItem(string(class'HxGUIMultiOptionListHeader'),, Caption));
+    Header = HxGUIMultiOptionListHeader(List.AddItem(HeaderClass, GetFromHeaderPool(), Caption));
     for (i = 1; i < NumColumns; ++i)
     {
-        HeaderFiller = List.AddItem(string(class'HxGUIMultiOptionListHeader'));
+        HeaderFiller = List.AddItem(HeaderClass, GetFromHeaderPool());
         HeaderFiller.Tag = -1;
     }
     return Header;
@@ -273,9 +288,10 @@ function GUIMenuOption AddFloatEdit(string Caption,
                                     coerce float Max,
                                     optional coerce float Step)
 {
-    local moFloatEdit Option;
+    local HxGUImoFloatEdit Option;
 
-    Option = moFloatEdit(List.AddItem("XInterface.moFloatEdit",, Caption));
+    Option = HxGUImoFloatEdit(List.AddItem(
+        string(class'HxGUImoFloatEdit'), GetFromFloatEditPool(), Caption));
     if (Option != None)
     {
         Option.ComponentWidth = ComponentWidth;
@@ -293,9 +309,10 @@ function GUIMenuOption AddNumericEdit(string Caption,
                                       coerce int Max,
                                       optional coerce int Step)
 {
-    local moNumericEdit Option;
+    local HxGUImoNumericEdit Option;
 
-    Option = moNumericEdit(List.AddItem("XInterface.moNumericEdit",, Caption));
+    Option = HxGUImoNumericEdit(List.AddItem(
+        string(class'HxGUImoNumericEdit'), GetFromNumericEditPool(), Caption));
     if (Option != None)
     {
         if (Step == 0)
@@ -310,10 +327,11 @@ function GUIMenuOption AddNumericEdit(string Caption,
 
 function GUIMenuOption AddEditBox(string Caption, string Width)
 {
-    local moEditbox Option;
+    local HxGUImoEditBox Option;
     local int Pos;
 
-    Option = moEditbox(List.AddItem("XInterface.moEditBox",, Caption));
+    Option = HxGUImoEditBox(List.AddItem(
+        string(class'HxGUImoEditBox'), GetFromTextEditPool(), Caption));
     if (Option != None)
     {
         Pos = InStr(Width, ",");
@@ -340,7 +358,8 @@ function GUIMenuOption AddComboBox(string Caption,
     local moComboBox Option;
     local int i;
 
-    Option = moComboBox(List.AddItem("XInterface.moComboBox",, Caption));
+    Option = moComboBox(List.AddItem(
+        string(class'HxGUImoComboBox'), GetFromComboBoxPool(), Caption));
     if (Option != None)
     {
         Option.ReadOnly(true);
@@ -363,8 +382,203 @@ function ListCreateComponent(GUIMenuOption NewComp, GUIMultiOptionList Sender)
 
 function Clear()
 {
-	StatusElements.Remove(0, StatusElements.Length);
+    local int i;
+
+    StatusElements.Remove(0, StatusElements.Length);
+    for (i = 0; i < List.Elements.Length; ++i)
+    {
+        switch (List.Elements[i].Class)
+        {
+            case class'HxGUIMultiOptionListHeader':
+                List.Elements[i].Caption = "";
+                HxGUIMultiOptionListHeader(List.Elements[i]).SectionCaption = "";
+                List.Elements[i].Tag = class'HxGUIMultiOptionListHeader'.default.Tag;
+                HeaderPool[HeaderPool.Length] = List.Elements[i];
+                break;
+            case class'HxGUIListSpacer':
+                SpacerPool[SpacerPool.Length] = List.Elements[i];
+                break;
+            case class'HxGUIMultiOptionListLabel':
+                LabelPool[LabelPool.Length] = List.Elements[i];
+                break;
+            case class'HxGUImoCheckBox':
+                CheckBoxPool[CheckBoxPool.Length] = List.Elements[i];
+                break;
+            case class'HxGUImoComboBox':
+                List.Elements[i].ResetComponent();
+                ComboBoxPool[ComboBoxPool.Length] = List.Elements[i];
+                break;
+            case class'HxGUImoNumericEdit':
+                NumericEditPool[NumericEditPool.Length] = List.Elements[i];
+                break;
+            case class'HxGUImoFloatEdit':
+                FloatEditPool[FloatEditPool.Length] = List.Elements[i];
+                break;
+            case class'HxGUImoEditBox':
+                TextEditPool[TextEditPool.Length] = List.Elements[i];
+                break;
+        }
+    }
     List.Clear();
+}
+
+event Free()
+{
+    local int i;
+
+    for (i = 0; i < HeaderPool.Length; ++i)
+    {
+        HeaderPool[i].Free();
+    }
+    HeaderPool.Remove(0, HeaderPool.Length);
+    for (i = 0; i < SpacerPool.Length; ++i)
+    {
+        SpacerPool[i].Free();
+    }
+    SpacerPool.Remove(0, SpacerPool.Length);
+    for (i = 0; i < LabelPool.Length; ++i)
+    {
+        LabelPool[i].Free();
+    }
+    LabelPool.Remove(0, LabelPool.Length);
+    for (i = 0; i < CheckBoxPool.Length; ++i)
+    {
+        CheckBoxPool[i].Free();
+    }
+    CheckBoxPool.Remove(0, CheckBoxPool.Length);
+    for (i = 0; i < ComboBoxPool.Length; ++i)
+    {
+        ComboBoxPool[i].Free();
+    }
+    ComboBoxPool.Remove(0, ComboBoxPool.Length);
+    for (i = 0; i < NumericEditPool.Length; ++i)
+    {
+        NumericEditPool[i].Free();
+    }
+    NumericEditPool.Remove(0, NumericEditPool.Length);
+    for (i = 0; i < FloatEditPool.Length; ++i)
+    {
+        FloatEditPool[i].Free();
+    }
+    FloatEditPool.Remove(0, FloatEditPool.Length);
+    for (i = 0; i < TextEditPool.Length; ++i)
+    {
+        TextEditPool[i].Free();
+    }
+    TextEditPool.Remove(0, TextEditPool.Length);
+    Super.Free();
+}
+
+function GUIMenuOption GetFromHeaderPool()
+{
+    local GUIMenuOption Option;
+    local int i;
+
+    if (HeaderPool.Length > 0)
+    {
+        i = HeaderPool.Length - 1;
+        Option = HeaderPool[i];
+        HeaderPool.Remove(i, 1);
+    }
+    return Option;
+}
+
+function GUIMenuOption GetFromSpacerPool()
+{
+    local GUIMenuOption Option;
+    local int i;
+
+    if (SpacerPool.Length > 0)
+    {
+        i = SpacerPool.Length - 1;
+        Option = SpacerPool[i];
+        SpacerPool.Remove(i, 1);
+    }
+    return Option;
+}
+
+function GUIMenuOption GetFromLabelPool()
+{
+    local GUIMenuOption Option;
+    local int i;
+
+    if (LabelPool.Length > 0)
+    {
+        i = LabelPool.Length - 1;
+        Option = LabelPool[i];
+        LabelPool.Remove(i, 1);
+    }
+    return Option;
+}
+
+function GUIMenuOption GetFromCheckBoxPool()
+{
+    local GUIMenuOption Option;
+    local int i;
+
+    if (CheckBoxPool.Length > 0)
+    {
+        i = CheckBoxPool.Length - 1;
+        Option = CheckBoxPool[i];
+        CheckBoxPool.Remove(i, 1);
+    }
+    return Option;
+}
+
+function GUIMenuOption GetFromComboBoxPool()
+{
+    local GUIMenuOption Option;
+    local int i;
+
+    if (ComboBoxPool.Length > 0)
+    {
+        i = ComboBoxPool.Length - 1;
+        Option = ComboBoxPool[i];
+        ComboBoxPool.Remove(i, 1);
+    }
+    return Option;
+}
+
+function GUIMenuOption GetFromNumericEditPool()
+{
+    local GUIMenuOption Option;
+    local int i;
+
+    if (NumericEditPool.Length > 0)
+    {
+        i = NumericEditPool.Length - 1;
+        Option = NumericEditPool[i];
+        NumericEditPool.Remove(i, 1);
+    }
+    return Option;
+}
+
+function GUIMenuOption GetFromFloatEditPool()
+{
+    local GUIMenuOption Option;
+    local int i;
+
+    if (FloatEditPool.Length > 0)
+    {
+        i = FloatEditPool.Length - 1;
+        Option = FloatEditPool[i];
+        FloatEditPool.Remove(i, 1);
+    }
+    return Option;
+}
+
+function GUIMenuOption GetFromTextEditPool()
+{
+    local GUIMenuOption Option;
+    local int i;
+
+    if (TextEditPool.Length > 0)
+    {
+        i = TextEditPool.Length - 1;
+        Option = TextEditPool[i];
+        TextEditPool.Remove(i, 1);
+    }
+    return Option;
 }
 
 final function bool ShouldHideConfigProperty(class<HxConfig> ConfigClass, int Index)

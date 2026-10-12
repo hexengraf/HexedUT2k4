@@ -1,4 +1,4 @@
-class HxGUIMultiOptionListHeader extends GUIListHeader;
+class HxGUIMultiOptionListHeader extends HxGUIListSpacer;
 
 var string SectionCaption;
 

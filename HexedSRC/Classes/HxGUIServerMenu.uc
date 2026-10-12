@@ -141,6 +141,5 @@ defaultproperties
     WinTop=0.19
     WinWidth=0.42
     WinHeight=0.62
-    bPersistent=false
     OnKeyEvent=InternalOnKeyEvent
 }

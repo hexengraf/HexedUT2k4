@@ -61,6 +61,24 @@ function DrawSectionBackground(Canvas C, int Index, Color DrawColor, float Left,
         Material'engine.WhiteSquareTexture', Width, Elements[Index].ActualHeight());
 }
 
+function Clear()
+{
+    Elements.Remove(0, Elements.Length);
+    Super(GUIListBase).Clear();
+}
+
+event Free()
+{
+    local int i;
+
+    for (i = 0; i < Elements.Length; ++i)
+    {
+        Elements[i].Free();
+    }
+    Elements.Remove(0, Elements.Length);
+    Super.Free();
+}
+
 defaultproperties
 {
     bDrawSelectionBorder=false

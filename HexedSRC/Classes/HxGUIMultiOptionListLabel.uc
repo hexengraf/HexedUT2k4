@@ -1,4 +1,4 @@
-class HxGUIMultiOptionListLabel extends GUIListSpacer;
+class HxGUIMultiOptionListLabel extends HxGUIListSpacer;
 
 function SetComponentValue(coerce string NewValue, optional bool bNoChange)
 {
@@ -17,6 +17,7 @@ function InternalOnCreateComponent(GUIComponent NewComp, GUIComponent Sender)
         GUILabel(NewComp).TextAlign = TXTA_Right;
         GUILabel(NewComp).StyleName = "HxOptionList";
     }
+    Super.InternalOnCreateComponent(NewComp, Sender);
 }
 
 defaultproperties
@@ -30,5 +31,4 @@ defaultproperties
     bNeverFocus=true
     bTabStop=false
     bAcceptsInput=false
-    OnCreateComponent=InternalOnCreateComponent
 }

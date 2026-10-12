@@ -1,0 +1,83 @@
+function FixedInitComponent(GUIController MyController, GUIComponent MyOwner)
+{
+    if (bVerticalLayout)
+    {
+        StandardHeight *= 2;
+    }
+    Super(GUIMultiComponent).InitComponent(MyController, MyOwner);
+    if (MyLabel == None)
+    {
+        MyLabel = GUILabel(AddComponent("XInterface.GUILabel"));
+        if (MyLabel == None)
+        {
+            log("Failed to create "@self@" due to problems creating GUILabel");
+            return;
+        }
+    }
+    if (bFlipped)
+    {
+        if (LabelJustification == TXTA_Left)
+        {
+            LabelJustification = TXTA_Right;
+        }
+        else if (LabelJustification == TXTA_Right)
+        {
+            LabelJustification = TXTA_Left;
+        }
+        if (ComponentJustification == TXTA_Left)
+        {
+            ComponentJustification = TXTA_Right;
+        }
+        else if (ComponentJustification == TXTA_Right)
+        {
+            ComponentJustification = TXTA_Left;
+        }
+    }
+    MyLabel.Caption = Caption;
+    if (LabelStyleName == "")
+    {
+        MyLabel.TextColor = LabelColor;
+        MyLabel.TextFont = LabelFont;
+    }
+    else
+    {
+        MyLabel.Style = Controller.GetStyle(LabelStyleName, MyLabel.FontScale);
+    }
+    MyLabel.FontScale = FontScale;
+    MyLabel.TextAlign = LabelJustification;
+    MyLabel.IniOption = IniOption;
+    MyLabel.bNeverScale = True;
+    if (ComponentClassName != "")
+    {
+        if (MyComponent == None)
+        {
+            MyComponent = AddComponent(ComponentClassName);
+            if (MyComponent == None)
+            {
+                log("Could not create requested menu component"@ComponentClassName);
+                return;
+            }
+        }
+        SetHint(Hint);
+        MyComponent.IniOption = IniOption;
+        if (bHeightFromComponent && !bVerticalLayout)
+        {
+            WinHeight = MyComponent.WinHeight;
+        }
+        else
+        {
+            MyComponent.WinHeight = WinHeight;
+        }
+        MyComponent.OnChange = InternalOnChange;
+        MyComponent.bTabStop = true;
+        MyComponent.TabOrder = 1;
+        MyComponent.bNeverScale = True;
+        MyComponent.bNeverFocus = bNeverFocus;
+        SetFriendlyLabel(MyLabel);
+        if (MenuState == MSAT_Disabled)
+        {
+            MenuState = MSAT_Blurry;
+            DisableMe();
+        }
+    }
+}
