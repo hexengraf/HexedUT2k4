@@ -16,12 +16,6 @@ enum EHxSBColumnType
     HX_SBCOL_Custom,
 };
 
-enum EHxSBTeamScoreStyle
-{
-    HX_SB_TSCORE_FullSize,
-    HX_SB_TSCORE_Compact,
-};
-
 struct HxSBColumnConfig
 {
     var EHxSBColumnType Type;
@@ -90,11 +84,11 @@ var localized string MaxNameWidthTestText;
 
 var HxTypes.EHxVertAlignment BoardAlignment;
 var HxTypes.EHxVertAlignment HeadingAlignment;
-var EHxSBTeamScoreStyle TeamScoreStyle;
 var float BorderSize;
 var float DividerSize;
 var int FontSizeModifier;
 var bool bAlternateRowColors;
+var bool bCompactTeamScores;
 var bool bShowPlayerPortraits;
 var bool bShowPPHAndTime;
 var bool bShowBotCallSigns;
@@ -201,11 +195,11 @@ simulated function LoadDefaults()
 {
     BoardAlignment = class'HxScoreBoard'.default.BoardAlignment;
     HeadingAlignment = class'HxScoreBoard'.default.HeadingAlignment;
-    TeamScoreStyle = class'HxScoreBoard'.default.TeamScoreStyle;
     BorderSize = class'HxScoreBoard'.default.BorderSize;
     DividerSize = class'HxScoreBoard'.default.DividerSize;
     FontSizeModifier = class'HxScoreBoard'.default.FontSizeModifier;
     bAlternateRowColors = class'HxScoreBoard'.default.bAlternateRowColors;
+    bCompactTeamScores = class'HxScoreBoard'.default.bCompactTeamScores;
     bShowPlayerPortraits = class'HxScoreBoard'.default.bShowPlayerPortraits;
     bShowPPHAndTime = class'HxScoreBoard'.default.bShowPPHAndTime;
     bShowBotCallSigns = class'HxScoreBoard'.default.bShowBotCallSigns;
@@ -1745,11 +1739,11 @@ defaultproperties
     ColumnTypes(3)=HX_SBCOL_Score
     BoardAlignment=HX_VALIGN_Top
     HeadingAlignment=HX_VALIGN_Center
-    TeamScoreStyle=HX_SB_TSCORE_FullSize
     BorderSize=0.25
     DividerSize=0.2
     FontSizeModifier=0
     bAlternateRowColors=false
+    bCompactTeamScores=false
     bShowPlayerPortraits=false
     bShowPPHAndTime=false
     bShowBotCallSigns=false

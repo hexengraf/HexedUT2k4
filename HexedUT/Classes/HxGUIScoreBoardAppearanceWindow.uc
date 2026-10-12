@@ -248,7 +248,7 @@ defaultproperties
         Caption="Border Size"
         Hint="Border size (% of screen height)."
         INIOption="@INTERNAL"
-        Tag=4
+        Tag=3
         MinValue=0
         MaxValue=0.5
         CaptionWidth=0.35
@@ -262,7 +262,7 @@ defaultproperties
         Caption="Divider Size"
         Hint="Row divider size (% of screen height)."
         INIOption="@INTERNAL"
-        Tag=5
+        Tag=4
         MinValue=0
         MaxValue=0.5
         CaptionWidth=0.35
@@ -276,7 +276,7 @@ defaultproperties
         Caption="Font Size"
         Hint="Increase or decrease the font sizes of all fonts used by the scoreboard."
         INIOption="@INTERNAL"
-        Tag=6
+        Tag=5
         MinValue=-2
         MaxValue=2
         bIntSlider=true
@@ -291,7 +291,7 @@ defaultproperties
         Caption="Alternate Row Colors"
         Hint="Use the alternative row color to alternate row colors."
         INIOption="@INTERNAL"
-        Tag=7
+        Tag=6
         OnLoadINI=InternalOnLoadINI
         OnChange=InternalOnChange
         TabOrder=5

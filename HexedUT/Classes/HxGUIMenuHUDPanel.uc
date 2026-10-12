@@ -4,7 +4,7 @@ const SECTION_SCOREBOARD = 0;
 const SECTION_SP_TIMER = 1;
 
 var automated moCheckBox ch_EnhancedScoreboard;
-var automated moComboBox co_TeamScoreStyle;
+var automated moCheckBox ch_CompactTeamScores;
 var automated moCheckBox ch_ShowPlayerPortraits;
 var automated moCheckBox ch_ShowPPHAndTime;
 var automated moCheckBox ch_ShowBotCallSigns;
@@ -21,19 +21,15 @@ var automated moSlider sl_ColorGreen;
 var automated moSlider sl_ColorBlue;
 var automated moSlider sl_ColorAlpha;
 
-var localized string TeamScoreStyleLabels[2];
-
 var private HxMutatorInfo MutatorInfo;
 var private HxScoreBoardConfig ScoreboardConfig;
 var private HxSPTimerConfig SPTimerConfig;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
-    local int i;
-
     Super.InitComponent(MyController, MyOwner);
     Sections[SECTION_SCOREBOARD].Insert(ch_EnhancedScoreboard);
-    Sections[SECTION_SCOREBOARD].Insert(co_TeamScoreStyle);
+    Sections[SECTION_SCOREBOARD].Insert(ch_CompactTeamScores);
     Sections[SECTION_SCOREBOARD].Insert(ch_ShowPlayerPortraits);
     Sections[SECTION_SCOREBOARD].Insert(ch_ShowPPHAndTime);
     Sections[SECTION_SCOREBOARD].Insert(ch_ShowBotCallSigns);
@@ -52,12 +48,6 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
         class'MutHexedUT', class'HxScoreBoardConfig'));
     SPTimerConfig = HxSPTimerConfig(ClientManager.FindConfig(
         class'MutHexedUT', class'HxSPTimerConfig'));
-    co_TeamScoreStyle.MyComboBox.MyListBox.MyList.bInitializeList = false;
-    for (i = 0; i < ArrayCount(TeamScoreStyleLabels); ++i)
-    {
-        co_TeamScoreStyle.AddItem(
-            TeamScoreStyleLabels[i],,string(GetEnum(enum'EHxSBTeamScoreStyle', i)));
-    }
 }
 
 function Refresh()
@@ -206,18 +196,16 @@ defaultproperties
     End Object
     ch_EnhancedScoreboard=EnhancedScoreboardCheckBox
 
-    Begin Object class=moComboBox Name=TeamScoreStyleCheckBox
-        Caption="Team Score Style"
-        Hint="Style to show team scores and total score (Invasion)."
+    Begin Object class=moCheckBox Name=CompactTeamScoresCheckBox
+        Caption="Use compact team scores"
+        Hint="Show team scores and total score (Invasion) directly inside the header space."
         INIOption="@INTERNAL"
-        Tag=3
-        bReadOnly=true
-        CaptionWidth=0.5
+        Tag=7
         OnLoadINI=ScoreboardOnLoadINI
         OnChange=ScoreboardOnChange
-        TabOrder=5
+        TabOrder=1
     End Object
-    co_TeamScoreStyle=TeamScoreStyleCheckBox
+    ch_CompactTeamScores=CompactTeamScoresCheckBox
 
     Begin Object class=moCheckBox Name=ShowPlayerPortraitsCheckBox
         Caption="Show Player Portraits"
@@ -226,7 +214,7 @@ defaultproperties
         Tag=8
         OnLoadINI=ScoreboardOnLoadINI
         OnChange=ScoreboardOnChange
-        TabOrder=5
+        TabOrder=2
     End Object
     ch_ShowPlayerPortraits=ShowPlayerPortraitsCheckBox
 
@@ -237,7 +225,7 @@ defaultproperties
         Tag=9
         OnLoadINI=ScoreboardOnLoadINI
         OnChange=ScoreboardOnChange
-        TabOrder=5
+        TabOrder=3
     End Object
     ch_ShowPPHAndTime=ShowPPHAndTimeCheckBox
 
@@ -248,7 +236,7 @@ defaultproperties
         Tag=10
         OnLoadINI=ScoreboardOnLoadINI
         OnChange=ScoreboardOnChange
-        TabOrder=5
+        TabOrder=4
     End Object
     ch_ShowBotCallSigns=ShowBotCallSignsCheckBox
 
@@ -271,7 +259,7 @@ defaultproperties
         StyleName="HxSquareButton"
         bRepeatClick=false
         OnClick=OnClickChangeAppearance
-        TabOrder=7
+        TabOrder=6
     End Object
     b_ChangeAppearance=ChangeAppearanceButton
 
@@ -411,6 +399,4 @@ defaultproperties
     bFillPanelHeight=false
     Sections(0)=ScoreboardSection
     Sections(1)=SPTimerSection
-    TeamScoreStyleLabels(0)="Full Size"
-    TeamScoreStyleLabels(1)="Compact"
 }

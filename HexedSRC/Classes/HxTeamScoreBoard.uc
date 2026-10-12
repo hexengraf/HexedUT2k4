@@ -38,7 +38,7 @@ simulated function LoadDefaults()
 
 simulated function DrawTables(Canvas C, int TableHeight)
 {
-    if (TeamScoreStyle == HX_SB_TSCORE_FullSize)
+    if (!bCompactTeamScores)
     {
         if (bVerticalLayout)
         {
@@ -59,7 +59,7 @@ simulated function DrawTables(Canvas C, int TableHeight)
 simulated function DrawHeadings(Canvas C, int Table)
 {
     Super.DrawHeadings(C, Table);
-    if (TeamScoreStyle == HX_SB_TSCORE_Compact)
+    if (bCompactTeamScores)
     {
         C.DrawColor = TeamColors[Table];
         C.CurX = C.OrgX + IconPadding;
@@ -168,7 +168,7 @@ simulated function DrawPlayerName(Canvas C, int Table, int Index, int Column, in
 
 simulated function UpdateTablePaddings(Canvas C)
 {
-    if (TeamScoreStyle == HX_SB_TSCORE_Compact)
+    if (bCompactTeamScores)
     {
         TableLeftPadding = 0;
         TableTopPadding = 0;
@@ -192,7 +192,7 @@ simulated function UpdateExtraSizes(Canvas C)
     local float TextWidth;
     local float TextHeight;
 
-    if (TeamScoreStyle == HX_SB_TSCORE_Compact)
+    if (bCompactTeamScores)
     {
         if (PlayerColumn != 1)
         {
@@ -228,7 +228,7 @@ simulated function UpdateVisibleRows(Canvas C)
     local float MinimumHeight;
 
     Super.UpdateVisibleRows(C);
-    if (TeamScoreStyle == HX_SB_TSCORE_FullSize && bVerticalLayout)
+    if (!bCompactTeamScores && bVerticalLayout)
     {
         IconPadding = (BannerWidth - IconSize) / 3;
         ScorePadding = ScoreFontHeight / 3;
@@ -264,7 +264,7 @@ simulated function HxSBColumnConfig GetPlayerColumnConfig()
     local HxSBColumnConfig Config;
 
     Config = Super.GetPlayerColumnConfig();
-    if (TeamScoreStyle == HX_SB_TSCORE_Compact)
+    if (bCompactTeamScores)
     {
         Config.Heading = "";
     }

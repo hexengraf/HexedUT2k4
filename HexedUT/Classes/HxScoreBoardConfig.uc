@@ -5,11 +5,11 @@ class HxScoreBoardConfig extends HxConfig
 var config bool bEnabled;
 var config HxTypes.EHxVertAlignment BoardAlignment;
 var config HxTypes.EHxVertAlignment HeadingAlignment;
-var config HxScoreBoard.EHxSBTeamScoreStyle TeamScoreStyle;
 var config float BorderSize;
 var config float DividerSize;
 var config int FontSizeModifier;
 var config bool bAlternateRowColors;
+var config bool bCompactTeamScores;
 var config bool bShowPlayerPortraits;
 var config bool bShowPPHAndTime;
 var config bool bShowBotCallSigns;
@@ -46,11 +46,11 @@ function InitializeProperties()
 {
     class'HxScoreBoard'.default.BoardAlignment = BoardAlignment;
     class'HxScoreBoard'.default.HeadingAlignment = HeadingAlignment;
-    class'HxScoreBoard'.default.TeamScoreStyle = TeamScoreStyle;
     class'HxScoreBoard'.default.BorderSize = BorderSize;
     class'HxScoreBoard'.default.DividerSize = DividerSize;
     class'HxScoreBoard'.default.FontSizeModifier = FontSizeModifier;
     class'HxScoreBoard'.default.bAlternateRowColors = bAlternateRowColors;
+    class'HxScoreBoard'.default.bCompactTeamScores = bCompactTeamScores;
     class'HxScoreBoard'.default.bShowPlayerPortraits = bShowPlayerPortraits;
     class'HxScoreBoard'.default.bShowPPHAndTime = bShowPPHAndTime;
     class'HxScoreBoard'.default.bShowBotCallSigns = bShowBotCallSigns;
@@ -93,19 +93,19 @@ function ApplyProperty(int Index)
             class'HxScoreBoard'.default.HeadingAlignment = HeadingAlignment;
             break;
         case 3:
-            class'HxScoreBoard'.default.TeamScoreStyle = TeamScoreStyle;
-            break;
-        case 4:
             class'HxScoreBoard'.default.BorderSize = BorderSize;
             break;
-        case 5:
+        case 4:
             class'HxScoreBoard'.default.DividerSize = DividerSize;
             break;
-        case 6:
+        case 5:
             class'HxScoreBoard'.default.FontSizeModifier = FontSizeModifier;
             break;
-        case 7:
+        case 6:
             class'HxScoreBoard'.default.bAlternateRowColors = bAlternateRowColors;
+            break;
+        case 7:
+            class'HxScoreBoard'.default.bCompactTeamScores = bCompactTeamScores;
             break;
         case 8:
             class'HxScoreBoard'.default.bShowPlayerPortraits = bShowPlayerPortraits;
@@ -214,23 +214,23 @@ function bool ResetProperty(int Index)
             bReset = true;
             break;
         case 3:
-            TeamScoreStyle = default.TeamScoreStyle;
-            bReset = true;
-            break;
-        case 4:
             BorderSize = default.BorderSize;
             bReset = true;
             break;
-        case 5:
+        case 4:
             DividerSize = default.DividerSize;
             bReset = true;
             break;
-        case 6:
+        case 5:
             FontSizeModifier = default.FontSizeModifier;
             bReset = true;
             break;
-        case 7:
+        case 6:
             bAlternateRowColors = default.bAlternateRowColors;
+            bReset = true;
+            break;
+        case 7:
+            bCompactTeamScores = default.bCompactTeamScores;
             bReset = true;
             break;
         case 8:
@@ -488,11 +488,11 @@ defaultproperties
     Properties(0)=(Name="bEnabled",Type=HX_PROPERTY_Bool)
     Properties(1)=(Name="BoardAlignment",Type=HX_PROPERTY_Enum,UpperLimit="3",EnumType=enum'EHxVertAlignment')
     Properties(2)=(Name="HeadingAlignment",Type=HX_PROPERTY_Enum,UpperLimit="3",EnumType=enum'EHxVertAlignment')
-    Properties(3)=(Name="TeamScoreStyle",Type=HX_PROPERTY_Enum,UpperLimit="2",EnumType=enum'EHxSBTeamScoreStyle')
-    Properties(4)=(Name="BorderSize",Type=HX_PROPERTY_Float,LowerLimit="0",UpperLimit="0.5");
-    Properties(5)=(Name="DividerSize",Type=HX_PROPERTY_Float,LowerLimit="0",UpperLimit="0.5");
-    Properties(6)=(Name="FontSizeModifier",Type=HX_PROPERTY_Int,LowerLimit="-2",UpperLimit="2")
-    Properties(7)=(Name="bAlternateRowColors",Type=HX_PROPERTY_Bool)
+    Properties(3)=(Name="BorderSize",Type=HX_PROPERTY_Float,LowerLimit="0",UpperLimit="0.5");
+    Properties(4)=(Name="DividerSize",Type=HX_PROPERTY_Float,LowerLimit="0",UpperLimit="0.5");
+    Properties(5)=(Name="FontSizeModifier",Type=HX_PROPERTY_Int,LowerLimit="-2",UpperLimit="2")
+    Properties(6)=(Name="bAlternateRowColors",Type=HX_PROPERTY_Bool)
+    Properties(7)=(Name="bCompactTeamScores",Type=HX_PROPERTY_Bool)
     Properties(8)=(Name="bShowPlayerPortraits",Type=HX_PROPERTY_Bool)
     Properties(9)=(Name="bShowPPHAndTime",Type=HX_PROPERTY_Bool)
     Properties(10)=(Name="bShowBotCallSigns",Type=HX_PROPERTY_Bool)
@@ -529,7 +529,8 @@ defaultproperties
     DividerSize=0.2
     FontSizeModifier=0
     bAlternateRowColors=false
-    bShowPlayerPortraits=false
+    bCompactTeamScores=false
+    bShowPlayerPortraits=true
     bShowPPHAndTime=false
     bShowBotCallSigns=false
     bShowBotOrders=true

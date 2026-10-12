@@ -9,7 +9,7 @@ simulated function DrawTables(Canvas C, int TableHeight)
 {
     local int Left;
 
-    if (TeamScoreStyle == HX_SB_TSCORE_FullSize)
+    if (!bCompactTeamScores)
     {
         Left = (C.ClipX - TotalScoreWidth) / 2;
         if (Border > 0)
@@ -36,7 +36,7 @@ simulated function DrawTables(Canvas C, int TableHeight)
 simulated function DrawHeadings(Canvas C, int Table)
 {
     Super.DrawHeadings(C, Table);
-    if (TeamScoreStyle == HX_SB_TSCORE_Compact)
+    if (bCompactTeamScores)
     {
         C.DrawColor = HighlightTextColor;
         C.Font = MediumFont;
@@ -58,7 +58,7 @@ simulated function UpdateTablePaddings(Canvas C)
     local float TextWidth;
     local float TextHeight;
 
-    if (TeamScoreStyle == HX_SB_TSCORE_FullSize)
+    if (!bCompactTeamScores)
     {
         C.Font = MediumFont;
         C.StrLen(TotalScoreLabel$"99999999", TextWidth, TextHeight);
@@ -86,7 +86,7 @@ simulated function HxSBColumnConfig GetPlayerColumnConfig()
     local HxSBColumnConfig Config;
 
     Config = Super.GetPlayerColumnConfig();
-    if (TeamScoreStyle == HX_SB_TSCORE_Compact)
+    if (bCompactTeamScores)
     {
         Config.Heading = "";
     }
