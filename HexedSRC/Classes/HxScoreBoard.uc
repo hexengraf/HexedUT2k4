@@ -8,11 +8,11 @@ enum EHxSBColumnType
     HX_SBCOL_Player,
     HX_SBCOL_Score,
     HX_SBCOL_Lives,
-    HX_SBCOL_FragsAndEfficiency,
-    HX_SBCOL_DeathsAndSuicides,
-    HX_SBCOL_CapsAndGrabs,
-    HX_SBCOL_PingAndLoss,
-    HX_SBCOL_PPHAndTime,
+    HX_SBCOL_Frags,
+    HX_SBCOL_Deaths,
+    HX_SBCOL_Captures,
+    HX_SBCOL_Ping,
+    HX_SBCOL_PPH,
     HX_SBCOL_Custom,
 };
 
@@ -89,10 +89,13 @@ var float DividerSize;
 var int FontSizeModifier;
 var bool bAlternateRowColors;
 var bool bCompactTeamScores;
+var bool bShowSecondaryInfo;
 var bool bShowPlayerPortraits;
 var bool bShowPPHAndTime;
 var bool bShowBotCallSigns;
 var bool bShowBotOrders;
+var bool bShowShortcuts;
+var bool bShowTimestamp;
 var Color HeaderColor;
 var Color RowColor;
 var Color AltRowColor;
@@ -200,10 +203,13 @@ simulated function LoadDefaults()
     FontSizeModifier = class'HxScoreBoard'.default.FontSizeModifier;
     bAlternateRowColors = class'HxScoreBoard'.default.bAlternateRowColors;
     bCompactTeamScores = class'HxScoreBoard'.default.bCompactTeamScores;
+    bShowSecondaryInfo = class'HxScoreBoard'.default.bShowSecondaryInfo;
     bShowPlayerPortraits = class'HxScoreBoard'.default.bShowPlayerPortraits;
     bShowPPHAndTime = class'HxScoreBoard'.default.bShowPPHAndTime;
     bShowBotCallSigns = class'HxScoreBoard'.default.bShowBotCallSigns;
     bShowBotOrders = class'HxScoreBoard'.default.bShowBotOrders;
+    bShowShortcuts = class'HxScoreBoard'.default.bShowShortcuts;
+    bShowTimestamp = class'HxScoreBoard'.default.bShowTimestamp;
     HeaderColor = class'HxScoreBoard'.default.HeaderColor;
     RowColor = class'HxScoreBoard'.default.RowColor;
     AltRowColor = class'HxScoreBoard'.default.AltRowColor;
@@ -244,23 +250,23 @@ simulated function InitializeColumn(EHxSBColumnType Type, int Index)
             Columns[Columns.Length] = GetLivesColumnConfig();
             Alignments[Alignments.Length] = TXTA_Center;
             break;
-        case HX_SBCOL_PingAndLoss:
+        case HX_SBCOL_Ping:
             Columns[Columns.Length] = GetPingColumnConfig();
             Alignments[Alignments.Length] = TXTA_Center;
             break;
-        case HX_SBCOL_FragsAndEfficiency:
+        case HX_SBCOL_Frags:
             Columns[Columns.Length] = GetFragsColumnConfig();
             Alignments[Alignments.Length] = TXTA_Center;
             break;
-        case HX_SBCOL_DeathsAndSuicides:
+        case HX_SBCOL_Deaths:
             Columns[Columns.Length] = GetDeathsColumnConfig();
             Alignments[Alignments.Length] = TXTA_Center;
             break;
-        case HX_SBCOL_CapsAndGrabs:
+        case HX_SBCOL_Captures:
             Columns[Columns.Length] = GetCapturesColumnConfig();
             Alignments[Alignments.Length] = TXTA_Center;
             break;
-        case HX_SBCOL_PPHAndTime:
+        case HX_SBCOL_PPH:
             if (bShowPPHAndTime)
             {
                 Columns[Columns.Length] = GetPPHColumnConfig();
@@ -476,27 +482,37 @@ simulated function DrawMapInfo(Canvas C)
     C.Font = MediumFont;
     C.DrawTextJustified(GetLevelInfoText(), 1, 0, Top, ScreenWidth, Bottom);
     C.Font = SmallFont;
-    C.DrawTextJustified(GetTimestampText(), 2, 0, Top, Right, Bottom);
-    if (Tables.Length > 1)
+    if (bShowTimestamp)
     {
-        C.DrawTextJustified(SwitchLayoutLabel, 0, Left, Top, Right, Bottom);
-        if (DetailedStatsHint != "")
+        C.DrawTextJustified(GetTimestampText(), 2, 0, Top, Right, Bottom);
+        if (GRI.MatchID != 0)
         {
-            C.DrawTextJustified(DetailedStatsHint, 0, Left, Top - SmallFontHeight, Right, Top);
+            C.DrawTextJustified(MatchIDLabel$GRI.MatchID, 2, 0, Top - SmallFontHeight, Right, Top);
         }
     }
-    else if (DetailedStatsHint != "")
+    else if (GRI.MatchID != 0)
     {
-        C.DrawTextJustified(DetailedStatsHint, 0, Left, Top, Right, Bottom);
+        C.DrawTextJustified(MatchIDLabel$GRI.MatchID, 2, 0, Top, Right, Top);
+    }
+    if (bShowShortcuts)
+    {
+        if (Tables.Length > 1)
+        {
+            C.DrawTextJustified(SwitchLayoutLabel, 0, Left, Top, Right, Bottom);
+            if (DetailedStatsHint != "")
+            {
+                C.DrawTextJustified(DetailedStatsHint, 0, Left, Top - SmallFontHeight, Right, Top);
+            }
+        }
+        else if (DetailedStatsHint != "")
+        {
+            C.DrawTextJustified(DetailedStatsHint, 0, Left, Top, Right, Bottom);
+        }
     }
     if (GetStatusText(StatusText))
     {
         C.Font = MediumFont;
         C.DrawTextJustified(StatusText, 1, 0, Top - MediumFontHeight * 1.25, ScreenWidth, Top);
-    }
-    if (GRI.MatchID != 0)
-    {
-        C.DrawTextJustified(MatchIDLabel$GRI.MatchID, 2, 0, Top - SmallFontHeight, Right, Top);
     }
 }
 
@@ -626,19 +642,19 @@ simulated function DrawRow(Canvas C, int Table, int Index, int Row, int Top)
                 case HX_SBCOL_Lives:
                     DrawPlayerLives(C, Table, Index, i, Top);
                     break;
-                case HX_SBCOL_FragsAndEfficiency:
+                case HX_SBCOL_Frags:
                     DrawPlayerFrags(C, Table, Index, i, Top);
                     break;
-                case HX_SBCOL_DeathsAndSuicides:
+                case HX_SBCOL_Deaths:
                     DrawPlayerDeaths(C, Table, Index, i, Top);
                     break;
-                case HX_SBCOL_CapsAndGrabs:
+                case HX_SBCOL_Captures:
                     DrawPlayerCaptures(C, Table, Index, i, Top);
                     break;
-                case HX_SBCOL_PingAndLoss:
+                case HX_SBCOL_Ping:
                     DrawPlayerPing(C, Table, Index, i, Top);
                     break;
-                case HX_SBCOL_PPHAndTime:
+                case HX_SBCOL_PPH:
                     DrawPlayerPPH(C, Table, Index, i, Top);
                     break;
             }
@@ -792,7 +808,15 @@ simulated function DrawPlayerFrags(Canvas C, int Table, int Index, int Column, i
     {
         Efficiency = int((Kills / (Kills + Deaths)) * 100);
     }
-    DrawTextCellDual(C, Tables[Table].PRIs[Index].Kills, string(Efficiency)$"%", Column, Top);
+    if (bShowSecondaryInfo)
+    {
+        DrawTextCellDual(C, Tables[Table].PRIs[Index].Kills, string(Efficiency)$"%", Column, Top);
+    }
+    else
+    {
+        C.Font = MediumFont;
+        DrawTextCell(C, Tables[Table].PRIs[Index].Kills, Column, Top);
+    }
 }
 
 simulated function DrawPlayerDeaths(Canvas C, int Table, int Index, int Column, int Top)
@@ -800,7 +824,7 @@ simulated function DrawPlayerDeaths(Canvas C, int Table, int Index, int Column, 
     local TeamPlayerReplicationInfo TeamPRI;
 
     TeamPRI = TeamPlayerReplicationInfo(Tables[Table].PRIs[Index]);
-    if (TeamPRI != None)
+    if (bShowSecondaryInfo && TeamPRI != None)
     {
         DrawTextCellDual(C, int(Tables[Table].PRIs[Index].Deaths), TeamPRI.Suicides, Column, Top);
     }
@@ -818,7 +842,15 @@ simulated function DrawPlayerCaptures(Canvas C, int Table, int Index, int Column
     TeamPRI = TeamPlayerReplicationInfo(Tables[Table].PRIs[Index]);
     if (TeamPRI != None)
     {
-        DrawTextCellDual(C, TeamPRI.GoalsScored, TeamPRI.FlagTouches, Column, Top);
+        if (bShowSecondaryInfo)
+        {
+            DrawTextCellDual(C, TeamPRI.GoalsScored, TeamPRI.FlagTouches, Column, Top);
+        }
+        else
+        {
+            C.Font = MediumFont;
+            DrawTextCell(C, TeamPRI.GoalsScored, Column, Top);
+        }
     }
 }
 simulated function DrawPlayerPing(Canvas C, int Table, int Index, int Column, float Top)
@@ -834,9 +866,14 @@ simulated function DrawPlayerPing(Canvas C, int Table, int Index, int Column, fl
         DrawTextClipped(C, BotLabel, Alignments[Column], ColumnLefts[Column], ColumnWidths[Column]);
         C.DrawColor = PreviousColor;
     }
-    else
+    else if (bShowSecondaryInfo)
     {
         DrawTextCellDual(C, Tables[Table].Pings[Index], Tables[Table].PLs[Index], Column, Top);
+    }
+    else
+    {
+        C.Font = MediumFont;
+        DrawTextCell(C, Tables[Table].Pings[Index], Column, Top);
     }
 }
 
@@ -850,15 +887,23 @@ simulated function DrawPlayerPPH(Canvas C, int Table, int Index, int Column, flo
     PRI = Tables[Table].PRIs[Index];
     Time = Max(0, ElapsedTime - Tables[Table].PRIs[Index].StartTime);
     PPH = Clamp(3600 * Tables[Table].PRIs[Index].Score / FMax(1, Time), -999, 9999);
-    if (GRI.bMatchHasBegun)
+    if (bShowSecondaryInfo)
     {
-        FormattedTime = FormatTime(Time);
+        if (GRI.bMatchHasBegun)
+        {
+            FormattedTime = FormatTime(Time);
+        }
+        else
+        {
+            FormattedTime = "--:--";
+        }
+        DrawTextCellDual(C, PPH, FormattedTime, Column, Top);
     }
     else
     {
-        FormattedTime = "--:--";
+        C.Font = MediumFont;
+        DrawTextCell(C, PPH, Column, Top);
     }
-    DrawTextCellDual(C, PPH, FormattedTime, Column, Top);
 }
 
 simulated final function DrawBox(Canvas C, int Left, int Top, int Width, int Height)
@@ -1458,9 +1503,12 @@ simulated function HxSBColumnConfig GetPingColumnConfig()
 {
     local HxSBColumnConfig Config;
 
-    Config.Type = HX_SBCOL_PingAndLoss;
+    Config.Type = HX_SBCOL_Ping;
     Config.Heading = PingLabel;
-    Config.SubHeading = PacketLossLabel;
+    if (bShowSecondaryInfo)
+    {
+        Config.SubHeading = PacketLossLabel;
+    }
     Config.MinWidthValue = "999";
     return Config;
 }
@@ -1469,9 +1517,12 @@ simulated function HxSBColumnConfig GetFragsColumnConfig()
 {
     local HxSBColumnConfig Config;
 
-    Config.Type = HX_SBCOL_FragsAndEfficiency;
+    Config.Type = HX_SBCOL_Frags;
     Config.Heading = FragsLabel;
-    Config.SubHeading = EfficiencyLabel;
+    if (bShowSecondaryInfo)
+    {
+        Config.SubHeading = EfficiencyLabel;
+    }
     Config.MinWidthValue = "9999";
     Config.MaxWidthValue = "999999";
     Config.bCanHide = true;
@@ -1482,9 +1533,12 @@ simulated function HxSBColumnConfig GetDeathsColumnConfig()
 {
     local HxSBColumnConfig Config;
 
-    Config.Type = HX_SBCOL_DeathsAndSuicides;
+    Config.Type = HX_SBCOL_Deaths;
     Config.Heading = DeathsLabel;
-    Config.SubHeading = SuicidesLabel;
+    if (bShowSecondaryInfo)
+    {
+        Config.SubHeading = SuicidesLabel;
+    }
     Config.MinWidthValue = "9999";
     Config.MaxWidthValue = "999999";
     Config.bCanHide = true;
@@ -1495,9 +1549,12 @@ simulated function HxSBColumnConfig GetCapturesColumnConfig()
 {
     local HxSBColumnConfig Config;
 
-    Config.Type = HX_SBCOL_CapsAndGrabs;
+    Config.Type = HX_SBCOL_Captures;
     Config.Heading = CapturesLabel;
-    Config.SubHeading = GrabsLabel;
+    if (bShowSecondaryInfo)
+    {
+        Config.SubHeading = GrabsLabel;
+    }
     Config.MinWidthValue = "9999";
     Config.MaxWidthValue = "999999";
     Config.bCanHide = true;
@@ -1508,9 +1565,12 @@ simulated function HxSBColumnConfig GetPPHColumnConfig()
 {
     local HxSBColumnConfig Config;
 
-    Config.Type = HX_SBCOL_PPHAndTime;
+    Config.Type = HX_SBCOL_PPH;
     Config.Heading = PPHLabel;
-    Config.SubHeading = TimeLabel;
+    if (bShowSecondaryInfo)
+    {
+        Config.SubHeading = TimeLabel;
+    }
     Config.MinWidthValue = FormatTime(0);
     Config.bCanHide = true;
     return Config;
@@ -1744,10 +1804,13 @@ defaultproperties
     FontSizeModifier=0
     bAlternateRowColors=false
     bCompactTeamScores=false
+    bShowSecondaryInfo=true
     bShowPlayerPortraits=false
     bShowPPHAndTime=false
     bShowBotCallSigns=false
     bShowBotOrders=true
+    bShowShortcuts=true
+    bShowTimestamp=true
     HeaderColor=(R=0,G=0,B=20,A=196)
     RowColor=(R=130,G=130,B=140,A=142)
     AltRowColor=(R=100,G=100,B=110,A=112)

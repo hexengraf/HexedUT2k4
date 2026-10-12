@@ -21,10 +21,10 @@ simulated function bool DrawPlayerMarker(Canvas C, int Table, int Index, int Col
 defaultproperties
 {
     // TODO: removed for now because Mutant doesn't update Frags count
-    // ColumnTypes(4)=HX_SBCOL_FragsAndEfficiency
-    ColumnTypes(4)=HX_SBCOL_DeathsAndSuicides
-    ColumnTypes(5)=HX_SBCOL_PingAndLoss
+    // ColumnTypes(4)=HX_SBCOL_Frags
+    ColumnTypes(4)=HX_SBCOL_Deaths
+    ColumnTypes(5)=HX_SBCOL_Ping
     // TODO: removed because Mutant either doesn't update GRI.ElapsedTime or some other issue
     // with PRI.StartTime
-    // ColumnTypes(7)=HX_SBCOL_PPHAndTime
+    // ColumnTypes(7)=HX_SBCOL_PPH
 }

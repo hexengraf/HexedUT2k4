@@ -53,8 +53,8 @@ simulated function bool InOrder(PlayerReplicationInfo P1, PlayerReplicationInfo 
 defaultproperties
 {
     ColumnTypes(3)=HX_SBCOL_Lives
-    ColumnTypes(4)=HX_SBCOL_FragsAndEfficiency
-    ColumnTypes(5)=HX_SBCOL_DeathsAndSuicides
-    ColumnTypes(6)=HX_SBCOL_PingAndLoss
-    ColumnTypes(7)=HX_SBCOL_PPHAndTime
+    ColumnTypes(4)=HX_SBCOL_Frags
+    ColumnTypes(5)=HX_SBCOL_Deaths
+    ColumnTypes(6)=HX_SBCOL_Ping
+    ColumnTypes(7)=HX_SBCOL_PPH
 }

@@ -5,10 +5,14 @@ const SECTION_SP_TIMER = 1;
 
 var automated moCheckBox ch_EnhancedScoreboard;
 var automated moCheckBox ch_CompactTeamScores;
+var automated moCheckBox ch_ShowSecondaryInfo;
 var automated moCheckBox ch_ShowPlayerPortraits;
 var automated moCheckBox ch_ShowPPHAndTime;
 var automated moCheckBox ch_ShowBotCallSigns;
 var automated moCheckBox ch_ShowBotOrders;
+var automated moCheckBox ch_ShowShortcuts;
+var automated moCheckBox ch_ShowTimestamp;
+var automated GUILabel l_Spacer;
 var automated GUIButton b_ChangeAppearance;
 var automated moCheckBox ch_SPTimer;
 var automated moCheckBox ch_PulsingDigits;
@@ -30,10 +34,14 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     Super.InitComponent(MyController, MyOwner);
     Sections[SECTION_SCOREBOARD].Insert(ch_EnhancedScoreboard);
     Sections[SECTION_SCOREBOARD].Insert(ch_CompactTeamScores);
+    Sections[SECTION_SCOREBOARD].Insert(ch_ShowSecondaryInfo);
     Sections[SECTION_SCOREBOARD].Insert(ch_ShowPlayerPortraits);
     Sections[SECTION_SCOREBOARD].Insert(ch_ShowPPHAndTime);
     Sections[SECTION_SCOREBOARD].Insert(ch_ShowBotCallSigns);
     Sections[SECTION_SCOREBOARD].Insert(ch_ShowBotOrders);
+    Sections[SECTION_SCOREBOARD].Insert(ch_ShowShortcuts);
+    Sections[SECTION_SCOREBOARD].Insert(ch_ShowTimestamp);
+    Sections[SECTION_SCOREBOARD].Insert(l_Spacer);
     Sections[SECTION_SCOREBOARD].Insert(b_ChangeAppearance);
     Sections[SECTION_SP_TIMER].Insert(ch_SPTimer);
     Sections[SECTION_SP_TIMER].Insert(ch_PulsingDigits);
@@ -174,14 +182,12 @@ defaultproperties
     Begin Object class=HxGUIFramedSection Name=ScoreboardSection
         Caption="Enhanced Scoreboards"
         WinHeight=1
-        LineSpacing=0.0185
-        bAutoSpacing=false
     End Object
 
     Begin Object class=HxGUIFramedSection Name=SPTimerSection
         Caption="Spawn Protection Timer"
         WinHeight=1
-        LineSpacing=0.0185
+        LineSpacing=0.0193
         bAutoSpacing=false
     End Object
 
@@ -197,7 +203,7 @@ defaultproperties
     ch_EnhancedScoreboard=EnhancedScoreboardCheckBox
 
     Begin Object class=moCheckBox Name=CompactTeamScoresCheckBox
-        Caption="Use compact team scores"
+        Caption="Use Compact Team Scores"
         Hint="Show team scores and total score (Invasion) directly inside the header space."
         INIOption="@INTERNAL"
         Tag=7
@@ -207,14 +213,25 @@ defaultproperties
     End Object
     ch_CompactTeamScores=CompactTeamScoresCheckBox
 
-    Begin Object class=moCheckBox Name=ShowPlayerPortraitsCheckBox
-        Caption="Show Player Portraits"
-        Hint="Show player portraits at the left of each row."
+    Begin Object class=moCheckBox Name=SecondaryInfoCheckBox
+        Caption="Show Secondary Info"
+        Hint="Show secondary information below the main stats when available."
         INIOption="@INTERNAL"
         Tag=8
         OnLoadINI=ScoreboardOnLoadINI
         OnChange=ScoreboardOnChange
         TabOrder=2
+    End Object
+    ch_ShowSecondaryInfo=SecondaryInfoCheckBox
+
+    Begin Object class=moCheckBox Name=ShowPlayerPortraitsCheckBox
+        Caption="Show Player Portraits"
+        Hint="Show player portraits at the left of each row."
+        INIOption="@INTERNAL"
+        Tag=9
+        OnLoadINI=ScoreboardOnLoadINI
+        OnChange=ScoreboardOnChange
+        TabOrder=3
     End Object
     ch_ShowPlayerPortraits=ShowPlayerPortraitsCheckBox
 
@@ -222,10 +239,10 @@ defaultproperties
         Caption="Show PPH And Time"
         Hint="Show player's  points per hour (PPH) and playtime at the end of each row."
         INIOption="@INTERNAL"
-        Tag=9
+        Tag=10
         OnLoadINI=ScoreboardOnLoadINI
         OnChange=ScoreboardOnChange
-        TabOrder=3
+        TabOrder=4
     End Object
     ch_ShowPPHAndTime=ShowPPHAndTimeCheckBox
 
@@ -233,10 +250,10 @@ defaultproperties
         Caption="Show Bot Call Signs"
         Hint="Show bot call signs at the end of their names (team games only)."
         INIOption="@INTERNAL"
-        Tag=10
+        Tag=11
         OnLoadINI=ScoreboardOnLoadINI
         OnChange=ScoreboardOnChange
-        TabOrder=4
+        TabOrder=5
     End Object
     ch_ShowBotCallSigns=ShowBotCallSignsCheckBox
 
@@ -244,12 +261,40 @@ defaultproperties
         Caption="Show Bot Orders"
         Hint="Show bot orders in front of their location (team games only)."
         INIOption="@INTERNAL"
-        Tag=11
+        Tag=12
         OnLoadINI=ScoreboardOnLoadINI
         OnChange=ScoreboardOnChange
-        TabOrder=5
+        TabOrder=6
     End Object
     ch_ShowBotOrders=ShowBotOrdersCheckBox
+
+    Begin Object class=moCheckBox Name=ShowShortcutsCheckBox
+        Caption="Show Shortcuts"
+        Hint="Show available shortcuts at the bottom left of the screen."
+        INIOption="@INTERNAL"
+        Tag=13
+        OnLoadINI=ScoreboardOnLoadINI
+        OnChange=ScoreboardOnChange
+        TabOrder=7
+    End Object
+    ch_ShowShortcuts=ShowShortcutsCheckBox
+
+    Begin Object class=moCheckBox Name=ShowTimestampCheckBox
+        Caption="Show Timestamp"
+        Hint="Show current timestamp at the bottom right of the screen."
+        INIOption="@INTERNAL"
+        Tag=14
+        OnLoadINI=ScoreboardOnLoadINI
+        OnChange=ScoreboardOnChange
+        TabOrder=8
+    End Object
+    ch_ShowTimestamp=ShowTimestampCheckBox
+
+    Begin Object class=GUILabel Name=SpacerLabel
+        bBoundToParent=true
+        bScaleToParent=true
+    End Object
+    l_Spacer=SpacerLabel
 
     Begin Object class=GUIButton Name=ChangeAppearanceButton
         Caption="Change Appearance"
@@ -259,7 +304,7 @@ defaultproperties
         StyleName="HxSquareButton"
         bRepeatClick=false
         OnClick=OnClickChangeAppearance
-        TabOrder=6
+        TabOrder=9
     End Object
     b_ChangeAppearance=ChangeAppearanceButton
 

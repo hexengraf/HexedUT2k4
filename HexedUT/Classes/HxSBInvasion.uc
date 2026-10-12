@@ -106,9 +106,9 @@ defaultproperties
 {
     ColumnTypes(3)=HX_SBCOL_Lives
     ColumnTypes(4)=HX_SBCOL_Score
-    ColumnTypes(5)=HX_SBCOL_FragsAndEfficiency
-    ColumnTypes(6)=HX_SBCOL_DeathsAndSuicides
-    ColumnTypes(7)=HX_SBCOL_PingAndLoss
-    ColumnTypes(8)=HX_SBCOL_PPHAndTime
+    ColumnTypes(5)=HX_SBCOL_Frags
+    ColumnTypes(6)=HX_SBCOL_Deaths
+    ColumnTypes(7)=HX_SBCOL_Ping
+    ColumnTypes(8)=HX_SBCOL_PPH
     TotalScoreLabel="TOTAL SCORE: "
 }
