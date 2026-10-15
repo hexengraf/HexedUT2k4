@@ -23,15 +23,22 @@ replication
 
 simulated function bool InitializeClient()
 {
-    if (PlayerOwner != None && PlayerOwner.GameReplicationInfo != None && PlayerOwner.myHUD != None)
+    if (PlayerOwner != None)
     {
-        if (IsMutatorInfoReady())
+        if (PlayerOwner.Player != None && Viewport(PlayerOwner.Player) == None)
         {
-            HxScoreBoardConfig(FindConfig(class'HxScoreBoardConfig')).UpdateScoreBoard();
+            return true;
         }
-        HitEffects = HxHitEffects(SpawnOverlay(PlayerOwner.myHUD, class'HxHitEffects'));
-        SPTimer = HxSPTimer(SpawnOverlay(PlayerOwner.myHUD, class'HxSPTimer'));
-        return true;
+        if (PlayerOwner.GameReplicationInfo != None && PlayerOwner.myHUD != None)
+        {
+            if (IsMutatorInfoReady())
+            {
+                HxScoreBoardConfig(FindConfig(class'HxScoreBoardConfig')).UpdateScoreBoard();
+            }
+            HitEffects = HxHitEffects(SpawnOverlay(PlayerOwner.myHUD, class'HxHitEffects'));
+            SPTimer = HxSPTimer(SpawnOverlay(PlayerOwner.myHUD, class'HxSPTimer'));
+            return true;
+        }
     }
     return false;
 }
@@ -39,12 +46,9 @@ simulated function bool InitializeClient()
 simulated event Tick(float DeltaTime)
 {
     Super.Tick(DeltaTime);
-    if (Level.NetMode != NM_DedicatedServer)
+    if (Level.NetMode != NM_DedicatedServer && !bInitialized)
     {
-        if (!bInitialized)
-        {
-            bInitialized = InitializeClient();
-        }
+        bInitialized = InitializeClient();
     }
     ServerTick(DeltaTime);
 }

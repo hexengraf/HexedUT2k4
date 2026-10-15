@@ -1,5 +1,6 @@
 var protected const class<Weapon> BaseClass;
 var protected bool bConfigCleared;
+var protected HxPlayerReplicationInfo HxPRI;
 
 replication
 {
@@ -62,4 +63,20 @@ simulated function UpdateFireRate(float Value)
 simulated function ClientSetFireRate(float Value)
 {
     UpdateFireRate(Value);
+}
+
+simulated function bool ConsumeAmmo(int Mode, float Load, optional bool bAmountNeededIsMax)
+{
+    if (Role == ROLE_Authority)
+    {
+        if (HxPRI == None)
+        {
+            HxPRI = class'HxPlayerReplicationInfo'.static.Get(Instigator.PlayerReplicationInfo);
+        }
+        if (HxPRI != None)
+        {
+            HxPRI.IncrementWeaponShots(Class, 1);
+        }
+    }
+    return Super.ConsumeAmmo(Mode, Load, bAmountNeededIsMax);
 }

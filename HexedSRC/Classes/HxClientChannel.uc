@@ -33,10 +33,10 @@ replication
         PlayerOwner, ServerName;
 
     reliable if (Role == ROLE_Authority)
-        ClientReceiveMessage, ClientOpenConfigurationMenu;
+        ClientReceiveMessage, ClientOpenConfigurationMenu, ClientReceiveStats;
 
     reliable if (Role < ROLE_Authority)
-        ServerRequestMutatorInfo, ServerReceiveMessage;
+        ServerRequestMutatorInfo, ServerReceiveMessage, ServerRequestStats;
 }
 
 simulated event PostBeginPlay()
@@ -72,7 +72,7 @@ simulated event PostNetReceive()
 simulated function SetupClient()
 {
     ClientManager = class'HxClientManager'.static.Get(PlayerOwner.Player);
-    ClientManager.Setup(Self);
+    ClientManager.LinkChannel(Self);
     ServerRequestMutatorInfo();
 }
 
@@ -277,6 +277,28 @@ simulated function RequestGlobalPropertyUpdate(int Tag, string Value)
     C2SQueue[i].Type = HX_PROXY_MSG_GlobalProperty;
     C2SQueue[i].Tag = Tag;
     C2SQueue[i].Value = Value;
+}
+
+function ServerRequestStats(HxPlayerReplicationInfo HxPRI)
+{
+    if (HxPRI != None)
+    {
+        HxPRI.UpdateStats();
+        ClientReceiveStats(HxPRI, HxPRI.Accuracy, HxPRI.MaxSpree, HxPRI.TeamKills);
+    }
+}
+
+simulated function ClientReceiveStats(HxPlayerReplicationInfo HxPRI,
+                                      byte Accuracy,
+                                      int MaxSpree,
+                                      int TeamKills)
+{
+    if (HxPRI != None)
+    {
+        HxPRI.Accuracy = Accuracy;
+        HxPRI.MaxSpree = MaxSpree;
+        HxPRI.TeamKills = TeamKills;
+    }
 }
 
 simulated event Destroyed()

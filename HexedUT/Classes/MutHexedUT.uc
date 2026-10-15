@@ -30,8 +30,11 @@ var config EHxForcedModel AllowForcedModels;
 var config array<string> ModelList;
 var config bool bAllowCustomViewSmoothing;
 var config bool bAllowEnhancedScoreBoards;
+var config bool bExtraStats;
 var config bool bAllowSpawnProtectionTimer;
 var config bool bColoredDeathMessages;
+
+var private array<HxUTPlayerInfo> PlayerInfos;
 
 function Mutate(string Command, PlayerController Sender)
 {
@@ -76,6 +79,24 @@ function ModifyDeathMessageClass()
     }
 }
 
+function HexedPlayerReplicationInfoSpawned(HxPlayerReplicationInfo HexedPRI)
+{
+    if (bExtraStats)
+    {
+        PlayerInfos.Length = Max(PlayerInfos.Length, HexedPRI.PlayerID + 1);
+        if (PlayerInfos[HexedPRI.PlayerID] == None)
+        {
+            PlayerInfos[HexedPRI.PlayerID] = Spawn(class'HxUTPlayerInfo', Self);
+        }
+        else
+        {
+            PlayerInfos[HexedPRI.PlayerID].ClearStats();
+        }
+        PlayerInfos[HexedPRI.PlayerID].Setup(HexedPRI, Controller(HexedPRI.Owner));
+        PlayerInfos[HexedPRI.PlayerID].SetActive(true);
+    }
+}
+
 function SpawnSkinHighlight(xPawn Pawn)
 {
     local HxSkinHighlight SkinHighlight;
@@ -104,6 +125,16 @@ function UpdateSkinHighlights()
     }
 }
 
+function UpdateExtraStats()
+{
+    local int i;
+
+    for (i = 0; i < PlayerInfos.Length; ++i)
+    {
+        PlayerInfos[i].SetActive(bExtraStats);
+    }
+}
+
 function bool CanForceModels()
 {
     if (AllowForcedModels == HX_FM_FromList)
@@ -123,6 +154,9 @@ function PropertyChanged(int Index)
         case "AllowForcedModels":
             UpdateSkinHighlights();
             break;
+        case "bExtraStats":
+            UpdateExtraStats();
+            break;
         case "bColoredDeathMessages":
             ModifyDeathMessageClass();
             break;
@@ -138,22 +172,43 @@ function array<string> GetArrayProperty(int Index)
     return Super.GetArrayProperty(Index);
 }
 
-function RegisterDamage(int Damage,
+function ScoreKill(Controller Killer, Controller Killed)
+{
+    local int PlayerID;
+
+    if (bExtraStats && Killer != None && GetPlayerID(Killer.PlayerReplicationInfo, PlayerID))
+    {
+        PlayerInfos[PlayerID].ScoreKill(Killed);
+    }
+}
+
+function RegisterWeaponKill(Pawn Killed, Controller Killer, class<WeaponDamageType> DamageType)
+{
+    local int PlayerID;
+
+    if (bExtraStats && Killer != None && GetPlayerID(Killer.PlayerReplicationInfo, PlayerID))
+    {
+        PlayerInfos[PlayerID].TrackWeaponKill(DamageType, Killed);
+    }
+}
+
+function RegisterDamage(int Original,
+                        int Damage,
                         Pawn Injured,
                         Pawn Inflictor,
-                        vector HitLocation,
                         class<DamageType> Type)
 {
     local PlayerController PC;
     local HxUTClient Client;
+    local int PlayerID;
     local int i;
 
-    if ((bAllowHitSounds || bAllowDamageNumbers) && CheckLOS(Injured, Inflictor))
+    if (Damage > 0 && (bAllowHitSounds || bAllowDamageNumbers) && CheckLOS(Injured, Inflictor))
     {
         for (i = 0; i < Channels.Length; ++i)
         {
             Client = HxUTClient(Channels[i].GetClientReplicationInfo(UID));
-            PC = PlayerController(Client.Owner);
+            PC = PlayerController(Channels[i].Owner);
             if (PC != None && PC.ViewTarget == Inflictor)
             {
                 if (bAllowHitSounds)
@@ -167,11 +222,28 @@ function RegisterDamage(int Damage,
             }
         }
     }
+    if (bExtraStats && ClassIsChildOf(Type, class'WeaponDamageType')
+        && GetPlayerID(Inflictor.PlayerReplicationInfo, PlayerID))
+    {
+        PlayerInfos[PlayerID].TrackAmmoOnHit(Original, class<WeaponDamageType>(Type));
+    }
+}
+
+function RegisterPickup(Pawn Other, Pickup Item)
+{
+    local int PlayerID;
+
+    if (bExtraStats && (Item.IsA('Ammo') || Item.IsA('WeaponPickup') || Item.IsA('WeaponLocker'))
+        && GetPlayerID(Other.PlayerReplicationInfo, PlayerID))
+    {
+        PlayerInfos[PlayerID].TrackAmmoPickup(Item);
+    }
 }
 
 function RegisterSpawn(Pawn Spawned)
 {
     local PlayerController PC;
+    local int PlayerID;
     local int i;
 
     if (bAllowSpawnProtectionTimer)
@@ -179,15 +251,32 @@ function RegisterSpawn(Pawn Spawned)
         for (i = 0; i < Channels.Length; ++i)
         {
             PC = PlayerController(Channels[i].Owner);
-            if (PC != None && PC.ViewTarget == Spawned)
+            if (PC != None && (Spawned.Controller == PC || PC.ViewTarget == Spawned))
             {
                 HxUTClient(Channels[i].GetClientReplicationInfo(UID)).NotifySpawn(Spawned);
             }
         }
     }
+    if (bExtraStats && GetPlayerID(Spawned.PlayerReplicationInfo, PlayerID))
+    {
+        PlayerInfos[PlayerID].ClearAmmo();
+    }
 }
 
-final function bool CheckLOS(Pawn Injured, Pawn Inflictor)
+function bool GetPlayerID(PlayerReplicationInfo PRI, out int PlayerID)
+{
+    local HxPlayerReplicationInfo HexedPRI;
+
+    HexedPRI = class'HxPlayerReplicationInfo'.static.Get(PRI);
+    if (HexedPRI != None)
+    {
+        PlayerID = HexedPRI.PlayerID;
+        return true;
+    }
+    return false;
+}
+
+function bool CheckLOS(Pawn Injured, Pawn Inflictor)
 {
     return !bRequireLOS
         || FastTrace(Injured.Location, Inflictor.Location + Inflictor.EyePosition());
@@ -246,8 +335,9 @@ defaultproperties
     Properties(8)=(Name="ModelList",Type=HX_PROPERTY_Array)
     Properties(9)=(Name="bAllowCustomViewSmoothing",Type=HX_PROPERTY_Bool)
     Properties(10)=(Name="bAllowEnhancedScoreBoards",Type=HX_PROPERTY_Bool)
-    Properties(11)=(Name="bAllowSpawnProtectionTimer",Type=HX_PROPERTY_Bool)
-    Properties(12)=(Name="bColoredDeathMessages",Type=HX_PROPERTY_Bool)
+    Properties(11)=(Name="bExtraStats",Type=HX_PROPERTY_Bool)
+    Properties(12)=(Name="bAllowSpawnProtectionTimer",Type=HX_PROPERTY_Bool)
+    Properties(13)=(Name="bColoredDeathMessages",Type=HX_PROPERTY_Bool)
     DisplayInfo(0)=(Section="Hit Effects",Caption="Allow Hit Sounds",Hint="Allow clients to enable/disable hit sound effects.")
     DisplayInfo(1)=(Section="Hit Effects",Caption="Allow Damage Numbers",Hint="Allow clients to enable/disable damage number effects.")
     DisplayInfo(2)=(Section="Hit Effects",Caption="Require Line Of Sight",Hint="Require line of sight between player and target to trigger hit effects.")
@@ -259,8 +349,9 @@ defaultproperties
     DisplayInfo(8)=(Section="Skin Highlight",Caption="Forced Model List",Hint="List of character models to allow when using the 'from list' option.",bAdvanced=true)
     DisplayInfo(9)=(Section="Player",Caption="Allow Custom View Smoothing",Hint="Allow clients to select different types of view smoothing.")
     DisplayInfo(10)=(Section="HUD",Caption="Allow Enhanced Scoreboards",Hint="Allow clients to enable/disable the enhanced scoreboards.")
-    DisplayInfo(11)=(Section="HUD",Caption="Allow Spawn Protection Timer",Hint="Allow clients to enable/disable the spawn protection timer.")
-    DisplayInfo(12)=(Section="HUD",Caption="Colored Death Messages",Hint="Use team colors in death messages (blue = killer and red = victim if no teams).")
+    DisplayInfo(11)=(Section="HUD",Caption="Track Extra Stats",Hint="Track extra stats to display on the enhanced scoreboards.")
+    DisplayInfo(12)=(Section="HUD",Caption="Allow Spawn Protection Timer",Hint="Allow clients to enable/disable the spawn protection timer.")
+    DisplayInfo(13)=(Section="HUD",Caption="Colored Death Messages",Hint="Use team colors in death messages (blue = killer and red = victim if no teams).")
     ConfigClasses(0)=class'HxHitEffectsConfig'
     ConfigClasses(1)=class'HxSkinHighlightConfig'
     ConfigClasses(2)=class'HxUTPlayerConfig'
@@ -296,6 +387,7 @@ defaultproperties
     ModelList(13)="Zarina"
     bAllowCustomViewSmoothing=true
     bAllowEnhancedScoreBoards=true
+    bExtraStats=true
     bAllowSpawnProtectionTimer=true
     bColoredDeathMessages=true
 }

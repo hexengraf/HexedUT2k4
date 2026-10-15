@@ -11,9 +11,9 @@ enum EHxSBColumnType
     HX_SBCOL_Frags,
     HX_SBCOL_Deaths,
     HX_SBCOL_Captures,
+    HX_SBCOL_Accuracy,
     HX_SBCOL_Ping,
     HX_SBCOL_PPH,
-    HX_SBCOL_Custom,
 };
 
 struct HxSBColumnConfig
@@ -31,6 +31,7 @@ struct HxSBTable
 {
     var int TeamIndex;
     var array<PlayerReplicationInfo> PRIs;
+    var array<HxPlayerReplicationInfo> HxPRIs;
     var array<Material> Portraits;
     var array<HxTypes.HxImageCrop> PortraitCrops;
     var array<string> CharacterNames;
@@ -49,10 +50,13 @@ var localized string PlayerLabel;
 var localized string LocationLabel;
 var localized string ScoreLabel;
 var localized string FragsLabel;
+var localized string MaxSpreeLabel;
+var localized string AccuracyLabel;
 var localized string EfficiencyLabel;
 var localized string LivesLabel;
 var localized string DeathsLabel;
 var localized string SuicidesLabel;
+var localized string TeamKillsLabel;
 var localized string CapturesLabel;
 var localized string GoalsLabel;
 var localized string GrabsLabel;
@@ -148,8 +152,11 @@ var protected float ScoreFontHeight;
 var protected float SmallRowPadding;
 
 var protected UnrealPlayer PC;
+var protected HxClientManager ClientManager;
 var protected array<PlayerReplicationInfo> ActivePRIs;
 var protected array<PlayerReplicationInfo> SpectatingPRIs;
+var protected bool bHasWeaponStats;
+var protected bool bHasKillStats;
 
 var private float ElapsedTime;
 var private float LastUpdateTime;
@@ -169,7 +176,6 @@ var private const array<HxPortraitCrop> BestPortraitCrops;
 var private const HxTypes.HxImageCrop FallbackPortraitCrop;
 var private const HxTypes.HxImageCrop UnknownPortraitCrop;
 
-simulated function InitializeCustomColumn(int Index);
 simulated function UpdateTablePaddings(Canvas C);
 simulated function UpdateExtraSizes(Canvas C);
 simulated function SetTableColors(int Table);
@@ -250,10 +256,6 @@ simulated function InitializeColumn(EHxSBColumnType Type, int Index)
             Columns[Columns.Length] = GetLivesColumnConfig();
             Alignments[Alignments.Length] = TXTA_Center;
             break;
-        case HX_SBCOL_Ping:
-            Columns[Columns.Length] = GetPingColumnConfig();
-            Alignments[Alignments.Length] = TXTA_Center;
-            break;
         case HX_SBCOL_Frags:
             Columns[Columns.Length] = GetFragsColumnConfig();
             Alignments[Alignments.Length] = TXTA_Center;
@@ -266,15 +268,23 @@ simulated function InitializeColumn(EHxSBColumnType Type, int Index)
             Columns[Columns.Length] = GetCapturesColumnConfig();
             Alignments[Alignments.Length] = TXTA_Center;
             break;
+        case HX_SBCOL_Accuracy:
+            if (bHasWeaponStats)
+            {
+                Columns[Columns.Length] = GetAccuracyColumnConfig();
+                Alignments[Alignments.Length] = TXTA_Center;
+            }
+            break;
+        case HX_SBCOL_Ping:
+            Columns[Columns.Length] = GetPingColumnConfig();
+            Alignments[Alignments.Length] = TXTA_Center;
+            break;
         case HX_SBCOL_PPH:
             if (bShowPPHAndTime)
             {
                 Columns[Columns.Length] = GetPPHColumnConfig();
                 Alignments[Alignments.Length] = TXTA_Center;
             }
-            break;
-        case HX_SBCOL_Custom:
-            InitializeCustomColumn(Index);
             break;
     }
 }
@@ -285,6 +295,10 @@ simulated function bool Initialized()
     if (PC == None || PC.PlayerReplicationInfo == None)
     {
         return false;
+    }
+    if (ClientManager == None)
+    {
+        ClientManager = class'HxClientManager'.static.Get(PC.Player);
     }
     if (Interaction == None)
     {
@@ -651,6 +665,9 @@ simulated function DrawRow(Canvas C, int Table, int Index, int Row, int Top)
                 case HX_SBCOL_Captures:
                     DrawPlayerCaptures(C, Table, Index, i, Top);
                     break;
+                case HX_SBCOL_Accuracy:
+                    DrawPlayerAccuracy(C, Table, Index, i, Top);
+                    break;
                 case HX_SBCOL_Ping:
                     DrawPlayerPing(C, Table, Index, i, Top);
                     break;
@@ -798,35 +815,63 @@ simulated function DrawPlayerLives(Canvas C, int Table, int Index, int Column, i
 
 simulated function DrawPlayerFrags(Canvas C, int Table, int Index, int Column, int Top)
 {
-    local float Kills;
-    local float Deaths;
     local int Efficiency;
+    local int Kills;
+    local float Deaths;
 
     Kills = Tables[Table].PRIs[Index].Kills;
-    Deaths = Tables[Table].PRIs[Index].Deaths;
-    if (Kills > 0)
-    {
-        Efficiency = int((Kills / (Kills + Deaths)) * 100);
-    }
     if (bShowSecondaryInfo)
     {
-        DrawTextCellDual(C, Tables[Table].PRIs[Index].Kills, string(Efficiency)$"%", Column, Top);
+        if (!bHasWeaponStats)
+        {
+            Deaths = Tables[Table].PRIs[Index].Deaths;
+            if (Kills > 0)
+            {
+                Efficiency = int((Kills / (Kills + Deaths)) * 100);
+            }
+            DrawTextCellDual(C, Kills, string(Efficiency)$"%", Column, Top);
+        }
+        else if (bHasKillStats)
+        {
+            if (Tables[Table].HxPRIs[Index] != None)
+            {
+                DrawTextCellDual(C, Kills, Tables[Table].HxPRIs[Index].MaxSpree, Column, Top);
+            }
+            else
+            {
+                DrawTextCellDual(C, Kills, 0, Column, Top);
+            }
+        }
+        else
+        {
+            C.Font = MediumFont;
+            DrawTextCell(C, Kills, Column, Top);
+        }
     }
     else
     {
         C.Font = MediumFont;
-        DrawTextCell(C, Tables[Table].PRIs[Index].Kills, Column, Top);
+        DrawTextCell(C, Kills, Column, Top);
     }
 }
 
 simulated function DrawPlayerDeaths(Canvas C, int Table, int Index, int Column, int Top)
 {
     local TeamPlayerReplicationInfo TeamPRI;
+    local int Suicides;
 
-    TeamPRI = TeamPlayerReplicationInfo(Tables[Table].PRIs[Index]);
-    if (bShowSecondaryInfo && TeamPRI != None)
+    if (bShowSecondaryInfo)
     {
-        DrawTextCellDual(C, int(Tables[Table].PRIs[Index].Deaths), TeamPRI.Suicides, Column, Top);
+        TeamPRI = TeamPlayerReplicationInfo(Tables[Table].PRIs[Index]);
+        if (bHasKillStats && Tables[Table].HxPRIs[Index] != None)
+        {
+            Suicides = Tables[Table].HxPRIs[Index].TeamKills;
+        }
+        else if (TeamPRI != None)
+        {
+            Suicides = TeamPRI.Suicides;
+        }
+        DrawTextCellDual(C, int(Tables[Table].PRIs[Index].Deaths), Suicides, Column, Top);
     }
     else
     {
@@ -853,6 +898,32 @@ simulated function DrawPlayerCaptures(Canvas C, int Table, int Index, int Column
         }
     }
 }
+
+simulated function DrawPlayerAccuracy(Canvas C, int Table, int Index, int Column, int Top)
+{
+    local float Kills;
+    local int Eff;
+
+    if (Tables[Table].HxPRIs[Index] != None)
+    {
+        Kills = Tables[Table].PRIs[Index].Kills;
+        if (Kills > 0)
+        {
+            Eff = int((Kills / (Kills + Tables[Table].PRIs[Index].Deaths)) * 100);
+        }
+        if (bShowSecondaryInfo)
+        {
+            DrawTextCellDual(
+                C, Tables[Table].HxPRIs[Index].Accuracy$"%", string(Eff)$"%", Column, Top);
+        }
+        else
+        {
+            C.Font = MediumFont;
+            DrawTextCell(C, Tables[Table].HxPRIs[Index].Accuracy$"%", Column, Top);
+        }
+    }
+}
+
 simulated function DrawPlayerPing(Canvas C, int Table, int Index, int Column, float Top)
 {
     local Color PreviousColor;
@@ -1267,6 +1338,8 @@ simulated function bool UpdateTables()
 {
     local Pawn ViewTarget;
     local bool bUpdateVisible;
+    local bool bNewHasWeaponStats;
+    local bool bNewHasKillStats;
     local int PreviousCount;
     local int i;
     local int j;
@@ -1289,6 +1362,23 @@ simulated function bool UpdateTables()
                 {
                     Tables[i].PRIs[Tables[i].PRIs.Length] = ActivePRIs[j];
                 }
+            }
+        }
+        Tables[i].HxPRIs.Length = 0;
+        for (j = 0; j < Tables[i].PRIs.Length; ++j)
+        {
+            Tables[i].HxPRIs[j] = class'HxPlayerReplicationInfo'.static.Get(Tables[i].PRIs[j]);
+            if (Tables[i].HxPRIs[j] != None)
+            {
+                if (Tables[i].HxPRIs[j].HasWeaponStats())
+                {
+                    bNewHasWeaponStats = true;
+                }
+                if (Tables[i].HxPRIs[j].HasKillStats())
+                {
+                    bNewHasKillStats = true;
+                }
+                ClientManager.UpdateStats(Tables[i].HxPRIs[j]);
             }
         }
         if (Tables[i].PRIs.Length > RowCount)
@@ -1329,6 +1419,12 @@ simulated function bool UpdateTables()
             Tables[i].Pings[j] = string(Min(999, 4 * Tables[i].PRIs[j].Ping));
             Tables[i].PLs[j] = string(Tables[i].PRIs[j].PacketLoss);
         }
+    }
+    if (bNewHasWeaponStats ^^ bHasWeaponStats || bHasKillStats ^^ bNewHasKillStats)
+    {
+        bHasWeaponStats = bNewHasWeaponStats;
+        bHasKillStats = bNewHasKillStats;
+        Init();
     }
     return bUpdateVisible;
 }
@@ -1521,7 +1617,14 @@ simulated function HxSBColumnConfig GetFragsColumnConfig()
     Config.Heading = FragsLabel;
     if (bShowSecondaryInfo)
     {
-        Config.SubHeading = EfficiencyLabel;
+        if (!bHasWeaponStats)
+        {
+            Config.SubHeading = EfficiencyLabel;
+        }
+        else if (bHasKillStats)
+        {
+            Config.SubHeading = MaxSpreeLabel;
+        }
     }
     Config.MinWidthValue = "9999";
     Config.MaxWidthValue = "999999";
@@ -1557,6 +1660,21 @@ simulated function HxSBColumnConfig GetCapturesColumnConfig()
     }
     Config.MinWidthValue = "9999";
     Config.MaxWidthValue = "999999";
+    Config.bCanHide = true;
+    return Config;
+}
+
+simulated function HxSBColumnConfig GetAccuracyColumnConfig()
+{
+    local HxSBColumnConfig Config;
+
+    Config.Type = HX_SBCOL_Accuracy;
+    Config.Heading = AccuracyLabel;
+    if (bShowSecondaryInfo)
+    {
+        Config.SubHeading = EfficiencyLabel;
+    }
+    Config.MinWidthValue = "100%";
     Config.bCanHide = true;
     return Config;
 }
@@ -1916,10 +2034,13 @@ defaultproperties
     LocationLabel="location"
     ScoreLabel="SCORE"
     FragsLabel="FRAGS"
+    MaxSpreeLabel="maxspree"
+    AccuracyLabel="ACCURACY"
     EfficiencyLabel="efficiency"
     LivesLabel="LIVES"
     DeathsLabel="DEATHS"
     SuicidesLabel="suicides"
+    TeamKillsLabel="teamkills"
     CapturesLabel="CAPS"
     GoalsLabel="GOALS"
     GrabsLabel="grabs"

@@ -16,6 +16,7 @@ defaultproperties
     ColumnTypes(4)=HX_SBCOL_Captures
     ColumnTypes(5)=HX_SBCOL_Frags
     ColumnTypes(6)=HX_SBCOL_Deaths
-    ColumnTypes(7)=HX_SBCOL_Ping
-    ColumnTypes(8)=HX_SBCOL_PPH
+    ColumnTypes(7)=HX_SBCOL_Accuracy
+    ColumnTypes(8)=HX_SBCOL_Ping
+    ColumnTypes(9)=HX_SBCOL_PPH
 }

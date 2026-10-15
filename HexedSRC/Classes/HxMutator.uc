@@ -59,6 +59,7 @@ var protected const bool bAllowURLOptions;
 var protected const bool bDisableTick;
 var protected array<HxClientChannel> Channels;
 var private HxMutator Leader;
+var private HxMutator Next;
 var private array<int> LoadedURLOptions;
 var private array<int> AvailableIDs;
 var private int CurrentID;
@@ -66,6 +67,7 @@ var private bool bInitialized;
 
 function Initialized();
 function PropertyChanged(int Index);
+function HexedPlayerReplicationInfoSpawned(HxPlayerReplicationInfo HexedPRI);
 
 event PostBeginPlay()
 {
@@ -77,12 +79,33 @@ event PostBeginPlay()
     Leader = Self;
 }
 
+event Destroyed()
+{
+    local Mutator M;
+
+    Super.Destroyed();
+    for (M = Level.Game.BaseMutator; M != None; M = M.NextMutator)
+    {
+        if (HxMutator(M) != None && HxMutator(M).Next == Self)
+        {
+            HxMutator(M).Next = Next;
+        }
+    }
+}
+
 function AddMutator(Mutator M)
 {
     Super.AddMutator(M);
-    if (HxMutator(M) != None && Leader == Self)
+    if (HxMutator(M) != None)
     {
-        HxMutator(M).Leader = Self;
+        if (Next == None)
+        {
+            Next = HxMutator(M);
+        }
+        if (Leader == Self)
+        {
+            HxMutator(M).Leader = Self;
+        }
     }
 }
 
@@ -288,6 +311,7 @@ function SpawnClientChannel(PlayerController ClientOwner)
 function SpawnHexedPlayerReplicationInfo(PlayerReplicationInfo PRI)
 {
     local HxPlayerReplicationInfo HexedPRI;
+    local HxMutator M;
 
     HexedPRI = class'HxPlayerReplicationInfo'.static.Create(PRI);
     if (HexedPRI != None)
@@ -301,6 +325,10 @@ function SpawnHexedPlayerReplicationInfo(PlayerReplicationInfo PRI)
         {
             HexedPRI.PlayerID = CurrentID;
             ++CurrentID;
+        }
+        for (M = Self; M != None; M = M.Next)
+        {
+            M.HexedPlayerReplicationInfoSpawned(HexedPRI);
         }
     }
 }

@@ -20,8 +20,8 @@ function int NetDamage(int Original,
                        int Damage,
                        Pawn Injured,
                        Pawn Inflictor,
-                       vector Location,
-                       out vector Momentum,
+                       Vector Location,
+                       out Vector Momentum,
                        class<DamageType> Type)
 {
     if (NextGameRules != None)
@@ -29,12 +29,45 @@ function int NetDamage(int Original,
         Damage = NextGameRules.NetDamage(
             Original, Damage, Injured, Inflictor, Location, Momentum, Type);
     }
-    if (Damage > 0 && Inflictor != None && Injured != None
-        && Injured != Inflictor && IsEnemy(Injured, Inflictor))
+    if (Inflictor != None && Injured != None && Inflictor != Injured && IsEnemy(Injured, Inflictor))
     {
-        HexedUT.RegisterDamage(Damage, Injured, Inflictor, Location, Type);
+        HexedUT.RegisterDamage(Original, Damage, Injured, Inflictor, Type);
     }
     return Damage;
+}
+
+function bool PreventDeath(Pawn Killed,
+                           Controller Killer,
+                           class<DamageType> DamageType,
+                           Vector Location)
+{
+    if (!Super.PreventDeath(Killed, Killer, DamageType, Location))
+    {
+        if (ClassIsChildOf(DamageType, class'WeaponDamageType'))
+        {
+            HexedUT.RegisterWeaponKill(Killed, Killer, class<WeaponDamageType>(DamageType));
+        }
+        return false;
+    }
+    return true;
+}
+
+function ScoreKill(Controller Killer, Controller Killed)
+{
+    Super.ScoreKill(Killer, Killed);
+    HexedUT.ScoreKill(Killer, Killed);
+}
+
+function bool OverridePickupQuery(Pawn Other, Pickup Item, out byte bAllowPickup)
+{
+    local bool bOverride;
+
+    bOverride = Super.OverridePickupQuery(Other, Item, bAllowPickup);
+    if ((!bOverride || bAllowPickup == 1))
+    {
+        HexedUT.RegisterPickup(Other, Item);
+    }
+    return bOverride;
 }
 
 static function bool IsEnemy(Pawn Injured, Pawn Inflictor)

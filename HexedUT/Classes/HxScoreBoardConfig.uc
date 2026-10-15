@@ -469,44 +469,19 @@ function ReplaceScoreBoard(PlayerController PC)
                 }
                 break;
         }
+        if (!PC.myHUD.ScoreBoard.IsA('HxScoreBoard'))
+        {
+            OriginalScoreBoardClass = None;
+        }
     }
 }
 
 function RestoreScoreBoard(PlayerController PC)
 {
-    if (PC.myHUD.ScoreBoard.IsA('HxScoreBoard'))
+    if (OriginalScoreBoardClass != None)
     {
-        if (OriginalScoreBoardClass != None)
-        {
-            PC.MyHUD.SetScoreBoardClass(OriginalScoreBoardClass);
-        }
-        else
-        {
-            switch (PC.myHUD.ScoreBoard.Class)
-            {
-                case class'HxSBAssault':
-                    break;
-                case class'HxSBDeathMatch':
-                    PC.MyHUD.SetScoreBoardClass(class'ScoreBoardDeathMatch');
-                    break;
-                case class'HxSBInvasion':
-                    PC.MyHUD.SetScoreBoardClass(class'ScoreBoardInvasion');
-                    break;
-                case class'HxSBLastManStanding':
-                    PC.MyHUD.SetScoreBoardClass(class'ScoreBoardLMS');
-                    break;
-                case class'HxSBMutant':
-                    PC.MyHUD.SetScoreBoardClass(class'MutantScoreboard');
-                    break;
-                case class'HxSBTeamDeathMatch':
-                case class'HxSBBombingRun':
-                case class'HxSBCaptureTheFlag':
-                case class'HxSBDoubleDomination':
-                case class'HxSBOnslaught':
-                    PC.MyHUD.SetScoreBoardClass(class'ScoreBoardTeamDeathMatch');
-                    break;
-            }
-        }
+        PC.MyHUD.SetScoreBoardClass(OriginalScoreBoardClass);
+        OriginalScoreBoardClass = None;
     }
 }
 

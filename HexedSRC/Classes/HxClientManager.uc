@@ -108,7 +108,7 @@ event NotifyLevelChange()
     Super.NotifyLevelChange();
 }
 
-function Setup(HxClientChannel Channel)
+function LinkChannel(HxClientChannel Channel)
 {
     Self.Channel = Channel;
 }
@@ -390,6 +390,14 @@ function EnqueueRunningNotification()
         Message $= Repl(OpenMenuMessage, "%", ExecMessage@Highlight$MenuCommand$Base);
     }
     EnqueueNotification(Message);
+}
+
+function UpdateStats(HxPlayerReplicationInfo HxPRI)
+{
+    if (Channel != None)
+    {
+        Channel.ServerRequestStats(HxPRI);
+    }
 }
 
 function RefreshConfigurationMenu()

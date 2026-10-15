@@ -271,6 +271,18 @@ simulated function HxSBColumnConfig GetPlayerColumnConfig()
     return Config;
 }
 
+simulated function HxSBColumnConfig GetDeathsColumnConfig()
+{
+    local HxSBColumnConfig Config;
+
+    Config = Super.GetDeathsColumnConfig();
+    if (bShowSecondaryInfo && bHasKillStats)
+    {
+        Config.SubHeading = TeamKillsLabel;
+    }
+    return Config;
+}
+
 defaultproperties
 {
     Tables(0)=(TeamIndex=0)
