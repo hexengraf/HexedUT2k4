@@ -5,14 +5,15 @@ const SECTION_SP_TIMER = 1;
 
 var automated moCheckBox ch_EnhancedScoreboard;
 var automated moCheckBox ch_CompactTeamScores;
-var automated moCheckBox ch_ShowSecondaryInfo;
+var automated moCheckBox ch_bShowSecondaryStats;
+var automated moCheckBox ch_PreferVerticalLayout;
+var automated moCheckBox ch_ShortenHeadings;
 var automated moCheckBox ch_ShowPlayerPortraits;
-var automated moCheckBox ch_ShowPPHAndTime;
 var automated moCheckBox ch_ShowBotCallSigns;
 var automated moCheckBox ch_ShowBotOrders;
 var automated moCheckBox ch_ShowShortcuts;
 var automated moCheckBox ch_ShowTimestamp;
-var automated GUILabel l_Spacer;
+var automated GUIButton b_ChangeColumns;
 var automated GUIButton b_ChangeAppearance;
 var automated moCheckBox ch_SPTimer;
 var automated moCheckBox ch_PulsingDigits;
@@ -34,14 +35,15 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     Super.InitComponent(MyController, MyOwner);
     Sections[SECTION_SCOREBOARD].Insert(ch_EnhancedScoreboard);
     Sections[SECTION_SCOREBOARD].Insert(ch_CompactTeamScores);
-    Sections[SECTION_SCOREBOARD].Insert(ch_ShowSecondaryInfo);
+    Sections[SECTION_SCOREBOARD].Insert(ch_bShowSecondaryStats);
+    Sections[SECTION_SCOREBOARD].Insert(ch_PreferVerticalLayout);
+    Sections[SECTION_SCOREBOARD].Insert(ch_ShortenHeadings);
     Sections[SECTION_SCOREBOARD].Insert(ch_ShowPlayerPortraits);
-    Sections[SECTION_SCOREBOARD].Insert(ch_ShowPPHAndTime);
     Sections[SECTION_SCOREBOARD].Insert(ch_ShowBotCallSigns);
     Sections[SECTION_SCOREBOARD].Insert(ch_ShowBotOrders);
     Sections[SECTION_SCOREBOARD].Insert(ch_ShowShortcuts);
     Sections[SECTION_SCOREBOARD].Insert(ch_ShowTimestamp);
-    Sections[SECTION_SCOREBOARD].Insert(l_Spacer);
+    Sections[SECTION_SCOREBOARD].Insert(b_ChangeColumns);
     Sections[SECTION_SCOREBOARD].Insert(b_ChangeAppearance);
     Sections[SECTION_SP_TIMER].Insert(ch_SPTimer);
     Sections[SECTION_SP_TIMER].Insert(ch_PulsingDigits);
@@ -155,16 +157,25 @@ function bool PositionFloatEditsOnPreDraw(Canvas C)
     return false;
 }
 
-function bool OnClickChangeAppearance(GUIComponent Sender)
+function bool OnClickChangeColumns(GUIComponent Sender)
 {
-    if (Controller.ReplaceMenu(string(class'HxGUIScoreBoardAppearanceWindow')))
+    if (Controller.ReplaceMenu(string(class'HxGUIScoreBoardColumnsWindow')))
     {
-        Controller.ActivePage.OnClose = OnCloseChangeAppearance;
+        Controller.ActivePage.OnClose = OnCloseSubMenu;
     }
     return true;
 }
 
-function OnCloseChangeAppearance(optional bool bCancelled)
+function bool OnClickChangeAppearance(GUIComponent Sender)
+{
+    if (Controller.ReplaceMenu(string(class'HxGUIScoreBoardAppearanceWindow')))
+    {
+        Controller.ActivePage.OnClose = OnCloseSubMenu;
+    }
+    return true;
+}
+
+function OnCloseSubMenu(optional bool bCancelled)
 {
     ClientManager.HexedMenu();
 }
@@ -187,7 +198,7 @@ defaultproperties
     Begin Object class=HxGUIFramedSection Name=SPTimerSection
         Caption="Spawn Protection Timer"
         WinHeight=1
-        LineSpacing=0.0193
+        LineSpacing=0.016
         bAutoSpacing=false
     End Object
 
@@ -214,46 +225,57 @@ defaultproperties
     ch_CompactTeamScores=CompactTeamScoresCheckBox
 
     Begin Object class=moCheckBox Name=SecondaryInfoCheckBox
-        Caption="Show Secondary Info"
-        Hint="Show secondary information below the main stats when available."
+        Caption="Show Secondary Stats"
+        Hint="Show an additional line of stats in each column when available."
         INIOption="@INTERNAL"
         Tag=8
         OnLoadINI=ScoreboardOnLoadINI
         OnChange=ScoreboardOnChange
         TabOrder=2
     End Object
-    ch_ShowSecondaryInfo=SecondaryInfoCheckBox
+    ch_bShowSecondaryStats=SecondaryInfoCheckBox
 
-    Begin Object class=moCheckBox Name=ShowPlayerPortraitsCheckBox
-        Caption="Show Player Portraits"
-        Hint="Show player portraits at the left of each row."
+    Begin Object class=moCheckBox Name=PreferVerticalLayoutCheckBox
+        Caption="Default To Vertical Layout"
+        Hint="Prefer the vertical layout in team scoreboards."
         INIOption="@INTERNAL"
         Tag=9
         OnLoadINI=ScoreboardOnLoadINI
         OnChange=ScoreboardOnChange
         TabOrder=3
     End Object
-    ch_ShowPlayerPortraits=ShowPlayerPortraitsCheckBox
+    ch_PreferVerticalLayout=PreferVerticalLayoutCheckBox
 
-    Begin Object class=moCheckBox Name=ShowPPHAndTimeCheckBox
-        Caption="Show PPH And Time"
-        Hint="Show player's  points per hour (PPH) and playtime at the end of each row."
+    Begin Object class=moCheckBox Name=ShortenHeadingsCheckBox
+        Caption="Shorten Headings"
+        Hint="Shorten long headings to reduce required column width and fit more columns."
         INIOption="@INTERNAL"
         Tag=10
         OnLoadINI=ScoreboardOnLoadINI
         OnChange=ScoreboardOnChange
         TabOrder=4
     End Object
-    ch_ShowPPHAndTime=ShowPPHAndTimeCheckBox
+    ch_ShortenHeadings=ShortenHeadingsCheckBox
 
-    Begin Object class=moCheckBox Name=ShowBotCallSignsCheckBox
-        Caption="Show Bot Call Signs"
-        Hint="Show bot call signs at the end of their names (team games only)."
+    Begin Object class=moCheckBox Name=ShowPlayerPortraitsCheckBox
+        Caption="Show Player Portraits"
+        Hint="Show player portraits in front of player names."
         INIOption="@INTERNAL"
         Tag=11
         OnLoadINI=ScoreboardOnLoadINI
         OnChange=ScoreboardOnChange
         TabOrder=5
+    End Object
+    ch_ShowPlayerPortraits=ShowPlayerPortraitsCheckBox
+
+    Begin Object class=moCheckBox Name=ShowBotCallSignsCheckBox
+        Caption="Show Bot Call Signs"
+        Hint="Show bot call signs at the end of their names (team games only)."
+        INIOption="@INTERNAL"
+        Tag=12
+        OnLoadINI=ScoreboardOnLoadINI
+        OnChange=ScoreboardOnChange
+        TabOrder=6
     End Object
     ch_ShowBotCallSigns=ShowBotCallSignsCheckBox
 
@@ -261,10 +283,10 @@ defaultproperties
         Caption="Show Bot Orders"
         Hint="Show bot orders in front of their location (team games only)."
         INIOption="@INTERNAL"
-        Tag=12
+        Tag=13
         OnLoadINI=ScoreboardOnLoadINI
         OnChange=ScoreboardOnChange
-        TabOrder=6
+        TabOrder=7
     End Object
     ch_ShowBotOrders=ShowBotOrdersCheckBox
 
@@ -272,10 +294,10 @@ defaultproperties
         Caption="Show Shortcuts"
         Hint="Show available shortcuts at the bottom left of the screen."
         INIOption="@INTERNAL"
-        Tag=13
+        Tag=14
         OnLoadINI=ScoreboardOnLoadINI
         OnChange=ScoreboardOnChange
-        TabOrder=7
+        TabOrder=8
     End Object
     ch_ShowShortcuts=ShowShortcutsCheckBox
 
@@ -283,18 +305,24 @@ defaultproperties
         Caption="Show Timestamp"
         Hint="Show current timestamp at the bottom right of the screen."
         INIOption="@INTERNAL"
-        Tag=14
+        Tag=15
         OnLoadINI=ScoreboardOnLoadINI
         OnChange=ScoreboardOnChange
-        TabOrder=8
+        TabOrder=9
     End Object
     ch_ShowTimestamp=ShowTimestampCheckBox
 
-    Begin Object class=GUILabel Name=SpacerLabel
-        bBoundToParent=true
-        bScaleToParent=true
+    Begin Object class=GUIButton Name=ChangeColumnsButton
+        Caption="Change Columns"
+        Hint="Customize which information to display for each game type."
+        StandardHeight=0.03
+        bStandardized=true
+        StyleName="HxSquareButton"
+        bRepeatClick=false
+        OnClick=OnClickChangeColumns
+        TabOrder=10
     End Object
-    l_Spacer=SpacerLabel
+    b_ChangeColumns=ChangeColumnsButton
 
     Begin Object class=GUIButton Name=ChangeAppearanceButton
         Caption="Change Appearance"
@@ -304,7 +332,7 @@ defaultproperties
         StyleName="HxSquareButton"
         bRepeatClick=false
         OnClick=OnClickChangeAppearance
-        TabOrder=9
+        TabOrder=11
     End Object
     b_ChangeAppearance=ChangeAppearanceButton
 
@@ -315,7 +343,7 @@ defaultproperties
         Tag=0
         OnLoadINI=SPTimerOnLoadINI
         OnChange=SPTimerOnChange
-        TabOrder=10
+        TabOrder=21
     End Object
     ch_SPTimer=SPTimerCheckBox
 
@@ -326,7 +354,7 @@ defaultproperties
         Tag=2
         OnLoadINI=SPTimerOnLoadINI
         OnChange=SPTimerOnChange
-        TabOrder=11
+        TabOrder=22
     End Object
     ch_PulsingDigits=PulsingDigitsCheckBox
 
@@ -352,7 +380,7 @@ defaultproperties
         CaptionWidth=0.17
         OnLoadINI=SPTimerOnLoadINI
         OnChange=SPTimerOnChange
-        TabOrder=12
+        TabOrder=23
     End Object
     fl_PosX=PosXFloatEdit
 
@@ -366,7 +394,7 @@ defaultproperties
         CaptionWidth=0.17
         OnLoadINI=SPTimerOnLoadINI
         OnChange=SPTimerOnChange
-        TabOrder=13
+        TabOrder=24
     End Object
     fl_PosY=PosYFloatEdit
 
@@ -377,7 +405,7 @@ defaultproperties
         Tag=1
         OnLoadINI=SPTimerOnLoadINI
         OnChange=SPTimerOnChange
-        TabOrder=14
+        TabOrder=25
     End Object
     ch_UseHUDColor=UseHUDColorCheckBox
 
@@ -391,7 +419,7 @@ defaultproperties
         bIntSlider=true
         OnLoadINI=SPTimerOnLoadINI
         OnChange=SPTimerOnChange
-        TabOrder=15
+        TabOrder=26
     End Object
     sl_ColorRed=ColorRedSlider
 
@@ -405,7 +433,7 @@ defaultproperties
         bIntSlider=true
         OnLoadINI=SPTimerOnLoadINI
         OnChange=SPTimerOnChange
-        TabOrder=16
+        TabOrder=27
     End Object
     sl_ColorGreen=ColorGreenSlider
 
@@ -419,7 +447,7 @@ defaultproperties
         bIntSlider=true
         OnLoadINI=SPTimerOnLoadINI
         OnChange=SPTimerOnChange
-        TabOrder=17
+        TabOrder=28
     End Object
     sl_ColorBlue=ColorBlueSlider
 
@@ -433,7 +461,7 @@ defaultproperties
         bIntSlider=true
         OnLoadINI=SPTimerOnLoadINI
         OnChange=SPTimerOnChange
-        TabOrder=18
+        TabOrder=29
     End Object
     sl_ColorAlpha=ColorAlphaSlider
 

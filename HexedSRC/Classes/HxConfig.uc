@@ -16,6 +16,7 @@ var private array<int> DelayedIndices;
 var private array<HxDelayedUpdate> DelayedUpdates;
 
 function InitializeProperties();
+function ValidateArray(int Index);
 function ApplyProperty(int Index);
 function NotifyMutatorInfoReady();
 function NotifyMutatorPropertyChanged(int Index);
@@ -31,6 +32,10 @@ function Created()
         {
             SetPropertyText(
                 Properties[i].Name, ValidateProperty(i, GetPropertyText(Properties[i].Name)));
+        }
+        else
+        {
+            ValidateArray(i);
         }
     }
     DelayedIndices.Length = Properties.Length;

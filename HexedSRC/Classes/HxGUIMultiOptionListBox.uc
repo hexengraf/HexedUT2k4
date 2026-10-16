@@ -362,6 +362,10 @@ function GUIMenuOption AddComboBox(string Caption,
         string(class'HxGUImoComboBox'), GetFromComboBoxPool(), Caption));
     if (Option != None)
     {
+        if (Caption == "")
+        {
+            Option.CaptionWidth = 0;
+        }
         Option.ReadOnly(true);
     }
     Option.MyComboBox.MyListBox.MyList.bInitializeList = false;

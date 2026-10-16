@@ -1,5 +1,11 @@
 class HxSBLastManStanding extends HxScoreBoard;
 
+simulated function LoadDefaults()
+{
+    Super.LoadDefaults();
+    ColumnConfigs = class'HxSBLastManStanding'.default.ColumnConfigs;
+}
+
 simulated function DrawRow(Canvas C, int Table, int Index, int Row, int Top)
 {
     local plane SavedColorModulated;
@@ -52,10 +58,8 @@ simulated function bool InOrder(PlayerReplicationInfo P1, PlayerReplicationInfo 
 
 defaultproperties
 {
-    ColumnTypes(3)=HX_SBCOL_Lives
-    ColumnTypes(4)=HX_SBCOL_Frags
-    ColumnTypes(5)=HX_SBCOL_Deaths
-    ColumnTypes(6)=HX_SBCOL_Accuracy
-    ColumnTypes(7)=HX_SBCOL_Ping
-    ColumnTypes(8)=HX_SBCOL_PPH
+    ColumnConfigs(0)=(MainStat=HX_SBS_Lives)
+    ColumnConfigs(1)=(MainStat=HX_SBS_Frags,SecStat=HX_SBS_MaxSpree)
+    ColumnConfigs(2)=(MainStat=HX_SBS_Deaths,SecStat=HX_SBS_Suicides)
+    ColumnConfigs(3)=(MainStat=HX_SBS_Accuracy,SecStat=HX_SBS_Efficiency)
 }

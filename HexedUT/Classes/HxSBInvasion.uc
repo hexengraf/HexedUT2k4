@@ -5,6 +5,19 @@ var localized string TotalScoreLabel;
 var protected int TotalScoreWidth;
 var protected int TotalScoreHeight;
 
+simulated function LoadDefaults()
+{
+    Super.LoadDefaults();
+    ColumnConfigs = class'HxSBInvasion'.default.ColumnConfigs;
+}
+
+simulated function InitializeColumns()
+{
+    Columns[Columns.Length] = GetOutOfLivesColumnDefinition();
+    Alignments[Alignments.Length] = TXTA_Center;
+    Super.InitializeColumns();
+}
+
 simulated function DrawTables(Canvas C, int TableHeight)
 {
     local int Left;
@@ -44,7 +57,7 @@ simulated function DrawHeadings(Canvas C, int Table)
     }
 }
 
-simulated function DrawPlayerLives(Canvas C, int Table, int Index, int Column, int Top)
+simulated function DrawReservedColumn(Canvas C, int Table, int Index, int Column, int Top)
 {
     C.Font = MediumFont;
     if (Tables[Table].PRIs[Index].bOutOfLives)
@@ -81,35 +94,32 @@ simulated function string GetTitleText()
         $Level.Title;
 }
 
-simulated function HxSBColumnConfig GetPlayerColumnConfig()
+simulated function HxSBColumnDefinition GetPlayerColumnDefinition()
 {
-    local HxSBColumnConfig Config;
+    local HxSBColumnDefinition Def;
 
-    Config = Super.GetPlayerColumnConfig();
+    Def = Super.GetPlayerColumnDefinition();
     if (bCompactTeamScores)
     {
-        Config.Heading = "";
+        Def.Headings[0] = "";
     }
-    return Config;
+    return Def;
 }
 
-simulated function HxSBColumnConfig GetLivesColumnConfig()
+simulated function HxSBColumnDefinition GetOutOfLivesColumnDefinition()
 {
-    local HxSBColumnConfig Config;
+    local HxSBColumnDefinition Def;
 
-    Config.Type = HX_SBCOL_Lives;
-    Config.MinWidthValue = class'ScoreboardInvasion'.default.OutText;
-    return Config;
+    Def.Types[0] = HX_SBS_Reserved;
+    Def.MinWidthValues[0] = class'ScoreboardInvasion'.default.OutText;
+    return Def;
 }
 
 defaultproperties
 {
-    ColumnTypes(3)=HX_SBCOL_Lives
-    ColumnTypes(4)=HX_SBCOL_Score
-    ColumnTypes(5)=HX_SBCOL_Frags
-    ColumnTypes(6)=HX_SBCOL_Deaths
-    ColumnTypes(7)=HX_SBCOL_Accuracy
-    ColumnTypes(8)=HX_SBCOL_Ping
-    ColumnTypes(9)=HX_SBCOL_PPH
+    ColumnConfigs(0)=(MainStat=HX_SBS_Score)
+    ColumnConfigs(1)=(MainStat=HX_SBS_Frags,SecStat=HX_SBS_MaxSpree)
+    ColumnConfigs(2)=(MainStat=HX_SBS_Deaths,SecStat=HX_SBS_Suicides)
+    ColumnConfigs(3)=(MainStat=HX_SBS_Accuracy,SecStat=HX_SBS_Efficiency)
     TotalScoreLabel="TOTAL SCORE: "
 }

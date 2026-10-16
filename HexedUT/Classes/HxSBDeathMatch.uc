@@ -1,10 +1,15 @@
 class HxSBDeathMatch extends HxScoreBoard;
 
+simulated function LoadDefaults()
+{
+    Super.LoadDefaults();
+    ColumnConfigs = class'HxSBDeathMatch'.default.ColumnConfigs;
+}
+
 defaultproperties
 {
-    ColumnTypes(4)=HX_SBCOL_Frags
-    ColumnTypes(5)=HX_SBCOL_Deaths
-    ColumnTypes(6)=HX_SBCOL_Accuracy
-    ColumnTypes(7)=HX_SBCOL_Ping
-    ColumnTypes(8)=HX_SBCOL_PPH
+    ColumnConfigs(0)=(MainStat=HX_SBS_Score)
+    ColumnConfigs(1)=(MainStat=HX_SBS_Frags,SecStat=HX_SBS_MaxSpree)
+    ColumnConfigs(2)=(MainStat=HX_SBS_Deaths,SecStat=HX_SBS_Suicides)
+    ColumnConfigs(3)=(MainStat=HX_SBS_Accuracy,SecStat=HX_SBS_Efficiency)
 }

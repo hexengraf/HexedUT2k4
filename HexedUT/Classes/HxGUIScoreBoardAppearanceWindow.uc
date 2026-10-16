@@ -184,18 +184,24 @@ function bool OnClickRestoreColors(GUIComponent Sender)
 
 function OnButtonClickRestoreColors(byte bButton)
 {
-    local int PropertyIndex;
+    local bool bChanged;
     local int i;
 
     if (bButton == QBTN_Yes)
     {
         for (i = 0; i < ArrayCount(ColorNameLabels); ++i)
         {
-            PropertyIndex = co_ChangeColor.Tag + i;
-            Config.ResetProperty(PropertyIndex);
-            Config.SetProperty(PropertyIndex, Config.GetProperty(PropertyIndex));
+            if (Config.ResetProperty(co_ChangeColor.Tag + i))
+            {
+                bChanged = true;
+            }
         }
-        ColorOnChange(co_ChangeColor);
+        if (bChanged)
+        {
+            Config.SaveConfig();
+            Config.UpdateScoreBoard();
+            ColorOnChange(co_ChangeColor);
+        }
     }
 }
 
@@ -302,7 +308,7 @@ defaultproperties
         Caption="Change"
         Hint="Select a color to change."
         INIOption="@INTERNAL"
-        Tag=15
+        Tag=16
         bReadOnly=true
         CaptionWidth=0.22
         OnLoadINI=ColorOnLoadINI
@@ -314,7 +320,7 @@ defaultproperties
     Begin Object class=moSlider Name=RedSlider
         Caption="Red"
         INIOption="@INTERNAL"
-        Tag=15
+        Tag=16
         MinValue=0
         MaxValue=255
         bIntSlider=true
@@ -328,7 +334,7 @@ defaultproperties
     Begin Object class=moSlider Name=GreenSlider
         Caption="Green"
         INIOption="@INTERNAL"
-        Tag=15
+        Tag=16
         MinValue=0
         MaxValue=255
         bIntSlider=true
@@ -342,7 +348,7 @@ defaultproperties
     Begin Object class=moSlider Name=BlueSlider
         Caption="Blue"
         INIOption="@INTERNAL"
-        Tag=15
+        Tag=16
         MinValue=0
         MaxValue=255
         bIntSlider=true
@@ -356,7 +362,7 @@ defaultproperties
     Begin Object class=moSlider Name=AlphaSlider
         Caption="Alpha"
         INIOption="@INTERNAL"
-        Tag=15
+        Tag=16
         MinValue=0
         MaxValue=255
         bIntSlider=true
@@ -379,7 +385,7 @@ defaultproperties
     End Object
     b_RestoreColors=RestoreColorsButton
 
-    WindowName="Enhanced Scoreboards - Appearance"
+    WindowName="Enhanced Scoreboards - Change Appearance"
     WinWidth=0.75
     WinHeight=0.35
     WinLeft=0.125

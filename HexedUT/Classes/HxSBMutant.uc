@@ -1,5 +1,11 @@
 class HxSBMutant extends HxScoreBoard;
 
+simulated function LoadDefaults()
+{
+    Super.LoadDefaults();
+    ColumnConfigs = class'HxSBMutant'.default.ColumnConfigs;
+}
+
 simulated function bool DrawPlayerMarker(Canvas C, int Table, int Index, int Column, int Top)
 {
     local MutantGameReplicationInfo MutantInfo;
@@ -20,11 +26,8 @@ simulated function bool DrawPlayerMarker(Canvas C, int Table, int Index, int Col
 
 defaultproperties
 {
-    ColumnTypes(4)=HX_SBCOL_Frags
-    ColumnTypes(5)=HX_SBCOL_Deaths
-    ColumnTypes(6)=HX_SBCOL_Accuracy
-    ColumnTypes(7)=HX_SBCOL_Ping
-    // TODO: removed because Mutant either doesn't update GRI.ElapsedTime or some other issue
-    // with PRI.StartTime
-    // ColumnTypes(8)=HX_SBCOL_PPH
+    ColumnConfigs(0)=(MainStat=HX_SBS_Score)
+    ColumnConfigs(1)=(MainStat=HX_SBS_Frags,SecStat=HX_SBS_MaxSpree)
+    ColumnConfigs(2)=(MainStat=HX_SBS_Deaths,SecStat=HX_SBS_Suicides)
+    ColumnConfigs(3)=(MainStat=HX_SBS_Accuracy,SecStat=HX_SBS_Efficiency)
 }

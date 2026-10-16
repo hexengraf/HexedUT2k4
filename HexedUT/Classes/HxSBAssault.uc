@@ -2,6 +2,12 @@ class HxSBAssault extends HxTeamScoreBoard;
 
 var private int TrophySize;
 
+simulated function LoadDefaults()
+{
+    Super.LoadDefaults();
+    ColumnConfigs = class'HxSBAssault'.default.ColumnConfigs;
+}
+
 simulated function DrawRow(Canvas C, int Table, int Index, int Row, int Top)
 {
     Super.DrawRow(C, Table, Index, Row, Top);
@@ -148,20 +154,19 @@ simulated function string GetLevelInfoText()
         $class'ScoreBoard_Assault'.default.RoundSeparator$ASGRI.MaxRounds;
 }
 
-simulated function HxSBColumnConfig GetPlayerColumnConfig()
+simulated function HxSBColumnDefinition GetPlayerColumnDefinition()
 {
-    local HxSBColumnConfig Config;
+    local HxSBColumnDefinition Def;
 
-    Config = Super.GetPlayerColumnConfig();
-    Config.MinWidthValue $= "99999";
-    return Config;
+    Def = Super.GetPlayerColumnDefinition();
+    Def.MinWidthValues[0] $= "99999";
+    return Def;
 }
 
 defaultproperties
 {
-    ColumnTypes(4)=HX_SBCOL_Frags
-    ColumnTypes(5)=HX_SBCOL_Deaths
-    ColumnTypes(6)=HX_SBCOL_Accuracy
-    ColumnTypes(7)=HX_SBCOL_Ping
-    ColumnTypes(8)=HX_SBCOL_PPH
+    ColumnConfigs(0)=(MainStat=HX_SBS_Score)
+    ColumnConfigs(1)=(MainStat=HX_SBS_Frags,SecStat=HX_SBS_MaxSpree)
+    ColumnConfigs(2)=(MainStat=HX_SBS_Deaths,SecStat=HX_SBS_TeamKills)
+    ColumnConfigs(3)=(MainStat=HX_SBS_Accuracy,SecStat=HX_SBS_Efficiency)
 }

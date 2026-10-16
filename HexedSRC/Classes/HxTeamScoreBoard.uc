@@ -259,28 +259,16 @@ simulated function UpdatePRIs()
     }
 }
 
-simulated function HxSBColumnConfig GetPlayerColumnConfig()
+simulated function HxSBColumnDefinition GetPlayerColumnDefinition()
 {
-    local HxSBColumnConfig Config;
+    local HxSBColumnDefinition Def;
 
-    Config = Super.GetPlayerColumnConfig();
+    Def = Super.GetPlayerColumnDefinition();
     if (bCompactTeamScores)
     {
-        Config.Heading = "";
+        Def.Headings[0] = "";
     }
-    return Config;
-}
-
-simulated function HxSBColumnConfig GetDeathsColumnConfig()
-{
-    local HxSBColumnConfig Config;
-
-    Config = Super.GetDeathsColumnConfig();
-    if (bShowSecondaryInfo && bHasKillStats)
-    {
-        Config.SubHeading = TeamKillsLabel;
-    }
-    return Config;
+    return Def;
 }
 
 defaultproperties
