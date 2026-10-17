@@ -190,80 +190,74 @@ function ApplyProperty(int Index)
 
 function bool ResetProperty(int Index)
 {
-    local bool bReset;
-
     switch (Index)
     {
         case 0:
             bHitSounds = default.bHitSounds;
-            bReset = true;
-            break;
+            class'HxHitEffects'.default.bHitSounds = bHitSounds;
+            return true;
         case 1:
             HitSoundName = default.HitSoundName;
-            bReset = true;
-            break;
+            class'HxHitEffects'.default.HitSoundName = HitSoundName;
+            return true;
         case 2:
             HitSoundVolume = default.HitSoundVolume;
-            bReset = true;
-            break;
+            class'HxHitEffects'.default.HitSoundVolume = HitSoundVolume;
+            return true;
         case 3:
             PitchMode = default.PitchMode;
-            bReset = true;
-            break;
+            class'HxHitEffects'.default.PitchMode = PitchMode;
+            return true;
         case 4:
             bDamageNumbers = default.bDamageNumbers;
-            bReset = true;
-            break;
+            class'HxHitEffects'.default.bDamageNumbers = bDamageNumbers;
+            return true;
         case 5:
             DisplayMode = default.DisplayMode;
-            bReset = true;
-            break;
+            class'HxHitEffects'.default.DisplayMode = DisplayMode;
+            return true;
         case 6:
             DisplayFontName = default.DisplayFontName;
-            bReset = true;
-            break;
+            class'HxHitEffects'.default.DisplayFontName = DisplayFontName;
+            return true;
         case 7:
             DisplayPosX = default.DisplayPosX;
-            bReset = true;
-            break;
+            class'HxHitEffects'.default.DisplayPosX = DisplayPosX;
+            return true;
         case 8:
             DisplayPosY = default.DisplayPosY;
-            bReset = true;
-            break;
+            class'HxHitEffects'.default.DisplayPosY = DisplayPosY;
+            return true;
         case 9:
             ZeroDamage = default.ZeroDamage;
-            bReset = true;
-            break;
+            class'HxHitEffects'.default.ZeroDamage = ZeroDamage;
+            return true;
         case 10:
             LowDamage = default.LowDamage;
-            bReset = true;
-            break;
+            class'HxHitEffects'.default.LowDamage = LowDamage;
+            return true;
         case 11:
             MediumDamage = default.MediumDamage;
-            bReset = true;
-            break;
+            class'HxHitEffects'.default.MediumDamage = MediumDamage;
+            return true;
         case 12:
             HighDamage = default.HighDamage;
-            bReset = true;
-            break;
+            class'HxHitEffects'.default.HighDamage = HighDamage;
+            return true;
         case 13:
             ExtremeDamage = default.ExtremeDamage;
-            bReset = true;
-            break;
+            class'HxHitEffects'.default.ExtremeDamage = ExtremeDamage;
+            return true;
         case 14:
             FontNames = default.FontNames;
-            bReset = true;
-            break;
+            class'HxHitEffects'.default.FontNames = FontNames;
+            return true;
         case 15:
             CustomHitSounds = default.CustomHitSounds;
-            bReset = true;
-            break;
+            class'HxHitEffects'.default.CustomHitSounds = CustomHitSounds;
+            return true;
     }
-    if (bReset)
-    {
-        UpdateDynamicActors(Index);
-    }
-    return bReset;
+    return false;
 }
 
 function UpdateDynamicActors(int Index)

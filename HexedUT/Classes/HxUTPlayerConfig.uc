@@ -41,7 +41,7 @@ function bool ResetProperty(int Index)
     {
         case 0:
             ViewSmoothing = default.ViewSmoothing;
-            Player.SetPropertyText(Properties[Index].Name, GetPropertyText(Properties[Index].Name));
+            class'HxUTPlayerInteraction'.default.ViewSmoothing = ViewSmoothing;
             return true;
     }
     return false;

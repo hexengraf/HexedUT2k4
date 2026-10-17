@@ -77,60 +77,57 @@ function ApplyProperty(int Index)
 
 function bool ResetProperty(int Index)
 {
-    local bool bReset;
-
     switch (Index)
     {
         case 0:
             ScopeOverlay = default.ScopeOverlay;
-            bReset = true;
-            break;
+            class'HxZoomSuperShockRifle'.default.ScopeOverlay = ScopeOverlay;
+            return true;
         case 1:
             bSoundEffects = default.bSoundEffects;
-            bReset = true;
-            break;
+            class'HxZoomSuperShockRifle'.default.bSoundEffects = bSoundEffects;
+            return true;
         case 2:
             bShowChargeBar = default.bShowChargeBar;
-            bReset = true;
-            break;
+            class'HxZoomSuperShockRifle'.default.bShowChargeBar = bShowChargeBar;
+            return true;
         case 3:
             ReticleColor = default.ReticleColor;
-            bReset = true;
-            break;
+            class'HxZoomSuperShockRifle'.default.ReticleColor = ReticleColor;
+            return true;
         case 4:
             ReticleScale = default.ReticleScale;
-            bReset = true;
-            break;
+            class'HxZoomSuperShockRifle'.default.ReticleScale = ReticleScale;
+            return true;
         case 5:
             BackgroundOpacity = default.BackgroundOpacity;
-            bReset = true;
-            break;
+            class'HxZoomSuperShockRifle'.default.BackgroundOpacity = BackgroundOpacity;
+            return true;
         case 6:
             bCustomZoomCrosshair = default.bCustomZoomCrosshair;
-            bReset = true;
-            break;
+            class'HxZoomSuperShockRifle'.default.bCustomZoomCrosshair = bCustomZoomCrosshair;
+            return true;
         case 7:
             CustomZoomCrosshair = default.CustomZoomCrosshair;
-            bReset = true;
-            break;
+            class'HxZoomSuperShockRifle'.default.CustomZoomCrosshair = CustomZoomCrosshair;
+            return true;
         case 8:
             CustomZoomCrosshairColor = default.CustomZoomCrosshairColor;
-            bReset = true;
-            break;
+            class'HxZoomSuperShockRifle'.default.CustomZoomCrosshairColor =
+                CustomZoomCrosshairColor;
+            return true;
         case 9:
             CustomZoomCrosshairScale = default.CustomZoomCrosshairScale;
-            bReset = true;
-            break;
+            class'HxZoomSuperShockRifle'.default.CustomZoomCrosshairScale =
+                CustomZoomCrosshairScale;
+            return true;
         case 10:
             CustomZoomCrosshairTextureName = default.CustomZoomCrosshairTextureName;
-            bReset = true;
-            break;
+            class'HxZoomSuperShockRifle'.default.CustomZoomCrosshairTextureName =
+                CustomZoomCrosshairTextureName;
+            return true;
     }
-    if (bReset)
-    {
-        UpdateDynamicActors();
-    }
-    return bReset;
+    return false;
 }
 
 function bool SetProperty(int Index, coerce string Value)

@@ -48,40 +48,34 @@ function ApplyProperty(int Index)
 
 function bool ResetProperty(int Index)
 {
-    local bool bReset;
-
     switch (Index)
     {
         case 0:
             bEnabled = default.bEnabled;
-            bReset = true;
-            break;
+            class'HxSPTimer'.default.bEnabled = bEnabled;
+            return true;
         case 1:
             bUseHUDColor = default.bUseHUDColor;
-            bReset = true;
-            break;
+            class'HxSPTimer'.default.bUseHUDColor = bUseHUDColor;
+            return true;
         case 2:
             bPulsingDigits = default.bPulsingDigits;
-            bReset = true;
-            break;
+            class'HxSPTimer'.default.bPulsingDigits = bPulsingDigits;
+            return true;
         case 3:
             PosX = default.PosX;
-            bReset = true;
-            break;
+            class'HxSPTimer'.default.PosX = PosX;
+            return true;
         case 4:
             PosY = default.PosY;
-            bReset = true;
-            break;
+            class'HxSPTimer'.default.PosY = PosY;
+            return true;
         case 5:
             CustomColor = default.CustomColor;
-            bReset = true;
-            break;
+            class'HxSPTimer'.default.CustomColor = CustomColor;
+            return true;
     }
-    if (bReset)
-    {
-        UpdateDynamicActors(Index);
-    }
-    return bReset;
+    return false;
 }
 
 function UpdateDynamicActors(int Index)

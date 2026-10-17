@@ -176,94 +176,88 @@ function ApplyProperty(int Index)
 
 function bool ResetProperty(int Index)
 {
-    local bool bReset;
-
     switch (Index)
     {
         case 0:
             Teammates = default.Teammates;
-            bReset = true;
-            break;
+            class'HxSkinHighlight'.default.Teammates = Teammates;
+            return true;
         case 1:
             Enemies = default.Enemies;
-            bReset = true;
-            break;
+            class'HxSkinHighlight'.default.Enemies = Enemies;
+            return true;
         case 2:
             ShieldHit = default.ShieldHit;
-            bReset = true;
-            break;
+            class'HxSkinHighlight'.default.ShieldHit = ShieldHit;
+            return true;
         case 3:
             LinkHit = default.LinkHit;
-            bReset = true;
-            break;
+            class'HxSkinHighlight'.default.LinkHit = LinkHit;
+            return true;
         case 4:
             ShockHit = default.ShockHit;
-            bReset = true;
-            break;
+            class'HxSkinHighlight'.default.ShockHit = ShockHit;
+            return true;
         case 5:
             LightningHit = default.LightningHit;
-            bReset = true;
-            break;
+            class'HxSkinHighlight'.default.LightningHit = LightningHit;
+            return true;
         case 6:
             TeammateProtected = default.TeammateProtected;
-            bReset = true;
-            break;
+            class'HxSkinHighlight'.default.TeammateProtected = TeammateProtected;
+            return true;
         case 7:
             EnemyProtected = default.EnemyProtected;
-            bReset = true;
-            break;
+            class'HxSkinHighlight'.default.EnemyProtected = EnemyProtected;
+            return true;
         case 8:
             TeammateSkin = default.TeammateSkin;
-            bReset = true;
-            break;
+            class'HxSkinHighlight'.default.TeammateSkin = TeammateSkin;
+            return true;
         case 9:
             EnemySkin = default.EnemySkin;
-            bReset = true;
-            break;
+            class'HxSkinHighlight'.default.EnemySkin = EnemySkin;
+            return true;
         case 10:
             bRandomize = default.bRandomize;
-            bReset = true;
-            break;
+            class'HxSkinHighlight'.default.bRandomize = bRandomize;
+            return true;
         case 11:
             bDisableOnDeadBodies = default.bDisableOnDeadBodies;
-            bReset = true;
-            break;
+            class'HxSkinHighlight'.default.bDisableOnDeadBodies = bDisableOnDeadBodies;
+            return true;
         case 12:
             bDisableOnHeads = default.bDisableOnHeads;
-            bReset = true;
-            break;
+            class'HxSkinHighlight'.default.bDisableOnHeads = bDisableOnHeads;
+            return true;
         case 13:
             HighlightMode = default.HighlightMode;
-            bReset = true;
-            break;
+            class'HxSkinHighlight'.default.HighlightMode = HighlightMode;
+            return true;
         case 14:
             SpectatorTeam = default.SpectatorTeam;
-            bReset = true;
-            break;
+            class'HxSkinHighlight'.default.SpectatorTeam = SpectatorTeam;
+            return true;
         case 15:
             PreferredTeammateModel = default.PreferredTeammateModel;
             CurrentTeammateModel = default.CurrentTeammateModel;
-            bReset = true;
-            break;
+            class'HxSkinHighlight'.default.TeammateModel = CurrentTeammateModel;
+            return true;
         case 16:
             bForceTeammateModel = default.bForceTeammateModel;
-            bReset = true;
-            break;
+            class'HxSkinHighlight'.default.bForceTeammateModel = bForceTeammateModel;
+            return true;
         case 17:
             PreferredEnemyModel = default.PreferredEnemyModel;
             CurrentEnemyModel = default.CurrentEnemyModel;
-            bReset = true;
-            break;
+            class'HxSkinHighlight'.default.EnemyModel = CurrentEnemyModel;
+            return true;
         case 18:
             bForceEnemyModel = default.bForceEnemyModel;
-            bReset = true;
-            break;
+            class'HxSkinHighlight'.default.bForceEnemyModel = bForceEnemyModel;
+            return true;
     }
-    if (bReset)
-    {
-        UpdateDynamicActors();
-    }
-    return bReset;
+    return false;
 }
 
 function string ValidateString(int Index, string Value)
