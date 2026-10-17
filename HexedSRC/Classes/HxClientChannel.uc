@@ -284,20 +284,22 @@ function ServerRequestStats(HxPlayerReplicationInfo HxPRI)
     if (HxPRI != None)
     {
         HxPRI.UpdateStats();
-        ClientReceiveStats(HxPRI, HxPRI.Accuracy, HxPRI.MaxSpree, HxPRI.TeamKills);
+        ClientReceiveStats(HxPRI, HxPRI.Accuracy, HxPRI.MaxSpree, HxPRI.TeamKills, HxPRI.Rank);
     }
 }
 
 simulated function ClientReceiveStats(HxPlayerReplicationInfo HxPRI,
                                       byte Accuracy,
                                       int MaxSpree,
-                                      int TeamKills)
+                                      int TeamKills,
+                                      int Rank)
 {
     if (HxPRI != None)
     {
         HxPRI.Accuracy = Accuracy;
         HxPRI.MaxSpree = MaxSpree;
         HxPRI.TeamKills = TeamKills;
+        HxPRI.Rank = Rank;
     }
 }
 

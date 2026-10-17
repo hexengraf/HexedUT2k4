@@ -24,4 +24,5 @@ defaultproperties
     ColumnConfigs(2)=(MainStat=HX_SBS_Frags,SecStat=HX_SBS_MaxSpree)
     ColumnConfigs(3)=(MainStat=HX_SBS_Deaths,SecStat=HX_SBS_TeamKills)
     ColumnConfigs(4)=(MainStat=HX_SBS_Accuracy,SecStat=HX_SBS_Efficiency)
+    ColumnConfigs(5)=(MainStat=HX_SBS_Rank)
 }

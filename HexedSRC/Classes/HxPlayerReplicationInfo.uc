@@ -17,6 +17,7 @@ var byte AvailableStats;
 var byte Accuracy;
 var int MaxSpree;
 var int TeamKills;
+var int Rank;
 var array<HxWeaponStats> WeaponStats;
 
 var private float LastStatsUpdate;
@@ -292,4 +293,5 @@ defaultproperties
 {
     NetUpdateFrequency=1
     bOnlyDirtyReplication=true
+    Rank=-1
 }

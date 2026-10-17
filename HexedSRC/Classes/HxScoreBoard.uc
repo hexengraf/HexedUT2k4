@@ -18,6 +18,7 @@ enum EHxSBStatType
     HX_SBS_Efficiency,
     HX_SBS_PPH,
     HX_SBS_PlayTime,
+    HX_SBS_Rank,
     HX_SBS_Reserved,
 };
 
@@ -67,7 +68,7 @@ struct HxSBStatData
 const POSITION_COLUMN = 0;
 const PORTRAIT_COLUMN = 1;
 
-var const HxSBStatData StatData[14];
+var const HxSBStatData StatData[15];
 var localized string ReadyLabel;
 var localized string PlayerLabel;
 var localized string LocationLabel;
@@ -166,6 +167,7 @@ var protected array<PlayerReplicationInfo> ActivePRIs;
 var protected array<PlayerReplicationInfo> SpectatingPRIs;
 var protected bool bHasWeaponStats;
 var protected bool bHasKillStats;
+var protected bool bHasRank;
 
 var private float ElapsedTime;
 var private float LastUpdateTime;
@@ -1168,6 +1170,7 @@ simulated function bool UpdateTables()
     local bool bUpdateVisible;
     local bool bNewHasWeaponStats;
     local bool bNewHasKillStats;
+    local bool bNewHasRank;
     local int PreviousCount;
     local int i;
     local int j;
@@ -1207,6 +1210,10 @@ simulated function bool UpdateTables()
                 if (Tables[i].HxPRIs[j].HasKillStats())
                 {
                     bNewHasKillStats = true;
+                }
+                if (Tables[i].HxPRIs[j].Rank > -1)
+                {
+                    bNewHasRank = true;
                 }
                 ClientManager.UpdateStats(Tables[i].HxPRIs[j]);
             }
@@ -1250,10 +1257,12 @@ simulated function bool UpdateTables()
             Tables[i].PLs[j] = string(Tables[i].PRIs[j].PacketLoss);
         }
     }
-    if (bNewHasWeaponStats ^^ bHasWeaponStats || bHasKillStats ^^ bNewHasKillStats)
+    if (bNewHasWeaponStats ^^ bHasWeaponStats || bHasKillStats ^^ bNewHasKillStats
+        || bHasRank ^^ bNewHasRank)
     {
         bHasWeaponStats = bNewHasWeaponStats;
         bHasKillStats = bNewHasKillStats;
+        bHasRank = bNewHasRank;
         Init();
     }
     return bUpdateVisible;
@@ -1552,6 +1561,12 @@ simulated function string GetField(EHxSBStatType Type, int Table, int Index)
                 return FormatTime(Max(0, ElapsedTime - Tables[Table].PRIs[Index].StartTime));
             }
             return "--:--";
+        case HX_SBS_Rank:
+            if (Tables[Table].HxPRIs[Index] != None)
+            {
+                return string(Tables[Table].HxPRIs[Index].Rank);
+            }
+            return "-";
     }
     return "";
 }
@@ -1751,6 +1766,8 @@ simulated function bool IsStatAvailable(EHxSBStatType Type)
     {
         case HX_SBS_Accuracy:
             return bHasWeaponStats;
+        CASE HX_SBS_Rank:
+            return bHasRank;
     }
     return true;
 }
@@ -1943,6 +1960,7 @@ defaultproperties
     StatData(11)=(MainLabel=("EFFICIENCY","EFF"),SecLabel=("efficiency","eff"),MinWidthValue="100%")
     StatData(12)=(MainLabel=("PPH"),SecLabel=("PPH"),MinWidthValue="9999")
     StatData(13)=(MainLabel=("TIME"),SecLabel=("time"),MinWidthValue="99:99")
+    StatData(14)=(MainLabel=("RANK"),SecLabel=("rank"),MinWidthValue="9999",MaxWidthValue="99999")
     ReadyLabel="RDY"
     PlayerLabel="PLAYER (%)"
     LocationLabel="location"
