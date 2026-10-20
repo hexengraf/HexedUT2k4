@@ -92,7 +92,7 @@ event NotifyLevelChange()
 
     for (i = 0; i < Entries.Length; ++i)
     {
-        Entries[i].MutatorInfo.NotifyLevelChange();
+        Entries[i].MutatorClass.static.ClientNotifyLevelChange(Entries[i].MutatorInfo);
     }
     Entries.Remove(0, Entries.Length);
     for (i = 0; i < ConfigPool.Length; ++i)

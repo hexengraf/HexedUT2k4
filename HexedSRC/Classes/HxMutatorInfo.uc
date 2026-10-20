@@ -11,8 +11,6 @@ var PlayerController PlayerOwner;
 var private array<HxArrayInfo> Arrays;
 var private bool bInitialized;
 
-function NotifyLevelChange();
-
 function Setup(class<HxMutator> MutatorClass, LevelInfo Level, PlayerController PlayerOwner)
 {
     Self.MutatorClass = MutatorClass;

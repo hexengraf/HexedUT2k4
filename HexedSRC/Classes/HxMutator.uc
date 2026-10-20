@@ -621,6 +621,7 @@ static final protected function string GetGlobalEnumData(int Index)
 
 static function ClientInitialized(HxMutatorInfo Info);
 static function ClientMutatorPropertyChanged(HxMutatorInfo Info, int Index);
+static function ClientNotifyLevelChange(HxMutatorInfo Info);
 
 defaultproperties
 {
