@@ -21,6 +21,8 @@ OUTDIR:=build
 TAGGEDPKGS:=HexedSRC HexedUT HexedVOTE HexedARENA HexedNET
 HELPFILES:=README.md CONFIGURATION.md LICENSE CHANGELOG.md
 REQUIREDIRS:=System Textures Sounds StaticMeshes Animations
+EXAMPLESDIR:=Examples
+EXAMPLEFILES:=HexedMutators.ini
 VERBOSITY:=success|export|error|warning
 
 -include $(OUTDIR)/Config.make
@@ -50,6 +52,8 @@ toolsdir:=Tools
 tagplaceholder:=%TAG%
 pkgplaceholder:=%PKG%
 inttemplate:=Template.int
+helpfiles:=$(HELPFILES:%=$(OUTDIR)/Help/$(PROJECT)-%)
+examplefiles:=$(EXAMPLEFILES:%=$(OUTDIR)/Help/%)
 getsrcs=$(wildcard $(OUTDIR)/$1/Classes/*.uc) $(wildcard $(OUTDIR)/$1/Classes/Include/*.uci)
 getdeps=$(if $(NODEPS),,$($(1:$(TAG)=)_INTDEPS:%=$(OUTDIR)/System/%$(TAG).u))
 
@@ -131,7 +135,7 @@ $(inifiles): $(OUTDIR)/%.ini: $(OUTDIR)/%/Config.make
 	done
 	echo "EditPackages=$*" >> "$@"
 
-$(releasezip): $(ufiles) $(uz2files) $(HELPFILES:%=$(OUTDIR)/Help/$(PROJECT)-%)
+$(releasezip): $(ufiles) $(uz2files) $(helpfiles) $(examplefiles)
 	@echo "[RELEASE] $@"
 	rm -f $@
 	cd $(OUTDIR)
@@ -155,6 +159,9 @@ $(OUTDIR)/%.u.uz2: $(OUTDIR)/System/%.u.uz2
 
 $(OUTDIR)/Help/$(PROJECT)-%: % | $(OUTDIR)/Help
 	@cp $^ $@
+
+$(OUTDIR)/Help/%: $(EXAMPLESDIR)/%
+	@sed -r "s/$(tagplaceholder)/$(TAG)/g" $^ > $@
 
 $(OUTDIR) $(OUTDIR)/Help:
 	@mkdir -p $@
