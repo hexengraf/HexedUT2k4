@@ -104,7 +104,7 @@ var bool bAlternateRowColors;
 var bool bCompactTeamScores;
 var bool bShowSecondaryStats;
 var bool bPreferVerticalLayout;
-var bool bShortenHeadings;
+var bool bAbbreviateHeadings;
 var bool bShowPlayerPortraits;
 var bool bShowBotCallSigns;
 var bool bShowBotOrders;
@@ -231,7 +231,7 @@ simulated function LoadDefaults()
     bCompactTeamScores = class'HxScoreBoard'.default.bCompactTeamScores;
     bShowSecondaryStats = class'HxScoreBoard'.default.bShowSecondaryStats;
     bPreferVerticalLayout = class'HxScoreBoard'.default.bPreferVerticalLayout;
-    bShortenHeadings = class'HxScoreBoard'.default.bShortenHeadings;
+    bAbbreviateHeadings = class'HxScoreBoard'.default.bAbbreviateHeadings;
     bShowPlayerPortraits = class'HxScoreBoard'.default.bShowPlayerPortraits;
     bShowBotCallSigns = class'HxScoreBoard'.default.bShowBotCallSigns;
     bShowBotOrders = class'HxScoreBoard'.default.bShowBotOrders;
@@ -1416,7 +1416,7 @@ simulated function HxSBColumnDefinition GetColumnDefinition(EHxSBStatType MainSt
 
     Index = MainStat - 1;
     Def.Types[0] = MainStat;
-    if (bShortenHeadings && StatData[Index].MainLabel.Length > 1)
+    if (bAbbreviateHeadings && StatData[Index].MainLabel.Length > 1)
     {
         Def.Headings[0] = StatData[Index].MainLabel[1];
     }
@@ -1430,7 +1430,7 @@ simulated function HxSBColumnDefinition GetColumnDefinition(EHxSBStatType MainSt
     {
         Index = SecStat - 1;
         Def.Types[1] = SecStat;
-        if (bShortenHeadings && StatData[Index].MainLabel.Length > 1)
+        if (bAbbreviateHeadings && StatData[Index].MainLabel.Length > 1)
         {
             Def.Headings[1] = StatData[Index].SecLabel[1];
         }
@@ -1839,7 +1839,7 @@ defaultproperties
     bCompactTeamScores=false
     bShowSecondaryStats=false
     bPreferVerticalLayout=false
-    bShortenHeadings=false
+    bAbbreviateHeadings=false
     bShowPlayerPortraits=false
     bShowBotCallSigns=false
     bShowBotOrders=true

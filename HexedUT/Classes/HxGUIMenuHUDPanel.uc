@@ -7,7 +7,7 @@ var automated moCheckBox ch_EnhancedScoreboard;
 var automated moCheckBox ch_CompactTeamScores;
 var automated moCheckBox ch_bShowSecondaryStats;
 var automated moCheckBox ch_PreferVerticalLayout;
-var automated moCheckBox ch_ShortenHeadings;
+var automated moCheckBox ch_AbbreviateHeadings;
 var automated moCheckBox ch_ShowPlayerPortraits;
 var automated moCheckBox ch_ShowBotCallSigns;
 var automated moCheckBox ch_ShowBotOrders;
@@ -37,7 +37,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     Sections[SECTION_SCOREBOARD].Insert(ch_CompactTeamScores);
     Sections[SECTION_SCOREBOARD].Insert(ch_bShowSecondaryStats);
     Sections[SECTION_SCOREBOARD].Insert(ch_PreferVerticalLayout);
-    Sections[SECTION_SCOREBOARD].Insert(ch_ShortenHeadings);
+    Sections[SECTION_SCOREBOARD].Insert(ch_AbbreviateHeadings);
     Sections[SECTION_SCOREBOARD].Insert(ch_ShowPlayerPortraits);
     Sections[SECTION_SCOREBOARD].Insert(ch_ShowBotCallSigns);
     Sections[SECTION_SCOREBOARD].Insert(ch_ShowBotOrders);
@@ -246,16 +246,16 @@ defaultproperties
     End Object
     ch_PreferVerticalLayout=PreferVerticalLayoutCheckBox
 
-    Begin Object class=moCheckBox Name=ShortenHeadingsCheckBox
-        Caption="Shorten Headings"
-        Hint="Shorten long headings to reduce required column width and fit more columns."
+    Begin Object class=moCheckBox Name=AbbreviateHeadingsCheckBox
+        Caption="Abbreviate Long Headings"
+        Hint="Abbreviate long headings to reduce required column width and fit more columns."
         INIOption="@INTERNAL"
         Tag=10
         OnLoadINI=ScoreboardOnLoadINI
         OnChange=ScoreboardOnChange
         TabOrder=4
     End Object
-    ch_ShortenHeadings=ShortenHeadingsCheckBox
+    ch_AbbreviateHeadings=AbbreviateHeadingsCheckBox
 
     Begin Object class=moCheckBox Name=ShowPlayerPortraitsCheckBox
         Caption="Show Player Portraits"

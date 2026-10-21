@@ -12,7 +12,7 @@ var config bool bAlternateRowColors;
 var config bool bCompactTeamScores;
 var config bool bShowSecondaryStats;
 var config bool bPreferVerticalLayout;
-var config bool bShortenHeadings;
+var config bool bAbbreviateHeadings;
 var config bool bShowPlayerPortraits;
 var config bool bShowBotCallSigns;
 var config bool bShowBotOrders;
@@ -68,7 +68,7 @@ function InitializeProperties()
     class'HxScoreBoard'.default.bCompactTeamScores = bCompactTeamScores;
     class'HxScoreBoard'.default.bShowSecondaryStats = bShowSecondaryStats;
     class'HxScoreBoard'.default.bPreferVerticalLayout = bPreferVerticalLayout;
-    class'HxScoreBoard'.default.bShortenHeadings = bShortenHeadings;
+    class'HxScoreBoard'.default.bAbbreviateHeadings = bAbbreviateHeadings;
     class'HxScoreBoard'.default.bShowPlayerPortraits = bShowPlayerPortraits;
     class'HxScoreBoard'.default.bShowBotCallSigns = bShowBotCallSigns;
     class'HxScoreBoard'.default.bShowBotOrders = bShowBotOrders;
@@ -213,7 +213,7 @@ function ApplyProperty(int Index)
             class'HxScoreBoard'.default.bPreferVerticalLayout = bPreferVerticalLayout;
             break;
         case 10:
-            class'HxScoreBoard'.default.bShortenHeadings = bShortenHeadings;
+            class'HxScoreBoard'.default.bAbbreviateHeadings = bAbbreviateHeadings;
             break;
         case 11:
             class'HxScoreBoard'.default.bShowPlayerPortraits = bShowPlayerPortraits;
@@ -380,12 +380,12 @@ function bool ResetProperty(int Index)
             class'HxScoreBoard'.default.bPreferVerticalLayout = bPreferVerticalLayout;
             return true;
         case 10:
-            bShortenHeadings = default.bShortenHeadings;
-            class'HxScoreBoard'.default.bShortenHeadings = bShortenHeadings;
+            bAbbreviateHeadings = default.bAbbreviateHeadings;
+            class'HxScoreBoard'.default.bAbbreviateHeadings = bAbbreviateHeadings;
             return true;
         case 11:
             bShowPlayerPortraits = default.bShowPlayerPortraits;
-            class'HxScoreBoard'.default.bShortenHeadings = bShortenHeadings;
+            class'HxScoreBoard'.default.bAbbreviateHeadings = bAbbreviateHeadings;
             return true;
         case 12:
             bShowBotCallSigns = default.bShowBotCallSigns;
@@ -681,7 +681,7 @@ defaultproperties
     Properties(7)=(Name="bCompactTeamScores",Type=HX_PROPERTY_Bool)
     Properties(8)=(Name="bShowSecondaryStats",Type=HX_PROPERTY_Bool)
     Properties(9)=(Name="bPreferVerticalLayout",Type=HX_PROPERTY_Bool)
-    Properties(10)=(Name="bShortenHeadings",Type=HX_PROPERTY_Bool)
+    Properties(10)=(Name="bAbbreviateHeadings",Type=HX_PROPERTY_Bool)
     Properties(11)=(Name="bShowPlayerPortraits",Type=HX_PROPERTY_Bool)
     Properties(12)=(Name="bShowBotCallSigns",Type=HX_PROPERTY_Bool)
     Properties(13)=(Name="bShowBotOrders",Type=HX_PROPERTY_Bool)
@@ -732,7 +732,7 @@ defaultproperties
     bCompactTeamScores=false
     bShowSecondaryStats=false
     bPreferVerticalLayout=false
-    bShortenHeadings=false
+    bAbbreviateHeadings=false
     bShowPlayerPortraits=true
     bShowBotCallSigns=false
     bShowBotOrders=true
