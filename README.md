@@ -1,12 +1,12 @@
 # HexedUT2k4 - Hexed Unreal Tournament 2004
 
 This is a collection of mutators for Unreal Tournament 2004:
-* **HexedUT** (`HexedUTv9.MutHexedUT`) - provides hit sounds, damage numbers, skin highlights, enhanced scoreboards, and more.
-* **HexedVOTE** (`HexedVOTEv9.MutHexedVOTE`) - provides an enhanced map vote menu on top of xVoting.
-* **HexedCONTROL** (`HexedARENAv9.MutHexedCONTROL`) - provides enhanced control over game mechanics: modify starting values, disable specific combos, disable specific pick-ups, modify movement parameters, and more.
-* **HexedARENA** (`HexedARENAv9.MutHexedARENA`) - similar to the built-in Arena mutator, but allows changing the weapon via URL option.
-* **HexedINSTAGIB** (`HexedARENAv9.MutHexedINSTAGIB`) - similar to the built-in Instagib mutator, but provides a custom zoom overlay and an option to change the fire rate.
-* **HexedNET** (`HexedNETv9.MutHexedNET`) - provides lag compensation.
+* **HexedUT** (`HexedUTv10.MutHexedUT`) - provides hit sounds, damage numbers, skin highlights, enhanced scoreboards, and more.
+* **HexedVOTE** (`HexedVOTEv10.MutHexedVOTE`) - provides an enhanced map vote menu on top of xVoting.
+* **HexedCONTROL** (`HexedARENAv10.MutHexedCONTROL`) - provides enhanced control over game mechanics: modify starting values, disable specific combos, disable specific pick-ups, modify movement parameters, and more.
+* **HexedARENA** (`HexedARENAv10.MutHexedARENA`) - similar to the built-in Arena mutator, but allows changing the weapon via URL option.
+* **HexedINSTAGIB** (`HexedARENAv10.MutHexedINSTAGIB`) - similar to the built-in Instagib mutator, but provides a custom zoom overlay and an option to change the fire rate.
+* **HexedNET** (`HexedNETv10.MutHexedNET`) - provides lag compensation.
 
 HexedPatches has been moved to its own [repository](https://github.com/hexengraf/HexedUT2k4-Patches).
 
@@ -16,16 +16,16 @@ Download the [latest release](https://github.com/hexengraf/HexedUT2k4/releases/l
 Files with the `.uz2` extension are safe to delete (you only need them if configuring your own download redirect server).
 
 > [!NOTE]
-> HexedSRC is a package dependency for all mutators provided here. If you're only using a subset of the mutators, make sure you have `HexedSRCv9.u` inside your `System` directory.
-> You don't need to explicitly add it to `ServerPackages`, the game automatically detects the dependency and downloads `HexedSRCv9.u` together with the mutators.
+> HexedSRC is a package dependency for all mutators provided here. If you're only using a subset of the mutators, make sure you have `HexedSRCv10.u` inside your `System` directory.
+> You don't need to explicitly add it to `ServerPackages`, the game automatically detects the dependency and downloads `HexedSRCv10.u` together with the mutators.
 
 ## Configuration
 
 There is no dependency between mutators, so you are free to decide which ones you want to enable.
 Some of the mutators can also be enabled through server actors:
-* `HexedUTv9.HxUTServerActor` - enables HexedUT.
-* `HexedVOTEv9.HxVTServerActor` - enables HexedVOTE.
-* `HexedARENAv9.HxCTServerActor` - enables HexedCONTROL.
+* `HexedUTv10.HxUTServerActor` - enables HexedUT.
+* `HexedVOTEv10.HxVTServerActor` - enables HexedVOTE.
+* `HexedARENAv10.HxCTServerActor` - enables HexedCONTROL.
 
 When one or more mutators are active, an in-game configuration menu is provided via the `mutate HexedMenu` command (if the letter `H` is available it will be automatically bound to this command).
 This menu gives access to all configurations (both user and server), so it is highly recommended to tweak your initial setup through it.
@@ -41,7 +41,7 @@ HexedUT is a completely new implementation of some of the features commonly offe
 While it is possible to enable HexedUT and UTComp at the same time, you probably want to disable equivalent features from one of the two mutators.
 To disable all equivalent features from HexedUT, use the following configuration:
 ```ini
-[HexedUTv9.MutHexedUT]
+[HexedUTv10.MutHexedUT]
 bAllowHitSounds=False
 bAllowDamageNumbers=False
 bColoredDeathMessages=False
@@ -96,8 +96,8 @@ List of features:
 
 The main point of this mutator is to provide a way to define different Arenas using separate `GameConfig` entries in the `[xVoting.xVotingHandler]` section. For instance:
 ```ini
-GameConfig=(GameClass="XGame.xDeathMatch",Prefix="DM",Acronym="RADM",GameName="RocketArena DeathMatch",Mutators="HexedARENAv9.MutHexedARENA",Options="ArenaWeaponClassName=XWeapons.RocketLauncher")
-GameConfig=(GameClass="XGame.xDeathMatch",Prefix="DM",Acronym="FADM",GameName="FlakArena DeathMatch",Mutators="HexedARENAv9.MutHexedARENA",Options="ArenaWeaponClassName=XWeapons.FlakCannon")
+GameConfig=(GameClass="XGame.xDeathMatch",Prefix="DM",Acronym="RADM",GameName="RocketArena DeathMatch",Mutators="HexedARENAv10.MutHexedARENA",Options="ArenaWeaponClassName=XWeapons.RocketLauncher")
+GameConfig=(GameClass="XGame.xDeathMatch",Prefix="DM",Acronym="FADM",GameName="FlakArena DeathMatch",Mutators="HexedARENAv10.MutHexedARENA",Options="ArenaWeaponClassName=XWeapons.FlakCannon")
 ```
 
 All HexedUT2k4 mutators consume their URL options, so they're not "sticky" as it would usually be when passing options in the `GameConfig` entries, so you don't need to clean up options in unrelated entries.
@@ -109,6 +109,7 @@ This mutator is a drop-in replacement for `MutInstagib` and `MutZoomInstaGib`, a
 ### HexedNET
 
 [HexedNET](https://github.com/hexengraf/HexedNET) is a standalone implementation of lag compensation, originally forked from [WSUTComp](https://github.com/zenakuten/WSUTComp).
+Now it became its own implementation of lag compensation, with most of the code base entirely rewritten, although the underlying compensation techniques are the same.
 
 ## Troubleshooting
 

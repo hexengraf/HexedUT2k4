@@ -1,3 +1,27 @@
+# General options
+
+## Server options
+
+The following section is saved in `HexedMutators.ini':
+```ini
+[HexedSRCv10.HxMutator]
+; Maximum duration of notifications (in seconds).
+; Actual duration varies depending the amount of text displayed.
+MaxNotifyDuration=10.000000
+; Frequency to notify the mutators are running after a map loads:
+;   HX_NRUN_Never - never notify.
+;   HX_NRUN_PerVersion - notify every new version of the mutators.
+;   HX_NRUN_PerSession - notify every new session (i.e. once per server join).
+;   HX_NRUN_Always - always notify (i.e. at the start of every map).
+NotifyRunning=HX_NRUN_PerVersion
+; Level of information to be displayed in the server status for each mutator.
+;   HX_VERB_Lowest - hide everything except which mutators are loaded and the platform version.
+;   HX_VERB_Low - hide even more options than medium, but still show the most important ones.
+;   HX_VERB_Medium - hide boolean options that are set to false and some detailed options.
+;   HX_VERB_High - show everything.
+StatusVerbosity=HX_VERB_Medium
+```
+
 # HexedUT
 
 ## User options
@@ -142,7 +166,7 @@ CustomColor=(B=4,G=191,R=239,A=255)
 
 The following section is saved in `HexedMutators.ini`:
 ```ini
-[HexedUTv9.MutHexedUT]
+[HexedUTv10.MutHexedUT]
 ; Allow clients to enable/disable hit sound effects.
 bAllowHitSounds=True
 ; Allow clients to enable/disable damage number effects.
@@ -191,13 +215,51 @@ bAllowCustomViewSmoothing=True
 ; Allow clients to enable/disable the enhanced scoreboards.
 ; Set this to false if your server is using another mutator for scoreboard replacements.
 bAllowEnhancedScoreBoards=True
+; Enable tracking of extra stats (accuracy, team kills, max spree).
+bExtraStats=True
 ; Allow clients to enable/disable the spawn protection timer.
 bAllowSpawnProtectionTimer=True
 ; Use team colors in death messages (blue = killer and red = victim if no teams).
 bColoredDeathMessages=True
-; Hide disabled features from the server status list.
-bHideDisabledFeatures=False
 ```
+
+### Enabling Rank information in the scoreboard
+
+The enhanced scoreboards support showing a Rank for each player, as long as an external mutator provides the expected ranks.
+For instance, you can write a mutator that calls the following function in a timer (or when a player spawns):
+```
+function UpdateRanks()
+{
+    local LinkedReplicationInfo LinkedPRI;
+    local Controller C;
+    local int Rank;
+
+    for (C = Level.ControllerList; C != None; C = C.nextController)
+    {
+        if (C.IsA('PlayerController') && !C.IsA('MessagingSpectator'))
+        {
+            if (C.PlayerReplicationInfo != None)
+            {
+                LinkedPRI = C.PlayerReplicationInfo.CustomReplicationInfo;
+                while (LinkedPRI != None)
+                {
+                    if (GetItemName(string(LinkedPRI.Class)) ~= "HxPlayerReplicationInfo")
+                    {
+                        // Populate Rank with the appropriate value
+                        // Rank = ...;
+                        // and execute:
+                        LinkedPRI.SetPropertyText("Rank", string(Rank));
+                        break;
+                    }
+                    LinkedPRI = LinkedPRI.NextReplicationInfo;
+                }
+            }
+        }
+    }
+}
+```
+
+The mutator itself doesn't require any dependency thanks to `SetPropertyText` and the string comparison to find the `HxPlayerReplicationInfo` actor.
 
 # HexedVOTE
 
@@ -245,7 +307,7 @@ FilterList="DM-1on1-Albatross"
 
 The following section is saved in `HexedMutators.ini`:
 ```ini
-[HexedVOTEv9.MutHexedVOTE]
+[HexedVOTEv10.MutHexedVOTE]
 ; Background for the votes list (upper list). Use ~16:3 images.
 VoteListCustomBG=
 ; Background for the maps list (lower list). Use ~9:5 images.
@@ -274,7 +336,7 @@ For more information on how to configure it check out [HexedUT2k4 Map Previews](
 
 The following section is saved in `HexedMutators.ini`:
 ```ini
-[HexedARENAv9.MutHexedCONTROL]
+[HexedARENAv10.MutHexedCONTROL]
 ; Bonus to starting health (between -99 and 99).
 BonusHealth=0
 ; Bonus to starting shield (between 0 and 150).
@@ -341,7 +403,7 @@ bNoDodgeJump=False
 
 The following section is saved in `HexedMutators.ini`:
 ```ini
-[HexedARENAv9.MutHexedCONTROL]
+[HexedARENAv10.MutHexedARENA]
 ; Determines which weapon will be used in the arena match.
 ArenaWeaponClassName="XWeapons.RocketLauncher"
 ```
@@ -383,7 +445,7 @@ CustomZoomCrosshairScale=1.0
 
 The following section is saved in `HexedMutators.ini`:
 ```ini
-[HexedARENAv9.MutHexedINSTAGIB]
+[HexedARENAv10.MutHexedINSTAGIB]
 ; Players get a Translocator in their inventory.
 bAllowTranslocator=False
 ; Teammates get a big boost when shot by the instagib rifle.
@@ -401,35 +463,49 @@ FireRate=0.0
 The following section is saved in `User.ini`:
 ```ini
 [HexedNET HxNetcodeConfig]
-; Enable enhanced netcode on weapons.
-bEnhancedNetcode=True
-; Frequency to send pings (pings/second).
-PingFrequency=2.000000
-; Factor to smooth out ping spikes from the average. Use low values for high smoothing (1.0 disables averaging completely).
-PingSmoothing=0.300000
+; Enable lag compensation for weapons.
+bLagCompensation=True
 ```
-
-> [!TIP]
-> Higher values of `PingFrequency` and `PingSmoothing` _might_ help if your ping is very unstable/spiky.
-> There is not enough data yet to give an accurate recommendation.
 
 ## Server options
 
 The following section is saved in `HexedMutators.ini`:
 ```ini
-[HexedNETv9.MutHexedNET]
-; Maximum frequency to send pings (pings/second), between 0.2 and 20.
-MaxPingFrequency=10.0
-; Global ping compensation limit (in milliseconds) applied to all weapon types.
-PingCompensationLimit=350
-; Ping compensation limit (in milliseconds) applied to projectiles.
-; Handle this option as experimental, it might bring unforeseen consequences.
-; In testing, values above ~130 caused weird behavior in flak chunks on high ping (~250).
-ProjectileCompensationLimit=75
-; Backport OldUnreal's rubberbanding fix.
+[HexedNETv10.MutHexedNET]
+; Frequency to send ping packets (pings/second). Lower this value if server connection is saturated.
+PingFrequency=2.0
+; Global lag compensation limit (in milliseconds).
+LagCompensationLimit=300
+; Projectile-specific lag compensation limit (in milliseconds).
+ProjectileCompensationLimit=125
+; Maximum rate to check for projectile collisions during server-side forwarding.
+; The actual rate is the minimum between this value and the server's tick rate.
+; The default value is optimal, but if your server is struggling to keep a stable tick rate,
+; you might want to reduce this value (or reduce the tick rate).
+MaxCollisionCheckRate=50
+; When triggering a shot, send the client's location and camera rotation to the server to synchronize the aim.
+; Applied on restart/map change. Keep in mind BAS can (potentially) be exploited to create aimbots, since it
+; allows the client to adjust the location and aim.
+bBoostedAimSynchronization=True
+; Force a new start fire RPC for every shot while holding the fire button.
+; If disabled, BAS is only applied to the first shot while holding fire.
+; Enabling this increases weapon accuracy while holding fire, but causes a small change in weapon behavior.
+; For instance, if you hold shock rifle's secondary and then hold primary, it starts shooting primary shots.
+; Without bForceStartFireRPCs, it keeps shooting secondary shots and ignores the primary being hold.
+; If your server is using very high fire rates (sub 0.3), disable this to prevent connection saturation.
+bForceStartFireRPCs=True
+; Execute client-side collision detection and add the result to BAS.
+; The server decides if the collision is valid. Only applies to hitscan weapons.
+bClientSideCollisions=True
+; Maximum acceptable temporal distance to validate client-side collisions, expressed in server ticks.
+; Only relevant if bClientSideCollisions is True.
+; Increasing this value allows higher tolerance to ping fluctuations at the expense of additional server workload.
+CSCTolerance=2
+; Backport OldUnreal's rubberbanding fix. Applied on restart/map change.
 ; Enable this option if your server has players using an unpatched version of the game.
 bRubberbandingFix=False
-; Link meshes for collision detection. Disable this if experiencing crashes. Helps with hit detection in vehicles.
+; Link meshes for collision detection. Disable this if experiencing crashes.
+; Helps with hit detection in vehicles.
 bLinkMeshes=True
 ```
 

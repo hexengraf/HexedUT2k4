@@ -1,3 +1,93 @@
+# v10.0
+
+This version brings a huge rework of the HexedNET code. The changes listed below are a summary of the "visible" effects of the new code.
+
+HexedUT changes:
+* Fixed new/modified skin highlight colors not getting properly saved.
+* Implemented support for new player stats:
+  * Controlled by the new `bExtraStats` server option.
+  * Three new stats implemented: accuracy, max spree, and team kills.
+  * Accuracy is an approximation of the total accuracy across all weapons.
+  * Max spree is the highest amount of frags without dying.
+  * Team kills is the amount of teammates killed (including suicides).
+* Added optional Rank stat for the scoreboard:
+  * Servers that want to use it need to write their own mutator to populate the Rank field in each `HxPlayerReplicationInfo`.
+  * More instructions [here](CONFIGURATION.md#enabling-rank-information-in-the-scoreboard).
+* Implemented more customization options for the scoreboards:
+  * Show/hide secondary stats, timestamp and shortcut hints.
+  * Abbreviate long headings to fit more columns.
+  * Choose vertical layout as the default layout to be used when first opening the scoreboard.
+  * Control exactly which stats are shown for each game mode.
+* Implemented character-specific cropping for portraits in the scoreboard.
+  * Cropping for all official characters contributed by 21, much appreciated!
+* Improved randomized skin highlights to reduce the occurrence of repeated colors.
+* Removed `bHideDisabledFeatures` option (see the new global server option called `StatusVerbosity` for similar functionality).
+
+HexedVOTE changes:
+* Fixed map favorites sometimes failing to appear for some maps (due to a racing condition).
+
+HexedNET changes:
+* Fixed time conversions so all options are expressed in real milliseconds instead of game milliseconds.
+* fixed missing lag compensation for monsters in Invasion.
+* Fixed incorrect physics simulation when forwarding projectiles server-side to compensate lag.
+  * Bouncing behavior and underwater physics are now properly accounted for.
+* Fixed several issues with collision during projectile forwarding.
+  * Ever seen bio globs stuck a considerable distance away from the actual surface? No more.
+  * There is still an issue left to solve regarding volumes that switch projectiles to zero extent collision.
+* Fixed issues caused by interpolation between predicted projectile and authoritative projectile.
+  * E.g. duplicated rockets, duplicated explosions, duplicated decals on walls, bio globs entering walls.
+* Fixed incorrect forwarding and prediction of seeking rockets and spinning rocket flocks.
+* Added missing client-side predicted projectiles for bio rifle's charged shots.
+* Added missing client-side predicted projectiles for assault rifle's grenades.
+* Added seeded PRNGs to properly synchronize randomization between client and server.
+  * Some projectiles have randomization applied, like flak cannon's primary fire and assault rifle's grenades.
+  * Original solution from UTComp only applied to flak cannon and could loose synchronization, leading to erratic behavior of the primary fire.
+* Added BAS - Boosted Aim Synchronization (sending location + rotation from client to server at the time of shooting) - to all viable weapons.
+  * Minigun and link gun's primary fire are not viable due to the way they are programmed.
+  * New server option `bBoostedAimSynchronization` to enable/disable BAS.
+  * New server option `bForceStartFireRPCs` to control if BAS should force start fire RPCs when holding a fire button (to send fresh BAS information every shot).
+  * New server option `bClientSideCollisions` to control if hitscan weapons should send client-side collision detection together with BAS.
+  * New server option `CSCTolerance` to specify the maximum acceptable temporal distance to validate client-side collisions, expressed in server ticks.
+* Added replication of explosion effects and decals when the projectile hits something during the forwarding.
+  * It doesn't show up normally because the projectile is destroyed before it can be replicated to the client.
+* Added proper projectile forwarding for shock cores, with rewind capabilities to correctly detect shock combos.
+* Replaced ping measurement with new method that gives a more accurate value.
+  * Previous version was heavily influenced by the tick rate of the server.
+  * The new version isolates the actual latency of the network, (mostly) removing the delays caused by tick rate and FPS.
+  * Removed `PingFrequency` and `PingSmoothing` options as a side effect.
+  * Replaced `MaxPingFrequency` server option with `PingFrequency`: now the server controls the ping frequency for all players.
+* Increased the default value of `ProjectileCompensationLimit` to 125.
+  * This option is no longer experimental, all projectiles should behave correctly regardless of the chosen value.
+  * Keep in mind that higher values increase how far the projectile will appear from the shooter's position from the POV of other players.
+  * High values can lead to players being hit by "invisible" projectiles at (semi-)close quarters.
+  * A cap based on distance (calculated per projectile type) might be explored in the future as an alternative to this time limit.
+* Renamed `PingCompensationLimit` to `LagCompensationLimit` and decreased default value to 300.
+* Renamed `bEnhancedNetcode` to `bLagCompensation`.
+
+General changes:
+* Added support for global server options shared between all mutators.
+  * They should be specified in a new section `[HexedSRCv10.HxMutator]` when editing the `HexedMutators.ini` file directly.
+* Reworked the running notification as a non-intrusive pop-up instead of a GUI window.
+* Added new global server option to control when the running notification should be shown (`NotifyRunning`):
+  * You can choose between never, per version (default, only shows once per new version), per session (when the player first joins the server), or always.
+* Added new global server option to control the maximum duration of notifications (`MaxNotifyDuration`):
+  * Change it if you want to force the duration of the running notification to be lower than the default ~4.75 seconds.
+* Added new global server option to control how much information is shown in the server status (`StatusVerbosity`):
+  * Default is medium (which only hides some properties that usually doesn't make sense to show).
+* Restructured how the internals for handling property replication work, reducing the amount of replication channels required per mutator.
+* Added more status information to the configuration menu.
+* Moved HexedPatches to a separate [repository](https://github.com/hexengraf/HexedUT2k4-Patches).
+
+# v9.0 hotfix 2
+
+If you only play offline, you don't need to upgrade from v9 to this hotfix version. Dedicated servers using HexedUT are highly encourage to upgrade!
+
+Fixed an issue causing interactions to bleed out of the server using HexedUT, which can trip other servers using AntiTCC.
+
+In other words: a player joins a server with HexedUT, everything works, later they join a different server without HexedUT and with AntiTCC, they get kicked out. The issue can be circumvented by closing the game and reopening it before joining the server with AntiTCC, but this hotfix version solves the root cause.
+
+The git tag is pointing to the wrong commit, since this release was compiled based on the v9.0hf tag + a few lines of code added to fix the bleeding interactions.
+
 # v9.0 hotfix
 
 If you only play offline, you don't need to upgrade from v9 to this hotfix version. Servers using HexedNET are highly encourage to upgrade!
