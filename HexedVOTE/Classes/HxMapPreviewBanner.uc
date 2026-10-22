@@ -165,6 +165,7 @@ defaultproperties
     Begin Object Class=GUIImage Name=PreviewImage
         RenderWeight=0.3
         ImageStyle=ISTY_Scaled
+        ImageRenderStyle=MSTY_Normal
         bScaleToParent=true
         bBoundToParent=true
     End Object
