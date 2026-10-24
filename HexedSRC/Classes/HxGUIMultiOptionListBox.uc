@@ -391,10 +391,10 @@ function Clear()
     StatusElements.Remove(0, StatusElements.Length);
     for (i = 0; i < List.Elements.Length; ++i)
     {
+        List.Elements[i].SetCaption("");
         switch (List.Elements[i].Class)
         {
             case class'HxGUIMultiOptionListHeader':
-                List.Elements[i].Caption = "";
                 HxGUIMultiOptionListHeader(List.Elements[i]).SectionCaption = "";
                 List.Elements[i].Tag = class'HxGUIMultiOptionListHeader'.default.Tag;
                 HeaderPool[HeaderPool.Length] = List.Elements[i];
