@@ -110,7 +110,7 @@ simulated function DrawTeamScoreTop(Canvas C, int Team, int Left)
         DrawTextClipped(C, Score, TXTA_Right, Left, BannerWidth - ScorePadding);
         C.CurX = C.OrgX + Left + IconPadding;
     }
-    if (bDrawSymbols)
+    if (bDrawSymbols && GRI.TeamSymbols[Team] != None)
     {
         C.CurY = C.OrgY + (BannerHeight - IconSize) / 2;
         C.DrawTileJustified(GRI.TeamSymbols[Team], 1, IconSize, IconSize);
