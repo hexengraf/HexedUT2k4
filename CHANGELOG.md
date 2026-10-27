@@ -20,13 +20,17 @@ HexedUT changes:
   * Control exactly which stats are shown for each game mode.
 * Implemented character-specific cropping for portraits in the scoreboard.
   * Cropping for all official characters contributed by 21, much appreciated!
+* Fixed crash when opening the enhanced scoreboard if one of the team symbols is missing.
 * Improved randomized skin highlights to reduce the occurrence of repeated colors.
 * Removed `bHideDisabledFeatures` option (see the new global server option called `StatusVerbosity` for similar functionality).
 
 HexedVOTE changes:
 * Fixed map favorites sometimes failing to appear for some maps (due to a racing condition).
+* Fixed some map previews not appearing: rendering style must be normal and not alpha.
 
 HexedNET changes:
+* Fixed changes to weapon crosshair and other weapon configs not always properly saving.
+  * After closing and reopening the game, sometimes it would fallback to the previous configuration.
 * Fixed time conversions so all options are expressed in real milliseconds instead of game milliseconds.
 * fixed missing lag compensation for monsters in Invasion.
 * Fixed incorrect physics simulation when forwarding projectiles server-side to compensate lag.
