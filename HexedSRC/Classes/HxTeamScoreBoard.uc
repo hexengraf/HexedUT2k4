@@ -110,7 +110,7 @@ simulated function DrawTeamScoreTop(Canvas C, int Team, int Left)
         DrawTextClipped(C, Score, TXTA_Right, Left, BannerWidth - ScorePadding);
         C.CurX = C.OrgX + Left + IconPadding;
     }
-    if (bDrawSymbols && GRI.TeamSymbols[Team] != None)
+    if (GRI.TeamSymbols[Team] != None)
     {
         C.CurY = C.OrgY + (BannerHeight - IconSize) / 2;
         C.DrawTileJustified(GRI.TeamSymbols[Team], 1, IconSize, IconSize);
@@ -219,7 +219,6 @@ simulated function UpdateExtraSizes(Canvas C)
         IconSize = (BannerHeight * 0.9 + 1) & ~1;
         IconPadding = (BannerHeight - IconSize) / 2;
         ScorePadding = ScoreFontHeight / 2;
-        bDrawSymbols = true;
     }
 }
 
