@@ -103,3 +103,24 @@ static final function Color BlendColor(float Alpha, Color From, Color To)
     Result.A = From.A;
     return Result;
 }
+
+static final function EqualizeWeaponConfigs(class<Weapon> BaseClass,
+                                            class<Weapon> SubClass)
+{
+    BaseClass.default.ExchangeFireModes = SubClass.default.ExchangeFireModes;
+    BaseClass.default.Priority = SubClass.default.Priority;
+    BaseClass.default.CustomCrosshair = SubClass.default.CustomCrosshair;
+    BaseClass.default.CustomCrosshairTextureName =
+        SubClass.default.CustomCrosshairTextureName;
+    BaseClass.default.CustomCrosshairColor = SubClass.default.CustomCrosshairColor;
+    BaseClass.default.CustomCrosshairScale = SubClass.default.CustomCrosshairScale;
+    BaseClass.static.StaticSaveConfig();
+    SubClass.static.StaticClearConfig();
+    SubClass.default.ExchangeFireModes = BaseClass.default.ExchangeFireModes;
+    SubClass.default.Priority = BaseClass.default.Priority;
+    SubClass.default.CustomCrosshair = BaseClass.default.CustomCrosshair;
+    SubClass.default.CustomCrosshairTextureName =
+        BaseClass.default.CustomCrosshairTextureName;
+    SubClass.default.CustomCrosshairColor = BaseClass.default.CustomCrosshairColor;
+    SubClass.default.CustomCrosshairScale = BaseClass.default.CustomCrosshairScale;
+}

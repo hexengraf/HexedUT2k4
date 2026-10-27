@@ -1,4 +1,5 @@
 class HxSuperShockRifle extends SuperShockRifle
+    config(HexedCache)
     HideDropDown
     CacheExempt;
 
@@ -6,5 +7,4 @@ class HxSuperShockRifle extends SuperShockRifle
 
 defaultproperties
 {
-    BaseClass=class'SuperShockRifle'
 }

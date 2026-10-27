@@ -28,6 +28,8 @@ function InitializeProperties()
     class'HxZoomSuperShockRifle'.default.CustomZoomCrosshairScale = CustomZoomCrosshairScale;
     class'HxZoomSuperShockRifle'.default.CustomZoomCrosshairTextureName =
         CustomZoomCrosshairTextureName;
+    EqualizeWeaponConfigs(class'ShockRifle', class'HxSuperShockRifle');
+    EqualizeWeaponConfigs(class'ShockRifle', class'HxZoomSuperShockRifle');
     UpdateDynamicActors();
 }
 
@@ -161,6 +163,13 @@ function UpdateDynamicActors()
             }
         }
     }
+}
+
+function Destroy()
+{
+    EqualizeWeaponConfigs(class'ShockRifle', class'HxSuperShockRifle');
+    EqualizeWeaponConfigs(class'ShockRifle', class'HxZoomSuperShockRifle');
+    Super.Destroy();
 }
 
 defaultproperties

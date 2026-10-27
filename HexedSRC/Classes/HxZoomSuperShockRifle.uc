@@ -1,4 +1,5 @@
 class HxZoomSuperShockRifle extends ZoomSuperShockRifle
+    config(HexedCache)
     HideDropDown
     CacheExempt;
 
@@ -214,5 +215,4 @@ simulated function RefreshConfiguration()
 
 defaultproperties
 {
-    BaseClass=class'ZoomSuperShockRifle'
 }
