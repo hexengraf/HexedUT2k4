@@ -51,7 +51,7 @@ HexedNET changes:
   * New server option `bBoostedAimSynchronization` to enable/disable BAS.
   * New server option `bForceStartFireRPCs` to control if BAS should force start fire RPCs when holding a fire button (to send fresh BAS information every shot).
   * New server option `bClientSideCollisions` to control if hitscan weapons should send client-side collision detection together with BAS.
-  * New server option `CSCTolerance` to specify the maximum acceptable temporal distance to validate client-side collisions, expressed in server ticks.
+  * New server option `PingSpikeTolerance` to specify the maximum acceptable ping spike (in milliseconds) when validating client-side collisions.
 * Added replication of explosion effects and decals when the projectile hits something during the forwarding.
   * It doesn't show up normally because the projectile is destroyed before it can be replicated to the client.
 * Added proper projectile forwarding for shock cores, with rewind capabilities to correctly detect shock combos.

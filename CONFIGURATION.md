@@ -497,10 +497,10 @@ bForceStartFireRPCs=True
 ; Execute client-side collision detection and add the result to BAS.
 ; The server decides if the collision is valid. Only applies to hitscan weapons.
 bClientSideCollisions=True
-; Maximum acceptable temporal distance to validate client-side collisions, expressed in server ticks.
+; Maximum acceptable ping spike (in milliseconds) when validating client-side collisions.
 ; Only relevant if bClientSideCollisions is True.
-; Increasing this value allows higher tolerance to ping fluctuations at the expense of additional server workload.
-CSCTolerance=2
+; Increasing this value allows higher tolerance to ping spikes at the expense of additional server workload.
+PingSpikeTolerance=60
 ; Backport OldUnreal's rubberbanding fix. Applied on restart/map change.
 ; Enable this option if your server has players using an unpatched version of the game.
 bRubberbandingFix=False
