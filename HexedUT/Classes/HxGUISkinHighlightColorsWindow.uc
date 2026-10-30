@@ -3,17 +3,17 @@ class HxGUISkinHighlightColorsWindow extends HxGUIFloatingWindow;
 var automated HxGUIFramedSection LeftSection;
 var automated HxGUIFramedSection RightSection;
 
-var automated moComboBox co_EditColor;
-var automated moSlider sl_ColorRed;
-var automated moSlider sl_ColorGreen;
-var automated moSlider sl_ColorBlue;
-var automated moCheckBox ch_AllowOnRandom;
+var automated HxGUImoComboBox co_EditColor;
+var automated HxGUImoSlider sl_ColorRed;
+var automated HxGUImoSlider sl_ColorGreen;
+var automated HxGUImoSlider sl_ColorBlue;
+var automated HxGUImoCheckBox ch_AllowOnRandom;
 var automated GUILabel l_ButtonAnchor;
 var automated GUIButton b_NewColor;
 var automated GUIButton b_RenameColor;
 var automated GUIButton b_DeleteColor;
 
-var automated moComboBox co_PreviewSkin;
+var automated HxGUImoComboBox co_PreviewSkin;
 var automated GUIButton b_PreviewBox;
 var automated GUIButton b_ChangeModel;
 
@@ -415,7 +415,7 @@ defaultproperties
     End Object
     RightSection=PreviewSection
 
-    Begin Object class=moComboBox Name=EditColorComboBox
+    Begin Object class=HxGUImoComboBox Name=EditColorComboBox
         Caption="Color"
         Hint="Color to customize."
         StandardHeight=0.03
@@ -427,7 +427,7 @@ defaultproperties
     End Object
     co_EditColor=EditColorComboBox
 
-    Begin Object class=moSlider Name=ColorRedSlider
+    Begin Object class=HxGUImoSlider Name=ColorRedSlider
         Caption="Red"
         INIOption="@INTERNAL"
         ComponentWidth=0.64
@@ -440,7 +440,7 @@ defaultproperties
     End Object
     sl_ColorRed=ColorRedSlider
 
-    Begin Object class=moSlider Name=ColorGreenSlider
+    Begin Object class=HxGUImoSlider Name=ColorGreenSlider
         Caption="Green"
         INIOption="@INTERNAL"
         ComponentWidth=0.64
@@ -453,7 +453,7 @@ defaultproperties
     End Object
     sl_ColorGreen=ColorGreenSlider
 
-    Begin Object class=moSlider Name=ColorBlueSlider
+    Begin Object class=HxGUImoSlider Name=ColorBlueSlider
         Caption="Blue"
         INIOption="@INTERNAL"
         ComponentWidth=0.64
@@ -466,7 +466,7 @@ defaultproperties
     End Object
     sl_ColorBlue=ColorBlueSlider
 
-    Begin Object class=moCheckBox Name=AllowOnRandomCheckBox
+    Begin Object class=HxGUImoCheckBox Name=AllowOnRandomCheckBox
         Caption="Allow Color On Random Highlight"
         Hint="Allow this color to be used on random highlight."
         INIOption="@INTERNAL"
@@ -485,7 +485,7 @@ defaultproperties
     End Object
     l_ButtonAnchor=ButtonAnchorLabel
 
-    Begin Object Class=GUIButton Name=NewColorButton
+    Begin Object class=GUIButton Name=NewColorButton
         Caption="New"
         Hint="Add new color."
         StandardHeight=0.03
@@ -497,7 +497,7 @@ defaultproperties
     End Object
     b_NewColor=NewColorButton
 
-    Begin Object Class=GUIButton Name=RenameColorButton
+    Begin Object class=GUIButton Name=RenameColorButton
         Caption="Rename"
         Hint="Rename current color."
         StandardHeight=0.03
@@ -509,7 +509,7 @@ defaultproperties
     End Object
     b_RenameColor=RenameColorButton
 
-    Begin Object Class=GUIButton Name=DeleteColorButton
+    Begin Object class=GUIButton Name=DeleteColorButton
         Caption="Delete"
         Hint="Delete current color."
         StandardHeight=0.03
@@ -532,7 +532,7 @@ defaultproperties
     End Object
     b_PreviewBox=PreviewBoxButton
 
-    Begin Object class=moComboBox Name=PreviewSkinComboBox
+    Begin Object class=HxGUImoComboBox Name=PreviewSkinComboBox
         Caption="Skin Type"
         Hint="Select skin type to be used on the preview."
         INIOption="@INTERNAL"

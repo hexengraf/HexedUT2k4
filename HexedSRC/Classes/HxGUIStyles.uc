@@ -8,6 +8,7 @@ struct HxGUIFrame
     var float Thickness;
 };
 
+var protected const Material BackgroundImage;
 var protected const float RelativeBorderOffsets[4];
 var protected const byte SkipFrameParts[4];
 var protected const array<HxGUIFrame> Frames;
@@ -46,6 +47,7 @@ function bool InternalOnDraw(Canvas C,
                              float Width,
                              float Height)
 {
+    local Color SavedColor;
     local float Offset;
 
     if (bLocked)
@@ -60,6 +62,14 @@ function bool InternalOnDraw(Canvas C,
     Left += LeftOffsetCount * Offset;
     Top += TopOffsetCount * Offset;
     Draw(C, MenuState, Left, Top, Width, Height);
+    if (BackgroundImage != None)
+    {
+        SavedColor = C.DrawColor;
+        C.DrawColor = FontColors[MenuState];
+        C.SetPos(Left, Top);
+        C.DrawTileJustified(BackgroundImage, 1, Width, Height);
+        C.DrawColor = SavedColor;
+    }
     bLocked = false;
     return true;
 }
@@ -74,7 +84,7 @@ function bool UpdateBorderOffsets()
         FrameThickness = ActualFrameThickness();
         for (i = 0; i < ArrayCount(BorderOffsets); ++i)
         {
-            BorderOffsets[i] = Round(RelativeBorderOffsets[i] * Controller.ResY);
+            BorderOffsets[i] = Ceil(RelativeBorderOffsets[i] * Controller.ResY);
             if (SkipFrameParts[i] == 0)
             {
                 BorderOffsets[i] += FrameThickness;
@@ -167,7 +177,67 @@ function float ActualFrameThickness()
 
     for (i = 0; i < Frames.Length; ++i)
     {
-        Thickness += Round(Controller.ResY * Frames[i].Thickness);
+        Thickness += Ceil(Frames[i].Thickness * Controller.ResY);
+    }
+    return Thickness;
+}
+
+function float ActualLeftFrameThickness()
+{
+    local float Thickness;
+    local int i;
+
+    if (SkipFrameParts[0] == 0)
+    {
+        for (i = 0; i < Frames.Length; ++i)
+        {
+            Thickness += Ceil(Frames[i].Thickness * Controller.ResY);
+        }
+    }
+    return Thickness;
+}
+
+function float ActualTopFrameThickness()
+{
+    local float Thickness;
+    local int i;
+
+    if (SkipFrameParts[1] == 0)
+    {
+        for (i = 0; i < Frames.Length; ++i)
+        {
+            Thickness += Ceil(Frames[i].Thickness * Controller.ResY);
+        }
+    }
+    return Thickness;
+}
+
+function float ActualRightFrameThickness()
+{
+    local float Thickness;
+    local int i;
+
+    if (SkipFrameParts[2] == 0)
+    {
+        for (i = 0; i < Frames.Length; ++i)
+        {
+            Thickness += Ceil(Frames[i].Thickness * Controller.ResY);
+        }
+    }
+    return Thickness;
+}
+
+function float ActualBottomFrameThickness()
+{
+    local float Thickness;
+    local int i;
+
+    if (SkipFrameParts[3] == 0)
+    {
+        for (i = 0; i < Frames.Length; ++i)
+        {
+            Thickness += Ceil(Frames[i].Thickness * Controller.ResY);
+        }
     }
     return Thickness;
 }
@@ -200,8 +270,8 @@ static function DrawFrame(Canvas C,
     if (SkipParts[3] == 0)
     {
         C.SetPos(C.CurX - Width + Offset, C.CurY + Height);
+        C.DrawTileStretched(M, Width, Offset);
     }
-    C.DrawTileStretched(M, Width, Offset);
 }
 
 static function bool GetFontSize(GUIComponent Comp,
@@ -253,6 +323,12 @@ static function FillFrameWidth(GUIComponent Framer, GUIComponent Framed)
     Framed.WinLeft = Framed.RelativeLeft(Framer.ActualLeft() + Thickness, Framed.bScaleToParent);
     Framed.WinWidth = Framed.RelativeWidth(
         Framer.ActualWidth() - 2 * Thickness, Framed.bScaleToParent);
+}
+
+static function FillFullWidth(GUIComponent Framer, GUIComponent Framed)
+{
+    Framed.WinLeft = Framed.RelativeLeft(Framer.ActualLeft(), Framed.bScaleToParent);
+    Framed.WinWidth = Framed.RelativeWidth(Framer.ActualWidth(), Framed.bScaleToParent);
 }
 
 static function AlignToRightOf(GUIComponent RightOf, GUIComponent Aligned)

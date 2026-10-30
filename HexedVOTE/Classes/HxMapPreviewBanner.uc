@@ -154,7 +154,7 @@ defaultproperties
     End Object
     l_Header=HeaderLabel
 
-    Begin Object Class=HxGUIBackground Name=PreviewBackground
+    Begin Object class=HxGUIBackground Name=PreviewBackground
         RenderWeight=0.2
         StyleName="HxBackgroundDarker"
         bBoundToParent=true
@@ -162,7 +162,7 @@ defaultproperties
     End Object
     b_Preview=PreviewBackground
 
-    Begin Object Class=GUIImage Name=PreviewImage
+    Begin Object class=GUIImage Name=PreviewImage
         RenderWeight=0.3
         ImageStyle=ISTY_Scaled
         ImageRenderStyle=MSTY_Normal
@@ -171,7 +171,7 @@ defaultproperties
     End Object
     i_Preview=PreviewImage
 
-    Begin Object Class=GUILabel Name=NoPreviewLabel
+    Begin Object class=GUILabel Name=NoPreviewLabel
         Caption="No Preview Available"
         StyleName="HxTextGolden"
         FontScale=FNS_Medium
@@ -185,7 +185,7 @@ defaultproperties
     End Object
     l_NoPreview=NoPreviewLabel
 
-    Begin Object Class=HxGUIScrollTextBox Name=InformationTextBox
+    Begin Object class=HxGUIScrollTextBox Name=InformationTextBox
         FontScale=FNS_Small
         TextAlign=TXTA_Center
         VertAlign=TXTA_Center
@@ -203,9 +203,9 @@ defaultproperties
     End Object
     lb_Information=InformationTextBox
 
-    Begin Object Class=HxGUIBackground Name=DescriptionBackground
-        WinLeft=0
-        WinWidth=1
+    Begin Object class=HxGUIBackground Name=DescriptionBackground
+        WinLeft=0.0
+        WinWidth=1.0
         RenderWeight=0.2
         StyleName="HxBackgroundFrame"
         bBoundToParent=true
@@ -213,7 +213,7 @@ defaultproperties
     End Object
     b_DescriptionFrame=DescriptionBackground
 
-    Begin Object Class=GUIImage Name=DescriptionBackgroundImage
+    Begin Object class=GUIImage Name=DescriptionBackgroundImage
         RenderWeight=0.3
         Image=Material'2K4Menus.BKRenders.ScanLines'
         ImageColor=(R=113,G=159,B=205,A=32)
@@ -227,7 +227,7 @@ defaultproperties
     End Object
     i_DescriptionBG=DescriptionBackgroundImage
 
-    Begin Object Class=HxGUIScrollTextBox Name=DescriptionTextBox
+    Begin Object class=HxGUIScrollTextBox Name=DescriptionTextBox
         WinLeft=0
         WinWidth=1
         CharDelay=0.0065
@@ -249,7 +249,7 @@ defaultproperties
     End Object
     lb_Description=DescriptionTextBox
 
-    Begin Object Class=GUILabel Name=NoInformationLabel
+    Begin Object class=GUILabel Name=NoInformationLabel
         StyleName="HxTextGolden"
         TextAlign=TXTA_Center
         VertAlign=TXTA_Center

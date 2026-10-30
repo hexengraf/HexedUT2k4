@@ -7,13 +7,13 @@ const SECTION_FILTER_LIST = 2;
 
 var automated HxGUIFramedSection Sections[3];
 
-var automated moComboBox co_Filter;
+var automated HxGUImoComboBox co_Filter;
 var automated GUIButton b_NewFilter;
 var automated GUIButton b_RenameFilter;
 var automated GUIButton b_DeleteFilter;
 var automated GUIMenuOption RuleOptions[7];
 
-var automated moComboBox co_GameType;
+var automated HxGUImoComboBox co_GameType;
 var automated moEditBox ed_SearchMaps;
 var automated HxGUIListBox lb_Maps;
 var automated GUILabel l_AllMapsButtonAnchor;
@@ -52,11 +52,11 @@ function InitComponent(GUIController MyController, GUIComponent MyComponent)
     }
     Sections[SECTION_ALL_MAPS].Insert(co_GameType, 0.015, 0.015);
     Sections[SECTION_ALL_MAPS].Insert(ed_SearchMaps, 0.015, 0.015);
-    Sections[SECTION_ALL_MAPS].Insert(lb_Maps, 0.001);
+    Sections[SECTION_ALL_MAPS].Insert(lb_Maps);
     Sections[SECTION_ALL_MAPS].Insert(l_AllMapsButtonAnchor, 0.015, 0.015);
     Sections[SECTION_FILTER_LIST].Insert(RuleOptions[6], 0.015, 0.015);
     Sections[SECTION_FILTER_LIST].Insert(ed_SearchFilterList, 0.015, 0.015);
-    Sections[SECTION_FILTER_LIST].Insert(lb_FilterList, 0.001);
+    Sections[SECTION_FILTER_LIST].Insert(lb_FilterList);
     Sections[SECTION_FILTER_LIST].Insert(l_MapListButtonAnchor, 0.015, 0.015);
     RuleOptions[0].ToolTip.ExpirationSeconds = 6;
     RuleOptions[0].SetHint(
@@ -531,7 +531,7 @@ defaultproperties
     End Object
     Sections(2)=MapListSection
 
-    Begin Object class=moComboBox Name=FilterComboBox
+    Begin Object class=HxGUImoComboBox Name=FilterComboBox
         Caption="Filter"
         Hint="Select filter to modify."
         WinLeft=0.020715
@@ -546,7 +546,7 @@ defaultproperties
     End Object
     co_Filter=FilterComboBox
 
-    Begin Object Class=GUIButton Name=NewColorButton
+    Begin Object class=GUIButton Name=NewColorButton
         Caption="New"
         Hint="Add new filter."
         WinLeft=0.526
@@ -563,7 +563,7 @@ defaultproperties
     End Object
     b_NewFilter=NewColorButton
 
-    Begin Object Class=GUIButton Name=RenameColorButton
+    Begin Object class=GUIButton Name=RenameColorButton
         Caption="Rename"
         Hint="Rename current filter."
         WinLeft=0.682
@@ -580,7 +580,7 @@ defaultproperties
     End Object
     b_RenameFilter=RenameColorButton
 
-    Begin Object Class=GUIButton Name=DeleteColorButton
+    Begin Object class=GUIButton Name=DeleteColorButton
         Caption="Delete"
         Hint="Delete current filter."
         WinLeft=0.838
@@ -597,7 +597,7 @@ defaultproperties
     End Object
     b_DeleteFilter=DeleteColorButton
 
-    Begin Object class=moEditBox Name=MapNameEditBox
+    Begin Object class=HxGUImoEditBox Name=MapNameEditBox
         Caption="Map Name"
         Hint="Filter by map name."
         CaptionWidth=0.42
@@ -605,7 +605,7 @@ defaultproperties
     End Object
     RuleOptions(0)=MapNameEditBox
 
-    Begin Object class=moEditBox Name=AuthorNameEditBox
+    Begin Object class=HxGUImoEditBox Name=AuthorNameEditBox
         Caption="Author Name"
         Hint="Filter by author name."
         CaptionWidth=0.42
@@ -613,7 +613,7 @@ defaultproperties
     End Object
     RuleOptions(1)=AuthorNameEditBox
 
-    Begin Object class=moEditBox Name=NumPlayersEditBox
+    Begin Object class=HxGUImoEditBox Name=NumPlayersEditBox
         Caption="Num. Players"
         Hint="Filter by number of players."
         CaptionWidth=0.42
@@ -621,7 +621,7 @@ defaultproperties
     End Object
     RuleOptions(2)=NumPlayersEditBox
 
-    Begin Object class=moEditBox Name=TimerPlayedEditBox
+    Begin Object class=HxGUImoEditBox Name=TimerPlayedEditBox
         Caption="Times Played"
         Hint="Filter by number of times played."
         CaptionWidth=0.42
@@ -629,7 +629,7 @@ defaultproperties
     End Object
     RuleOptions(3)=TimerPlayedEditBox
 
-    Begin Object class=moComboBox Name=MapSourceComboBox
+    Begin Object class=HxGUImoComboBox Name=MapSourceComboBox
         Caption="Map Source"
         Hint="Filter by source (Any, Official, Custom)."
         CaptionWidth=0.42
@@ -638,7 +638,7 @@ defaultproperties
     End Object
     RuleOptions(4)=MapSourceComboBox
 
-    Begin Object class=moComboBox Name=MapTagComboBox
+    Begin Object class=HxGUImoComboBox Name=MapTagComboBox
         Caption="Map Tag"
         Hint="Filter by tag (Any, Liked, Untagged, Disliked)."
         CaptionWidth=0.42
@@ -647,7 +647,7 @@ defaultproperties
     End Object
     RuleOptions(5)=MapTagComboBox
 
-    Begin Object class=moComboBox Name=GameTypeComboBox
+    Begin Object class=HxGUImoComboBox Name=GameTypeComboBox
         Caption="Type"
         Hint="Choose game type to show all maps from."
         CaptionWidth=0.2
@@ -657,7 +657,7 @@ defaultproperties
     End Object
     co_GameType=GameTypeComboBox
 
-    Begin Object class=moEditBox Name=SearchMapsEditBox
+    Begin Object class=HxGUImoEditBox Name=SearchMapsEditBox
         Caption="Find"
         Hint="Find maps to add."
         CaptionWidth=0.2
@@ -666,7 +666,7 @@ defaultproperties
     End Object
     ed_SearchMaps=SearchMapsEditBox
 
-    Begin Object Class=HxGUIListBox Name=MapsListBox
+    Begin Object class=HxGUIListBox Name=MapsListBox
         bVisibleWhenEmpty=true
         bSorted=true
         TabOrder=21
@@ -681,7 +681,7 @@ defaultproperties
     End Object
     l_AllMapsButtonAnchor=AllMapsButtonAnchorLabel
 
-    Begin Object Class=GUIButton Name=AddButton
+    Begin Object class=GUIButton Name=AddButton
         Caption="Add"
         Hint="Add selected map to the map list."
         StandardHeight=0.03
@@ -693,7 +693,7 @@ defaultproperties
     End Object
     b_Add=AddButton
 
-    Begin Object Class=GUIButton Name=AddAllButton
+    Begin Object class=GUIButton Name=AddAllButton
         Caption="Add All"
         Hint="Add all maps to the map list."
         StandardHeight=0.03
@@ -705,7 +705,7 @@ defaultproperties
     End Object
     b_AddAll=AddAllButton
 
-    Begin Object class=moComboBox Name=FilterListModeComboBox
+    Begin Object class=HxGUImoComboBox Name=FilterListModeComboBox
         Caption="Mode"
         Hint="Choose how the filter list is used: to include or to exclude maps from the filter."
         CaptionWidth=0.2
@@ -714,7 +714,7 @@ defaultproperties
     End Object
     RuleOptions(6)=FilterListModeComboBox
 
-    Begin Object class=moEditBox Name=SearchFilterListEditBox
+    Begin Object class=HxGUImoEditBox Name=SearchFilterListEditBox
         Caption="Find"
         Hint="Find maps already added to the filter list."
         CaptionWidth=0.2
@@ -723,7 +723,7 @@ defaultproperties
     End Object
     ed_SearchFilterList=SearchFilterListEditBox
 
-    Begin Object Class=HxGUIListBox Name=FilterListBox
+    Begin Object class=HxGUIListBox Name=FilterListBox
         bVisibleWhenEmpty=true
         bSorted=true
         TabOrder=32
@@ -738,7 +738,7 @@ defaultproperties
     End Object
     l_MapListButtonAnchor=MapListButtonAnchorLabel
 
-    Begin Object Class=GUIButton Name=RemoveButton
+    Begin Object class=GUIButton Name=RemoveButton
         Caption="Remove"
         Hint="Remove selected map from the map list."
         StandardHeight=0.03
@@ -750,7 +750,7 @@ defaultproperties
     End Object
     b_Remove=RemoveButton
 
-    Begin Object Class=GUIButton Name=RemoveAllButton
+    Begin Object class=GUIButton Name=RemoveAllButton
         Caption="Remove All"
         Hint="Remove all maps from the map list."
         StandardHeight=0.03

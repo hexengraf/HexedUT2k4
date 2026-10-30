@@ -47,7 +47,7 @@ function LayoutButtons(byte ActiveButton)
 
 defaultproperties
 {
-    Begin Object Class=HxGUIBackground Name=HxBackground
+    Begin Object class=HxGUIBackground Name=HxBackground
         WinLeft=0
         WinTop=0
         WinWidth=1
@@ -59,7 +59,7 @@ defaultproperties
     End Object
     Controls(0)=HxBackground
 
-    Begin Object Class=GUILabel Name=NewlblQuestion
+    Begin Object class=GUILabel Name=NewlblQuestion
         WinLeft=0.05
         WinTop=0.125
         WinWidth=0.9

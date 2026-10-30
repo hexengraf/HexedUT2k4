@@ -1,5 +1,7 @@
 class HxGUImoEditBox extends moEditBox;
 
+var string EditBoxStyleName;
+
 #include Classes\Include\FixedGUIMenuOptionInitComponent.uci
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
@@ -10,6 +12,17 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     MaskText(bMaskText);
 }
 
+function InternalOnCreateComponent(GUIComponent NewComp, GUIComponent Sender)
+{
+    if (NewComp.IsA('GUIEditBox'))
+    {
+        NewComp.StyleName = EditBoxStyleName;
+    }
+    Super.InternalOnCreateComponent(NewComp, Sender);
+}
+
 defaultproperties
 {
+    LabelStyleName="HxTextLabel"
+    EditBoxStyleName="HxEditBox"
 }

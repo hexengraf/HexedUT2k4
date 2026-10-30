@@ -66,7 +66,7 @@ function SetCustomBackground(string BackgroundName)
 
 defaultproperties
 {
-    Begin Object Class=GUIImage Name=CustomBackgroundImage
+    Begin Object class=GUIImage Name=CustomBackgroundImage
         RenderWeight=0.1
         ImageStyle=ISTY_Justified
         ImageAlign=IMGA_Center

@@ -3,28 +3,28 @@ class HxGUIMenuHUDPanel extends HxGUIMenuPanel;
 const SECTION_SCOREBOARD = 0;
 const SECTION_SP_TIMER = 1;
 
-var automated moCheckBox ch_EnhancedScoreboard;
-var automated moCheckBox ch_CompactTeamScores;
-var automated moCheckBox ch_bShowSecondaryStats;
-var automated moCheckBox ch_PreferVerticalLayout;
-var automated moCheckBox ch_AbbreviateHeadings;
-var automated moCheckBox ch_ShowPlayerPortraits;
-var automated moCheckBox ch_ShowBotCallSigns;
-var automated moCheckBox ch_ShowBotOrders;
-var automated moCheckBox ch_ShowShortcuts;
-var automated moCheckBox ch_ShowTimestamp;
+var automated HxGUImoCheckBox ch_EnhancedScoreboard;
+var automated HxGUImoCheckBox ch_CompactTeamScores;
+var automated HxGUImoCheckBox ch_bShowSecondaryStats;
+var automated HxGUImoCheckBox ch_PreferVerticalLayout;
+var automated HxGUImoCheckBox ch_AbbreviateHeadings;
+var automated HxGUImoCheckBox ch_ShowPlayerPortraits;
+var automated HxGUImoCheckBox ch_ShowBotCallSigns;
+var automated HxGUImoCheckBox ch_ShowBotOrders;
+var automated HxGUImoCheckBox ch_ShowShortcuts;
+var automated HxGUImoCheckBox ch_ShowTimestamp;
 var automated GUIButton b_ChangeColumns;
 var automated GUIButton b_ChangeAppearance;
-var automated moCheckBox ch_SPTimer;
-var automated moCheckBox ch_PulsingDigits;
+var automated HxGUImoCheckBox ch_SPTimer;
+var automated HxGUImoCheckBox ch_PulsingDigits;
 var automated GUILabel l_PositionAnchor;
-var automated moFloatEdit fl_PosX;
-var automated moFloatEdit fl_PosY;
-var automated moCheckBox ch_UseHUDColor;
-var automated moSlider sl_ColorRed;
-var automated moSlider sl_ColorGreen;
-var automated moSlider sl_ColorBlue;
-var automated moSlider sl_ColorAlpha;
+var automated HxGUImoFloatEdit fl_PosX;
+var automated HxGUImoFloatEdit fl_PosY;
+var automated HxGUImoCheckBox ch_UseHUDColor;
+var automated HxGUImoSlider sl_ColorRed;
+var automated HxGUImoSlider sl_ColorGreen;
+var automated HxGUImoSlider sl_ColorBlue;
+var automated HxGUImoSlider sl_ColorAlpha;
 
 var private HxMutatorInfo MutatorInfo;
 var private HxScoreBoardConfig ScoreboardConfig;
@@ -133,9 +133,16 @@ function SPTimerOnChange(GUIComponent Sender)
 
 function SPTimerAfterChange()
 {
+    local bool bSPTimer;
     local bool bCustomColor;
 
-    bCustomColor = !ch_UseHUDColor.IsChecked();
+    bSPTimer = ch_SPTimer.IsChecked();
+    bCustomColor = bSPTimer && !ch_UseHUDColor.IsChecked();
+    SetEnable(ch_PulsingDigits, bSPTimer);
+    SetEnable(ch_UseHUDColor, bSPTimer);
+    SetEnable(l_PositionAnchor, bSPTimer);
+    SetEnable(fl_PosX, bSPTimer);
+    SetEnable(fl_PosY, bSPTimer);
     SetEnable(sl_ColorRed, bCustomColor);
     SetEnable(sl_ColorGreen, bCustomColor);
     SetEnable(sl_ColorBlue, bCustomColor);
@@ -202,7 +209,7 @@ defaultproperties
         bAutoSpacing=false
     End Object
 
-    Begin Object class=moCheckBox Name=EnhancedScoreboardCheckBox
+    Begin Object class=HxGUImoCheckBox Name=EnhancedScoreboardCheckBox
         Caption="Enable Enhanced Scoreboards"
         Hint="Replace original scoreboards with an enhanced version."
         INIOption="@INTERNAL"
@@ -213,7 +220,7 @@ defaultproperties
     End Object
     ch_EnhancedScoreboard=EnhancedScoreboardCheckBox
 
-    Begin Object class=moCheckBox Name=CompactTeamScoresCheckBox
+    Begin Object class=HxGUImoCheckBox Name=CompactTeamScoresCheckBox
         Caption="Use Compact Team Scores"
         Hint="Show team scores and total score (Invasion) directly inside the header space."
         INIOption="@INTERNAL"
@@ -224,7 +231,7 @@ defaultproperties
     End Object
     ch_CompactTeamScores=CompactTeamScoresCheckBox
 
-    Begin Object class=moCheckBox Name=SecondaryInfoCheckBox
+    Begin Object class=HxGUImoCheckBox Name=SecondaryInfoCheckBox
         Caption="Show Secondary Stats"
         Hint="Show an additional line of stats in each column when available."
         INIOption="@INTERNAL"
@@ -235,7 +242,7 @@ defaultproperties
     End Object
     ch_bShowSecondaryStats=SecondaryInfoCheckBox
 
-    Begin Object class=moCheckBox Name=PreferVerticalLayoutCheckBox
+    Begin Object class=HxGUImoCheckBox Name=PreferVerticalLayoutCheckBox
         Caption="Default To Vertical Layout"
         Hint="Prefer the vertical layout in team scoreboards."
         INIOption="@INTERNAL"
@@ -246,7 +253,7 @@ defaultproperties
     End Object
     ch_PreferVerticalLayout=PreferVerticalLayoutCheckBox
 
-    Begin Object class=moCheckBox Name=AbbreviateHeadingsCheckBox
+    Begin Object class=HxGUImoCheckBox Name=AbbreviateHeadingsCheckBox
         Caption="Abbreviate Long Headings"
         Hint="Abbreviate long headings to reduce required column width and fit more columns."
         INIOption="@INTERNAL"
@@ -257,7 +264,7 @@ defaultproperties
     End Object
     ch_AbbreviateHeadings=AbbreviateHeadingsCheckBox
 
-    Begin Object class=moCheckBox Name=ShowPlayerPortraitsCheckBox
+    Begin Object class=HxGUImoCheckBox Name=ShowPlayerPortraitsCheckBox
         Caption="Show Player Portraits"
         Hint="Show player portraits in front of player names."
         INIOption="@INTERNAL"
@@ -268,7 +275,7 @@ defaultproperties
     End Object
     ch_ShowPlayerPortraits=ShowPlayerPortraitsCheckBox
 
-    Begin Object class=moCheckBox Name=ShowBotCallSignsCheckBox
+    Begin Object class=HxGUImoCheckBox Name=ShowBotCallSignsCheckBox
         Caption="Show Bot Call Signs"
         Hint="Show bot call signs at the end of their names (team games only)."
         INIOption="@INTERNAL"
@@ -279,7 +286,7 @@ defaultproperties
     End Object
     ch_ShowBotCallSigns=ShowBotCallSignsCheckBox
 
-    Begin Object class=moCheckBox Name=ShowBotOrdersCheckBox
+    Begin Object class=HxGUImoCheckBox Name=ShowBotOrdersCheckBox
         Caption="Show Bot Orders"
         Hint="Show bot orders in front of their location (team games only)."
         INIOption="@INTERNAL"
@@ -290,7 +297,7 @@ defaultproperties
     End Object
     ch_ShowBotOrders=ShowBotOrdersCheckBox
 
-    Begin Object class=moCheckBox Name=ShowShortcutsCheckBox
+    Begin Object class=HxGUImoCheckBox Name=ShowShortcutsCheckBox
         Caption="Show Shortcuts"
         Hint="Show available shortcuts at the bottom left of the screen."
         INIOption="@INTERNAL"
@@ -301,7 +308,7 @@ defaultproperties
     End Object
     ch_ShowShortcuts=ShowShortcutsCheckBox
 
-    Begin Object class=moCheckBox Name=ShowTimestampCheckBox
+    Begin Object class=HxGUImoCheckBox Name=ShowTimestampCheckBox
         Caption="Show Timestamp"
         Hint="Show current timestamp at the bottom right of the screen."
         INIOption="@INTERNAL"
@@ -336,7 +343,7 @@ defaultproperties
     End Object
     b_ChangeAppearance=ChangeAppearanceButton
 
-    Begin Object class=moCheckBox Name=SPTimerCheckBox
+    Begin Object class=HxGUImoCheckBox Name=SPTimerCheckBox
         Caption="Enable Spawn Protection Timer"
         Hint="Show timer indicating remaining spawn protection duration."
         INIOption="@INTERNAL"
@@ -347,7 +354,7 @@ defaultproperties
     End Object
     ch_SPTimer=SPTimerCheckBox
 
-    Begin Object class=moCheckBox Name=PulsingDigitsCheckBox
+    Begin Object class=HxGUImoCheckBox Name=PulsingDigitsCheckBox
         Caption="Use Pulsing Digits"
         Hint="Use pulsing digits for the timer."
         INIOption="@INTERNAL"
@@ -370,7 +377,7 @@ defaultproperties
     End Object
     l_PositionAnchor=PositionAnchorLabel
 
-    Begin Object class=moFloatEdit Name=PosXFloatEdit
+    Begin Object class=HxGUImoFloatEdit Name=PosXFloatEdit
         Caption="X"
         INIOption="@INTERNAL"
         Tag=3
@@ -384,7 +391,7 @@ defaultproperties
     End Object
     fl_PosX=PosXFloatEdit
 
-    Begin Object class=moFloatEdit Name=PosYFloatEdit
+    Begin Object class=HxGUImoFloatEdit Name=PosYFloatEdit
         Caption="Y"
         INIOption="@INTERNAL"
         Tag=4
@@ -398,7 +405,7 @@ defaultproperties
     End Object
     fl_PosY=PosYFloatEdit
 
-    Begin Object class=moCheckBox Name=UseHUDColorCheckBox
+    Begin Object class=HxGUImoCheckBox Name=UseHUDColorCheckBox
         Caption="Use HUD's Color"
         Hint="Use the same color as the HUD for the timer's icon."
         INIOption="@INTERNAL"
@@ -409,7 +416,7 @@ defaultproperties
     End Object
     ch_UseHUDColor=UseHUDColorCheckBox
 
-    Begin Object class=moSlider Name=ColorRedSlider
+    Begin Object class=HxGUImoSlider Name=ColorRedSlider
         Caption="Red"
         INIOption="@INTERNAL"
         Tag=5
@@ -423,7 +430,7 @@ defaultproperties
     End Object
     sl_ColorRed=ColorRedSlider
 
-    Begin Object class=moSlider Name=ColorGreenSlider
+    Begin Object class=HxGUImoSlider Name=ColorGreenSlider
         Caption="Green"
         INIOption="@INTERNAL"
         Tag=5
@@ -437,7 +444,7 @@ defaultproperties
     End Object
     sl_ColorGreen=ColorGreenSlider
 
-    Begin Object class=moSlider Name=ColorBlueSlider
+    Begin Object class=HxGUImoSlider Name=ColorBlueSlider
         Caption="Blue"
         INIOption="@INTERNAL"
         Tag=5
@@ -451,7 +458,7 @@ defaultproperties
     End Object
     sl_ColorBlue=ColorBlueSlider
 
-    Begin Object class=moSlider Name=ColorAlphaSlider
+    Begin Object class=HxGUImoSlider Name=ColorAlphaSlider
         Caption="Alpha"
         INIOption="@INTERNAL"
         Tag=5

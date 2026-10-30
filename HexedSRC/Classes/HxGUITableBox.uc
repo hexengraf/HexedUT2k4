@@ -4,6 +4,9 @@ class HxGUITableBox extends GUIMultiColumnListBox
 var automated HxGUIBackground b_ListBackground;
 var automated HxGUITableSearchBar SearchBar;
 
+var string OverflowStyleName;
+var string ScrollGripStyleName;
+var string ScrollZoneStyleName;
 var float StandardHeaderHeight;
 var float ScrollbarWidth;
 
@@ -21,9 +24,21 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
         SearchBar.SetTable(Table);
     }
     Table.OnEnterKeyEvent = InternalOnKeyEvent;
-    Table.FrameThickness = class'HxGUIStyles'.static.StaticFrameThickness(b_ListBackground);
-    HxGUIVertScrollBar(MyScrollBar).RightOffset = Table.FrameThickness;
     HxGUIVertScrollBar(MyScrollBar).StandardWidth = ScrollbarWidth;
+}
+
+function InternalOnCreateComponent(GUIComponent NewComp, GUIComponent Sender)
+{
+    if (NewComp.IsA('HxGUITable'))
+    {
+        HxGUITable(NewComp).OverflowStyleName = OverflowStyleName;
+    }
+    else if (NewComp.IsA('HxGUIVertScrollBar'))
+    {
+        HxGUIVertScrollBar(NewComp).GripStyleName = ScrollGripStyleName;
+        HxGUIVertScrollBar(NewComp).ZoneStyleName = ScrollZoneStyleName;
+    }
+    Super.InternalOnCreateComponent(NewComp, Sender);
 }
 
 event ResolutionChanged(int NewX, int NewY)
@@ -86,8 +101,8 @@ function bool InternalOnPreDraw(Canvas C)
         {
             SearchBarHeight = SearchBar.ActualHeight();
             SearchBar.WinTop = (FullHeight - SearchBarHeight) / FullHeight;
-            HxGUIVertScrollBar(MyScrollBar).BottomOffset = SearchBarHeight / C.ClipY;
-            b_ListBackground.WinHeight -= (SearchBarHeight - Offset) / FullHeight;
+            SearchBarHeight -= Offset;
+            b_ListBackground.WinHeight -= SearchBarHeight / FullHeight;
         }
         bInit = false;
         return true;
@@ -141,6 +156,19 @@ function bool OnPreDrawHeader(Canvas C)
 {
     Header.WinHeight = GetHeaderHeight(C);
     return true;
+}
+
+function bool OnPreDrawScrollBar(Canvas C)
+{
+    local bool bResult;
+
+    bResult = HxGUIVertScrollBar(MyScrollBar).InternalOnPreDraw(C);
+    if (SearchBar != None)
+    {
+        MyScrollBar.WinHeight -= SearchBar.ActualHeight();
+        return true;
+    }
+    return bResult;
 }
 
 function OnRenderedHeader(Canvas C)
@@ -243,12 +271,12 @@ function SetCustomBackground(string BackgroundName)
 
 defaultproperties
 {
-    Begin Object Class=GUIToolTip Name=HeaderToolTip
+    Begin Object class=GUIToolTip Name=HeaderToolTip
     End Object
 
-    Begin Object Class=GUIMultiColumnListHeader Name=MyNewHeader
-        StyleName="HxListHeader"
-        BarStyleName="HxListHeader"
+    Begin Object class=GUIMultiColumnListHeader Name=MyNewHeader
+        StyleName="HxTableHeader"
+        BarStyleName="HxTableHeader"
         ToolTip=HeaderToolTip
         bNeverFocus=true
         OnMousePressed=OnMousePressedHeader
@@ -259,7 +287,7 @@ defaultproperties
     End Object
     Header=MyNewHeader
 
-    Begin Object Class=HxGUIBackground Name=ListBackground
+    Begin Object class=HxGUIBackground Name=ListBackground
         WinLeft=0
         WinTop=0
         WinWidth=1
@@ -271,15 +299,19 @@ defaultproperties
     End Object
     b_ListBackground=ListBackground
 
-    Begin Object Class=HxGUIVertScrollBar Name=NewTheScrollbar
+    Begin Object class=HxGUIVertScrollBar Name=NewTheScrollbar
         bScaleToParent=true
+        OnPreDraw=OnPreDrawScrollBar
     End Object
     MyScrollBar=NewTheScrollbar
 
     StandardHeaderHeight=0.0325
-    ScrollbarWidth=0.016
-    StyleName="HxList"
+    ScrollbarWidth=0.0172
+    StyleName="HxTable"
+    OverflowStyleName="HxTableLeft"
     SelectedStyleName="HxListSelection"
+    ScrollZoneStyleName="HxTableScrollZone"
+    ScrollGripStyleName="HxScrollGrip"
     bVisibleWhenEmpty=true
     OnPreDraw=InternalOnPreDraw
 }

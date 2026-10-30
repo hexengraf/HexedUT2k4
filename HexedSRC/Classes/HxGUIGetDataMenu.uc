@@ -32,7 +32,7 @@ event ResolutionChanged(int ResX, int ResY)
 
 defaultproperties
 {
-    Begin Object Class=HxGUIBackground Name=HxBackground
+    Begin Object class=HxGUIBackground Name=HxBackground
         WinLeft=0
         WinTop=0
         WinWidth=1
@@ -45,7 +45,7 @@ defaultproperties
     b_Background=HxBackground
     i_FrameBG=None
 
-    Begin Object Class=GUIButton Name=NewOkButton
+    Begin Object class=GUIButton Name=NewOkButton
         Caption="Ok"
         WinLeft=0.035
         WinTop=0.675
@@ -60,7 +60,7 @@ defaultproperties
     End Object
     b_OK=NewOkButton
 
-    Begin Object Class=GUIButton Name=NewCancelButton
+    Begin Object class=GUIButton Name=NewCancelButton
         Caption="Cancel"
         Hint="Close this menu, discarding changes."
         WinLeft=0.615
@@ -76,7 +76,7 @@ defaultproperties
     End Object
     b_Cancel=NewCancelButton
 
-    Begin Object Class=moEditBox Name=NewData
+    Begin Object class=HxGUImoEditBox Name=NewData
         WinLeft=0.035
         WinTop=0.385
         winWidth=0.93
@@ -90,7 +90,7 @@ defaultproperties
     End Object
     ed_Data=NewData
 
-    Begin Object Class=GUILabel Name=NewDialogText
+    Begin Object class=GUILabel Name=NewDialogText
         WinLeft=0
         WinTop=0.075
         WinWidth=1

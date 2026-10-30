@@ -60,13 +60,13 @@ function SetEnable(GUIComponent Comp, bool bEnable)
 
 defaultproperties
 {
-    Begin Object Class=HxGUIHeader Name=WindowTitleHeader
+    Begin Object class=HxGUIHeader Name=WindowTitleHeader
         OnMousePressed=FloatingWindow.FloatingMousePressed
         OnMouseRelease=FloatingWindow.FloatingMouseRelease
     End Object
     t_WindowTitle=WindowTitleHeader
 
-    Begin Object Class=HxGUIBackground Name=HxBackground
+    Begin Object class=HxGUIBackground Name=HxBackground
         WinLeft=0
         WinTop=0
         WinWidth=1

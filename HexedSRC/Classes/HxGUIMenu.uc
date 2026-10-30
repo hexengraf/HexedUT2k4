@@ -126,7 +126,7 @@ function bool InternalOnKeyEvent(out byte Key, out byte State, float Delta)
         && (GUINumericEdit(Controller.FocusedControl) == None
             || GUINumericEdit(Controller.FocusedControl).bReadOnly))
     {
-        Controller.CloseMenu(False);
+        Controller.CloseMenu(false);
         return true;
     }
     return false;
@@ -150,16 +150,16 @@ function LevelChanged()
 defaultproperties
 {
     Begin Object class=GUITabControl Name=TabControl
-        WinWidth=0.97
-        WinHeight=0.055
         WinLeft=0.015
-        TabHeight=0.0375
+        WinWidth=0.97
+        WinHeight=0.052
+        TabHeight=0.033
         bAcceptsInput=true
         bDockPanels=true
         bScaleToParent=true
         bFillSpace=true
         TabOrder=0
-        BackgroundStyleName="TabBackground"
+        BackgroundStyleName="HxTabControlBackground"
         OnCreateComponent=TabControlOnCreateComponent
     End Object
     t_TabControl=TabControl

@@ -1,8 +1,8 @@
 class HxGUIMenuPanel extends MidGamePanel
     abstract;
 
-const BASE_WIN_TOP = 0.01;
-const BASE_HEIGHT = 0.962;
+const BASE_WIN_TOP = 0.012;
+const BASE_HEIGHT = 0.960;
 const BASE_WIN_BOTTOM = 0.972;
 const COMPONENT_HEIGHT = 0.05;
 const SPACING = 0.007;
@@ -13,6 +13,7 @@ var localized string PanelHint;
 var const array<string> Dependencies;
 var int Order;
 
+var string TabButtonStyleName;
 var array<float> SectionHeights;
 var bool bDoubleColumn;
 var bool bFillPanelHeight;
@@ -22,6 +23,15 @@ var private float VerticalSpacing;
 var private float HorizontalSpacing;
 var private automated array<GUILabel> HideMessages;
 var private bool bPanelAdded;
+
+function InitPanel()
+{
+    if (MyButton != None)
+    {
+        MyButton.StyleName = TabButtonStyleName;
+        MyButton.Style = Controller.GetStyle(MyButton.StyleName, MyButton.FontScale);
+    }
+}
 
 function ShowPanel(bool bShow)
 {
@@ -262,6 +272,7 @@ static function bool CheckDependencies(HxMutatorInfo Info)
 
 defaultproperties
 {
+    TabButtonStyleName="HxTabControlButton"
     bDoubleColumn=false
     bFillPanelHeight=true
     OnPreDraw=InternalOnPreDraw

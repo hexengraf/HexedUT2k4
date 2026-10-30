@@ -6,24 +6,24 @@ const SECTION_INTERPOLATION_CURVE = 2;
 
 const AUTO_FONT = "AUTOSELECT";
 
-var automated moCheckBox ch_HitSounds;
-var automated moComboBox co_HitSoundNames;
-var automated moSlider sl_HitSoundVolume;
-var automated moComboBox co_PitchMode;
-var automated moCheckBox ch_DamageNumbers;
-var automated moComboBox co_DisplayMode;
-var automated moComboBox co_DisplayFont;
+var automated HxGUImoCheckBox ch_HitSounds;
+var automated HxGUImoComboBox co_HitSoundNames;
+var automated HxGUImoSlider sl_HitSoundVolume;
+var automated HxGUImoComboBox co_PitchMode;
+var automated HxGUImoCheckBox ch_DamageNumbers;
+var automated HxGUImoComboBox co_DisplayMode;
+var automated HxGUImoComboBox co_DisplayFont;
 var automated GUILabel l_PositionAnchor;
-var automated moFloatEdit fl_DisplayPosX;
-var automated moFloatEdit fl_DisplayPosY;
-var automated moComboBox co_DamagePoints;
-var automated moNumericEdit nu_Value;
-var automated moSlider sl_Pitch;
+var automated HxGUImoFloatEdit fl_DisplayPosX;
+var automated HxGUImoFloatEdit fl_DisplayPosY;
+var automated HxGUImoComboBox co_DamagePoints;
+var automated HxGUImoNumericEdit nu_Value;
+var automated HxGUImoSlider sl_Pitch;
 var automated HxGUIBackground b_Preview;
-var automated moSlider sl_Scale;
-var automated moSlider sl_RedColor;
-var automated moSlider sl_GreenColor;
-var automated moSlider sl_BlueColor;
+var automated HxGUImoSlider sl_Scale;
+var automated HxGUImoSlider sl_RedColor;
+var automated HxGUImoSlider sl_GreenColor;
+var automated HxGUImoSlider sl_BlueColor;
 
 var localized string PitchModeLabels[3];
 var localized string DisplayModeLabels[3];
@@ -415,7 +415,7 @@ defaultproperties
         ExpandIndices=(2,-1)
     End Object
 
-    Begin Object class=moCheckBox Name=HitSoundsCheckBox
+    Begin Object class=HxGUImoCheckBox Name=HitSoundsCheckBox
         Caption="Enable Hit Sounds"
         INIOption="@INTERNAL"
         Tag=0
@@ -425,7 +425,7 @@ defaultproperties
     End Object
     ch_HitSounds=HitSoundsCheckBox
 
-    Begin Object class=moComboBox Name=HitSoundNamesComboBox
+    Begin Object class=HxGUImoComboBox Name=HitSoundNamesComboBox
         Caption="Sound"
         INIOption="@INTERNAL"
         Tag=1
@@ -437,7 +437,7 @@ defaultproperties
     End Object
     co_HitSoundNames=HitSoundNamesComboBox
 
-    Begin Object class=moSlider Name=HitSoundVolumeSlider
+    Begin Object class=HxGUImoSlider Name=HitSoundVolumeSlider
         Caption="Volume"
         INIOption="@INTERNAL"
         Tag=2
@@ -450,7 +450,7 @@ defaultproperties
     End Object
     sl_HitSoundVolume=HitSoundVolumeSlider
 
-    Begin Object class=moComboBox Name=PitchModeComboBox
+    Begin Object class=HxGUImoComboBox Name=PitchModeComboBox
         Caption="Pitch Mode"
         INIOption="@INTERNAL"
         Tag=3
@@ -462,7 +462,7 @@ defaultproperties
     End Object
     co_PitchMode=PitchModeComboBox
 
-    Begin Object class=moCheckBox Name=DamageNumbersCheckBox
+    Begin Object class=HxGUImoCheckBox Name=DamageNumbersCheckBox
         Caption="Enable Damage Numbers"
         INIOption="@INTERNAL"
         Tag=4
@@ -472,7 +472,7 @@ defaultproperties
     End Object
     ch_DamageNumbers=DamageNumbersCheckBox
 
-    Begin Object class=moComboBox Name=DisplayModeComboBox
+    Begin Object class=HxGUImoComboBox Name=DisplayModeComboBox
         Caption="Display Mode"
         INIOption="@INTERNAL"
         Tag=5
@@ -484,7 +484,7 @@ defaultproperties
     End Object
     co_DisplayMode=DisplayModeComboBox
 
-    Begin Object class=moComboBox Name=DisplayFontComboBox
+    Begin Object class=HxGUImoComboBox Name=DisplayFontComboBox
         Caption="Font"
         INIOption="@INTERNAL"
         Tag=6
@@ -508,7 +508,7 @@ defaultproperties
     End Object
     l_PositionAnchor=PositionAnchorLabel
 
-    Begin Object class=moFloatEdit Name=PosXFloatEdit
+    Begin Object class=HxGUImoFloatEdit Name=PosXFloatEdit
         Caption="X"
         INIOption="@INTERNAL"
         Tag=7
@@ -522,7 +522,7 @@ defaultproperties
     End Object
     fl_DisplayPosX=PosXFloatEdit
 
-    Begin Object class=moFloatEdit Name=PosYFloatEdit
+    Begin Object class=HxGUImoFloatEdit Name=PosYFloatEdit
         Caption="Y"
         INIOption="@INTERNAL"
         Tag=8
@@ -536,7 +536,7 @@ defaultproperties
     End Object
     fl_DisplayPosY=PosYFloatEdit
 
-    Begin Object class=moComboBox Name=DamagePointsComboBox
+    Begin Object class=HxGUImoComboBox Name=DamagePointsComboBox
         Caption="Point"
         INIOption="@INTERNAL"
         CaptionWidth=0.35
@@ -547,7 +547,7 @@ defaultproperties
     End Object
     co_DamagePoints=DamagePointsComboBox
 
-    Begin Object class=moNumericEdit Name=ValueNumericEdit
+    Begin Object class=HxGUImoNumericEdit Name=ValueNumericEdit
         Caption="Damage Value"
         INIOption="@INTERNAL"
         MinValue=-300
@@ -560,7 +560,7 @@ defaultproperties
     End Object
     nu_Value=ValueNumericEdit
 
-    Begin Object class=moSlider Name=PitchSlider
+    Begin Object class=HxGUImoSlider Name=PitchSlider
         Caption="Pitch"
         INIOption="@INTERNAL"
         CaptionWidth=0.35
@@ -572,7 +572,7 @@ defaultproperties
     End Object
     sl_Pitch=PitchSlider
 
-    Begin Object class=moSlider Name=ScaleSlider
+    Begin Object class=HxGUImoSlider Name=ScaleSlider
         Caption="Scale"
         INIOption="@INTERNAL"
         CaptionWidth=0.35
@@ -584,7 +584,7 @@ defaultproperties
     End Object
     sl_Scale=ScaleSlider
 
-    Begin Object class=moSlider Name=RedColorSlider
+    Begin Object class=HxGUImoSlider Name=RedColorSlider
         Caption="Red"
         INIOption="@INTERNAL"
         CaptionWidth=0.35
@@ -597,7 +597,7 @@ defaultproperties
     End Object
     sl_RedColor=RedColorSlider
 
-    Begin Object class=moSlider Name=GreenColorSlider
+    Begin Object class=HxGUImoSlider Name=GreenColorSlider
         Caption="Green"
         INIOption="@INTERNAL"
         CaptionWidth=0.35
@@ -610,7 +610,7 @@ defaultproperties
     End Object
     sl_GreenColor=GreenColorSlider
 
-    Begin Object class=moSlider Name=BlueColorSlider
+    Begin Object class=HxGUImoSlider Name=BlueColorSlider
         Caption="Blue"
         INIOption="@INTERNAL"
         CaptionWidth=0.35

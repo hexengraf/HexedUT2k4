@@ -1,6 +1,9 @@
 class HxGUIListBox extends GUIListBox
     DependsOn(HxPatternMatch);
 
+var string OverflowStyleName;
+var string ScrollGripStyleName;
+var string ScrollZoneStyleName;
 var bool bAutoSpacing;
 var float LineSpacing;
 var float LeftPadding;
@@ -18,6 +21,20 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
     HxGUIList(List).LineSpacing = LineSpacing;
     HxGUIList(List).LeftPadding = LeftPadding;
     HxGUIVertScrollBar(MyScrollBar).StandardWidth = ScrollbarWidth;
+}
+
+function InternalOnCreateComponent(GUIComponent NewComp, GUIComponent Sender)
+{
+    if (NewComp.IsA('HxGUIList'))
+    {
+        HxGUIList(NewComp).OverflowStyleName = OverflowStyleName;
+    }
+    else if (NewComp.IsA('HxGUIVertScrollBar'))
+    {
+        HxGUIVertScrollBar(NewComp).GripStyleName = ScrollGripStyleName;
+        HxGUIVertScrollBar(NewComp).ZoneStyleName = ScrollZoneStyleName;
+    }
+    Super.InternalOnCreateComponent(NewComp, Sender);
 }
 
 function bool Add(string NewItem, optional Object obj, optional string Str, optional bool bSection)
@@ -100,17 +117,20 @@ function Subtract(HxGUIListBox Other)
 
 defaultproperties
 {
-    Begin Object Class=HxGUIVertScrollBar Name=NewScrollbar
+    Begin Object class=HxGUIVertScrollBar Name=NewScrollbar
         bScaleToParent=true
     End Object
     MyScrollBar=NewScrollbar
 
     bAutoSpacing=true
-    LineSpacing=0.003
+    LineSpacing=0.0033
     LeftPadding=0.015
     ScrollbarWidth=0.016
     TextAlign=TXTA_Left
     StyleName="HxList"
+    OverflowStyleName="HxList"
     SelectedStyleName="HxListSelection"
+    ScrollGripStyleName="HxScrollGrip"
+    ScrollZoneStyleName="HxList"
     OutlineStyleName=""
 }

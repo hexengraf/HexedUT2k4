@@ -10,7 +10,7 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 
 defaultproperties
 {
-    Begin Object Class=HxGUIVertScrollBar Name=HxScrollbar
+    Begin Object class=HxGUIVertScrollBar Name=HxScrollbar
         bScaleToParent=true
     End Object
     MyScrollBar=HxScrollbar

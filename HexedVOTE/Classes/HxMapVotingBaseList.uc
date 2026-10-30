@@ -232,21 +232,19 @@ function DrawItem(Canvas C, int i, float X, float Y, float W, float H, bool bSel
 
 function DrawRow(Canvas C, int Row, float X, float Y, float W, float H)
 {
-    local float Offset;
     local int MapIndex;
 
-    Offset = C.ClipY * FrameThickness;
     MapIndex = GetSortedMapIndex(Row);
     if (SortColumn == 0)
     {
-        DrawLastPlayedIndicator(C, X, Y, H * 0.97, Offset);
+        DrawLastPlayedIndicator(C, X, Y, H * 0.97);
     }
-    DrawMapTag(C, Client.Maps[MapIndex].Tag, X, Y, H * 0.97, Offset);
+    DrawMapTag(C, Client.Maps[MapIndex].Tag, X, Y, H * 0.97);
     GetCellLeftWidth(2, X, W);
     Style.DrawText(C, MenuState, X, Y, W, H, TXTA_Left, Client.Maps[MapIndex].Name, FontScale);
 }
 
-function DrawLastPlayedIndicator(Canvas C, float X, float Y, float Size, float Offset)
+function DrawLastPlayedIndicator(Canvas C, float X, float Y, float Size)
 {
     local Color SavedColor;
     local int SavedStyle;
@@ -257,7 +255,7 @@ function DrawLastPlayedIndicator(Canvas C, float X, float Y, float Size, float O
     SavedStyle = C.Style;
     SavedCurX = C.CurX;
     SavedCurY = C.CurY;
-    X += (Offset / 2) + (ColumnWidths[0] - Size) / 2;
+    X += (ColumnWidths[0] - Size) / 2;
     C.SetPos(X, Y);
     C.Style = 5; // STY_Alpha
     if (SortDescending)
@@ -276,9 +274,9 @@ function DrawLastPlayedIndicator(Canvas C, float X, float Y, float Size, float O
     C.CurY = SavedCurY;
 }
 
-function DrawMapTag(Canvas C, HxFavorites.EHxTag Tag, float X, float Y, float Size, float Offset)
+function DrawMapTag(Canvas C, HxFavorites.EHxTag Tag, float X, float Y, float Size)
 {
-    X += ColumnWidths[0] + (Offset / 2) + ((ColumnWidths[1] - Size) / 2);
+    X += ColumnWidths[0] + (ColumnWidths[1] - Size) / 2;
     class'HxFavorites'.static.DrawTag(C, Tag, X, Y, Size);
 }
 
@@ -352,7 +350,7 @@ function LevelChanged()
 
 defaultproperties
 {
-    Begin Object Class=GUIContextMenu Name=TagContextMenu
+    Begin Object class=GUIContextMenu Name=TagContextMenu
         OnOpen=OnOpenContextMenu
         OnSelect=OnSelectMapTag
     End Object

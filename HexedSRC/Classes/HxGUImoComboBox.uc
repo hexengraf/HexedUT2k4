@@ -4,6 +4,7 @@ class HxGUImoComboBox extends moComboBox;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
+    ComponentClassName = string(class'HxGUIComboBox');
     FixedInitComponent(MyController, MyOwner);
     MyComboBox = GUIComboBox(MyComponent);
     MyComboBox.Edit.bAlwaysNotify = bAlwaysNotify;
@@ -13,4 +14,5 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 
 defaultproperties
 {
+    LabelStyleName="HxTextLabel"
 }

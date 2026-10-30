@@ -5,30 +5,30 @@ const SECTION_ENEMIES = 1;
 const SECTION_HIT_OVERLAYS = 2;
 const SECTION_ADVANCED = 4;
 
-var automated moComboBox co_Teammates;
-var automated moComboBox co_TeammateProtected;
-var automated moComboBox co_TeammateSkin;
-var automated moCheckBox ch_ForceTeammateModel;
+var automated HxGUImoComboBox co_Teammates;
+var automated HxGUImoComboBox co_TeammateProtected;
+var automated HxGUImoComboBox co_TeammateSkin;
+var automated HxGUImoCheckBox ch_ForceTeammateModel;
 var automated GUIButton b_TeammatePreviewBox;
 var automated GUIButton b_ChangeTeammateModel;
 
-var automated moComboBox co_Enemies;
-var automated moComboBox co_EnemyProtected;
-var automated moComboBox co_EnemySkin;
-var automated moCheckBox ch_ForceEnemyModel;
+var automated HxGUImoComboBox co_Enemies;
+var automated HxGUImoComboBox co_EnemyProtected;
+var automated HxGUImoComboBox co_EnemySkin;
+var automated HxGUImoCheckBox ch_ForceEnemyModel;
 var automated GUIButton b_EnemyPreviewBox;
 var automated GUIButton b_ChangeEnemyModel;
 
-var automated moComboBox co_ShieldHit;
-var automated moComboBox co_LinkHit;
-var automated moComboBox co_ShockHit;
-var automated moComboBox co_LightningHit;
+var automated HxGUImoComboBox co_ShieldHit;
+var automated HxGUImoComboBox co_LinkHit;
+var automated HxGUImoComboBox co_ShockHit;
+var automated HxGUImoComboBox co_LightningHit;
 
-var automated moCheckBox ch_Randomize;
-var automated moCheckBox ch_DisableOnDeadBodies;
-var automated moCheckBox ch_DisableOnHeads;
-var automated moComboBox co_HighlightMode;
-var automated moComboBox co_SpectateAs;
+var automated HxGUImoCheckBox ch_Randomize;
+var automated HxGUImoCheckBox ch_DisableOnDeadBodies;
+var automated HxGUImoCheckBox ch_DisableOnHeads;
+var automated HxGUImoComboBox co_HighlightMode;
+var automated HxGUImoComboBox co_SpectateAs;
 var automated GUIButton b_CustomizeColors;
 
 var localized string DisabledLabel;
@@ -450,7 +450,7 @@ defaultproperties
         MaxItemsPerColumn=3
     End Object
 
-    Begin Object class=moComboBox Name=TeammatesComboBox
+    Begin Object class=HxGUImoComboBox Name=TeammatesComboBox
         Caption="Highlight"
         Hint="Highlight color for you and your teammates."
         INIOption="@INTERNAL"
@@ -463,7 +463,7 @@ defaultproperties
     End Object
     co_Teammates=TeammatesComboBox
 
-    Begin Object class=moComboBox Name=TeammateProtectedComboBox
+    Begin Object class=HxGUImoComboBox Name=TeammateProtectedComboBox
         Caption="Protected"
         Hint="Spawn protection color for you and your teammates when highlight is enabled."
         INIOption="@INTERNAL"
@@ -477,7 +477,7 @@ defaultproperties
     End Object
     co_TeammateProtected=TeammateProtectedComboBox
 
-    Begin Object class=moComboBox Name=TeammateSkinComboBox
+    Begin Object class=HxGUImoComboBox Name=TeammateSkinComboBox
         Caption="Skin Type"
         Hint="Skin type to use below the highlight color."
         INIOption="@INTERNAL"
@@ -490,7 +490,7 @@ defaultproperties
     End Object
     co_TeammateSkin=TeammateSkinComboBox
 
-    Begin Object class=moCheckBox Name=ForceTeammateModel
+    Begin Object class=HxGUImoCheckBox Name=ForceTeammateModel
         Caption="Force Model"
         Hint="Force the selected model on teammates."
         INIOption="@INTERNAL"
@@ -525,7 +525,7 @@ defaultproperties
     End Object
     b_ChangeTeammateModel=ChangeTeammateModelButton
 
-    Begin Object class=moComboBox Name=EnemiesComboBox
+    Begin Object class=HxGUImoComboBox Name=EnemiesComboBox
         Caption="Highlight"
         Hint="Highlight color for your enemies."
         INIOption="@INTERNAL"
@@ -538,7 +538,7 @@ defaultproperties
     End Object
     co_Enemies=EnemiesComboBox
 
-    Begin Object class=moComboBox Name=EnemyProtectedComboBox
+    Begin Object class=HxGUImoComboBox Name=EnemyProtectedComboBox
         Caption="Protected"
         Hint="Spawn protection color for your enemies when highlight is enabled."
         INIOption="@INTERNAL"
@@ -552,7 +552,7 @@ defaultproperties
     End Object
     co_EnemyProtected=EnemyProtectedComboBox
 
-    Begin Object class=moComboBox Name=EnemySkinComboBox
+    Begin Object class=HxGUImoComboBox Name=EnemySkinComboBox
         Caption="Skin Type"
         Hint="Skin type to use below the highlight color."
         INIOption="@INTERNAL"
@@ -565,7 +565,7 @@ defaultproperties
     End Object
     co_EnemySkin=EnemySkinComboBox
 
-    Begin Object class=moCheckBox Name=ForceEnemyModel
+    Begin Object class=HxGUImoCheckBox Name=ForceEnemyModel
         Caption="Force Model"
         Hint="Force the selected model on enemies."
         INIOption="@INTERNAL"
@@ -600,7 +600,7 @@ defaultproperties
     End Object
     b_ChangeEnemyModel=ChangeEnemyModelButton
 
-    Begin Object class=moComboBox Name=ShieldHitComboBox
+    Begin Object class=HxGUImoComboBox Name=ShieldHitComboBox
         Caption="Shield Hit"
         Hint="Highlight color to use when a shielded player is hit."
         INIOption="@INTERNAL"
@@ -614,7 +614,7 @@ defaultproperties
     End Object
     co_ShieldHit=ShieldHitComboBox
 
-    Begin Object class=moComboBox Name=LinkHitComboBox
+    Begin Object class=HxGUImoComboBox Name=LinkHitComboBox
         Caption="Link Hit"
         Hint="Highlight color to use when a player is hit with a link gun."
         INIOption="@INTERNAL"
@@ -628,7 +628,7 @@ defaultproperties
     End Object
     co_LinkHit=LinkHitComboBox
 
-    Begin Object class=moComboBox Name=ShockHitComboBox
+    Begin Object class=HxGUImoComboBox Name=ShockHitComboBox
         Caption="Shock Hit"
         Hint="Highlight color to use when a player is hit with a shock rifle."
         INIOption="@INTERNAL"
@@ -642,7 +642,7 @@ defaultproperties
     End Object
     co_ShockHit=ShockHitComboBox
 
-    Begin Object class=moComboBox Name=LightningHitComboBox
+    Begin Object class=HxGUImoComboBox Name=LightningHitComboBox
         Caption="Lightning Hit"
         Hint="Highlight color to use when a player is hit with a lightning gun."
         INIOption="@INTERNAL"
@@ -656,7 +656,7 @@ defaultproperties
     End Object
     co_LightningHit=LightningHitComboBox
 
-    Begin Object class=moCheckBox Name=RandomizeCheckBox
+    Begin Object class=HxGUImoCheckBox Name=RandomizeCheckBox
         Caption="Randomize Highlights"
         Hint="Assign a random highlight to each player. Only applies to DM and other modes with no teams."
         INIOption="@INTERNAL"
@@ -668,7 +668,7 @@ defaultproperties
     End Object
     ch_Randomize=RandomizeCheckBox
 
-    Begin Object class=moCheckBox Name=DisableOnDeadBodiesCheckBox
+    Begin Object class=HxGUImoCheckBox Name=DisableOnDeadBodiesCheckBox
         Caption="Disable Highlight On Dead Bodies"
         Hint="Disable any active highlights on dead bodies."
         INIOption="@INTERNAL"
@@ -680,7 +680,7 @@ defaultproperties
     End Object
     ch_DisableOnDeadBodies=DisableOnDeadBodiesCheckBox
 
-    Begin Object class=moCheckBox Name=DisableOnHeadsCheckBox
+    Begin Object class=HxGUImoCheckBox Name=DisableOnHeadsCheckBox
         Caption="Disable Highlight On Heads"
         Hint="Don't apply highlights to player heads (UTComp-like)."
         INIOption="@INTERNAL"
@@ -692,7 +692,7 @@ defaultproperties
     End Object
     ch_DisableOnHeads=DisableOnHeadsCheckBox
 
-    Begin Object class=moComboBox Name=HighlightModeComboBox
+    Begin Object class=HxGUImoComboBox Name=HighlightModeComboBox
         Caption="Highlight Mode"
         Hint="Choose if highlight is applied based on roles (teammates/enemies) or based on teams (red/blue)."
         INIOption="@INTERNAL"
@@ -705,7 +705,7 @@ defaultproperties
     End Object
     co_HighlightMode=HighlightModeComboBox
 
-    Begin Object class=moComboBox Name=SpectateAsComboBox
+    Begin Object class=HxGUImoComboBox Name=SpectateAsComboBox
         Caption="Spectate As"
         Hint="Select which team's perspective to spectate as."
         INIOption="@INTERNAL"

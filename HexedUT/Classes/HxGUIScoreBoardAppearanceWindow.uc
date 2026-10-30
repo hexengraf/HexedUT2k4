@@ -3,17 +3,17 @@ class HxGUIScoreBoardAppearanceWindow extends HxGUIFloatingWindow;
 var automated HxGUIFramedSection LeftSection;
 var automated HxGUIFramedSection RightSection;
 
-var automated moComboBox co_BoardAlignment;
-var automated moComboBox co_HeadingAlignment;
-var automated moSlider sl_BorderSize;
-var automated moSlider sl_DividerSize;
-var automated moSlider sl_FontSize;
-var automated moCheckBox ch_AlternateRowColors;
-var automated moComboBox co_ChangeColor;
-var automated moSlider sl_ColorRed;
-var automated moSlider sl_ColorBlue;
-var automated moSlider sl_ColorGreen;
-var automated moSlider sl_ColorAlpha;
+var automated HxGUImoComboBox co_BoardAlignment;
+var automated HxGUImoComboBox co_HeadingAlignment;
+var automated HxGUImoSlider sl_BorderSize;
+var automated HxGUImoSlider sl_DividerSize;
+var automated HxGUImoSlider sl_FontSize;
+var automated HxGUImoCheckBox ch_AlternateRowColors;
+var automated HxGUImoComboBox co_ChangeColor;
+var automated HxGUImoSlider sl_ColorRed;
+var automated HxGUImoSlider sl_ColorBlue;
+var automated HxGUImoSlider sl_ColorGreen;
+var automated HxGUImoSlider sl_ColorAlpha;
 var automated GUIButton b_RestoreColors;
 
 var localized string AlignmentLabels[3];
@@ -224,7 +224,7 @@ defaultproperties
     End Object
     RightSection=ColorEditorSection
 
-    Begin Object class=moComboBox Name=BoardAlignmentComboBox
+    Begin Object class=HxGUImoComboBox Name=BoardAlignmentComboBox
         Caption="Board Alignment"
         Hint="Vertical alignment for the scoreboard."
         INIOption="@INTERNAL"
@@ -237,7 +237,7 @@ defaultproperties
     End Object
     co_BoardAlignment=BoardAlignmentComboBox
 
-    Begin Object class=moComboBox Name=HeadingAlignmentComboBox
+    Begin Object class=HxGUImoComboBox Name=HeadingAlignmentComboBox
         Caption="Heading Alignment"
         Hint="Vertical alignment for single line headings."
         INIOption="@INTERNAL"
@@ -250,7 +250,7 @@ defaultproperties
     End Object
     co_HeadingAlignment=HeadingAlignmentComboBox
 
-    Begin Object class=moSlider Name=BorderSizeSlider
+    Begin Object class=HxGUImoSlider Name=BorderSizeSlider
         Caption="Border Size"
         Hint="Border size (% of screen height)."
         INIOption="@INTERNAL"
@@ -264,7 +264,7 @@ defaultproperties
     End Object
     sl_BorderSize=BorderSizeSlider
 
-    Begin Object class=moSlider Name=DividerSizeSlider
+    Begin Object class=HxGUImoSlider Name=DividerSizeSlider
         Caption="Divider Size"
         Hint="Row divider size (% of screen height)."
         INIOption="@INTERNAL"
@@ -278,7 +278,7 @@ defaultproperties
     End Object
     sl_DividerSize=DividerSizeSlider
 
-    Begin Object class=moSlider Name=FontSizeSlider
+    Begin Object class=HxGUImoSlider Name=FontSizeSlider
         Caption="Font Size"
         Hint="Increase or decrease the font sizes of all fonts used by the scoreboard."
         INIOption="@INTERNAL"
@@ -293,7 +293,7 @@ defaultproperties
     End Object
     sl_FontSize=FontSizeSlider
 
-    Begin Object class=moCheckBox Name=AlternateRowColorsCheckBox
+    Begin Object class=HxGUImoCheckBox Name=AlternateRowColorsCheckBox
         Caption="Alternate Row Colors"
         Hint="Use the alternative row color to alternate row colors."
         INIOption="@INTERNAL"
@@ -304,7 +304,7 @@ defaultproperties
     End Object
     ch_AlternateRowColors=AlternateRowColorsCheckBox
 
-    Begin Object class=moComboBox Name=ChangeColorComboBox
+    Begin Object class=HxGUImoComboBox Name=ChangeColorComboBox
         Caption="Change"
         Hint="Select a color to change."
         INIOption="@INTERNAL"
@@ -317,7 +317,7 @@ defaultproperties
     End Object
     co_ChangeColor=ChangeColorComboBox
 
-    Begin Object class=moSlider Name=RedSlider
+    Begin Object class=HxGUImoSlider Name=RedSlider
         Caption="Red"
         INIOption="@INTERNAL"
         Tag=16
@@ -331,7 +331,7 @@ defaultproperties
     End Object
     sl_ColorRed=RedSlider
 
-    Begin Object class=moSlider Name=GreenSlider
+    Begin Object class=HxGUImoSlider Name=GreenSlider
         Caption="Green"
         INIOption="@INTERNAL"
         Tag=16
@@ -345,7 +345,7 @@ defaultproperties
     End Object
     sl_ColorGreen=GreenSlider
 
-    Begin Object class=moSlider Name=BlueSlider
+    Begin Object class=HxGUImoSlider Name=BlueSlider
         Caption="Blue"
         INIOption="@INTERNAL"
         Tag=16
@@ -359,7 +359,7 @@ defaultproperties
     End Object
     sl_ColorBlue=BlueSlider
 
-    Begin Object class=moSlider Name=AlphaSlider
+    Begin Object class=HxGUImoSlider Name=AlphaSlider
         Caption="Alpha"
         INIOption="@INTERNAL"
         Tag=16

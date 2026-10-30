@@ -100,7 +100,7 @@ function bool IsEmpty()
 
 defaultproperties
 {
-    Begin Object Class=HxGUIVertScrollBar Name=NewTheScrollbar
+    Begin Object class=HxGUIVertScrollBar Name=NewTheScrollbar
         bScaleToParent=true
     End Object
     MyScrollBar=NewTheScrollbar

@@ -4,22 +4,22 @@ const SECTION_SCOPE_OVERLAY = 0;
 const SECTION_CUSTOM_SCOPE_OVERLAY = 2;
 const SECTION_CROSSHAIR = 3;
 
-var automated moComboBox co_ScopeOverlay;
-var automated moCheckBox ch_SoundEffects;
-var automated moCheckBox ch_ShowChargeBar;
-var automated moSlider sl_ReticleRedColor;
-var automated moSlider sl_ReticleGreenColor;
-var automated moSlider sl_ReticleBlueColor;
-var automated moSlider sl_ReticleOpacity;
-var automated moSlider sl_ReticleScale;
-var automated moSlider sl_BackgroundOpacity;
-var automated moCheckBox ch_CustomCrosshair;
-var automated moComboBox co_CustomCrosshair;
-var automated moSlider sl_CrosshairRedColor;
-var automated moSlider sl_CrosshairGreenColor;
-var automated moSlider sl_CrosshairBlueColor;
-var automated moSlider sl_CrosshairOpacity;
-var automated moSlider sl_CrosshairScale;
+var automated HxGUImoComboBox co_ScopeOverlay;
+var automated HxGUImoCheckBox ch_SoundEffects;
+var automated HxGUImoCheckBox ch_ShowChargeBar;
+var automated HxGUImoSlider sl_ReticleRedColor;
+var automated HxGUImoSlider sl_ReticleGreenColor;
+var automated HxGUImoSlider sl_ReticleBlueColor;
+var automated HxGUImoSlider sl_ReticleOpacity;
+var automated HxGUImoSlider sl_ReticleScale;
+var automated HxGUImoSlider sl_BackgroundOpacity;
+var automated HxGUImoCheckBox ch_CustomCrosshair;
+var automated HxGUImoComboBox co_CustomCrosshair;
+var automated HxGUImoSlider sl_CrosshairRedColor;
+var automated HxGUImoSlider sl_CrosshairGreenColor;
+var automated HxGUImoSlider sl_CrosshairBlueColor;
+var automated HxGUImoSlider sl_CrosshairOpacity;
+var automated HxGUImoSlider sl_CrosshairScale;
 
 var localized string ScopeOverlayLabels[3];
 
@@ -173,7 +173,7 @@ defaultproperties
         BottomPadding=0.02
     End Object
 
-    Begin Object class=moComboBox Name=ScopeOverlayComboBox
+    Begin Object class=HxGUImoComboBox Name=ScopeOverlayComboBox
         Caption="Scope Overlay"
         Hint="Choose which scope overlay to use."
         INIOption="@INTERNAL"
@@ -186,7 +186,7 @@ defaultproperties
     End Object
     co_ScopeOverlay=ScopeOverlayComboBox
 
-    Begin Object class=moCheckBox Name=CustomCrosshairCheckBox
+    Begin Object class=HxGUImoCheckBox Name=CustomCrosshairCheckBox
         Caption="Use Custom Crosshair"
         Hint="Use custom crosshair while zooming. Requires custom weapon crosshairs enabled to work."
         INIOption="@INTERNAL"
@@ -197,7 +197,7 @@ defaultproperties
     End Object
     ch_CustomCrosshair=CustomCrosshairCheckBox
 
-    Begin Object class=moCheckBox Name=SoundEffectsCheckBox
+    Begin Object class=HxGUImoCheckBox Name=SoundEffectsCheckBox
         Caption="Zoom Sound Effects"
         Hint="Enable sound effects when zooming in/out."
         INIOption="@INTERNAL"
@@ -208,7 +208,7 @@ defaultproperties
     End Object
     ch_SoundEffects=SoundEffectsCheckBox
 
-    Begin Object class=moCheckBox Name=ShowChargeBarCheckBox
+    Begin Object class=HxGUImoCheckBox Name=ShowChargeBarCheckBox
         Caption="Show Charge Bar"
         Hint="Show charge bar to indicate when it is ready to shoot."
         INIOption="@INTERNAL"
@@ -219,7 +219,7 @@ defaultproperties
     End Object
     ch_ShowChargeBar=ShowChargeBarCheckBox
 
-    Begin Object class=moSlider Name=BackgroundOpacitySlider
+    Begin Object class=HxGUImoSlider Name=BackgroundOpacitySlider
         Caption="BG Opacity"
         Hint="Change the opacity of the black background around the scope."
         INIOption="@INTERNAL"
@@ -233,7 +233,7 @@ defaultproperties
     End Object
     sl_BackgroundOpacity=BackgroundOpacitySlider
 
-    Begin Object class=moSlider Name=ReticleRedSlider
+    Begin Object class=HxGUImoSlider Name=ReticleRedSlider
         Caption="Red"
         Hint="Change the color of the reticle."
         INIOption="@INTERNAL"
@@ -248,7 +248,7 @@ defaultproperties
     End Object
     sl_ReticleRedColor=ReticleRedSlider
 
-    Begin Object class=moSlider Name=ReticleGreenSlider
+    Begin Object class=HxGUImoSlider Name=ReticleGreenSlider
         Caption="Green"
         Hint="Change the color of the reticle."
         INIOption="@INTERNAL"
@@ -263,7 +263,7 @@ defaultproperties
     End Object
     sl_ReticleGreenColor=ReticleGreenSlider
 
-    Begin Object class=moSlider Name=ReticleBlueSlider
+    Begin Object class=HxGUImoSlider Name=ReticleBlueSlider
         Caption="Blue"
         Hint="Change the color of the reticle."
         INIOption="@INTERNAL"
@@ -278,7 +278,7 @@ defaultproperties
     End Object
     sl_ReticleBlueColor=ReticleBlueSlider
 
-    Begin Object class=moSlider Name=ReticleOpacitySlider
+    Begin Object class=HxGUImoSlider Name=ReticleOpacitySlider
         Caption="Opacity"
         Hint="Change the opacity of the reticle."
         INIOption="@INTERNAL"
@@ -293,7 +293,7 @@ defaultproperties
     End Object
     sl_ReticleOpacity=ReticleOpacitySlider
 
-    Begin Object class=moSlider Name=ReticleScaleSlider
+    Begin Object class=HxGUImoSlider Name=ReticleScaleSlider
         Caption="Scale"
         Hint="Change the scale of the reticle."
         INIOption="@INTERNAL"
@@ -307,7 +307,7 @@ defaultproperties
     End Object
     sl_ReticleScale=ReticleScaleSlider
 
-    Begin Object class=moComboBox Name=CustomCrosshairComboBox
+    Begin Object class=HxGUImoComboBox Name=CustomCrosshairComboBox
         Caption="Crosshair"
         Hint="Choose which crosshair to use."
         INIOption="@INTERNAL"
@@ -320,7 +320,7 @@ defaultproperties
     End Object
     co_CustomCrosshair=CustomCrosshairComboBox
 
-    Begin Object class=moSlider Name=CrosshairRedSlider
+    Begin Object class=HxGUImoSlider Name=CrosshairRedSlider
         Caption="Red"
         Hint="Change the color of the crosshair."
         INIOption="@INTERNAL"
@@ -335,7 +335,7 @@ defaultproperties
     End Object
     sl_CrosshairRedColor=CrosshairRedSlider
 
-    Begin Object class=moSlider Name=CrosshairGreenSlider
+    Begin Object class=HxGUImoSlider Name=CrosshairGreenSlider
         Caption="Green"
         Hint="Change the color of the crosshair."
         INIOption="@INTERNAL"
@@ -350,7 +350,7 @@ defaultproperties
     End Object
     sl_CrosshairGreenColor=CrosshairGreenSlider
 
-    Begin Object class=moSlider Name=CrosshairBlueSlider
+    Begin Object class=HxGUImoSlider Name=CrosshairBlueSlider
         Caption="Blue"
         Hint="Change the color of the crosshair."
         INIOption="@INTERNAL"
@@ -365,7 +365,7 @@ defaultproperties
     End Object
     sl_CrosshairBlueColor=CrosshairBlueSlider
 
-    Begin Object class=moSlider Name=CrosshairOpacitySlider
+    Begin Object class=HxGUImoSlider Name=CrosshairOpacitySlider
         Caption="Opacity"
         Hint="Change the opacity of the crosshair."
         INIOption="@INTERNAL"
@@ -380,7 +380,7 @@ defaultproperties
     End Object
     sl_CrosshairOpacity=CrosshairOpacitySlider
 
-    Begin Object class=moSlider Name=CrosshairScaleSlider
+    Begin Object class=HxGUImoSlider Name=CrosshairScaleSlider
         Caption="Scale"
         Hint="Change the scale of the crosshair."
         INIOption="@INTERNAL"

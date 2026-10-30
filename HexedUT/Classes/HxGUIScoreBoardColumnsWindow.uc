@@ -1,6 +1,6 @@
 class HxGUIScoreBoardColumnsWindow extends HxGUIFloatingWindow;
 
-var automated moComboBox co_GameType;
+var automated HxGUImoComboBox co_GameType;
 var automated HxGUIFramedSection Section;
 var automated HxGUIMultiOptionListBox lb_Columns;
 var automated GUILabel l_ButtonAnchor;
@@ -228,12 +228,12 @@ function LevelChanged()
 
 defaultproperties
 {
-    Begin Object class=moComboBox Name=GameTypeComboBox
+    Begin Object class=HxGUImoComboBox Name=GameTypeComboBox
         Caption="Game Type"
         Hint="Choose the game type to modify columns."
         WinLeft=0.05
         WinTop=0.08
-        WinWidth=0.90
+        WinWidth=0.92
         Tag=0
         CaptionWidth=0.33
         bAutoSizeCaption=true
@@ -258,7 +258,7 @@ defaultproperties
     End Object
     Section=ColumnsSection
 
-    Begin Object Class=HxGUIMultiOptionListBox Name=ColumnsListBox
+    Begin Object class=HxGUIMultiOptionListBox Name=ColumnsListBox
         bVisibleWhenEmpty=true
         NumColumns=2
         ComponentWidth=1.0
@@ -278,7 +278,7 @@ defaultproperties
 
     Begin Object class=GUIButton Name=AddColumnButton
         Caption="Add"
-        Hint="Add new column at the right."
+        Hint="Add new column to the right."
         StandardHeight=0.03
         bStandardized=true
         StyleName="HxSquareButton"

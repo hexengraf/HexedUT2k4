@@ -355,10 +355,10 @@ function GUIMenuOption AddComboBox(string Caption,
                                    Object EnumType,
                                    array<string> Captions)
 {
-    local moComboBox Option;
+    local HxGUImoComboBox Option;
     local int i;
 
-    Option = moComboBox(List.AddItem(
+    Option = HxGUImoComboBox(List.AddItem(
         string(class'HxGUImoComboBox'), GetFromComboBoxPool(), Caption));
     if (Option != None)
     {
@@ -611,9 +611,9 @@ final function bool ShouldHideGlobalProperty(int Index)
 
 defaultproperties
 {
-    Begin Object Class=HxGUIVertScrollBar Name=HxScrollbar
+    Begin Object class=HxGUIVertScrollBar Name=HxScrollbar
         bScaleToParent=true
-        ScrollZoneStyleName="HxOptionList"
+        ZoneStyleName="HxOptionList"
     End Object
     MyScrollBar=HxScrollbar
 

@@ -1,37 +1,47 @@
 class HxGUIVertScrollBar extends GUIVertScrollBar;
 
-var string ScrollZoneStyleName;
+var string GripStyleName;
+var string ZoneStyleName;
 var float StandardWidth;
-var float TopOffset;
-var float RightOffset;
-var float BottomOffset;
 
 function bool InternalOnPreDraw(Canvas C)
 {
-    local float MyWidth;
-    local float OwnerWidth;
-    local float TopPadding;
-    local float RightPadding;
+    local float ButtonOffset;
 
-    TopPadding = TopOffset * C.ClipY;
-    RightPadding = RightOffset * C.ClipY;
     if (StandardWidth > 0)
     {
-        OwnerWidth = MenuOwner.ActualWidth();
-        MyWidth = (StandardWidth * C.ClipY);
-        WinWidth = RelativeWidth(MyWidth);
-        WinLeft = RelativeLeft(MenuOwner.ActualLeft() + OwnerWidth - MyWidth - RightPadding);
+        WinWidth = (StandardWidth * C.ClipY);
+        WinLeft = MenuOwner.ActualLeft() + MenuOwner.ActualWidth() - WinWidth;
     }
-    else
-    {
-        MyWidth = ActualWidth();
-        WinLeft = RelativeLeft(ActualLeft() - RightPadding);
-    }
-    WinTop = MyList.ActualTop() - MyWidth + TopPadding;
-    WinHeight = MyList.ActualHeight() + 2 * MyWidth - TopPadding - (BottomOffset * C.ClipY);
+    ButtonOffset = MyDecreaseButton.ActualHeight();
+    WinTop = MyList.ActualTop() - ButtonOffset;
+    ButtonOffset += MyIncreaseButton.ActualHeight();
+    WinHeight = MyList.ActualHeight() + ButtonOffset;
     MyDecreaseButton.SetVisibility(false);
     MyIncreaseButton.SetVisibility(false);
-    return Super.GripPreDraw(Self);
+    Super.GripPreDraw(Self);
+    return true;
+}
+
+function bool OnPreDrawGripButton(Canvas C)
+{
+    local HxGUIStyles ZoneStyle;
+    local float LeftOffset;
+    local float TopOffset;
+
+    ZoneStyle = HxGUIStyles(MyScrollZone.Style);
+    if (ZoneStyle != None)
+    {
+        LeftOffset = ZoneStyle.ActualLeftFrameThickness();
+        TopOffset = ZoneStyle.ActualTopFrameThickness();
+        MyGripButton.WinLeft = MyGripButton.ActualLeft() - LeftOffset;
+        MyGripButton.WinTop = MyGripButton.ActualTop() + TopOffset;
+        MyGripButton.WinWidth = MyGripButton.ActualWidth() - LeftOffset
+            - ZoneStyle.ActualRightFrameThickness();
+        MyGripButton.WinHeight = MyGripButton.ActualHeight() - TopOffset
+            - ZoneStyle.ActualBottomFrameThickness();
+    }
+    return true;
 }
 
 function ZoneClick(float Delta)
@@ -48,35 +58,36 @@ function ZoneClick(float Delta)
 
 function InternalOnCreateComponent(GUIComponent NewComponent, GUIComponent Sender)
 {
-    if (NewComponent.IsA('GUIVertScrollZone'))
+    if (NewComponent.IsA('GUIVertGripButton'))
     {
-        NewComponent.StyleName = ScrollZoneStyleName;
+        NewComponent.StyleName = GripStyleName;
+    }
+    else if (NewComponent.IsA('GUIVertScrollZone'))
+    {
+        NewComponent.StyleName = ZoneStyleName;
     }
 }
 
 defaultproperties
 {
-    Begin Object Class=GUIVertScrollZone Name=NewScrollZone
+    Begin Object class=GUIVertScrollZone Name=NewScrollZone
         OnScrollZoneClick=ZoneClick
     End Object
 
-    Begin Object Class=GUIVertScrollButton Name=NewUpBut
+    Begin Object class=GUIVertScrollButton Name=NewUpBut
     End Object
 
-    Begin Object Class=GUIVertScrollButton Name=NewDownBut
-        bIncreaseButton=true
+    Begin Object class=GUIVertScrollButton Name=NewDownBut
     End Object
 
-    Begin Object Class=GUIVertGripButton Name=NewGrip
-        StyleName="HxScrollGrip"
+    Begin Object class=GUIVertGripButton Name=NewGrip
+        OnPreDraw=OnPreDrawGripButton
         OnMousePressed=GripPressed
     End Object
 
-    ScrollZoneStyleName="NoBackground"
+    GripStyleName="HxScrollGrip"
+    ZoneStyleName="HxList"
     StandardWidth=0
-    TopOffset=0
-    RightOffset=0
-    BottomOffset=0
     MyScrollZone=NewScrollZone
     MyDecreaseButton=NewUpBut
     MyIncreaseButton=NewDownBut

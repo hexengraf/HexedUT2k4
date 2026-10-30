@@ -3,7 +3,7 @@ class HxGUIModelSelect extends HxGUIFloatingWindow;
 var automated HxGUIFramedSection MainSection;
 var automated HxGUIFramedSection ListSection;
 var automated HxGUIVertImageListBox ModelList;
-var automated MoComboBox co_Race;
+var automated HxGUIMoComboBox co_Race;
 var automated GUIButton b_PreviewBox;
 var automated GUILabel l_ButtonAnchor;
 var automated GUIButton b_Cancel;
@@ -90,7 +90,7 @@ function RefreshCharacterList(optional string Race)
     local int i;
     local int j;
 
-    ModelList.List.bNotify = False;
+    ModelList.List.bNotify = false;
     ModelList.Clear();
     Split(InvalidTypes, ";", Excluded);
     for (i = 0; i < PlayerList.Length; ++i)
@@ -384,7 +384,7 @@ defaultproperties
     End Object
     ListSection=ListFramedSection
 
-    Begin Object Class=HxGUIVertImageListBox Name=ModelImageListBox
+    Begin Object class=HxGUIVertImageListBox Name=ModelImageListBox
         CellStyle=CELL_FixedCount
         NoVisibleRows=3
         NoVisibleCols=4
@@ -396,7 +396,7 @@ defaultproperties
     End Object
     ModelList=ModelImageListBox
 
-    Begin Object Class=moComboBox Name=RaceComboBox
+    Begin Object class=HxGUImoComboBox Name=RaceComboBox
         Caption="Race"
         Hint="Filter the available characters by race."
         bReadOnly=true
@@ -427,7 +427,7 @@ defaultproperties
     End Object
     l_ButtonAnchor=ButtonAnchorLabel
 
-    Begin Object Class=GUIButton Name=CancelButton
+    Begin Object class=GUIButton Name=CancelButton
         Caption="Cancel"
         StandardHeight=0.03
         bStandardized=true
@@ -438,7 +438,7 @@ defaultproperties
     End Object
     b_Cancel=CancelButton
 
-    Begin Object Class=GUIButton Name=OkButton
+    Begin Object class=GUIButton Name=OkButton
         Caption="Ok"
         StandardHeight=0.03
         bStandardized=true

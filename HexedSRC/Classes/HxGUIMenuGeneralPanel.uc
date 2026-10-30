@@ -5,7 +5,7 @@ const SECTION_SERVER_STATUS = 1;
 
 var automated HxGUIMultiOptionListBox lb_Options;
 var automated HxGUIMultiOptionListBox lb_Status;
-var automated moCheckBox ch_Advanced;
+var automated HxGUImoCheckBox ch_Advanced;
 var automated GUIButton b_ServerMenu;
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
@@ -142,7 +142,7 @@ defaultproperties
         ExpandIndices=(0)
     End Object
 
-    Begin Object Class=HxGUIMultiOptionListBox Name=OptionsListBox
+    Begin Object class=HxGUIMultiOptionListBox Name=OptionsListBox
         bVisibleWhenEmpty=true
         NumColumns=1
         OnLoadINI=UserOptionOnLoadINI
@@ -151,15 +151,15 @@ defaultproperties
     End Object
     lb_Options=OptionsListBox
 
-    Begin Object Class=HxGUIMultiOptionListBox Name=StatusListBox
+    Begin Object class=HxGUIMultiOptionListBox Name=StatusListBox
         bVisibleWhenEmpty=true
-        OnLoadINI=ServerStatusOnLoadINI
         NumColumns=1
+        OnLoadINI=ServerStatusOnLoadINI
         TabOrder=1
     End Object
     lb_Status=StatusListBox
 
-    Begin Object Class=moCheckBox Name=AdvancedCheckBox
+    Begin Object class=HxGUImoCheckBox Name=AdvancedCheckBox
         Caption="View Advanced Options"
         Hint="Toggles whether advanced properties are displayed"
         OnChange=InternalOnChange

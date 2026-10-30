@@ -6,20 +6,21 @@ const INT_PADDING_SIZE = 10;
 const STRING_PADDING = "                                ";
 const STRING_PADDING_SIZE = 32;
 
+var string OverflowStyleName;
+var string ScrollGripStyleName;
+var string ScrollZoneStyleName;
 var bool bAutoSpacing;
 var float LineSpacing;
 var float ColumnSpacing;
-var float FrameThickness;
 
 var protected bool bReInit;
 var protected HxGUIVertScrollBar HxScrollbar;
 var protected HxGUITableSearchBar SearchBar;
-var protected float MyItemHeight;
-var protected int MyItemsPerPage;
 
 var int PreviousSortColumn;
 var bool bPreviousSortDescending;
-var private GUIStyles DefaultStyle;
+var private GUIStyles OverflowStyle;
+var private GUIStyles NormalStyle;
 
 delegate bool OnEnterKeyEvent(GUIComponent Sender);
 function bool Refresh();
@@ -27,10 +28,11 @@ function DrawRow(Canvas C, int Row, float X, float Y, float W, float H);
 
 function InitComponent(GUIController MyController, GUIComponent MyOwner)
 {
+    OverflowStyle = MyController.GetStyle(OverflowStyleName, FontScale);
     Super.InitComponent(MyController, MyOwner);
     HxScrollbar = HxGUIVertScrollBar(MyScrollBar);
     SearchBar = HxGUITableBox(MenuOwner).SearchBar;
-    DefaultStyle = Style;
+    NormalStyle = Style;
 }
 
 event ResolutionChanged(int NewX, int NewY)
@@ -41,19 +43,21 @@ event ResolutionChanged(int NewX, int NewY)
 
 function float GetSpacedItemHeight(Canvas C)
 {
+    local float NewItemHeight;
+    local float NewItemsPerPage;
+    local float Height;
     local float XL;
     local float YL;
 
     Style.TextSize(C, MenuState, "q|W", XL, YL, FontScale);
-    MyItemHeight = YL + (LineSpacing * C.ClipY);
+    NewItemHeight = Ceil(YL + (LineSpacing * C.ClipY));
     if (bAutoSpacing)
     {
-        MyItemsPerPage = int(WinHeight / MyItemHeight);
-        MyItemHeight = YL + FMax(
-            0, int((WinHeight - (MyItemsPerPage * YL)) / float(MyItemsPerPage)));
+        Height = ClientBounds[3] - ClientBounds[1] - 1;
+        NewItemsPerPage = int(Height / NewItemHeight);
+        NewItemHeight = YL + FMax(0, (Height - (NewItemsPerPage * YL)) / NewItemsPerPage);
     }
-    MyItemsPerPage = WinHeight / MyItemHeight;
-    return MyItemHeight;
+    return NewItemHeight;
 }
 
 event InitializeColumns(Canvas C)
@@ -94,25 +98,17 @@ function bool InternalOnKeyEvent(out byte Key, out byte State, float Delta)
 
 function bool InternalOnPreDraw(Canvas C)
 {
-    local float Offset;
-    local float OwnerWidth;
     local float CurrentWidth;
+    local float OwnerWidth;
 
     Super.InternalOnPreDraw(C);
-    OwnerWidth = MenuOwner.ActualWidth();
-    CurrentWidth = ActualWidth();
     CellSpacing = ColumnSpacing * C.ClipY;
-    WinTop = ActualTop();
-    WinHeight = ActualHeight();
     if (SearchBar != None)
     {
-        WinHeight -= SearchBar.ActualHeight();
+        WinHeight = ActualHeight() - SearchBar.ActualHeight();
     }
-    GetSpacedItemHeight(C);
-    Offset = FMax(0, (WinHeight - (MyItemsPerPage * MyItemHeight)) / 2);
-    WinTop += Offset;
-    WinHeight -= Offset;
-
+    CurrentWidth = ActualWidth();
+    OwnerWidth = MenuOwner.ActualWidth();
     if (CurrentWidth < OwnerWidth)
     {
         if (HxScrollbar != None && HxScrollbar.StandardWidth > 0)
@@ -123,6 +119,11 @@ function bool InternalOnPreDraw(Canvas C)
         {
             WinWidth = OwnerWidth - MyScrollBar.ActualWidth();
         }
+        Style = OverflowStyle;
+    }
+    else
+    {
+        Style = NormalStyle;
     }
     if (bReInit)
     {
@@ -138,17 +139,20 @@ function bool InternalOnPreDraw(Canvas C)
 
 function DrawItem(Canvas C, int i, float X, float Y, float W, float H, bool bSelected, bool bPending)
 {
-    local float Offset;
+    local GUIStyles SavedStyle;
 
-    X = ActualLeft();
-    Offset = FrameThickness * C.ClipY;
     if (bSelected)
     {
+        SavedStyle = Style;
         Style = SelectedStyle;
-        Style.Draw(C, MenuState, X + Offset, Y, W - 2 * Offset, H);
+        Style.Draw(C, MenuState, X, Y, W, H);
+        DrawRow(C, i, X, Y, W, H);
+        Style = SavedStyle;
     }
-    DrawRow(C, i, X, Y, W, H);
-    Style = DefaultStyle;
+    else
+    {
+       DrawRow(C, i, X, Y, W, H);
+    }
 }
 
 function ShrinkToFit(Canvas C, int FirstColumn)
@@ -178,6 +182,13 @@ function ShrinkToFit(Canvas C, int FirstColumn)
     }
 }
 
+event Free()
+{
+    NormalStyle = None;
+    OverflowStyle = None;
+    Super.Free();
+}
+
 static function string NormalizeString(string S)
 {
     return left(Caps(S)$STRING_PADDING, STRING_PADDING_SIZE);
@@ -191,14 +202,16 @@ static function string NormalizeInt(coerce string Value, int Count)
 defaultproperties
 {
     bAutoSpacing=true
-    LineSpacing=0.003
+    LineSpacing=0.0033
     ColumnSpacing=0.005
-    FrameThickness=0.001
     bDropSource=false
     bDropTarget=false
     ExpandLastColumn=true
-    StyleName="HxList"
+    StyleName="HxTable"
+    OverflowStyleName="HxTableLeft"
     SelectedStyleName="HxListSelection"
+    ScrollZoneStyleName="HxTableScrollZone"
+    ScrollGripStyleName="HxScrollGrip"
     bReInit=true
     GetItemHeight=GetSpacedItemHeight
     OnDrawItem=DrawItem

@@ -2,7 +2,7 @@ class HxGUIServerMenu extends HxGUIFloatingWindow;
 
 var automated HxGUIFramedSection Section;
 var automated HxGUIMultiOptionListBox lb_Options;
-var automated moCheckBox ch_Advanced;
+var automated HxGUImoCheckBox ch_Advanced;
 
 var private HxClientManager ClientManager;
 
@@ -119,7 +119,7 @@ defaultproperties
     End Object
     Section=ConfigListSection
 
-    Begin Object Class=HxGUIMultiOptionListBox Name=ConfigListBox
+    Begin Object class=HxGUIMultiOptionListBox Name=ConfigListBox
         bVisibleWhenEmpty=true
         NumColumns=1
         OnLoadINI=OptionsOnLoadINI
@@ -128,7 +128,7 @@ defaultproperties
     End Object
     lb_Options=ConfigListBox
 
-    Begin Object Class=moCheckBox Name=AdvancedCheckBox
+    Begin Object class=HxGUImoCheckBox Name=AdvancedCheckBox
         Caption="View Advanced Options"
         Hint="Toggles whether advanced properties are displayed"
         TabOrder=2

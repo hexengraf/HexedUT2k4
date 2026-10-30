@@ -6,7 +6,7 @@ const MED_FONT_SPACING = 1.44;
 var automated HxGUIBackground b_Background;
 var automated HxMapVotingVoteListBox lb_VoteList;
 var automated GUIImage i_VoteListBorder;
-var automated moComboBox co_MapFilter;
+var automated HxGUImoComboBox co_MapFilter;
 var automated GUIButton b_ManageFilters;
 var automated HxMapVotingMapListBox lb_MapList;
 var automated GUILabel l_RetrievingMapList;
@@ -390,13 +390,13 @@ function LevelChanged()
 
 defaultproperties
 {
-    Begin Object Class=HxGUIHeader Name=WindowTitleHeader
+    Begin Object class=HxGUIHeader Name=WindowTitleHeader
         OnMousePressed=FloatingWindow.FloatingMousePressed
         OnMouseRelease=FloatingWindow.FloatingMouseRelease
     End Object
     t_WindowTitle=HxGUIHeader'HxGUIFloatingWindow.WindowTitleHeader'
 
-    Begin Object Class=HxGUIBackground Name=HxBackground
+    Begin Object class=HxGUIBackground Name=HxBackground
         WinLeft=0
         WinTop=0
         WinWidth=1
@@ -409,7 +409,7 @@ defaultproperties
     b_Background=HxBackground
     i_FrameBG=None
 
-    Begin Object Class=HxMapVotingVoteListBox Name=VoteListBox
+    Begin Object class=HxMapVotingVoteListBox Name=VoteListBox
         WinLeft=0.01
         WinTop=0.045
         WinWidth=0.605
@@ -423,7 +423,7 @@ defaultproperties
     End Object
     lb_VoteList=VoteListBox
 
-    Begin Object class=moComboBox Name=GameTypeComboBox
+    Begin Object class=HxGUImoComboBox Name=GameTypeComboBox
         Caption="Game Type"
         Hint="Select game type to show."
         WinLeft=0.015
@@ -432,7 +432,6 @@ defaultproperties
         StandardHeight=0.0325
         bStandardized=true
         CaptionWidth=0.176
-        LabelStyleName="HxTextLabel"
         bReadOnly=true
         bScaleToParent=true
         bBoundToParent=true
@@ -441,7 +440,7 @@ defaultproperties
     End Object
     co_GameType=GameTypeComboBox
 
-    Begin Object class=moComboBox Name=MapFilterComboBox
+    Begin Object class=HxGUImoComboBox Name=MapFilterComboBox
         Caption="Map Filter"
         Hint="Select map filter to apply."
         WinLeft=0.015
@@ -450,7 +449,6 @@ defaultproperties
         StandardHeight=0.0325
         bStandardized=true
         CaptionWidth=0.2489
-        LabelStyleName="HxTextLabel"
         bReadOnly=true
         bScaleToParent=true
         bBoundToParent=true
@@ -459,7 +457,7 @@ defaultproperties
     End Object
     co_MapFilter=MapFilterComboBox
 
-    Begin Object Class=GUIButton Name=ManageFiltersButton
+    Begin Object class=GUIButton Name=ManageFiltersButton
         Caption="Manage Filters"
         Hint="Manage map filters."
         WinLeft=0.4448
@@ -476,7 +474,7 @@ defaultproperties
     End Object
     b_ManageFilters=ManageFiltersButton
 
-    Begin Object Class=HxMapVotingMapListBox Name=MapListBox
+    Begin Object class=HxMapVotingMapListBox Name=MapListBox
         WinLeft=0.01
         WinTop=0.37425
         WinWidth=0.605
@@ -490,7 +488,7 @@ defaultproperties
     End Object
     lb_MapList=MapListBox
 
-    Begin Object Class=GUILabel Name=RetrievingMapListLabel
+    Begin Object class=GUILabel Name=RetrievingMapListLabel
         WinLeft=0.01
         WinTop=0.37425
         WinWidth=0.605
@@ -506,7 +504,7 @@ defaultproperties
     End Object
     l_RetrievingMapList=RetrievingMapListLabel
 
-    Begin Object Class=HxMapPreviewBanner Name=MapPreviewBanner
+    Begin Object class=HxMapPreviewBanner Name=MapPreviewBanner
         WinLeft=0.6205
         WinTop=0.045
         WinWidth=0.3695
@@ -516,7 +514,7 @@ defaultproperties
     End Object
     MapBanner=MapPreviewBanner
 
-    Begin Object Class=GUIButton Name=RandomButton
+    Begin Object class=GUIButton Name=RandomButton
         Caption="Select Random"
         Hint="Select a random map from the map list (or vote list if focused and non-empty)."
         WinLeft=0.6205
@@ -533,7 +531,7 @@ defaultproperties
     End Object
     b_Random=RandomButton
 
-    Begin Object Class=GUIButton Name=VoteButton
+    Begin Object class=GUIButton Name=VoteButton
         Caption="Submit Vote"
         Hint="Vote for the currently selected map."
         WinLeft=0.808
@@ -550,7 +548,7 @@ defaultproperties
     End Object
     b_Vote=VoteButton
 
-    Begin Object Class=HxGUIChatBox Name=VotingChatBox
+    Begin Object class=HxGUIChatBox Name=VotingChatBox
         WinLeft=0.6205
         WinTop=0.762
         WinWidth=0.3695

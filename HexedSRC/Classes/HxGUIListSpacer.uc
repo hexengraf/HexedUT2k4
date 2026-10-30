@@ -9,4 +9,6 @@ function InitComponent(GUIController MyController, GUIComponent MyOwner)
 
 defaultproperties
 {
+    bStandardized=true
+    StandardHeight=0.03
 }

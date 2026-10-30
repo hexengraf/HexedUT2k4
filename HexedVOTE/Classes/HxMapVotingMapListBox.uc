@@ -34,7 +34,7 @@ function InternalOnSearch(int Index, string Term)
 
 defaultproperties
 {
-    Begin Object Class=HxGUITableSearchBar Name=HxSearchBar
+    Begin Object class=HxGUITableSearchBar Name=HxSearchBar
         WinLeft=0
         WinWidth=1
         StandardHeight=0.027

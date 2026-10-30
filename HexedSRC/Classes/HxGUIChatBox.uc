@@ -216,8 +216,8 @@ function bool AlignComponents(Canvas C)
     local float YL;
 
     class'HxGUIStyles'.static.FillFrame(Self, lb_Chat);
-    class'HxGUIStyles'.static.CopyPosition(lb_Chat, i_CustomBG);
     lb_Chat.WinHeight = 1.0 - b_Channel.RelativeHeight(b_Channel.ActualHeight());
+    class'HxGUIStyles'.static.CopyPosition(lb_Chat, i_CustomBG);
     b_Channel.WinTop = lb_Chat.WinHeight;
     b_Channel.Style.TextSize(
         C, b_Channel.MenuState, ChatChannelLabels[1], XL, YL, b_Channel.FontScale);
@@ -250,7 +250,7 @@ static function bool IsMessageSent(PlayerController Controller)
 
 defaultproperties
 {
-    Begin Object Class=HxGUIScrollTextBox Name=ChatScrollBox
+    Begin Object class=HxGUIScrollTextBox Name=ChatScrollBox
         LeftPadding=0.02
         TopPadding=0.05
         RightPadding=0.02
@@ -270,7 +270,7 @@ defaultproperties
     End Object
     lb_Chat=ChatScrollBox
 
-    Begin Object Class=GUIButton Name=ChannelButton
+    Begin Object class=GUIButton Name=ChannelButton
         Hint="Click to cycle between console and chat channels."
         WinLeft=0
         StandardHeight=0.027

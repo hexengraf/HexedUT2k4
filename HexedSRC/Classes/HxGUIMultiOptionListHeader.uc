@@ -8,7 +8,5 @@ defaultproperties
     LabelStyleName="HxOptionList"
     StyleName="HxOptionList"
     FontScale=FNS_Medium
-    bStandardized=true
-    StandardHeight=0.0325
     Tag=-7
 }

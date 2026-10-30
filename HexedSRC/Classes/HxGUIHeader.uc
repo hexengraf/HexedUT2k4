@@ -40,7 +40,7 @@ function float GetDesiredHeight(Canvas C)
 
 defaultproperties
 {
-    Begin Object Class=GUIButton Name=CloseButton
+    Begin Object class=GUIButton Name=CloseButton
         WinTop=0
         RenderWeight=1
         bNeverFocus=true

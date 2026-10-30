@@ -46,7 +46,7 @@ function FixedInitComponent(GUIController MyController, GUIComponent MyOwner)
     MyLabel.FontScale = FontScale;
     MyLabel.TextAlign = LabelJustification;
     MyLabel.IniOption = IniOption;
-    MyLabel.bNeverScale = True;
+    MyLabel.bNeverScale = true;
     if (ComponentClassName != "")
     {
         if (MyComponent == None)
@@ -71,7 +71,7 @@ function FixedInitComponent(GUIController MyController, GUIComponent MyOwner)
         MyComponent.OnChange = InternalOnChange;
         MyComponent.bTabStop = true;
         MyComponent.TabOrder = 1;
-        MyComponent.bNeverScale = True;
+        MyComponent.bNeverScale = true;
         MyComponent.bNeverFocus = bNeverFocus;
         SetFriendlyLabel(MyLabel);
         if (MenuState == MSAT_Disabled)
