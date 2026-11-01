@@ -482,7 +482,7 @@ ProjectileCompensationLimit=125
 ; The actual rate is the minimum between this value and the server's tick rate.
 ; The default value is optimal, but if your server is struggling to keep a stable tick rate,
 ; you might want to reduce this value (or reduce the tick rate).
-MaxCollisionCheckRate=50
+MaxCollisionCheckRate=60
 ; When triggering a shot, send the client's location and camera rotation to the server to synchronize the aim.
 ; Applied on restart/map change. Keep in mind BAS can (potentially) be exploited to create aimbots, since it
 ; allows the client to adjust the location and aim.
