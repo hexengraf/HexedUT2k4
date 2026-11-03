@@ -630,7 +630,7 @@ defaultproperties
     GlobalProperties(1)=(Name="NotifyRunning",Type=HX_PROPERTY_Enum,UpperLimit="4",EnumType=enum'EHxNotifyRunning')
     GlobalProperties(2)=(Name="StatusVerbosity",Type=HX_PROPERTY_Enum,UpperLimit="3",EnumType=enum'EHxVerbosityLevel')
     GlobalDisplayInfo(0)=(Section="General",Caption="Maximum Notify Duration",Hint="Maximum duration of notifications (in seconds). Actual duration varies depending the amount of text displayed.",bAdvanced=true,Verbosity=HX_VERB_High)
-    GlobalDisplayInfo(1)=(Section="General",Caption="Notify Running",Hint="Frequency to notify the mutators are running after a map loads.",EnumLabels=("Never","Per Version","Per Session","Always"),bAdvanced=true,Verbosity=HX_VERB_High)
+    GlobalDisplayInfo(1)=(Section="General",Caption="Notify Running",Hint="Frequency to notify players that HexedUT2k4 is running.",EnumLabels=("Never","Per Version","Per Session","Always"),bAdvanced=true,Verbosity=HX_VERB_High)
     GlobalDisplayInfo(2)=(Section="General",Caption="Status Verbosity",Hint="Level of information to be displayed in the server status for each mutator.",EnumLabels=("Lowest","Low","Medium","High"),bAdvanced=true,Verbosity=HX_VERB_High)
     MutatorInfoClass=class'HxMutatorInfo'
     Priority=255
