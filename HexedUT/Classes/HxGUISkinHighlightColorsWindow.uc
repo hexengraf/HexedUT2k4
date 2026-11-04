@@ -490,7 +490,7 @@ defaultproperties
         Hint="Add new color."
         StandardHeight=0.03
         bStandardized=true
-        StyleName="HxSquareButton"
+        StyleName="HxButton"
         bRepeatClick=false
         OnClick=OnClickNewColor
         TabOrder=5
@@ -502,7 +502,7 @@ defaultproperties
         Hint="Rename current color."
         StandardHeight=0.03
         bStandardized=true
-        StyleName="HxSquareButton"
+        StyleName="HxButton"
         bRepeatClick=false
         OnClick=OnClickRenameColor
         TabOrder=6
@@ -514,7 +514,7 @@ defaultproperties
         Hint="Delete current color."
         StandardHeight=0.03
         bStandardized=true
-        StyleName="HxSquareButton"
+        StyleName="HxButton"
         bRepeatClick=false
         OnClick=OnClickDeleteColor
         TabOrder=7
@@ -539,7 +539,7 @@ defaultproperties
         ComponentWidth=0.64
         StandardHeight=0.03
         bStandardized=true
-        StyleName="HxSquareButton"
+        StyleName="HxButton"
         bReadOnly=true
         OnChange=PreviewSkinOnChange
         TabOrder=8
@@ -551,7 +551,7 @@ defaultproperties
         Hint="Select a different preview character."
         StandardHeight=0.03
         bStandardized=true
-        StyleName="HxSquareButton"
+        StyleName="HxButton"
         bRepeatClick=false
         OnClick=OnClickChangeModel
         TabOrder=9

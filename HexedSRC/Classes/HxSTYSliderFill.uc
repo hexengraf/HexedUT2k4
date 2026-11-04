@@ -11,9 +11,9 @@ defaultproperties
     Images(4)=Material'engine.WhiteSquareTexture'
 
     ImgColors(0)=(R=202,G=102,B=0,A=255)
-    ImgColors(1)=(R=202,G=102,B=0,A=255)
-    ImgColors(2)=(R=202,G=102,B=0,A=255)
-    ImgColors(3)=(R=202,G=102,B=0,A=255)
+    ImgColors(1)=(R=235,G=157,B=0,A=255)
+    ImgColors(2)=(R=235,G=157,B=0,A=255)
+    ImgColors(3)=(R=235,G=157,B=0,A=255)
     ImgColors(4)=(R=100,G=50,B=0,A=255)
 
     ImgStyle(0)=ISTY_Stretched

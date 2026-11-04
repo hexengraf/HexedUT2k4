@@ -378,7 +378,7 @@ defaultproperties
         Hint="Customize colors, alignments, and more."
         StandardHeight=0.03
         bStandardized=true
-        StyleName="HxSquareButton"
+        StyleName="HxButton"
         bRepeatClick=false
         OnClick=OnClickRestoreColors
         TabOrder=11

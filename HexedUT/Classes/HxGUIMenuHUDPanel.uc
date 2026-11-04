@@ -324,7 +324,7 @@ defaultproperties
         Hint="Customize which information to display for each game type."
         StandardHeight=0.03
         bStandardized=true
-        StyleName="HxSquareButton"
+        StyleName="HxButton"
         bRepeatClick=false
         OnClick=OnClickChangeColumns
         TabOrder=10
@@ -336,7 +336,7 @@ defaultproperties
         Hint="Customize colors, alignments, and more."
         StandardHeight=0.03
         bStandardized=true
-        StyleName="HxSquareButton"
+        StyleName="HxButton"
         bRepeatClick=false
         OnClick=OnClickChangeAppearance
         TabOrder=11

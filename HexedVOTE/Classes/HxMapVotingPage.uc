@@ -465,7 +465,7 @@ defaultproperties
         WinWidth=0.1702
         StandardHeight=0.0325
         bStandardized=true
-        StyleName="HxSquareButton"
+        StyleName="HxButton"
         bNeverFocus=true
         bRepeatClick=true
         bBoundToParent=true
@@ -522,7 +522,7 @@ defaultproperties
         WinWidth=0.182
         StandardHeight=0.0325
         bStandardized=true
-        StyleName="HxSquareButton"
+        StyleName="HxButton"
         bNeverFocus=true
         bRepeatClick=true
         bBoundToParent=true
@@ -539,7 +539,7 @@ defaultproperties
         WinWidth=0.182
         StandardHeight=0.0325
         bStandardized=true
-        StyleName="HxSquareButton"
+        StyleName="HxButton"
         bNeverFocus=true
         bRepeatClick=false
         bBoundToParent=true

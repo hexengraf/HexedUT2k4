@@ -17,8 +17,8 @@ static function ApplySquareButtonStyle(GUIController GC, GUIButton B)
 {
     local eFontScale FontScale;
 
-    B.StyleName = "HxSquareButton";
-    B.Style = GC.GetStyle("HxSquareButton", FontScale);
+    B.StyleName = "HxButton";
+    B.Style = GC.GetStyle("HxButton", FontScale);
 }
 
 defaultproperties

@@ -431,7 +431,7 @@ defaultproperties
         Caption="Cancel"
         StandardHeight=0.03
         bStandardized=true
-        StyleName="HxSquareButton"
+        StyleName="HxButton"
         bRepeatClick=false
         OnClick=InternalOnClick
         TabOrder=2
@@ -442,7 +442,7 @@ defaultproperties
         Caption="Ok"
         StandardHeight=0.03
         bStandardized=true
-        StyleName="HxSquareButton"
+        StyleName="HxButton"
         bRepeatClick=false
         OnClick=InternalOnClick
         TabOrder=3

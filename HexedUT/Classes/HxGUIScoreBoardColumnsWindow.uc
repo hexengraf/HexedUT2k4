@@ -281,7 +281,7 @@ defaultproperties
         Hint="Add new column to the right."
         StandardHeight=0.03
         bStandardized=true
-        StyleName="HxSquareButton"
+        StyleName="HxButton"
         bNeverFocus=true
         bRepeatClick=false
         OnClick=OnClickAddColumn
@@ -293,7 +293,7 @@ defaultproperties
         Hint="Remove rightmost column."
         StandardHeight=0.03
         bStandardized=true
-        StyleName="HxSquareButton"
+        StyleName="HxButton"
         bNeverFocus=true
         bRepeatClick=false
         OnClick=OnClickRemoveColumn
@@ -305,7 +305,7 @@ defaultproperties
         Hint="Reset game type to the default configuration."
         StandardHeight=0.03
         bStandardized=true
-        StyleName="HxSquareButton"
+        StyleName="HxButton"
         bNeverFocus=true
         bRepeatClick=false
         OnClick=OnClickReset

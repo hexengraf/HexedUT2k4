@@ -1,8 +1,8 @@
-class HxSTYSquareButton extends HxSTYBackgroundFrame;
+class HxSTYButton extends HxSTYBackgroundFrame;
 
 defaultproperties
 {
-    KeyName="HxSquareButton"
+    KeyName="HxButton"
 
     Images(0)=Material'engine.WhiteSquareTexture'
     Images(1)=Material'engine.WhiteSquareTexture'

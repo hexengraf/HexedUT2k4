@@ -518,7 +518,7 @@ defaultproperties
         Hint="Select a different teammate model."
         StandardHeight=0.03
         bStandardized=true
-        StyleName="HxSquareButton"
+        StyleName="HxButton"
         bRepeatClick=false
         OnClick=OnClickChangeTeammateModel
         TabOrder=4
@@ -593,7 +593,7 @@ defaultproperties
         Hint="Select a different teammate model."
         StandardHeight=0.03
         bStandardized=true
-        StyleName="HxSquareButton"
+        StyleName="HxButton"
         bRepeatClick=false
         OnClick=OnClickChangeEnemyModel
         TabOrder=9
@@ -723,7 +723,7 @@ defaultproperties
         Hint="Customize the colors available to use as highlight."
         StandardHeight=0.03
         bStandardized=true
-        StyleName="HxSquareButton"
+        StyleName="HxButton"
         bRepeatClick=false
         OnClick=OnClickCustomizeColors
         TabOrder=19

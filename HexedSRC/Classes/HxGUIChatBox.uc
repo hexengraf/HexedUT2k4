@@ -277,7 +277,7 @@ defaultproperties
         bStandardized=true
         FontScale=FNS_Small
         bNeverFocus=true
-        StyleName="HxSquareButton"
+        StyleName="HxButton"
         bRepeatClick=false
         bBoundToParent=true
         bScaleToParent=true

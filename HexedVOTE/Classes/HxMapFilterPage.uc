@@ -554,7 +554,7 @@ defaultproperties
         WinWidth=0.147
         StandardHeight=0.03
         bStandardized=true
-        StyleName="HxSquareButton"
+        StyleName="HxButton"
         bRepeatClick=false
         bScaleToParent=true
         bBoundToParent=true
@@ -571,7 +571,7 @@ defaultproperties
         WinWidth=0.147
         StandardHeight=0.03
         bStandardized=true
-        StyleName="HxSquareButton"
+        StyleName="HxButton"
         bRepeatClick=false
         bScaleToParent=true
         bBoundToParent=true
@@ -588,7 +588,7 @@ defaultproperties
         WinWidth=0.147
         StandardHeight=0.03
         bStandardized=true
-        StyleName="HxSquareButton"
+        StyleName="HxButton"
         bRepeatClick=false
         bScaleToParent=true
         bBoundToParent=true
@@ -686,7 +686,7 @@ defaultproperties
         Hint="Add selected map to the map list."
         StandardHeight=0.03
         bStandardized=true
-        StyleName="HxSquareButton"
+        StyleName="HxButton"
         bRepeatClick=false
         OnClick=OnClickAdd
         TabOrder=22
@@ -698,7 +698,7 @@ defaultproperties
         Hint="Add all maps to the map list."
         StandardHeight=0.03
         bStandardized=true
-        StyleName="HxSquareButton"
+        StyleName="HxButton"
         bRepeatClick=false
         OnClick=OnClickAddAll
         TabOrder=23
@@ -743,7 +743,7 @@ defaultproperties
         Hint="Remove selected map from the map list."
         StandardHeight=0.03
         bStandardized=true
-        StyleName="HxSquareButton"
+        StyleName="HxButton"
         bRepeatClick=false
         OnClick=OnClickRemove
         TabOrder=32
@@ -755,7 +755,7 @@ defaultproperties
         Hint="Remove all maps from the map list."
         StandardHeight=0.03
         bStandardized=true
-        StyleName="HxSquareButton"
+        StyleName="HxButton"
         bRepeatClick=false
         OnClick=OnClickRemoveAll
         TabOrder=33

@@ -189,7 +189,7 @@ defaultproperties
         WinTop=0.0
         WinWidth=0.25
         WinHeight=0.5
-        StyleName="HxPlusButton"
+        StyleName="HxButtonPlus"
         bNeverFocus=true
         bBoundToParent=true
         bScaleToParent=true
@@ -202,7 +202,7 @@ defaultproperties
         WinTop=0.5
         WinWidth=0.25
         WinHeight=0.5
-        StyleName="HxMinusButton"
+        StyleName="HxButtonMinus"
         bNeverFocus=true
         bBoundToParent=true
         bScaleToParent=true

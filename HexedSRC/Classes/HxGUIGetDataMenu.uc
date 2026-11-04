@@ -52,7 +52,7 @@ defaultproperties
         WinWidth=0.35
         StandardHeight=0.0325
         bStandardized=true
-        StyleName="HxSquareButton"
+        StyleName="HxButton"
         bBoundToParent=true
         bScaleToParent=true
         OnClick=UT2K4GenericMessageBox.InternalOnClick
@@ -68,7 +68,7 @@ defaultproperties
         WinWidth=0.35
         StandardHeight=0.0325
         bStandardized=true
-        StyleName="HxSquareButton"
+        StyleName="HxButton"
         bBoundToParent=true
         bScaleToParent=true
         OnClick=UT2K4GetDataMenu.InternalOnClick

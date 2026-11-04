@@ -46,7 +46,7 @@ defaultproperties
         bNeverFocus=true
         bRepeatClick=false
         bAutoShrink=false
-        StyleName="HxCloseButton"
+        StyleName="HxButtonClose"
         bScaleToParent=true
         bBoundToParent=true
     End Object

@@ -171,7 +171,7 @@ defaultproperties
         Caption="Server Options"
         bStandardized=true
         StandardHeight=0.03
-        StyleName="HxSquareButton"
+        StyleName="HxButton"
         OnClick=ServerMenuOnClick
         TabOrder=11
     End Object

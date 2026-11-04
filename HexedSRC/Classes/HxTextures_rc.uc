@@ -1,6 +1,8 @@
 class HxTextures_rc extends Resource
     abstract;
 
+#exec texture Import File=Textures\HxPlusIcon.tga Name=HxPlusIcon Mips=Off Alpha=1
+#exec texture Import File=Textures\HxMinusIcon.tga Name=HxMinusIcon Mips=Off Alpha=1
 #exec texture Import File=Textures\HxStarIcon.tga Name=HxStarIcon Mips=Off Alpha=1
 #exec texture Import File=Textures\HxBlockIcon.tga Name=HxBlockIcon Mips=Off Alpha=1
 #exec texture Import File=Textures\HxClockIcon.tga Name=HxClockIcon Mips=Off Alpha=1

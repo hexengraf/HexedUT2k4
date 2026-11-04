@@ -41,11 +41,11 @@ function bool InternalOnDraw(Canvas C)
     Height = ActualHeight();
     Left = ActualLeft();
     Top = ActualTop();
-    MarkTop = Top + Height * 0.175;
+    MarkTop = Top + Height * 0.2;
     Top += Height * 0.35;
     Width = ActualWidth();
     FillWidth = (Width - MarkWidth) * Perc;
-    MarkHeight = Height * 0.65;
+    MarkHeight = Height * 0.6;
     Height = Height * 0.3;
     BarStyle.Draw(C, MenuState, Left, Top, Width, Height);
     FillStyle.Draw(C, MenuState, Left, Top, FillWidth, Height);
@@ -266,7 +266,7 @@ defaultproperties
     bShowValueTooltip=true
     WinHeight=0.030000
     MarkerWidth=0.008
-    StyleName="HxSquareButton"
+    StyleName="HxButton"
     BarStyleName="HxSliderBar"
     FillStyleName="HxSliderFill"
     bTabStop=true

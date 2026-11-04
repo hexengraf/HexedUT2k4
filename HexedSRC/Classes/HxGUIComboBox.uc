@@ -13,7 +13,7 @@ defaultproperties
     Edit=BaseEditBox
 
     Begin Object class=GUIComboButton Name=BaseShowButton
-        StyleName="HxSquareButtonRight"
+        StyleName="HxButtonRight"
         RenderWeight=0.600000
         bNeverScale=true
         OnKeyEvent=BaseShowButton.InternalOnKeyEvent
