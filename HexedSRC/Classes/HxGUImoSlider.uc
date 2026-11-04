@@ -100,6 +100,7 @@ function SetReadOnly(bool b)
 
 defaultproperties
 {
+    LabelStyleName="HxTextLabel"
     SliderStyleName="HxButton"
     SliderBarStyleName="HxSliderBar"
     SliderFillStyleName="HxSliderFill"
