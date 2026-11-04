@@ -59,6 +59,7 @@ List of features:
   * Forced models: force teammates and enemies to use specific character models.
 * View smoothing: change the level of view smoothing to reduce the "sinking" effect in ramps.
 * Enhanced scoreboards: replace default scoreboards with a more complete alternative.
+* Extra player stats: accuracy, team kills, and highest killing spree.
 * Spawn protection timer: a timer to keep track of spawn protection duration.
 * Colored death messages: easily identify from which team is the killer and the victim.
 
