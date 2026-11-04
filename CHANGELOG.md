@@ -4,6 +4,7 @@ This version brings a huge rework of the HexedNET code. The changes listed below
 
 HexedUT changes:
 * Fixed new/modified skin highlight colors not getting properly saved.
+* Fixed skin highlights sometimes failing to attach to a bone (leading to None accesses).
 * Implemented support for new player stats:
   * Controlled by the new `bExtraStats` server option.
   * Three new stats implemented: accuracy, max spree, and team kills.
@@ -48,7 +49,10 @@ HexedNET changes:
   * Original solution from UTComp only applied to flak cannon and could loose synchronization, leading to erratic behavior of the primary fire.
 * Added BAS - Boosted Aim Synchronization (sending location + rotation from client to server at the time of shooting) - to all viable weapons.
   * Minigun and link gun's primary fire are not viable due to the way they are programmed.
+  * New server option `MaxCollisionCheckRate` to control the maximum rate to check for projectile collisions during server-side forwarding.
   * New server option `bBoostedAimSynchronization` to enable/disable BAS.
+  * New server option `LocationErrorTolerance` to control the maximum acceptable difference between the BAS location and the current server location.
+  * New server option `AngleErrorTolerance` to control the maximum acceptable difference between the BAS rotation and the current server rotation.
   * New server option `bForceStartFireRPCs` to control if BAS should force start fire RPCs when holding a fire button (to send fresh BAS information every shot).
   * New server option `bClientSideCollisions` to control if hitscan weapons should send client-side collision detection together with BAS.
   * New server option `PingSpikeTolerance` to specify the maximum acceptable ping spike (in milliseconds) when validating client-side collisions.
@@ -80,6 +84,7 @@ General changes:
   * Default is medium (which only hides some properties that usually doesn't make sense to show).
 * Restructured how the internals for handling property replication work, reducing the amount of replication channels required per mutator.
 * Added more status information to the configuration menu.
+* Added hexed styles for all GUI elements.
 * Moved HexedPatches to a separate [repository](https://github.com/hexengraf/HexedUT2k4-Patches).
 
 # v9.0 hotfix 2
