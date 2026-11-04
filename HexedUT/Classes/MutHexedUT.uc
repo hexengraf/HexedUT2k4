@@ -105,7 +105,6 @@ function SpawnSkinHighlight(xPawn Pawn)
     if (bAllowSkinHighlight && Pawn != None && !Pawn.IsA('xMutantPawn'))
     {
         SkinHighlight = Pawn.Spawn(class'HxSkinHighlight', Pawn);
-        Pawn.AttachToBone(SkinHighlight, 'spine');
         SkinHighlight.SetupServer(
             SkinHighlightIntensity, SkinOverlayIntensity, AllowHitOverlays, CanForceModels());
     }

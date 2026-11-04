@@ -99,7 +99,14 @@ function SetupServer(float ServerBaseIntensity,
                      MutHexedUT.EHxHitOverlay SeverAllowHitOverlays,
                      bool bServerAllowForcedModels)
 {
-    SetTeamNumber(GetTeamNum(xPawn(Base)));
+    local xPawn Pawn;
+
+    Pawn = xPawn(Owner);
+    if (!Pawn.AttachToBone(Self, 'Bip01 Spine') && !Pawn.AttachToBone(Self, 'Bip01'))
+    {
+        Warn(Name@"failed to attach to a bone! Skin highlights might suffer replication issues.");
+    }
+    SetTeamNumber(GetTeamNum(Pawn));
     SetIntensities(ServerBaseIntensity, ServerOverlayIntensity);
     SetAllowHitOverlays(SeverAllowHitOverlays);
     SetAllowForcedModels(bServerAllowForcedModels);
