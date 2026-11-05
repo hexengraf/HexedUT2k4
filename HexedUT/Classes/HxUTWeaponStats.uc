@@ -6,10 +6,9 @@ var class<Weapon> WeaponClass;
 var private class<WeaponFire> FireClass[FIRE_MODE_COUNT];
 var private class<Ammunition> AmmoClass[FIRE_MODE_COUNT];
 var private int AmmoCount[FIRE_MODE_COUNT];
-var private int Hits[FIRE_MODE_COUNT];
-var private int Misses[FIRE_MODE_COUNT];
+var private float Hits[FIRE_MODE_COUNT];
+var private float Misses[FIRE_MODE_COUNT];
 var private int SubHitCount;
-var private float LastHitTime;
 
 function Setup(Weapon W)
 {
@@ -26,9 +25,9 @@ function Setup(Weapon W)
     }
 }
 
-function int GetHits(optional out int AllMisses)
+function float GetHits(optional out float AllMisses)
 {
-    local int AllHits;
+    local float AllHits;
     local int i;
 
     AllMisses = 0;
@@ -40,32 +39,24 @@ function int GetHits(optional out int AllMisses)
     return AllHits;
 }
 
-function TrackHit(int Damage, class<DamageType> DamageType, float HitTime)
+function TrackHit(int Damage, class<WeaponDamageType> DamageType, float HitTime)
 {
     switch (DamageType)
     {
-        case class'DamTypeShockBall':
-        case class'DamTypeRedeemer':
-            UpdateRadiusHit(0, HitTime);
+        case class'DamTypeAssaultGrenade':
+            UpdateHits(1, FireClass[1].default.AmmoPerFire);
             break;
         case class'DamTypeBioGlob':
-            UpdateBioGlobHit(Damage, HitTime);
+            UpdateBioGlobHit(Damage);
             break;
         case class'DamTypeFlakChunk':
-            UpdateFlakChunkHit(HitTime);
+            UpdateFlakChunkHit();
             break;
         case class'DamTypeFlakShell':
-            UpdateFlakShellHit(HitTime);
-            break;
-        case class'DamTypeRocket':
-        case class'DamTypeRocketHoming':
-            UpdateRocketHit(HitTime);
+            UpdateHits(0, FireClass[1].default.AmmoPerFire);
             break;
         case class'DamTypeShockCombo':
-            UpdateShockComboHit(HitTime);
-            break;
-        case class'DamTypeAssaultGrenade':
-            UpdateDirectHit(1, HitTime);
+            UpdateShockComboHit();
             break;
         // case class'DamTypeClassicSniper':
         // case class'DamTypeClassicHeadshot':
@@ -77,20 +68,24 @@ function TrackHit(int Damage, class<DamageType> DamageType, float HitTime)
         // case class'DamTypeShockBeam':
         // case class'DamTypeSniperShot':
         // case class'DamTypeSniperHeadShot':
+        // case class'DamTypeShockBall':
+        // case class'DamTypeRedeemer':
+        // case class'DamTypeRocket':
+        // case class'DamTypeRocketHoming':
+        // case class'DamTypeONSAVRiLRocket':
+        // case class'DamTypeONSGrenade':
+        // case class'DamTypeONSMine':
         default:
-            UpdateDirectHit(0, HitTime);
+            UpdateHits(0, FireClass[0].default.AmmoPerFire);
             break;
     }
 }
 
 function TrackKill(class<WeaponDamageType> DamageType, float KillTime)
 {
-    if (DamageType == class'DamTypeFlakChunk'
-        && KillTime - LastHitTime > FireClass[0].default.FireRate
-        && SubHitCount > 0)
+    if (DamageType == class'DamTypeFlakChunk' && SubHitCount > 0)
     {
-        Hits[0] += SubHitCount;
-        Misses[0] -= SubHitCount;
+        UpdateHits(0, float(SubHitCount) / class'Flakfire'.default.ProjPerFire);
         SubHitCount = 0;
     }
 }
@@ -202,95 +197,38 @@ function Clear()
     SubHitCount = 0;
 }
 
-private function UpdateDirectHit(int Mode, float HitTime)
-{
-    UpdateCounters(Mode, FireClass[Mode].default.AmmoPerFire);
-    LastHitTime = HitTime;
-}
-
-private function UpdateRadiusHit(int Mode, float HitTime)
-{
-    if (HitTime - LastHitTime > FireClass[Mode].default.FireRate)
-    {
-        UpdateCounters(Mode, FireClass[Mode].default.AmmoPerFire);
-        LastHitTime = HitTime;
-    }
-}
-
-private function UpdateBioGlobHit(int Damage, float HitTime)
+private function UpdateBioGlobHit(int Damage)
 {
     local int Count;
 
     Count = FireClass[0].default.AmmoPerFire;
-    if (Damage <= class'BioGlob'.default.BaseDamage)
-    {
-        UpdateCounters(0, Count);
-    }
-    else if (HitTime - LastHitTime > FireClass[0].default.FireRate)
+    if (Damage > class'BioGlob'.default.BaseDamage)
     {
         Count += int((Damage - class'BioGlob'.default.BaseDamage) / class'BioGlob'.default.Damage);
-        UpdateCounters(0, Count);
-        LastHitTime = HitTime;
     }
+    UpdateHits(0, Count);
 }
 
-private function UpdateShockComboHit(float HitTime)
+private function UpdateShockComboHit()
 {
     local int ComboCost;
 
-    if (HitTime - LastHitTime > FireClass[0].default.FireRate)
-    {
-        ComboCost = Min(AmmoCount[0], class'ShockProjectile'.default.ComboAmmoCost);
-        AmmoCount[0] -= ComboCost;
-        Hits[0] += ComboCost;
-        UpdateCounters(0, FireClass[0].default.AmmoPerFire + FireClass[1].default.AmmoPerFire);
-        LastHitTime = HitTime;
-    }
+    ComboCost = Min(AmmoCount[0], class'ShockProjectile'.default.ComboAmmoCost);
+    AmmoCount[0] -= ComboCost;
+    Hits[0] += ComboCost;
+    UpdateHits(0, FireClass[0].default.AmmoPerFire + FireClass[1].default.AmmoPerFire);
 }
 
-private function UpdateFlakChunkHit(float HitTime)
+private function UpdateFlakChunkHit()
 {
-    if (HitTime - LastHitTime > FireClass[0].default.FireRate)
+    if (SubHitCount == 0 && Misses[0] >= 1.0)
     {
-        if (SubHitCount == 0)
-        {
-            if (Misses[0] > 0)
-            {
-                SubHitCount = class'Flakfire'.default.ProjPerFire - 1;
-                Misses[0] += SubHitCount;
-                Hits[0] += 1;
-            }
-        }
-        else
-        {
-            --SubHitCount;
-            UpdateCounters(0, 1);
-        }
+        SubHitCount = class'Flakfire'.default.ProjPerFire;
     }
-}
-
-private function UpdateFlakShellHit(float HitTime)
-{
-    if (HitTime - LastHitTime > FireClass[1].default.FireRate)
+    if (SubHitCount > 0)
     {
-        UpdateCounters(0, FireClass[1].default.AmmoPerFire);
-    }
-    LastHitTime = HitTime;
-}
-
-private function UpdateRocketHit(float HitTime)
-{
-    if (HitTime - LastHitTime > FireClass[0].default.FireRate)
-    {
-        SubHitCount = 1;
-        UpdateCounters(0, FireClass[0].default.AmmoPerFire);
-        LastHitTime = HitTime;
-    }
-    else if (SubHitCount < 3)
-    {
-        UpdateCounters(0, FireClass[0].default.AmmoPerFire);
-        LastHitTime = HitTime;
-        ++SubHitCount;
+        UpdateHits(0, 1 / class'Flakfire'.default.ProjPerFire);
+        SubHitCount -= 1;
     }
 }
 
@@ -304,13 +242,11 @@ private function UpdateCurrentAmmo(int Mode, Weapon W)
     AmmoCount[Mode] = W.AmmoCharge[Mode];
 }
 
-private function UpdateCounters(int Mode, int Amount)
+private function UpdateHits(int Mode, float Amount)
 {
-    local int Count;
-
-    Count = FMin(Misses[Mode], Amount);
-    Misses[Mode] -= Count;
-    Hits[Mode] += Count;
+    Amount = FMin(Misses[Mode], Amount);
+    Misses[Mode] -= Amount;
+    Hits[Mode] += Amount;
 }
 
 defaultproperties

@@ -3,8 +3,8 @@ class HxPlayerReplicationInfo extends LinkedReplicationInfo;
 struct HxWeaponStats
 {
     var class<Weapon> WeaponClass;
-    var int Hits;
-    var int Total;
+    var float Hits;
+    var float Total;
 };
 
 const STATS_WEAPON = 1;
@@ -33,9 +33,9 @@ replication
 
 function UpdateStats()
 {
+    local float Hits;
+    local float Total;
     local int i;
-    local int Hits;
-    local int Total;
 
     if (Level.TimeSeconds - LastStatsUpdate > Level.TimeDilation)
     {
@@ -53,7 +53,7 @@ function UpdateStats()
         }
         if (Total > 0)
         {
-            Accuracy = byte((float(Hits) / Total) * 100);
+            Accuracy = byte((Hits / Total) * 100);
         }
         LastStatsUpdate = Level.TimeSeconds;
     }

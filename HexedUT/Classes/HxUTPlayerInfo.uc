@@ -191,9 +191,9 @@ private final function HxUTWeaponStats FindWeaponStats(class<Weapon> WeaponClass
 
 private final function UpdateReplicationInfo()
 {
+    local float Hits;
+    local float Misses;
     local int Index;
-    local int Hits;
-    local int Misses;
     local int i;
     local int j;
 
