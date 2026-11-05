@@ -176,6 +176,12 @@ The mutator itself doesn't require any dependency thanks to `SetPropertyText` an
 Enables tracking of extra player stats that can be displayed in the enhanced scoreboard.
 Currently supported stats: overall accuracy, team kills, and highest killing spree (max spree).
 
+Accuracy is an estimation of the total of hits divided by the total of shots across all weapons.
+It is implemented in a way that aims to be compatible with custom weapons, so it uses an approximation of the real amount of shots fired.
+Instead of tracking the shots directly, it tracks the ammo consumed as a proxy for shots.
+When a hit is happens, it checks what kind of damage it is and uses the corresponding amount of ammo consumed by that type of damage to track hits.
+So the actual equation is the total of ammo consumed by hits divided by the total of ammo consumed.
+
 Default value is `True`.
 
 #### `bAllowSpawnProtectionTimer`
@@ -847,7 +853,7 @@ Same logic as `LocationErrorTolerance`, but for the camera rotation instead.
 Values range between -1.0 and 1.0, where -1.0 accepts any rotation, 0.0 is a tolerance of 90 degrees, and 1.0 requires the rotations to be perfectly aligned.
 For refernce, UTComp doesn't check this difference (equivalent to -1.0).
 
-Default value is -0.5, which accepts up to 120 degrees of difference.
+Default value is -0.5, which accepts up to 120 degrees of difference (i.e. a 240 degrees cone).
 
 #### `bForceStartFireRPCs`
 
