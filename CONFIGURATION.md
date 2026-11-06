@@ -453,6 +453,268 @@ Possible values:
 
 Default value is `HX_VS_Default`.
 
+### `[HexedUT HxScoreBoardConfig]`
+
+This section contains all user options for the enhanced scoreboards, saved in `User.ini`.
+They can be changed in the HUD tab of the configuration menu.
+The "Change Appearance" button opens a window with the layout and color options, and the "Change Columns" button opens a window to customize the stat columns per game type.
+Keep in mind that these options only have effect if the server allows the [enhanced scoreboards](#ballowenhancedscoreboards).
+
+#### `bEnabled`
+
+Toggles the enhanced scoreboards on/off.
+When enabled, the original scoreboards are replaced with the enhanced versions.
+
+Default value is `True`.
+
+#### `BoardAlignment` and `HeadingAlignment`
+
+Controls the vertical alignment of the scoreboard as a whole and of the column headings.
+Possible values:
+* `HX_VALIGN_Top`: align to the top.
+* `HX_VALIGN_Center`: align to the center.
+* `HX_VALIGN_Bottom`: align to the bottom.
+
+Default values are `HX_VALIGN_Top` and `HX_VALIGN_Center`.
+
+#### `BorderSize` and `DividerSize`
+
+Controls the size of the scoreboard border and of the lines separating the player rows, as a percentage of the screen height.
+
+Default values are 0.25 and 0.2, with valid values between 0.0 and 0.5.
+
+#### `FontSizeModifier`
+
+Increases or decreases the size of all fonts used by the scoreboard.
+
+Default value is 0, with valid values between -2 and 2.
+
+#### `bAlternateRowColors`
+
+Alternates the row background colors between the row colors and the alternative row colors (see the color options [below](#altrowcolor-redteamaltrowcolor-and-blueteamaltrowcolor)).
+
+Default value is `False`.
+
+#### `bCompactTeamScores`
+
+In team scoreboards, shows the team scores (and the total score in Invasion) directly inside the header space instead of a dedicated area.
+
+Default value is `False`.
+
+#### `bShowSecondaryStats`
+
+Enables a second line of stats in each column when available: columns with a secondary stat show it below the main stat, and the ping column shows the packet loss below the ping.
+
+Default value is `False`.
+
+#### `bPreferVerticalLayout`
+
+Team scoreboards display the two team tables either side by side or one above the other (vertical layout).
+This option controls the layout used by default when the scoreboard is opened.
+You can switch between layouts at any time with `F8` while the scoreboard is displayed (see [`bShowShortcuts`](#bshowshortcuts-and-bshowtimestamp)).
+
+Default value is `False`.
+
+#### `bAbbreviateHeadings`
+
+Abbreviates long column headings (e.g. "TEAM KILLS" as "TK" and "SUICIDES" as "SUIC") to reduce the required column width and fit more columns.
+
+Default value is `False`.
+
+#### `bShowPlayerPortraits`
+
+Shows the player portraits in front of the player names.
+
+Default value is `True`.
+
+#### `bShowBotCallSigns` and `bShowBotOrders`
+
+Controls if the bot call signs (at the end of their names) and bot orders (in front of their location) are shown (team games only).
+
+Default values are `False` and `True`.
+
+#### `bShowShortcuts` and `bShowTimestamp`
+
+Controls if the available shortcuts are shown at the bottom left of the scoreboard (e.g. "F8: switch layout" in team games) and if the current timestamp is shown at the bottom right.
+
+Default values are `True` and `True`.
+
+#### `HeaderColor`, `RedTeamHeaderColor` and `BlueTeamHeaderColor`
+
+Background colors of the header area (the area with the column headings and the team icons).
+In team scoreboards, the team-specific colors are used for each team, while the generic color is used in scoreboards without teams.
+
+Default values are:
+```ini
+HeaderColor=(R=0,G=0,B=20,A=196)
+RedTeamHeaderColor=(R=42,G=0,B=0,A=196)
+BlueTeamHeaderColor=(R=0,G=0,B=42,A=196)
+```
+
+#### `RowColor`, `RedTeamRowColor` and `BlueTeamRowColor`
+
+Background colors of the player rows.
+
+Default values are:
+```ini
+RowColor=(R=130,G=130,B=140,A=142)
+RedTeamRowColor=(R=160,G=100,B=100,A=142)
+BlueTeamRowColor=(R=100,G=100,B=160,A=142)
+```
+
+#### `AltRowColor`, `RedTeamAltRowColor` and `BlueTeamAltRowColor`
+
+Alternative background colors of the player rows, used in alternation with the row colors when `bAlternateRowColors` is enabled.
+
+Default values are:
+```ini
+AltRowColor=(R=100,G=100,B=110,A=112)
+RedTeamAltRowColor=(R=140,G=80,B=80,A=112)
+BlueTeamAltRowColor=(R=80,G=80,B=140,A=112)
+```
+
+#### `BorderColor`, `RedTeamBorderColor` and `BlueTeamBorderColor`
+
+Border colors around the scoreboard (see `BorderSize`).
+
+Default values are:
+```ini
+BorderColor=(R=220,G=220,B=230,A=220)
+RedTeamBorderColor=(R=255,G=160,B=160,A=220)
+BlueTeamBorderColor=(R=160,G=160,B=255,A=220)
+```
+
+#### `DividerColor`, `RedTeamDividerColor` and `BlueTeamDividerColor`
+
+Colors of the lines separating the player rows (see `DividerSize`).
+
+Default values are:
+```ini
+DividerColor=(R=220,G=220,B=230,A=172)
+RedTeamDividerColor=(R=255,G=160,B=160,A=172)
+BlueTeamDividerColor=(R=160,G=160,B=255,A=172)
+```
+
+#### `ScrollThumbColor`, `RedTeamScrollThumbColor` and `BlueTeamScrollThumbColor`
+
+Colors of the scroll thumb shown when the player rows don't fit on the screen.
+
+Default values are:
+```ini
+ScrollThumbColor=(R=220,G=220,B=230,A=172)
+RedTeamScrollThumbColor=(R=255,G=160,B=160,A=172)
+BlueTeamScrollThumbColor=(R=160,G=160,B=255,A=172)
+```
+
+#### `RedTeamColor` and `BlueTeamColor`
+
+Colors of the team scores and team icons in team scoreboards.
+
+Default values are `(R=255,G=120,B=120,A=255)` and `(R=120,G=120,B=255,A=255)`.
+
+#### `TextColor`
+
+Color of the player names and stats.
+
+Default value is `(R=255,G=255,B=255,A=255)`.
+
+#### `SecondTextColor`
+
+Color of the secondary lines (e.g. secondary stats and bot orders).
+
+Default value is `(R=200,G=210,B=220,A=255)`.
+
+#### `HighlightTextColor`
+
+Color of the scoreboard title and of the focused player row.
+
+Default value is `(R=255,G=255,B=0,A=255)`.
+
+#### `HighlightTextColor` and `ReadyColor`
+
+Color of the row of a player that is ready to play.
+
+Default value is `(R=64,G=255,B=64,A=255)`.
+
+#### `AssaultColumns`, `BombingRunColumns`, `CaptureTheFlagColumns`, `DeathMatchColumns`, `DoubleDominationColumns`, `InvasionColumns`, `LastManStandingColumns`, `MutantColumns`, `OnslaughtColumns` and `TeamDeathMatchColumns`
+
+Defines which stat columns are displayed in the scoreboard for each game type.
+The position, player, and ping columns are always present; these options only control the stat columns in between.
+Each entry is a column with a main stat and an optional secondary stat (only shown if `bShowSecondaryStats` is enabled).
+Possible values:
+* `HX_SBS_None`: no stat.
+* `HX_SBS_Score`: player's score.
+* `HX_SBS_Frags`: number of kills.
+* `HX_SBS_Deaths`: number of deaths.
+* `HX_SBS_Lives`: number of remaining lives (Last Man Standing only).
+* `HX_SBS_TeamKills`: number of team kills (requires [extra stats](#bextrastats) on the server).
+* `HX_SBS_Suicides`: number of suicides.
+* `HX_SBS_Goals`: number of goals (Bombing Run only).
+* `HX_SBS_Captures`: number of flag captures (Capture The Flag only).
+* `HX_SBS_Touches`: number of flag touches (Capture The Flag), or touches (Bombing Run).
+* `HX_SBS_MaxSpree`: highest killing spree (requires [extra stats](#bextrastats) on the server).
+* `HX_SBS_Accuracy`: accuracy (requires [extra stats](#bextrastats) on the server).
+* `HX_SBS_Efficiency`: kills to deaths ratio, in percent.
+* `HX_SBS_PPH`: points per hour (current match).
+* `HX_SBS_PlayTime`: time spent in the match.
+* `HX_SBS_Rank`: player's rank (requires an external mutator providing ranks, see [above](#enabling-rank-information-in-the-scoreboard)).
+
+The default columns per game type are:
+```ini
+AssaultColumns(0)=(MainStat=HX_SBS_Score)
+AssaultColumns(1)=(MainStat=HX_SBS_Frags,SecStat=HX_SBS_MaxSpree)
+AssaultColumns(2)=(MainStat=HX_SBS_Deaths,SecStat=HX_SBS_TeamKills)
+AssaultColumns(3)=(MainStat=HX_SBS_Accuracy,SecStat=HX_SBS_Efficiency)
+AssaultColumns(4)=(MainStat=HX_SBS_Rank)
+BombingRunColumns(0)=(MainStat=HX_SBS_Score)
+BombingRunColumns(1)=(MainStat=HX_SBS_Goals,SecStat=HX_SBS_Touches)
+BombingRunColumns(2)=(MainStat=HX_SBS_Frags,SecStat=HX_SBS_MaxSpree)
+BombingRunColumns(3)=(MainStat=HX_SBS_Deaths,SecStat=HX_SBS_TeamKills)
+BombingRunColumns(4)=(MainStat=HX_SBS_Accuracy,SecStat=HX_SBS_Efficiency)
+BombingRunColumns(5)=(MainStat=HX_SBS_Rank)
+CaptureTheFlagColumns(0)=(MainStat=HX_SBS_Score)
+CaptureTheFlagColumns(1)=(MainStat=HX_SBS_Captures,SecStat=HX_SBS_Touches)
+CaptureTheFlagColumns(2)=(MainStat=HX_SBS_Frags,SecStat=HX_SBS_MaxSpree)
+CaptureTheFlagColumns(3)=(MainStat=HX_SBS_Deaths,SecStat=HX_SBS_TeamKills)
+CaptureTheFlagColumns(4)=(MainStat=HX_SBS_Accuracy,SecStat=HX_SBS_Efficiency)
+CaptureTheFlagColumns(5)=(MainStat=HX_SBS_Rank)
+DeathMatchColumns(0)=(MainStat=HX_SBS_Score)
+DeathMatchColumns(1)=(MainStat=HX_SBS_Frags,SecStat=HX_SBS_MaxSpree)
+DeathMatchColumns(2)=(MainStat=HX_SBS_Deaths,SecStat=HX_SBS_Suicides)
+DeathMatchColumns(3)=(MainStat=HX_SBS_Accuracy,SecStat=HX_SBS_Efficiency)
+DeathMatchColumns(4)=(MainStat=HX_SBS_Rank)
+DoubleDominationColumns(0)=(MainStat=HX_SBS_Score)
+DoubleDominationColumns(1)=(MainStat=HX_SBS_Frags,SecStat=HX_SBS_MaxSpree)
+DoubleDominationColumns(2)=(MainStat=HX_SBS_Deaths,SecStat=HX_SBS_TeamKills)
+DoubleDominationColumns(3)=(MainStat=HX_SBS_Accuracy,SecStat=HX_SBS_Efficiency)
+DoubleDominationColumns(4)=(MainStat=HX_SBS_Rank)
+InvasionColumns(0)=(MainStat=HX_SBS_Score)
+InvasionColumns(1)=(MainStat=HX_SBS_Frags,SecStat=HX_SBS_MaxSpree)
+InvasionColumns(2)=(MainStat=HX_SBS_Deaths,SecStat=HX_SBS_Suicides)
+InvasionColumns(3)=(MainStat=HX_SBS_Accuracy,SecStat=HX_SBS_Efficiency)
+InvasionColumns(4)=(MainStat=HX_SBS_Rank)
+LastManStandingColumns(0)=(MainStat=HX_SBS_Lives)
+LastManStandingColumns(1)=(MainStat=HX_SBS_Frags,SecStat=HX_SBS_MaxSpree)
+LastManStandingColumns(2)=(MainStat=HX_SBS_Deaths,SecStat=HX_SBS_Suicides)
+LastManStandingColumns(3)=(MainStat=HX_SBS_Accuracy,SecStat=HX_SBS_Efficiency)
+LastManStandingColumns(4)=(MainStat=HX_SBS_Rank)
+MutantColumns(0)=(MainStat=HX_SBS_Score)
+MutantColumns(1)=(MainStat=HX_SBS_Frags,SecStat=HX_SBS_MaxSpree)
+MutantColumns(2)=(MainStat=HX_SBS_Deaths,SecStat=HX_SBS_Suicides)
+MutantColumns(3)=(MainStat=HX_SBS_Accuracy,SecStat=HX_SBS_Efficiency)
+MutantColumns(4)=(MainStat=HX_SBS_Rank)
+OnslaughtColumns(0)=(MainStat=HX_SBS_Score)
+OnslaughtColumns(1)=(MainStat=HX_SBS_Frags,SecStat=HX_SBS_MaxSpree)
+OnslaughtColumns(2)=(MainStat=HX_SBS_Deaths,SecStat=HX_SBS_TeamKills)
+OnslaughtColumns(3)=(MainStat=HX_SBS_Accuracy,SecStat=HX_SBS_Efficiency)
+OnslaughtColumns(4)=(MainStat=HX_SBS_Rank)
+TeamDeathMatchColumns(0)=(MainStat=HX_SBS_Score)
+TeamDeathMatchColumns(1)=(MainStat=HX_SBS_Frags,SecStat=HX_SBS_MaxSpree)
+TeamDeathMatchColumns(2)=(MainStat=HX_SBS_Deaths,SecStat=HX_SBS_TeamKills)
+TeamDeathMatchColumns(3)=(MainStat=HX_SBS_Accuracy,SecStat=HX_SBS_Efficiency)
+TeamDeathMatchColumns(4)=(MainStat=HX_SBS_Rank)
+```
+
 ### `[HexedUT HxSPTimerConfig]`
 
 This section contains all user options for the spawn protection timer, saved in `User.ini`.
@@ -625,7 +887,7 @@ Default value is 1.0.
 #### `HealthLeechRatio` and `HealthLeechLimit`
 
 Similar to the vampire mutator, but here you can control the exact ratio that damage is converted to health, and up to how much health can be recovered this way.
-Valid ratio value is between 0.0 and 1.0, and limit is between 0 and 199.
+Valid ratio value is between 0.0 and 5.0, and limit is between 0 and 199.
 
 Default values are 0.0 and 0.
 
@@ -683,7 +945,7 @@ This section contains all server options for HexedARENA, saved in `HexedMutators
 
 Determines which weapon will be used in the arena match.
 
-Default value is `"XWeapons.RocketLauncher`.
+Default value is `XWeapons.RocketLauncher`.
 
 ## HexedINSTAGIB
 
@@ -747,7 +1009,7 @@ Default is `True`.
 
 The color and scale of the scope reticle.
 
-Default values are `(R=32,G=32,B=32,A=255)` and 0.5.
+Default values are `(R=32,G=32,B=32,A=255)` and 0.45.
 
 #### `BackgroundOpacity`
 
