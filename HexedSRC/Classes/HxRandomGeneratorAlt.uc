@@ -73,6 +73,29 @@ final function Vector RandVect()
     return Normal(Result);
 }
 
+static final function int Mix(int Value)
+{
+    Value = Value ^ (Value >>> 16);
+    Value = Value * 569420461;
+    Value = Value ^ (Value >>> 15);
+    Value = Value * 1935289751;
+    Value = Value ^ (Value >>> 15);
+    return Value;
+}
+
+static final function int Next(out int Seed)
+{
+    local int Result;
+
+    Seed -= 1640531527; // 0x9e3779b9 becomes negative due to int representation
+    Result = Seed ^ (Seed >>> 16);
+    Result = Result * 569420461;
+    Result = Result ^ (Result >>> 15);
+    Result = Result * 1935289751;
+    Result = Result ^ (Result >>> 15);
+    return Result;
+}
+
 defaultproperties
 {
 }
