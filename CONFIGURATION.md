@@ -1077,7 +1077,7 @@ When the server forwards projectiles to compensate ping, it performs collision c
 The actual check frequency is the minimum between the server's tick rate and this option.
 The default value should be optimal, but if your server is struggling to keep a stable tick rate, you might want to reduce this value or reduce the tick rate.
 
-Default value is 60 checks/second.
+Default value is 90 checks/second.
 
 #### `bBoostedAimSynchronization`
 

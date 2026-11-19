@@ -50,7 +50,6 @@ HexedNET changes:
 * Added BAS - Boosted Aim Synchronization (sending location + rotation from client to server at the time of shooting) - to all viable weapons.
   * Minigun and link gun's primary fire are not viable due to the way they are programmed.
   * New server option `MaxCollisionCheckRate` to control the maximum rate to check for projectile collisions during server-side forwarding.
-  * New server option `bBoostedAimSynchronization` to enable/disable BAS.
   * New server option `LocationErrorTolerance` to control the maximum acceptable difference between the BAS location and the current server location.
   * New server option `AngleErrorTolerance` to control the maximum acceptable difference between the BAS rotation and the current server rotation.
   * New server option `bForceStartFireRPCs` to control if BAS should force start fire RPCs when holding a fire button (to send fresh BAS information every shot).
