@@ -29,6 +29,7 @@ var config EHxHitOverlay AllowHitOverlays;
 var config EHxForcedModel AllowForcedModels;
 var config array<string> ModelList;
 var config bool bAllowCustomViewSmoothing;
+var config bool bStrictSpawnProtection;
 var config bool bAllowEnhancedScoreBoards;
 var config bool bExtraStats;
 var config bool bAllowSpawnProtectionTimer;
@@ -245,6 +246,10 @@ function RegisterSpawn(Pawn Spawned)
     local int PlayerID;
     local int i;
 
+    if (bStrictSpawnProtection && DeathMatch(Level.Game).SpawnProtectionTime > 0.0)
+    {
+        Spawn(class'HxSPStrictEnforcer', Spawned);
+    }
     if (bAllowSpawnProtectionTimer)
     {
         for (i = 0; i < Channels.Length; ++i)
@@ -333,24 +338,26 @@ defaultproperties
     Properties(7)=(Name="AllowForcedModels",Type=HX_PROPERTY_Enum,UpperLimit="4",EnumType=enum'EHxForcedModel')
     Properties(8)=(Name="ModelList",Type=HX_PROPERTY_Array)
     Properties(9)=(Name="bAllowCustomViewSmoothing",Type=HX_PROPERTY_Bool)
-    Properties(10)=(Name="bAllowEnhancedScoreBoards",Type=HX_PROPERTY_Bool)
-    Properties(11)=(Name="bExtraStats",Type=HX_PROPERTY_Bool)
-    Properties(12)=(Name="bAllowSpawnProtectionTimer",Type=HX_PROPERTY_Bool)
-    Properties(13)=(Name="bColoredDeathMessages",Type=HX_PROPERTY_Bool)
+    Properties(10)=(Name="bStrictSpawnProtection",Type=HX_PROPERTY_Bool)
+    Properties(11)=(Name="bAllowEnhancedScoreBoards",Type=HX_PROPERTY_Bool)
+    Properties(12)=(Name="bExtraStats",Type=HX_PROPERTY_Bool)
+    Properties(13)=(Name="bAllowSpawnProtectionTimer",Type=HX_PROPERTY_Bool)
+    Properties(14)=(Name="bColoredDeathMessages",Type=HX_PROPERTY_Bool)
     DisplayInfo(0)=(Section="Hit Effects",Caption="Allow Hit Sounds",Hint="Allow clients to enable/disable hit sound effects.")
     DisplayInfo(1)=(Section="Hit Effects",Caption="Allow Damage Numbers",Hint="Allow clients to enable/disable damage number effects.")
     DisplayInfo(2)=(Section="Hit Effects",Caption="Require Line Of Sight",Hint="Require line of sight between player and target to trigger hit effects.")
     DisplayInfo(3)=(Section="Skin Highlight",Caption="Allow Skin Highlight",Hint="Allow clients to enable/disable skin highlights.")
-    DisplayInfo(4)=(Section="Skin Highlight",Caption="Skin Highlight Intensity",Hint="Factor to multiply the RGB values of highlights (between 0.0 and 1.0).",bAdvanced=true,Verbosity=HX_VERB_Medium)
-    DisplayInfo(5)=(Section="Skin Highlight",Caption="Skin Overlay Intensity",Hint="Factor to multiply the RGB values of overlays (between 0.0 and 1.0).",bAdvanced=true,Verbosity=HX_VERB_Medium)
-    DisplayInfo(6)=(Section="Skin Highlight",Caption="Allow Hit Overlays",Hint="Control which kinds of hit overlays are allowed when highlight is enabled.",EnumLabels=("User-Controlled","Force Default","Force Native","Intensity Only","Disabled"),bAdvanced=true,Verbosity=HX_VERB_Medium)
+    DisplayInfo(4)=(Section="Skin Highlight",Caption="Skin Highlight Intensity",Hint="Factor to multiply the RGB values of highlights (between 0.0 and 1.0).",bAdvanced=true,Verbosity=HX_VERB_High)
+    DisplayInfo(5)=(Section="Skin Highlight",Caption="Skin Overlay Intensity",Hint="Factor to multiply the RGB values of overlays (between 0.0 and 1.0).",bAdvanced=true,Verbosity=HX_VERB_High)
+    DisplayInfo(6)=(Section="Skin Highlight",Caption="Allow Hit Overlays",Hint="Control which kinds of hit overlays are allowed when highlight is enabled.",EnumLabels=("User-Controlled","Force Default","Force Native","Intensity Only","Disabled"),bAdvanced=true,Verbosity=HX_VERB_High)
     DisplayInfo(7)=(Section="Skin Highlight",Caption="Allow Forced Models",Hint="Allow client-side forced character models (requires skin highlight allowed).",EnumLabels=("None","Official Only","From List","Any"),bAdvanced=true,Verbosity=HX_VERB_Medium)
     DisplayInfo(8)=(Section="Skin Highlight",Caption="Forced Model List",Hint="List of character models to allow when using the 'from list' option.",bAdvanced=true)
     DisplayInfo(9)=(Section="Player",Caption="Allow Custom View Smoothing",Hint="Allow clients to select different types of view smoothing.")
-    DisplayInfo(10)=(Section="HUD",Caption="Allow Enhanced Scoreboards",Hint="Allow clients to enable/disable the enhanced scoreboards.")
-    DisplayInfo(11)=(Section="HUD",Caption="Track Extra Stats",Hint="Track extra stats to display on the enhanced scoreboards.")
-    DisplayInfo(12)=(Section="HUD",Caption="Allow Spawn Protection Timer",Hint="Allow clients to enable/disable the spawn protection timer.")
-    DisplayInfo(13)=(Section="HUD",Caption="Colored Death Messages",Hint="Use team colors in death messages (blue = killer and red = victim if no teams).")
+    DisplayInfo(10)=(Section="Player",Caption="Enable Strict Spawn Protection",Hint="Spawn protection is lost not only when firing a weapon but also when charging a weapon to fire.")
+    DisplayInfo(11)=(Section="HUD",Caption="Allow Enhanced Scoreboards",Hint="Allow clients to enable/disable the enhanced scoreboards.")
+    DisplayInfo(12)=(Section="HUD",Caption="Track Extra Stats",Hint="Track extra stats to display on the enhanced scoreboards.")
+    DisplayInfo(13)=(Section="HUD",Caption="Allow Spawn Protection Timer",Hint="Allow clients to enable/disable the spawn protection timer.")
+    DisplayInfo(14)=(Section="HUD",Caption="Enable Colored Death Messages",Hint="Use team colors in death messages (blue = killer and red = victim if no teams).")
     ConfigClasses(0)=class'HxHitEffectsConfig'
     ConfigClasses(1)=class'HxSkinHighlightConfig'
     ConfigClasses(2)=class'HxUTPlayerConfig'
@@ -385,6 +392,7 @@ defaultproperties
     ModelList(12)="Ophelia"
     ModelList(13)="Zarina"
     bAllowCustomViewSmoothing=true
+    bStrictSpawnProtection=false
     bAllowEnhancedScoreBoards=true
     bExtraStats=true
     bAllowSpawnProtectionTimer=true
