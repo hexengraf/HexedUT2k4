@@ -113,6 +113,10 @@ event Tick(float DeltaTime)
 {
     if (!bInitialized)
     {
+        if (Leader == Self)
+        {
+            ParseGlobalURLOptions();
+        }
         ClearURLOptions();
         TriggerLocalPostNetReceive();
         bInitialized = true;
@@ -120,6 +124,30 @@ event Tick(float DeltaTime)
         if (bDisableTick)
         {
             Disable('Tick');
+        }
+    }
+}
+
+function ParseGlobalURLOptions()
+{
+    local HxMutator M;
+    local PlayInfo PI;
+    local string Value;
+    local int i;
+
+    PI = new(None) class'PlayInfo';
+    FillGlobalPlayInfo(PI);
+    for (i = 0; i < GlobalProperties.Length; ++i)
+    {
+        Value = GetURLOption(GlobalProperties[i].Name);
+        if (Value != "")
+        {
+            PI.StoreSetting(i, Value);
+            for (M = Leader; M != None; M = M.Next)
+            {
+                M.SetPropertyText(GlobalProperties[i].Name, PI.Settings[i].Value);
+            }
+            UpdateURL(GlobalProperties[i].Name, "", false);
         }
     }
 }
@@ -206,9 +234,13 @@ function SetProperty(int Index, string Value)
 
 function SetGlobalProperty(int Index, string Value)
 {
+    local HxMutator M;
     local int i;
 
-    SetPropertyText(GlobalProperties[Index].Name, Value);
+    for (M = Leader; M != None; M = M.Next)
+    {
+        M.SetPropertyText(GlobalProperties[Index].Name, Value);
+    }
     for (i = 0; i < Channels.Length; ++i)
     {
         Channels[i].EnqueueGlobalPropertyUpdate(Index, Value);
@@ -375,7 +407,7 @@ function HxClientReplicationInfo GetClientReplicationInfo(PlayerController Clien
 
 function string GetGlobalProperty(int Index)
 {
-    return GetPropertyText(GlobalProperties[Index].Name);
+    return Leader.GetPropertyText(GlobalProperties[Index].Name);
 }
 
 static function string GetURLOptions(string FullURL)
