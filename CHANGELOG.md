@@ -4,7 +4,9 @@ This version brings a huge rework of the HexedNET code. The changes listed below
 
 HexedUT changes:
 * Fixed new/modified skin highlight colors not getting properly saved.
-* Fixed skin highlights sometimes failing to attach to a bone (leading to None accesses).
+* Fixed skin highlights sometimes failing to attach zto a bone (leading to None accesses).
+* Added new server option `bStrictSpawnProtection`:
+  * If enabled, spawn protection is lost not only if you fire a weapon, but also if you start charging a weapon to fire.
 * Implemented support for new player stats:
   * Controlled by the new `bExtraStats` server option.
   * Three new stats implemented: accuracy, max spree, and team kills.
@@ -74,6 +76,7 @@ HexedNET changes:
 General changes:
 * Added support for global server options shared between all mutators.
   * They should be specified in a new section `[HexedSRCv10.HxMutator]` when editing the `HexedMutators.ini` file directly.
+* Added new URL option called `SPTime` to dynamically modify the native option `SpawnProtectionTime`.
 * Reworked the running notification as a non-intrusive pop-up instead of a GUI window.
 * Added new global server option to control when the running notification should be shown (`NotifyRunning`):
   * You can choose between never, per version (default, only shows once per new version), per session (when the player first joins the server), or always.

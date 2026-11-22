@@ -126,6 +126,15 @@ This list corresponds to the models allowed by the native game mechanism to forc
 
 Controls if players are allowed to change the [view smoothing](#viewsmoothing).
 
+Default value is `True`.
+
+#### `bStrictSpawnProtection`
+
+Enables strict spawn protection rules: spawn protection is lost not only if you fire a weapon, but also if you start charging a weapon to fire.
+For instance, charging the shield gun or assault rifle's grenades will immediately remove the spawn protection.
+
+Default value is `False`.
+
 #### `bAllowEnhancedScoreBoards`
 
 Controls if players can enable/disable the enhanced scoreboards.
