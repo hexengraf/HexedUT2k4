@@ -37,6 +37,12 @@ struct HxMutatorDisplayProperty
     var const EHxVerbosityLevel Verbosity;
 };
 
+struct HxGameURLOption
+{
+    var const string URLName;
+    var const string OptionName;
+};
+
 var globalconfig float MaxNotifyDuration;
 // Engine bug: NEVER use an enum from a different class as config (unless it is perobjectconfig)
 var globalconfig EHxNotifyRunning NotifyRunning;
@@ -58,12 +64,14 @@ var int UID;
 var protected const bool bAllowURLOptions;
 var protected const bool bDisableTick;
 var protected array<HxClientChannel> Channels;
+var private const array<HxGameURLOption> GameURLOptions;
 var private HxMutator Leader;
 var private HxMutator Next;
 var private array<int> LoadedURLOptions;
 var private array<int> AvailableIDs;
 var private int CurrentID;
 var private bool bInitialized;
+var private PlayInfo Validator;
 
 function Initialized();
 function PropertyChanged(int Index);
@@ -83,6 +91,7 @@ event Destroyed()
 {
     local Mutator M;
 
+    Validator = None;
     Super.Destroyed();
     for (M = Level.Game.BaseMutator; M != None; M = M.NextMutator)
     {
@@ -115,6 +124,11 @@ event Tick(float DeltaTime)
     {
         if (Leader == Self)
         {
+            if (Validator == None)
+            {
+                Validator = new(None) class'PlayInfo';
+            }
+            ParseGameOptions();
             ParseGlobalURLOptions();
         }
         ClearURLOptions();
@@ -128,48 +142,72 @@ event Tick(float DeltaTime)
     }
 }
 
+function ParseGameOptions()
+{
+    local string Value;
+    local int Index;
+    local int i;
+
+    Level.Game.FillPlayInfo(Validator);
+    for (i = 0; i < GameURLOptions.Length; ++i)
+    {
+        Value = GetURLOption(GameURLOptions[i].URLName);
+        if (Value != "")
+        {
+            Index = Validator.FindIndex(GameURLOptions[i].OptionName);
+            Validator.StoreSetting(Index, Value);
+            Level.Game.SetPropertyText(
+                GameURLOptions[i].OptionName, Validator.Settings[Index].Value);
+            UpdateURL(GameURLOptions[i].URLName, "", false);
+        }
+    }
+    Validator.Clear();
+}
+
 function ParseGlobalURLOptions()
 {
     local HxMutator M;
-    local PlayInfo PI;
     local string Value;
     local int i;
 
-    PI = new(None) class'PlayInfo';
-    FillGlobalPlayInfo(PI);
+    FillGlobalPlayInfo(Validator);
     for (i = 0; i < GlobalProperties.Length; ++i)
     {
         Value = GetURLOption(GlobalProperties[i].Name);
         if (Value != "")
         {
-            PI.StoreSetting(i, Value);
+            Validator.StoreSetting(i, Value);
             for (M = Leader; M != None; M = M.Next)
             {
-                M.SetPropertyText(GlobalProperties[i].Name, PI.Settings[i].Value);
+                M.SetPropertyText(GlobalProperties[i].Name, Validator.Settings[i].Value);
             }
             UpdateURL(GlobalProperties[i].Name, "", false);
         }
     }
+    Validator.Clear();
 }
 
 function ParseURLOptions(string Options)
 {
-    local PlayInfo PI;
     local string Value;
     local int i;
 
-    PI = new(None) class'PlayInfo';
-    FillOwnedPlayInfo(PI);
+    if (Validator == None)
+    {
+        Validator = new(None) class'PlayInfo';
+    }
+    FillOwnedPlayInfo(Validator);
     for (i = 0; i < Properties.Length; ++i)
     {
         Value = class'GameInfo'.static.ParseOption(Options, Properties[i].Name);
         if (Value != "")
         {
-            PI.StoreSetting(i, Value);
-            SetPropertyText(Properties[i].Name, PI.Settings[i].Value);
+            Validator.StoreSetting(i, Value);
+            SetPropertyText(Properties[i].Name, Validator.Settings[i].Value);
             LoadedURLOptions[LoadedURLOptions.Length] = i;
         }
     }
+    Validator.Clear();
 }
 
 function ClearURLOptions()
@@ -358,7 +396,7 @@ function SpawnHexedPlayerReplicationInfo(PlayerReplicationInfo PRI)
             HexedPRI.PlayerID = CurrentID;
             ++CurrentID;
         }
-        for (M = Self; M != None; M = M.Next)
+        for (M = Leader; M != None; M = M.Next)
         {
             M.HexedPlayerReplicationInfoSpawned(HexedPRI);
         }
@@ -667,6 +705,7 @@ defaultproperties
     MutatorInfoClass=class'HxMutatorInfo'
     Priority=255
     bAllowURLOptions=true
+    GameURLOptions(0)=(URLName="SPTime",OptionName="SpawnProtectionTime")
     MaxNotifyDuration=10.0
     NotifyRunning=HX_NRUN_PerVersion
     StatusVerbosity=HX_VERB_Medium
